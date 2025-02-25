@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
+interface GooglePlaceReview {
+    author_name: string;
+    rating: number;
+    text: string;
+}
+
+interface GooglePlacePhoto {
+    photo_reference: string;
+    height: number;
+    width: number;
+}
+
 export async function POST(req: NextRequest) {
     try {
         const { url } = await req.json();
@@ -73,12 +85,12 @@ export async function POST(req: NextRequest) {
             website: place.website || '',
             hours: place.opening_hours?.weekday_text || [],
             rating: place.rating || null,
-            reviews: place.reviews?.map((review: any) => ({
+            reviews: place.reviews?.map((review: GooglePlaceReview) => ({
                 reviewer: review.author_name,
                 rating: `${review.rating} stars`,
                 text: review.text
             })) || [],
-            photos: place.photos?.map((photo: any) =>
+            photos: place.photos?.map((photo: GooglePlacePhoto) =>
                 `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=${apiKey}`
             ) || [],
             description: place.editorial_summary?.overview || ''
