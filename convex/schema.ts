@@ -67,6 +67,12 @@ const authTables = {
         .index("credentialID", ["credentialID"]),
 };
 
+export const reviewSchema = {
+    reviewer: v.string(),
+    rating: v.string(),
+    text: v.string()
+};
+
 
 export default defineSchema({
     ...authTables,
@@ -80,5 +86,25 @@ export default defineSchema({
         domainId: v.id("domains"),
         slug: v.string(),
         content: v.string()
-    }).index("by_domain_slug", ["domainId", "slug"])
+    }).index("by_domain_slug", ["domainId", "slug"]),
+
+    businesses: defineTable({
+        name: v.string(),
+        placeId: v.string(),
+        address: v.string(),
+        phone: v.optional(v.string()),
+        website: v.optional(v.string()),
+        hours: v.array(v.string()),
+        rating: v.optional(v.number()),
+        reviews: v.array(v.object(reviewSchema)),
+        photos: v.array(v.string()),
+        description: v.optional(v.string()),
+        createdAt: v.number(),
+        userId: v.optional(v.id("users")),
+        domainId: v.optional(v.id("domains"))
+    })
+        .index("by_placeId", ["placeId"])
+        .index("by_userId", ["userId"])
+        .index("by_domainId", ["domainId"])
+        .index("by_createdAt", ["createdAt"])
 });

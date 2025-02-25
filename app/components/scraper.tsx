@@ -1,18 +1,7 @@
 "use client";
 
+import { BusinessData } from '@/convex/businesses';
 import { useState } from 'react';
-
-interface BusinessData {
-    name?: string;
-    address?: string;
-    phone?: string;
-    website?: string;
-    hours?: string[];
-    rating?: number | null;
-    reviews?: Array<{ reviewer?: string; rating?: string; text?: string }>;
-    photos?: string[];
-    description?: string;
-}
 
 export default function Scraper() {
     const [url, setUrl] = useState('');

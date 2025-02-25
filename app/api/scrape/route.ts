@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
+import { api } from '@/convex/_generated/api';
+import { createClient } from '@/app/lib/convex';
 
 interface GooglePlaceReview {
     author_name: string;
@@ -93,10 +95,17 @@ export async function POST(req: NextRequest) {
             photos: place.photos?.map((photo: GooglePlacePhoto) =>
                 `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=${apiKey}`
             ) || [],
-            description: place.editorial_summary?.overview || ''
+            description: place.editorial_summary?.overview || '',
+            placeId: placeId
         };
 
-        return NextResponse.json({ success: true, data: businessData });
+        // Create Convex client and save the data
+        const convex = createClient();
+        const businessId = await convex.mutation(api.businesses.create, {
+            business: businessData
+        });
+
+        return NextResponse.json({ success: true, data: businessData, businessId });
     } catch (error) {
         console.error('API error:', error);
         return NextResponse.json(
