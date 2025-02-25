@@ -13,6 +13,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as authAdapter from "../authAdapter.js";
 import type * as pages from "../pages.js";
 import type * as tenants from "../tenants.js";
 
@@ -25,6 +26,7 @@ import type * as tenants from "../tenants.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  authAdapter: typeof authAdapter;
   pages: typeof pages;
   tenants: typeof tenants;
 }>;
