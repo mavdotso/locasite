@@ -15,10 +15,10 @@ import BusinessHeader from "@/app/components/business/header";
 import BusinessFooter from "@/app/components/business/footer";
 
 interface PageProps {
-    params: {
+    params: Promise<{
         domain: string;
         slug: string[];
-    };
+    }>;
 }
 
 export interface Review {
@@ -45,8 +45,10 @@ interface Section {
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+    const { domain: businessDomain, slug: businessSlug } = await params;
+
     const domain = await convex.query(api.domains.getBySubdomain, {
-        subdomain: params.domain
+        subdomain: businessDomain
     });
     if (!domain) {
         return {
@@ -54,7 +56,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             description: "The requested site could not be found",
         };
     }
-    const slug = params.slug.join("/") || "home";
+    const slug = businessSlug.join("/") || "home";
     const page = await convex.query(api.pages.getBySlug, {
         domain: domain._id,
         slug
@@ -86,13 +88,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
 }
 export default async function Page({ params }: PageProps) {
+    const { domain: businessDomain, slug: businessSlug } = await params
     const domain = await convex.query(api.domains.getBySubdomain, {
-        subdomain: params.domain
+        subdomain: businessDomain
     });
     if (!domain) {
         notFound();
     }
-    const slug = params.slug.join("/") || "home";
+    const slug = businessSlug.join("/") || "home";
     const page = await convex.query(api.pages.getBySlug, {
         domain: domain._id,
         slug
