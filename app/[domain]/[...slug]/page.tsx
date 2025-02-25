@@ -1,19 +1,21 @@
 import { api } from '@/convex/_generated/api';
 import { fetchQuery } from 'convex/nextjs';
 
-export default async function TenantPage({
-    params,
-}: {
-    params: { tenant: string; slug: string[] }
-}) {
+interface DomainProps {
+    params: { domain: string; slug: string[] }
+}
+
+export default async function DomainPage({ params }: DomainProps) {
+    const { domain, slug: slugArray } = params;
+
     const preloaded = await fetchQuery(api.pages.getBySlug, {
-        tenant: params.tenant,
-        slug: params.slug?.join('/') || 'home'
+        tenant: domain,
+        slug: slugArray?.join('/') || 'home'
     });
 
     return (
         <div className="p-6">
-            <h1 className="font-bold text-2xl">{params.tenant}</h1>
+            <h1 className="font-bold text-2xl">{domain}</h1>
             {preloaded?.content ?? "No content found"}
         </div>
     );
