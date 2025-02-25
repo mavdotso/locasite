@@ -9,7 +9,7 @@ export default async function DomainPage({ params }: DomainProps) {
     const { domain, slug: slugArray } = await params;
 
     const preloaded = await fetchQuery(api.pages.getBySlug, {
-        tenant: domain,
+        domain: domain,
         slug: slugArray?.join('/') || 'home'
     });
 

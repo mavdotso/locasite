@@ -70,15 +70,15 @@ const authTables = {
 
 export default defineSchema({
     ...authTables,
-    tenants: defineTable({
+    domains: defineTable({
         name: v.string(),
         subdomain: v.string(),
         createdAt: v.number()
     }).index("by_subdomain", ["subdomain"]),
 
     pages: defineTable({
-        tenantId: v.id("tenants"),
+        domainId: v.id("domains"),
         slug: v.string(),
         content: v.string()
-    }).index("by_tenant_slug", ["tenantId", "slug"])
+    }).index("by_domain_slug", ["domainId", "slug"])
 });

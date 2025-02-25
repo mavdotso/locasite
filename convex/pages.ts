@@ -3,21 +3,21 @@ import { v } from 'convex/values';
 
 export const getBySlug = query({
     args: {
-        tenant: v.string(),
+        domain: v.string(),
         slug: v.string()
     },
     handler: async (ctx, args) => {
-        const tenant = await ctx.db
-            .query('tenants')
-            .withIndex('by_subdomain', q => q.eq('subdomain', args.tenant))
+        const domain = await ctx.db
+            .query('domains')
+            .withIndex('by_subdomain', q => q.eq('subdomain', args.domain))
             .first();
 
-        if (!tenant) return null;
+        if (!domain) return null;
 
         return await ctx.db
             .query('pages')
-            .withIndex('by_tenant_slug', q =>
-                q.eq('tenantId', tenant._id)
+            .withIndex('by_domain_slug', q =>
+                q.eq('domainId', domain._id)
                     .eq('slug', args.slug)
             )
             .first();
