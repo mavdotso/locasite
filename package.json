@@ -12,6 +12,7 @@
     "@auth/core": "^0.37.4",
     "convex": "^1.19.2",
     "convex-helpers": "^0.1.71",
+    "jose": "^6.0.6",
     "next": "15.2.0-canary.71",
     "next-auth": "5.0.0-beta.25",
     "react": "^19.0.0",

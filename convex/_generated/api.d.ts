@@ -15,6 +15,7 @@ import type {
 } from "convex/server";
 import type * as authAdapter from "../authAdapter.js";
 import type * as domains from "../domains.js";
+import type * as http from "../http.js";
 import type * as pages from "../pages.js";
 
 /**
@@ -28,6 +29,7 @@ import type * as pages from "../pages.js";
 declare const fullApi: ApiFromModules<{
   authAdapter: typeof authAdapter;
   domains: typeof domains;
+  http: typeof http;
   pages: typeof pages;
 }>;
 export declare const api: FilterApi<
