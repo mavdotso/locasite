@@ -9,9 +9,17 @@ export default function Scraper() {
     const [result, setResult] = useState<BusinessData | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    const handleScrape = async () => {
+    async function handleScrape() {
         setLoading(true);
         setError(null);
+
+        // Validate that the URL is a Google Maps URL
+        const googleMapsRegex = /^https:\/\/(www\.)?google\.com\/maps\/(place|search)/;
+        if (!googleMapsRegex.test(url)) {
+            setError('Please enter a valid Google Maps URL');
+            setLoading(false);
+            return;
+        }
 
         try {
             const response = await fetch('/api/scrape', {
