@@ -13,6 +13,7 @@
     "@ai-sdk/react": "^1.1.18",
     "@auth/core": "^0.37.4",
     "ai": "^4.1.46",
+    "axios": "^1.7.9",
     "convex": "^1.19.2",
     "convex-helpers": "^0.1.71",
     "jose": "^6.0.6",
