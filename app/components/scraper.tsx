@@ -1,9 +1,14 @@
 "use client";
 
+import { Id } from '@/convex/_generated/dataModel';
 import { BusinessData } from '@/convex/businesses';
 import { useState } from 'react';
 
-export default function Scraper() {
+interface ScraperProps {
+    onBusinessCreated?: (businessId: Id<"businesses">) => void;
+}
+
+export default function Scraper({ onBusinessCreated }: ScraperProps) {
     const [url, setUrl] = useState('');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<BusinessData | null>(null);
@@ -37,6 +42,10 @@ export default function Scraper() {
             }
 
             setResult(data.data);
+
+            if (onBusinessCreated && data.businessId) {
+                onBusinessCreated(data.businessId);
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unknown error occurred');
         } finally {

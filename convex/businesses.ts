@@ -129,3 +129,13 @@ export const remove = mutation({
         await ctx.db.delete(args.id);
     }
 });
+
+export const listByDomain = query({
+    args: { domain: v.id("domains") },
+    handler: async (ctx, args) => {
+        return await ctx.db
+            .query("businesses")
+            .withIndex("by_domainId", q => q.eq("domainId", args.domain))
+            .collect();
+    }
+});
