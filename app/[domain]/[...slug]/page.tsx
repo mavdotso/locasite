@@ -69,27 +69,37 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 export default async function Page({ params }: PageProps) {
     const { domain: businessDomain, slug: businessSlug } = await params
+
     const domain = await convex.query(api.domains.getBySubdomain, {
         subdomain: businessDomain
     });
+
     if (!domain) {
         notFound();
     }
+
     const slug = businessSlug.join("/") || "home";
     const page = await convex.query(api.pages.getBySlug, {
         domain: domain._id,
         slug
     });
+
     if (!page) {
         notFound();
     }
+
     // Get the business associated with this domain
     const business = await convex.query(api.businesses.listByDomain, {
         domain: domain._id
     });
+
     if (!business || !business.length) {
         notFound();
     }
+
+    // Fetch all pages for the navigation
+    const pages = await convex.query(api.pages.listByDomain, { domainId: domain._id });
+
     const businessData = business[0];
     let content;
     try {
@@ -104,7 +114,7 @@ export default async function Page({ params }: PageProps) {
         <div className="min-h-screen flex flex-col">
             <BusinessHeader
                 businessName={domain.name}
-                pages={await convex.query(api.pages.listByDomain, { domainId: domain._id })}
+                pages={pages}
                 currentSlug={slug}
             />
             <main className="flex-grow">

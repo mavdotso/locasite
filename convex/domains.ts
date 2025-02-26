@@ -29,6 +29,11 @@ export const generateSubdomain = mutation({
             subdomain = `business-${Math.floor(Math.random() * 10000)}`;
         }
 
+        // Ensure it's not too long (DNS label max length is 63 characters)
+        if (subdomain.length > 63) {
+            subdomain = subdomain.substring(0, 60) + Math.floor(Math.random() * 1000);
+        }
+
         // Check if subdomain already exists
         const existingDomain = await ctx.db
             .query("domains")
@@ -41,11 +46,18 @@ export const generateSubdomain = mutation({
             let newSubdomain = `${subdomain}-${counter}`;
 
             // Keep trying until we find an available subdomain
+            // TODO: Move it to frontend
+            const MAX_ATTEMPTS = 100;
+            let attempts = 0;
             while (await ctx.db
                 .query("domains")
                 .withIndex("by_subdomain", q => q.eq("subdomain", newSubdomain))
                 .first()) {
                 counter++;
+                attempts++;
+                if (attempts >= MAX_ATTEMPTS) {
+                    throw new Error("Could not generate a unique subdomain after multiple attempts");
+                }
                 newSubdomain = `${subdomain}-${counter}`;
             }
 
