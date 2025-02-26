@@ -13,6 +13,7 @@ import BusinessMap from "@/app/components/business/map";
 import BusinessContactForm from "@/app/components/business/contact-form";
 import BusinessHeader from "@/app/components/business/header";
 import BusinessFooter from "@/app/components/business/footer";
+import { Section } from "@/app/types/businesses";
 
 interface PageProps {
     params: Promise<{
@@ -20,28 +21,6 @@ interface PageProps {
         slug: string[];
     }>;
 }
-
-export interface Review {
-    author_name: string;
-    rating: string;
-    text: string;
-}
-
-interface Section {
-    type: string;
-    title?: string;
-    subtitle?: string;
-    content?: string;
-    image?: string;
-    images?: string[];
-    items?: Review[];
-    address?: string;
-    phone?: string;
-    website?: string;
-    hours?: string[];
-    text?: string;
-}
-
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -76,9 +55,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             description: content.description || `Welcome to ${domain.name}`,
             url: `https://${domain.subdomain}.yourdomain.com/${slug}`,
             siteName: domain.name,
-            images: content.sections?.find((s: Section) => s.type === 'hero')?.image
-                ? [{ url: content.sections.find((s: Section) => s.type === 'hero').image }]
-                : undefined,
+            images: (() => {
+                const heroSection = content.sections?.find((s: Section) => s.type === 'hero');
+                return heroSection?.image ? [{ url: heroSection.image }] : undefined;
+            })(),
         },
         twitter: {
             card: "summary_large_image",
@@ -111,7 +91,15 @@ export default async function Page({ params }: PageProps) {
         notFound();
     }
     const businessData = business[0];
-    const content = JSON.parse(page.content);
+    let content;
+    try {
+        content = JSON.parse(page.content);
+    } catch {
+        return {
+            title: "Invalid Content",
+            description: "Page content is not in valid JSON format",
+        };
+    }
     return (
         <div className="min-h-screen flex flex-col">
             <BusinessHeader
@@ -152,7 +140,7 @@ export default async function Page({ params }: PageProps) {
                             return (
                                 <BusinessGallery
                                     key={index}
-                                    images={section.images || businessData.photos}
+                                    images={section.images || businessData.photos || []}
                                 />
                             );
                         case 'reviews':

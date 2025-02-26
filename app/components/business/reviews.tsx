@@ -1,4 +1,4 @@
-import { Review } from "@/app/[domain]/[...slug]/page";
+import { Review } from "@/app/types/businesses";
 
 interface BusinessReviewsProps {
     reviews?: Review[];
@@ -14,8 +14,8 @@ export default function BusinessReviews({ reviews }: BusinessReviewsProps) {
             <div className="container mx-auto px-4">
                 <h2 className="text-3xl font-bold text-center mb-8">Customer Reviews</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {reviews.map((review, index) => (
-                        <div key={index} className="bg-gray-50 rounded-lg p-6 shadow-sm">
+                    {reviews.map((review, id) => (
+                        <div key={id || `review-${review.author_name}-${review.rating}`} className="bg-gray-50 rounded-lg p-6 shadow-sm">
                             <div className="flex items-center mb-4">
                                 <div className="flex mr-2">
                                     {[...Array(5)].map((_, i) => (

@@ -8,7 +8,7 @@ export default function BusinessMap({ address }: BusinessMapProps) {
     }
 
     const encodedAddress = encodeURIComponent(address);
-    const mapUrl = `https://www.google.com/maps/embed/v1/place?key=YOUR_GOOGLE_MAPS_API_KEY&q=${encodedAddress}`;
+    const mapUrl = `https://www.google.com/maps/embed/v1/place?key=${process.env.GOOGLE_MAPS_API_KEY}&q=${encodedAddress}`;
 
     return (
         <div className="py-8">
@@ -25,11 +25,13 @@ export default function BusinessMap({ address }: BusinessMapProps) {
                             src={mapUrl}
                             allowFullScreen
                         ></iframe>
-                        <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
-                            <p className="text-gray-600">
-                                Please add a Google Maps API key to display the map.
-                            </p>
-                        </div>
+                        {!process.env.GOOGLE_MAPS_API_KEY && (
+                            <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
+                                <p className="text-gray-600">
+                                    Please add a Google Maps API key to display the map.
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
                 <div className="text-center mt-4 text-gray-700">

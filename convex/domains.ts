@@ -24,6 +24,11 @@ export const generateSubdomain = mutation({
                 .replace(/\s+/g, "-"); // Replace spaces with hyphens
         }
 
+        // Ensure it's not too short
+        if (!subdomain || subdomain.length < 3) {
+            subdomain = `business-${Math.floor(Math.random() * 10000)}`;
+        }
+
         // Check if subdomain already exists
         const existingDomain = await ctx.db
             .query("domains")
