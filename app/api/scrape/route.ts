@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Use Google Places API to search for the business
-        const apiKey = process.env.GOOGLE_MAPS_API;
+        const apiKey = process.env.GOOGLE_MAPS_API_KEY;
         const findPlaceResponse = await axios.get(
             `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(businessName)}&inputtype=textquery&fields=place_id,name,formatted_address&key=${apiKey}`
         );
