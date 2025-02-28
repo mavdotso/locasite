@@ -49,11 +49,11 @@ export default function SiteGenerator({ businessId }: SiteGeneratorProps) {
     };
 
     return (
-        <div className="max-w-md mx-auto p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold mb-4">Generate Business Website</h2>
+        <div className="shadow-md mx-auto p-6 rounded-lg max-w-md">
+            <h2 className="mb-4 font-bold text-2xl">Generate Business Website</h2>
 
             <div className="mb-4">
-                <label htmlFor="customSubdomain" className="block text-sm font-medium mb-1">
+                <label htmlFor="customSubdomain" className="block mb-1 font-medium text-sm">
                     Custom Subdomain (Optional)
                 </label>
                 <div className="flex items-center">
@@ -62,15 +62,15 @@ export default function SiteGenerator({ businessId }: SiteGeneratorProps) {
                         id="customSubdomain"
                         value={customSubdomain}
                         onChange={(e) => setCustomSubdomain(e.target.value)}
-                        className="flex-1 p-2 border rounded-l-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        className="flex-1 p-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="mybusiness"
                         disabled={isGenerating}
                     />
-                    <span className="bg-gray-100 p-2 text-gray-500 border-y border-r rounded-r-md">
+                    <span className="bg-gray-100 p-2 border-y border-r rounded-r-md text-gray-500">
                         .yourdomain.com
                     </span>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="mt-1 text-gray-500 text-xs">
                     Leave empty to generate automatically from business name
                 </p>
             </div>
@@ -78,19 +78,19 @@ export default function SiteGenerator({ businessId }: SiteGeneratorProps) {
             <button
                 onClick={handleGenerate}
                 disabled={isGenerating}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
+                className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 px-4 py-2 rounded-md w-full text-white"
             >
                 {isGenerating ? "Generating..." : "Generate Website"}
             </button>
 
             {error && (
-                <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-md">
+                <div className="bg-red-100 mt-4 p-3 rounded-md text-red-700">
                     {error}
                 </div>
             )}
 
             {success && (
-                <div className="mt-4 p-4 bg-green-100 text-green-800 rounded-md">
+                <div className="bg-green-100 mt-4 p-4 rounded-md text-green-800">
                     <p className="font-medium">Website successfully generated!</p>
                     <p className="mt-2">
                         Your site is available at:

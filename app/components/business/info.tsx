@@ -8,9 +8,9 @@ interface BusinessInfoProps {
 export default function BusinessInfo({ address, phone, website, hours }: BusinessInfoProps) {
     return (
         <div className="bg-white py-8">
-            <div className="container mx-auto px-4">
-                <div className="max-w-xl mx-auto bg-white rounded-lg shadow p-6">
-                    <h2 className="text-2xl font-semibold mb-4">Business Information</h2>
+            <div className="mx-auto px-4 container">
+                <div className="bg-white shadow mx-auto p-6 rounded-lg max-w-xl">
+                    <h2 className="mb-4 font-semibold text-2xl">Business Information</h2>
                     <div className="space-y-4">
                         {address && (
                             <div>
@@ -38,7 +38,7 @@ export default function BusinessInfo({ address, phone, website, hours }: Busines
                                 <h3 className="font-semibold">Business Hours:</h3>
                                 <ul className="space-y-1">
                                     {hours.map((hour, index) => (
-                                        <li key={index} className="border-b border-gray-100 pb-1">{hour}</li>
+                                        <li key={index} className="pb-1 border-gray-100 border-b">{hour}</li>
                                     ))}
                                 </ul>
                             </div>

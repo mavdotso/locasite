@@ -54,8 +54,8 @@ export default function Scraper({ onBusinessCreated }: ScraperProps) {
     };
 
     return (
-        <div className="max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Business Data Scraper</h1>
+        <div className="mx-auto p-4 max-w-2xl">
+            <h1 className="mb-4 font-bold text-2xl">Business Data Scraper</h1>
 
             <div className="mb-4">
                 <label htmlFor="url" className="block mb-2">
@@ -67,27 +67,27 @@ export default function Scraper({ onBusinessCreated }: ScraperProps) {
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     placeholder="https://www.google.com/maps/place/..."
-                    className="w-full p-2 border rounded"
+                    className="p-2 border rounded w-full"
                 />
             </div>
 
             <button
                 onClick={handleScrape}
                 disabled={loading || !url}
-                className="px-4 py-2 bg-blue-600 text-white rounded disabled:bg-blue-300"
+                className="bg-blue-600 disabled:bg-blue-300 px-4 py-2 rounded text-white"
             >
                 {loading ? 'Scraping...' : 'Scrape Data'}
             </button>
 
             {error && (
-                <div className="mt-4 p-3 bg-red-100 text-red-700 rounded">
+                <div className="bg-red-100 mt-4 p-3 rounded text-red-700">
                     {error}
                 </div>
             )}
 
             {result && (
                 <div className="mt-4">
-                    <h2 className="text-xl font-semibold mb-2">Scraped Data:</h2>
+                    <h2 className="mb-2 font-semibold text-xl">Scraped Data:</h2>
                     <pre className="p-4 rounded overflow-x-auto">
                         {JSON.stringify(result, null, 2)}
                     </pre>

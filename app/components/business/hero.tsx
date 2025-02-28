@@ -10,13 +10,13 @@ export default function BusinessHero({ title, subtitle, image }: BusinessHeroPro
     return (
         <div className="relative bg-gray-800 text-white">
             {image && (
-                <div className="absolute inset-0 w-full h-full opacity-60">
+                <div className="absolute inset-0 opacity-60 w-full h-full">
                     <Image height={800} width={2500} src={image} alt={title ?? ''} className="w-full h-full object-cover" />
                 </div>
             )}
-            <div className="relative container mx-auto px-4 py-24 text-center">
-                {title && <h1 className="text-4xl md:text-5xl font-bold mb-4">{title}</h1>}
-                {subtitle && <p className="text-xl md:text-2xl max-w-2xl mx-auto">{subtitle}</p>}
+            <div className="relative mx-auto px-4 py-24 text-center container">
+                {title && <h1 className="mb-4 font-bold text-4xl md:text-5xl">{title}</h1>}
+                {subtitle && <p className="mx-auto max-w-2xl text-xl md:text-2xl">{subtitle}</p>}
             </div>
         </div>
     );

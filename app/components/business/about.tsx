@@ -7,10 +7,10 @@ interface BusinessAboutProps {
 export default function BusinessAbout({ content }: BusinessAboutProps) {
     return (
         <div className="bg-white py-12">
-            <div className="container mx-auto px-4">
-                <div className="max-w-3xl mx-auto">
-                    <h2 className="text-3xl font-bold text-center mb-8">About Us</h2>
-                    <div className="prose prose-lg mx-auto">
+            <div className="mx-auto px-4 container">
+                <div className="mx-auto max-w-3xl">
+                    <h2 className="mb-8 font-bold text-3xl text-center">About Us</h2>
+                    <div className="mx-auto prose prose-lg">
                         {content ? (
                             <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }} />
                         ) : (

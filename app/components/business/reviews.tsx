@@ -11,11 +11,11 @@ export default function BusinessReviews({ reviews }: BusinessReviewsProps) {
 
     return (
         <div className="bg-white py-12">
-            <div className="container mx-auto px-4">
-                <h2 className="text-3xl font-bold text-center mb-8">Customer Reviews</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="mx-auto px-4 container">
+                <h2 className="mb-8 font-bold text-3xl text-center">Customer Reviews</h2>
+                <div className="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                     {reviews.map((review, id) => (
-                        <div key={id || `review-${review.author_name}-${review.rating}`} className="bg-gray-50 rounded-lg p-6 shadow-sm">
+                        <div key={id || `review-${review.author_name}-${review.rating}`} className="bg-gray-50 shadow-sm p-6 rounded-lg">
                             <div className="flex items-center mb-4">
                                 <div className="flex mr-2">
                                     {[...Array(5)].map((_, i) => (
@@ -31,8 +31,8 @@ export default function BusinessReviews({ reviews }: BusinessReviewsProps) {
                                 </div>
                                 <span className="font-medium text-gray-700">{review.rating}/5.0</span>
                             </div>
-                            <p className="text-gray-800 mb-3">{review.text}</p>
-                            <p className="text-gray-600 text-sm font-medium">— {review.author_name}</p>
+                            <p className="mb-3 text-gray-800">{review.text}</p>
+                            <p className="font-medium text-gray-600 text-sm">— {review.author_name}</p>
                         </div>
                     ))}
                 </div>

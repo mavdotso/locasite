@@ -14,10 +14,10 @@ interface BusinessHeaderProps {
 export default function BusinessHeader({ businessName, pages, currentSlug }: BusinessHeaderProps) {
     return (
         <header className="bg-white shadow-sm">
-            <div className="container mx-auto px-4 py-4">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div className="mx-auto px-4 py-4 container">
+                <div className="flex md:flex-row flex-col md:justify-between md:items-center">
                     <div className="mb-4 md:mb-0">
-                        <h1 className="text-xl font-bold">{businessName}</h1>
+                        <h1 className="font-bold text-xl">{businessName}</h1>
                     </div>
                     <nav>
                         <ul className="flex flex-wrap gap-4">
