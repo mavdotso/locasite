@@ -3,9 +3,11 @@ import { DataModel } from "./_generated/dataModel";
 
 export async function checkUserAuth(ctx: GenericQueryCtx<DataModel>) {
   const identity = await ctx.auth.getUserIdentity();
+
   if (!identity) {
     throw new Error("Unauthorized: You must be logged in");
   }
+
   return identity;
 }
 
