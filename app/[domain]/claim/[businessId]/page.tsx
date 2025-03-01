@@ -20,7 +20,7 @@ async function claimBusinessAction(formData: FormData) {
     await fetchMutation(api.businessClaims.claimBusiness, { 
       businessId: businessIdStr as Id<"businesses"> 
     });
-    
+  
     // Redirect after successful claim
     redirect(`/business/${businessIdStr}`);
   } catch (error) {
@@ -29,16 +29,27 @@ async function claimBusinessAction(formData: FormData) {
 }
 
 interface ClaimPageProps {
-  params: {
+  params: Promise<{
     domain: string;
     businessId: string;
-  };
+  }>;
 }
 
 export default async function ClaimBusinessPage({ params }: ClaimPageProps) {
-  const { domain, businessId } = params;
+  const { domain, businessId } = await params;
+  console.log(businessId)
   
   const businessIdParam = businessId as Id<"businesses">;
+
+
+
+  if (!businessIdParam) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader />
+      </div>
+    );
+  }
   
   // Get business details
   const business = await fetchQuery(api.businesses.getById, { id: businessIdParam });
@@ -105,7 +116,7 @@ export default async function ClaimBusinessPage({ params }: ClaimPageProps) {
       <CardFooter>
       {!alreadyClaimed && isClaimable && (
         <form action={claimBusinessAction}>
-          <input type="hidden" name="businessId" value={businessId} />
+          <input type="hidden" name="businessId" value={String(businessId)} />
           <Button type="submit" className="w-full">
             Claim This Business
           </Button>

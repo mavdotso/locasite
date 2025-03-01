@@ -106,5 +106,27 @@ export default defineSchema({
         .index("by_placeId", ["placeId"])
         .index("by_userId", ["userId"])
         .index("by_domainId", ["domainId"])
-        .index("by_createdAt", ["createdAt"])
+        .index("by_createdAt", ["createdAt"]),
+
+    businessClaims: defineTable({
+        businessId: v.id("businesses"),
+        userId: v.id("users"),
+        status: v.union(
+            v.literal("pending"),
+            v.literal("approved"),
+            v.literal("rejected")
+        ),
+        googleVerificationStatus: v.optional(v.union(
+            v.literal("pending"),
+            v.literal("verified"),
+            v.literal("failed")
+        )),
+        createdAt: v.number(),
+        updatedAt: v.optional(v.number()),
+        notes: v.optional(v.string())
+    })
+        .index("by_business", ["businessId"])
+        .index("by_user", ["userId"])
+        .index("by_status", ["status"])
+        .index("by_business_status", ["businessId", "status"])
 });

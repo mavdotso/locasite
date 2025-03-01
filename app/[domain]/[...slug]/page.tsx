@@ -1,4 +1,3 @@
-
 interface PageProps {
   params: Promise<{
     domain: string;

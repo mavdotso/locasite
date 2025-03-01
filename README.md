@@ -26,11 +26,11 @@
 
 4. User Authentication & Business Claiming
 
-    - [ ] Set up business ownership system
-    - [ ] Add relationship between users and business sites
-    - [ ] Create "claim business" functionality
+    - [x] Set up business ownership system
+    - [x] Add relationship between users and business sites
+    - [x] Create "claim business" functionality
     - [ ] Implement simple verification process
-    - [ ] Add permissions for site editing
+    - [x] Add permissions for site editing
 
 5. Design Customization
 

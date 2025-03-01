@@ -119,6 +119,7 @@ export default async function BusinessPage({ params }: PageProps ) {
       );
     }
 
+
     return (
       <div className="flex flex-col min-h-screen">
         <BusinessHeader
@@ -126,6 +127,23 @@ export default async function BusinessPage({ params }: PageProps ) {
           pages={pages}
           currentSlug="home"
         />
+
+        {!businessData.userId && (
+          <div className="bg-amber-50 px-4 py-2">
+            <div className="flex justify-between items-center mx-auto container">
+              <p className="text-amber-800 text-sm">
+                Are you the owner of this business?
+              </p>
+              <a 
+                href={`/claim/${businessData._id}`}
+                className="bg-amber-600 hover:bg-amber-700 px-3 py-1 rounded-md text-white text-sm"
+              >
+                Claim this Business
+              </a>
+            </div>
+          </div>
+        )}
+        
         <main className="flex-grow">
           {content.sections?.map((section: Section, index: number) => {
             switch (section.type) {
