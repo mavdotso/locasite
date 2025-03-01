@@ -23,7 +23,7 @@ export default async function middleware(req: NextRequest) {
         .get("host")!
         .replace(".localhost:3000", `.${rootDomain}`);
 
-    // Special case for Vercel preview deployment URLs
+    // special case for Vercel preview deployment URLs
     if (
         hostname.includes("---") &&
         hostname.endsWith(`.${process.env.NEXT_PUBLIC_VERCEL_DEPLOYMENT_SUFFIX}`)
@@ -36,7 +36,7 @@ export default async function middleware(req: NextRequest) {
     const path = `${url.pathname}${searchParams.length > 0 ? `?${searchParams}` : ""
         }`;
 
-    // Rewrite for app pages
+    // rewrites for app pages
     if (hostname == `app.${rootDomain}`) {
         const session = await getToken({ req });
         if (!session && path !== "/login") {
@@ -49,17 +49,16 @@ export default async function middleware(req: NextRequest) {
         );
     }
 
-    // Rewrite root application to `/home` folder
+    // rewrite root application to `/home` folder
     if (
         hostname === "localhost:3000" ||
         hostname === rootDomain
     ) {
-        console.log("Rewriting to /home path");
         return NextResponse.rewrite(
             new URL(`/home${path === "/" ? "" : path}`, req.url),
         );
     }
 
-    // Rewrite everything else to `/[domain]/[slug] dynamic route
+    // rewrite everything else to `/[domain]/[slug] dynamic route
     return NextResponse.rewrite(new URL(`/${hostname}${path}`, req.url));
 }
