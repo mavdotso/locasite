@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface BusinessHeroProps {
     title?: string;
     subtitle?: string;
@@ -9,7 +11,7 @@ export default function BusinessHero({ title, subtitle, image }: BusinessHeroPro
         <div className="relative bg-gray-800 text-white">
             {image && (
                 <div className="absolute inset-0 opacity-60 w-full h-full">
-                    <img src={image} alt={title ?? ''} className="w-full h-full object-cover" />
+                    <Image height={800} width={2500} src={image} alt={title ?? ''} className="w-full h-full object-cover" />
                 </div>
             )}
             <div className="relative mx-auto px-4 py-24 text-center container">
