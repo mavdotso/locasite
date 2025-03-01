@@ -161,3 +161,41 @@ export const getBySlug = query({
             .first();
     }
 });
+
+// Add this mutation to the existing pages.ts file
+
+// Update page content
+export const updatePage = mutation({
+    args: {
+        pageId: v.id("pages"),
+        content: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const page = await ctx.db.get(args.pageId);
+        if (!page) {
+            throw new Error("Page not found");
+        }
+
+        return await ctx.db.patch(args.pageId, {
+            content: args.content,
+        });
+    },
+});
+
+// Update business description
+export const updateBusinessDescription = mutation({
+    args: {
+        businessId: v.id("businesses"),
+        description: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const business = await ctx.db.get(args.businessId);
+        if (!business) {
+            throw new Error("Business not found");
+        }
+
+        return await ctx.db.patch(args.businessId, {
+            description: args.description,
+        });
+    },
+});

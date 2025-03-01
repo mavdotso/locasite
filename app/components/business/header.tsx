@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Id } from '@/convex/_generated/dataModel';
 import { Button } from "@/app/components/ui/button";
+import { auth } from '@/app/auth';
 
 interface BusinessHeaderProps {
     businessName: string;
@@ -10,15 +11,33 @@ interface BusinessHeaderProps {
         content: string;
     }>;
     currentSlug: string;
+    domain: string;
+    businessUserId?: string;
 }
 
-export default function BusinessHeader({ businessName, pages, currentSlug }: BusinessHeaderProps) {
+export default async function BusinessHeader({ 
+    businessName, 
+    pages, 
+    currentSlug,
+    domain,
+    businessUserId 
+}: BusinessHeaderProps) {
+    const session = await auth();
+    const isOwner = session?.user && businessUserId === session.user.id;
+
     return (
         <header className="top-0 z-50 sticky bg-white shadow-sm">
             <div className="mx-auto px-4 py-4 container">
                 <div className="flex md:flex-row flex-col md:justify-between md:items-center">
-                    <div className="mb-4 md:mb-0">
+                    <div className="flex items-center gap-4 mb-4 md:mb-0">
                         <h1 className="font-bold text-primary text-xl">{businessName}</h1>
+                        {isOwner && (
+                            <Button asChild size="sm" variant="outline">
+                                <Link href={`/${domain}/edit`}>
+                                    Edit Site
+                                </Link>
+                            </Button>
+                        )}
                     </div>
                     <nav>
                         <ul className="flex flex-wrap gap-2">
