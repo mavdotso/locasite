@@ -122,7 +122,7 @@ export default async function BusinessPage({ params }: PageProps ) {
     return (
       <div className="flex flex-col min-h-screen">
         <BusinessHeader
-          businessName={domain.name}
+          domain={domain.name}
           pages={pages}
           currentSlug="home"
         />

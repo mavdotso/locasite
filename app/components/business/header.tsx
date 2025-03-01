@@ -4,7 +4,6 @@ import { Button } from "@/app/components/ui/button";
 import { auth } from '@/app/auth';
 
 interface BusinessHeaderProps {
-    businessName: string;
     pages: Array<{
         _id: Id<"pages">;
         slug: string;
@@ -16,7 +15,6 @@ interface BusinessHeaderProps {
 }
 
 export default async function BusinessHeader({ 
-    businessName, 
     pages, 
     currentSlug,
     domain,
@@ -30,7 +28,7 @@ export default async function BusinessHeader({
             <div className="mx-auto px-4 py-4 container">
                 <div className="flex md:flex-row flex-col md:justify-between md:items-center">
                     <div className="flex items-center gap-4 mb-4 md:mb-0">
-                        <h1 className="font-bold text-primary text-xl">{businessName}</h1>
+                        <h1 className="font-bold text-primary text-xl">{domain}</h1>
                         {isOwner && (
                             <Button asChild size="sm" variant="outline">
                                 <Link href={`/${domain}/edit`}>
