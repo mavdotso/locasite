@@ -101,7 +101,15 @@ export default defineSchema({
         description: v.optional(v.string()),
         createdAt: v.number(),
         userId: v.optional(v.id("users")),
-        domainId: v.optional(v.id("domains"))
+        domainId: v.optional(v.id("domains")),
+        theme: v.optional(v.object({
+            colorScheme: v.optional(v.string()),
+            primaryColor: v.optional(v.string()),
+            secondaryColor: v.optional(v.string()),
+            accentColor: v.optional(v.string()),
+            fontFamily: v.optional(v.string()),
+            logoUrl: v.optional(v.string())
+        }))
     })
         .index("by_placeId", ["placeId"])
         .index("by_userId", ["userId"])

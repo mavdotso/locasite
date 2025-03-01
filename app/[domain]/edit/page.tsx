@@ -7,6 +7,7 @@ import BusinessEditor from "@/app/components/editors/business-editor";
 import GalleryEditor from "@/app/components/editors/gallery-editor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { auth } from "@/app/auth";
+import ThemeEditor from "@/app/components/editors/theme-editor";
 
 interface EditPageProps {
   params: Promise<{
@@ -99,6 +100,7 @@ export default async function EditPage({ params }: EditPageProps) {
             <TabsTrigger value="business">Business Information</TabsTrigger>
             <TabsTrigger value="gallery">Photo Gallery</TabsTrigger>
             <TabsTrigger value="pages">Pages</TabsTrigger>
+            <TabsTrigger value="theme">Theme & Design</TabsTrigger>
           </TabsList>
 
           <TabsContent value="business">
@@ -107,6 +109,10 @@ export default async function EditPage({ params }: EditPageProps) {
 
           <TabsContent value="gallery">
             <GalleryEditor business={business} />
+          </TabsContent>
+
+          <TabsContent value="theme">
+        <ThemeEditor business={business} />
           </TabsContent>
 
           <TabsContent value="pages">

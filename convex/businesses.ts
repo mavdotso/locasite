@@ -97,6 +97,14 @@ export const internal_updateBusiness = internalMutation({
             phone: v.optional(v.string()),
             website: v.optional(v.string()),
             hours: v.optional(v.array(v.string())),
+            theme: v.optional(v.object({
+                colorScheme: v.optional(v.string()),
+                primaryColor: v.optional(v.string()),
+                secondaryColor: v.optional(v.string()),
+                accentColor: v.optional(v.string()),
+                fontFamily: v.optional(v.string()),
+                logoUrl: v.optional(v.string())
+            }))
         }),
     },
     handler: async (ctx, args) => {
@@ -297,6 +305,14 @@ export const update = mutation({
             phone: v.optional(v.string()),
             website: v.optional(v.string()),
             hours: v.optional(v.array(v.string())),
+            theme: v.optional(v.object({
+                colorScheme: v.optional(v.string()),
+                primaryColor: v.optional(v.string()),
+                secondaryColor: v.optional(v.string()),
+                accentColor: v.optional(v.string()),
+                fontFamily: v.optional(v.string()),
+                logoUrl: v.optional(v.string())
+            }))
         }),
     },
     handler: async (ctx, args) => {

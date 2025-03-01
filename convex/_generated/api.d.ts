@@ -20,6 +20,7 @@ import type * as domains from "../domains.js";
 import type * as helpers from "../helpers.js";
 import type * as http from "../http.js";
 import type * as pages from "../pages.js";
+import type * as storage from "../storage.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -37,6 +38,7 @@ declare const fullApi: ApiFromModules<{
   helpers: typeof helpers;
   http: typeof http;
   pages: typeof pages;
+  storage: typeof storage;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
