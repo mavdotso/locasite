@@ -144,12 +144,12 @@ export const update = mutation({
     args: {
         id: v.id("businesses"),
         business: v.object({
-            name: v.string(),
-            description: v.string(),
-            address: v.string(),
-            phone: v.string(),
-            website: v.string(),
-            hours: v.array(v.string()),
+            name: v.optional(v.string()),
+            description: v.optional(v.string()),
+            address: v.optional(v.string()),
+            phone: v.optional(v.string()),
+            website: v.optional(v.string()),
+            hours: v.optional(v.array(v.string())),
         }),
     },
     handler: async (ctx, args) => {
@@ -157,15 +157,15 @@ export const update = mutation({
         if (!business) {
             throw new Error("Business not found");
         }
+        const updates = { ...args.business };
 
-        return await ctx.db.patch(args.id, {
-            name: args.business.name,
-            description: args.business.description,
-            address: args.business.address,
-            phone: args.business.phone,
-            website: args.business.website,
-            hours: args.business.hours,
+        Object.keys(updates).forEach(key => {
+            if (updates[key as keyof typeof updates] === undefined) {
+                delete updates[key as keyof typeof updates];
+            }
         });
+
+        return await ctx.db.patch(args.id, updates);
     },
 });
 
@@ -177,6 +177,7 @@ export const updatePhotos = mutation({
     },
     handler: async (ctx, args) => {
         const business = await ctx.db.get(args.id);
+
         if (!business) {
             throw new Error("Business not found");
         }
