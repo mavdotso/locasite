@@ -1,12 +1,19 @@
 'use client';
 
 import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
+import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
+import { Textarea } from "@/app/components/ui/textarea";
+import { toast } from "sonner"
+import { cn } from '@/app/lib/utils';
 
 interface BusinessContactFormProps {
     title?: string;
+    className?: string;
 }
 
-export default function BusinessContactForm({ title }: BusinessContactFormProps) {
+export default function BusinessContactForm({ title, className }: BusinessContactFormProps) {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -29,6 +36,11 @@ export default function BusinessContactForm({ title }: BusinessContactFormProps)
             // TODO: send the form data to your API
             await new Promise(resolve => setTimeout(resolve, 1000));
             setFormStatus('success');
+            
+            toast.success("Message sent!", {
+                description: "Thank you for your message. We'll get back to you soon.",
+            });
+            
             // Reset form after success
             setFormData({
                 name: '',
@@ -39,100 +51,98 @@ export default function BusinessContactForm({ title }: BusinessContactFormProps)
             setTimeout(() => setFormStatus('idle'), 3000);
         } catch {
             setFormStatus('error');
+            
+            toast.error("Something went wrong", {
+                description: "There was an error submitting your form. Please try again.",
+            });
+            
             setTimeout(() => setFormStatus('idle'), 3000);
         }
     };
 
     return (
-        <div className="bg-white py-12">
+        <section className={cn("py-16 bg-gray-50", className)}>
             <div className="mx-auto px-4 container">
                 <div className="mx-auto max-w-lg">
-                    <h2 className="mb-8 font-bold text-3xl text-center">{title || "Contact Us"}</h2>
+                    <Card className="shadow-lg">
+                        <CardHeader>
+                            <CardTitle className="font-bold text-3xl text-center">{title || "Contact Us"}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                <div className="space-y-2">
+                                    <label htmlFor="name" className="block font-medium text-gray-700 text-sm">
+                                        Your Name
+                                    </label>
+                                    <Input
+                                        type="text"
+                                        id="name"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                        className="w-full"
+                                        required
+                                    />
+                                </div>
 
-                    {formStatus === 'success' && (
-                        <div className="bg-green-100 mb-6 p-4 rounded-lg text-green-700">
-                            Thank you for your message! We&apos;ll get back to you soon.
-                        </div>
-                    )}
+                                <div className="space-y-2">
+                                    <label htmlFor="email" className="block font-medium text-gray-700 text-sm">
+                                        Email Address
+                                    </label>
+                                    <Input
+                                        type="email"
+                                        id="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        className="w-full"
+                                        required
+                                    />
+                                </div>
 
-                    {formStatus === 'error' && (
-                        <div className="bg-red-100 mb-6 p-4 rounded-lg text-red-700">
-                            There was an error submitting your form. Please try again.
-                        </div>
-                    )}
+                                <div className="space-y-2">
+                                    <label htmlFor="phone" className="block font-medium text-gray-700 text-sm">
+                                        Phone Number (optional)
+                                    </label>
+                                    <Input
+                                        type="tel"
+                                        id="phone"
+                                        name="phone"
+                                        value={formData.phone}
+                                        onChange={handleChange}
+                                        className="w-full"
+                                    />
+                                </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <label htmlFor="name" className="block mb-1 font-medium text-gray-700 text-sm">
-                                Your Name
-                            </label>
-                            <input
-                                type="text"
-                                id="name"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleChange}
-                                className="px-4 py-2 border border-gray-300 focus:border-blue-500 rounded-md focus:ring-blue-500 w-full"
-                                required
-                            />
-                        </div>
+                                <div className="space-y-2">
+                                    <label htmlFor="message" className="block font-medium text-gray-700 text-sm">
+                                        Your Message
+                                    </label>
+                                    <Textarea
+                                        id="message"
+                                        name="message"
+                                        rows={5}
+                                        value={formData.message}
+                                        onChange={handleChange}
+                                        className="w-full"
+                                        required
+                                    />
+                                </div>
 
-                        <div>
-                            <label htmlFor="email" className="block mb-1 font-medium text-gray-700 text-sm">
-                                Email Address
-                            </label>
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                className="px-4 py-2 border border-gray-300 focus:border-blue-500 rounded-md focus:ring-blue-500 w-full"
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="phone" className="block mb-1 font-medium text-gray-700 text-sm">
-                                Phone Number (optional)
-                            </label>
-                            <input
-                                type="tel"
-                                id="phone"
-                                name="phone"
-                                value={formData.phone}
-                                onChange={handleChange}
-                                className="px-4 py-2 border border-gray-300 focus:border-blue-500 rounded-md focus:ring-blue-500 w-full"
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="message" className="block mb-1 font-medium text-gray-700 text-sm">
-                                Your Message
-                            </label>
-                            <textarea
-                                id="message"
-                                name="message"
-                                rows={5}
-                                value={formData.message}
-                                onChange={handleChange}
-                                className="px-4 py-2 border border-gray-300 focus:border-blue-500 rounded-md focus:ring-blue-500 w-full"
-                                required
-                            ></textarea>
-                        </div>
-
-                        <div className="text-center">
-                            <button
-                                type="submit"
-                                disabled={formStatus === 'submitting'}
-                                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 px-6 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 font-medium text-white"
-                            >
-                                {formStatus === 'submitting' ? 'Sending...' : 'Send Message'}
-                            </button>
-                        </div>
-                    </form>
+                                <div className="pt-2 text-center">
+                                    <Button
+                                        type="submit"
+                                        disabled={formStatus === 'submitting'}
+                                        className="px-8 w-full sm:w-auto"
+                                    >
+                                        {formStatus === 'submitting' ? 'Sending...' : 'Send Message'}
+                                    </Button>
+                                </div>
+                            </form>
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
-        </div>
+        </section>
     );
 }

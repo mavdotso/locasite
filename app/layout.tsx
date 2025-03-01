@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import ConvexClientProvider from "./components/providers/ConvexClientProvider";
 import { auth } from "./auth";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,6 +27,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ConvexClientProvider session={session}>{children}</ConvexClientProvider>
+        <Toaster />
       </body>
     </html>
   );

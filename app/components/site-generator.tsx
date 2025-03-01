@@ -4,6 +4,12 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/app/components/ui/card";
+import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
+import { Label } from "@/app/components/ui/label";
+import { Alert, AlertDescription, AlertTitle } from "@/app/components/ui/alert";
+import { CheckCircle, AlertCircle } from "lucide-react";
 
 interface SiteGeneratorProps {
     businessId: Id<"businesses">;
@@ -49,62 +55,71 @@ export default function SiteGenerator({ businessId }: SiteGeneratorProps) {
     };
 
     return (
-        <div className="shadow-md mx-auto p-6 rounded-lg max-w-md">
-            <h2 className="mb-4 font-bold text-2xl">Generate Business Website</h2>
-
-            <div className="mb-4">
-                <label htmlFor="customSubdomain" className="block mb-1 font-medium text-sm">
-                    Custom Subdomain (Optional)
-                </label>
-                <div className="flex items-center">
-                    <input
-                        type="text"
-                        id="customSubdomain"
-                        value={customSubdomain}
-                        onChange={(e) => setCustomSubdomain(e.target.value)}
-                        className="flex-1 p-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="mybusiness"
-                        disabled={isGenerating}
-                    />
-                    <span className="bg-gray-100 p-2 border-y border-r rounded-r-md text-gray-500">
-                        {process.env.NEXT_PUBLIC_ROOT_DOMAIN}
-                    </span>
-                </div>
-                <p className="mt-1 text-gray-500 text-xs">
-                    Leave empty to generate automatically from business name
-                </p>
-            </div>
-
-            <button
-                onClick={handleGenerate}
-                disabled={isGenerating}
-                className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 px-4 py-2 rounded-md w-full text-white"
-            >
-                {isGenerating ? "Generating..." : "Generate Website"}
-            </button>
-
-            {error && (
-                <div className="bg-red-100 mt-4 p-3 rounded-md text-red-700">
-                    {error}
-                </div>
-            )}
-
-            {success && (
-                <div className="bg-green-100 mt-4 p-4 rounded-md text-green-800">
-                    <p className="font-medium">Website successfully generated!</p>
-                    <p className="mt-2">
-                        Your site is available at:
-                        <a
-                            href={`https://${subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block mt-1 text-blue-600 underline"
-                        >
-                            {subdomain}.{process.env.NEXT_PUBLIC_ROOT_DOMAIN}
-                        </a>
+        <Card className="mx-auto max-w-md">
+            <CardHeader>
+                <CardTitle>Generate Business Website</CardTitle>
+                <CardDescription>
+                    Create a custom website for your business with a unique subdomain
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="space-y-2">
+                    <Label htmlFor="customSubdomain">Custom Subdomain (Optional)</Label>
+                    <div className="flex items-center">
+                        <Input
+                            id="customSubdomain"
+                            value={customSubdomain}
+                            onChange={(e) => setCustomSubdomain(e.target.value)}
+                            className="rounded-r-none"
+                            placeholder="mybusiness"
+                            disabled={isGenerating}
+                        />
+                        <div className="bg-muted px-3 py-2 border border-l-0 rounded-r-md text-muted-foreground">
+                            {process.env.NEXT_PUBLIC_ROOT_DOMAIN}
+                        </div>
+                    </div>
+                    <p className="text-muted-foreground text-xs">
+                        Leave empty to generate automatically from business name
                     </p>
                 </div>
-            )}
-        </div>
+
+                <Button
+                    onClick={handleGenerate}
+                    disabled={isGenerating}
+                    className="w-full"
+                >
+                    {isGenerating ? "Generating..." : "Generate Website"}
+                </Button>
+
+                {error && (
+                    <Alert variant="destructive">
+                        <AlertCircle className="w-4 h-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                )}
+
+                {success && (
+                    <Alert variant="default" className="bg-green-50 border-green-200 text-green-800">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <AlertTitle>Success</AlertTitle>
+                        <AlertDescription>
+                            <p>Website successfully generated!</p>
+                            <p className="mt-2">
+                                Your site is available at:
+                                <a
+                                    href={`https://${subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="block mt-1 font-medium text-primary hover:underline"
+                                >
+                                    {subdomain}.{process.env.NEXT_PUBLIC_ROOT_DOMAIN}
+                                </a>
+                            </p>
+                        </AlertDescription>
+                    </Alert>
+                )}
+            </CardContent>
+        </Card>
     );
 }

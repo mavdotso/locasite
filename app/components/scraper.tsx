@@ -3,6 +3,11 @@
 import { Id } from '@/convex/_generated/dataModel';
 import { BusinessData } from '@/convex/businesses';
 import { useState } from 'react';
+import { Input } from "@/app/components/ui/input";
+import { Button } from "@/app/components/ui/button";
+import { Alert, AlertDescription } from "@/app/components/ui/alert";
+import { Card, CardContent } from "@/app/components/ui/card";
+import { Label } from "@/app/components/ui/label";
 
 interface ScraperProps {
     onBusinessCreated?: (businessId: Id<"businesses">) => void;
@@ -54,44 +59,45 @@ export default function Scraper({ onBusinessCreated }: ScraperProps) {
     };
 
     return (
-        <div className="mx-auto p-4 max-w-2xl">
-            <h1 className="mb-4 font-bold text-2xl">Business Data Scraper</h1>
+        <div className="space-y-6">
+            <div className="space-y-4">
+                <div className="space-y-2">
+                    <Label htmlFor="url">Google Maps URL</Label>
+                    <div className="flex gap-2">
+                        <Input
+                            id="url"
+                            value={url}
+                            onChange={(e) => setUrl(e.target.value)}
+                            placeholder="https://www.google.com/maps/place/..."
+                            className="flex-1"
+                        />
+                        <Button
+                            onClick={handleScrape}
+                            disabled={loading || !url}
+                        >
+                            {loading ? 'Scraping...' : 'Scrape Data'}
+                        </Button>
+                    </div>
+                </div>
 
-            <div className="mb-4">
-                <label htmlFor="url" className="block mb-2">
-                    Google Maps URL:
-                </label>
-                <input
-                    type="text"
-                    id="url"
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
-                    placeholder="https://www.google.com/maps/place/..."
-                    className="p-2 border rounded w-full"
-                />
+                {error && (
+                    <Alert variant="destructive">
+                        <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                )}
             </div>
 
-            <button
-                onClick={handleScrape}
-                disabled={loading || !url}
-                className="bg-blue-600 disabled:bg-blue-300 px-4 py-2 rounded text-white"
-            >
-                {loading ? 'Scraping...' : 'Scrape Data'}
-            </button>
-
-            {error && (
-                <div className="bg-red-100 mt-4 p-3 rounded text-red-700">
-                    {error}
-                </div>
-            )}
-
             {result && (
-                <div className="mt-4">
-                    <h2 className="mb-2 font-semibold text-xl">Scraped Data:</h2>
-                    <pre className="p-4 rounded overflow-x-auto">
-                        {JSON.stringify(result, null, 2)}
-                    </pre>
-                </div>
+                <Card>
+                    <CardContent className="pt-6">
+                        <h3 className="mb-2 font-medium text-lg">Scraped Business Data:</h3>
+                        <div className="bg-muted/50 p-4 rounded-md max-h-[400px] overflow-auto">
+                            <pre className="font-mono text-sm">
+                                {JSON.stringify(result, null, 2)}
+                            </pre>
+                        </div>
+                    </CardContent>
+                </Card>
             )}
         </div>
     );
