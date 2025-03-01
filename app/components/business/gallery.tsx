@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 interface BusinessGalleryProps {
     images?: string[];
 }
@@ -16,11 +14,9 @@ export default function BusinessGallery({ images }: BusinessGalleryProps) {
                 <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                     {images.map((image, index) => (
                         <div key={index} className="bg-white shadow rounded aspect-square overflow-hidden">
-                            <Image
+                            <img
                                 src={image}
                                 alt={`Gallery image ${index + 1}`}
-                                height={500}
-                                width={500}
                                 className="w-full h-full object-cover hover:scale-105 transition-transform"
                             />
                         </div>

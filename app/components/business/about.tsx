@@ -1,5 +1,3 @@
-import DOMPurify from 'dompurify';
-
 interface BusinessAboutProps {
     content?: string;
 }
@@ -12,7 +10,7 @@ export default function BusinessAbout({ content }: BusinessAboutProps) {
                     <h2 className="mb-8 font-bold text-3xl text-center">About Us</h2>
                     <div className="mx-auto prose prose-lg">
                         {content ? (
-                            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }} />
+                            <div dangerouslySetInnerHTML={{ __html: content }} />
                         ) : (
                             <p className="text-gray-500 italic">No information available.</p>
                         )}
