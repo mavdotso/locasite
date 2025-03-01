@@ -20,6 +20,7 @@ import type * as domains from "../domains.js";
 import type * as helpers from "../helpers.js";
 import type * as http from "../http.js";
 import type * as pages from "../pages.js";
+import type * as scrape from "../scrape.js";
 import type * as storage from "../storage.js";
 
 /**
@@ -38,6 +39,7 @@ declare const fullApi: ApiFromModules<{
   helpers: typeof helpers;
   http: typeof http;
   pages: typeof pages;
+  scrape: typeof scrape;
   storage: typeof storage;
 }>;
 export declare const api: FilterApi<

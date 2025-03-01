@@ -2,7 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import type { Metadata } from "next";
 import "./globals.css";
 import ConvexClientProvider from "./components/providers/ConvexClientProvider";
-import { auth } from "./auth";
+import { auth } from "@/app/auth";
 import { Toaster } from "sonner";
 
 const geistSans = Geist({
@@ -22,8 +22,6 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const session = await auth();
-  console.log(session)
-
   return (
     <html lang="en">
       <head>

@@ -19,19 +19,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     adapter: ConvexAdapter,
     callbacks: {
         async session({ session }) {
-            const privateKey = await importPKCS8(process.env.CONVEX_AUTH_PRIVATE_KEY!, 'RS256');
+            const privateKey = await importPKCS8(
+                process.env.CONVEX_AUTH_PRIVATE_KEY!,
+                "RS256",
+            );
             const convexToken = await new SignJWT({
                 sub: session.userId,
             })
-                .setProtectedHeader({ alg: 'RS256' })
+                .setProtectedHeader({ alg: "RS256" })
                 .setIssuedAt()
                 .setIssuer(CONVEX_SITE_URL)
-                .setAudience('convex')
-                .setExpirationTime('1h')
+                .setAudience("convex")
+                .setExpirationTime("1h")
                 .sign(privateKey);
             return { ...session, convexToken };
         },
     },
+    pages: {
+        signIn: '/sign-in',
+    }
 })
 
 

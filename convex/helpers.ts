@@ -1,8 +1,10 @@
-import { GenericQueryCtx, UserIdentity } from "convex/server";
+import { Auth, GenericQueryCtx, UserIdentity } from "convex/server";
 import { DataModel } from "./_generated/dataModel";
 
-export async function checkUserAuth(ctx: GenericQueryCtx<DataModel>) {
+export async function checkUserAuth(ctx: { auth: Auth }) {
   const identity = await ctx.auth.getUserIdentity();
+
+  console.log("IDENTITY", identity)
 
   if (!identity) {
     throw new Error("Unauthorized: You must be logged in");

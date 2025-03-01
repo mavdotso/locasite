@@ -57,3 +57,8 @@
 
 8. Payments
     - [ ] Stripe integration
+
+
+
+## Bugs
+- [ ] Convex db unreachable
