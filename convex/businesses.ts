@@ -1,5 +1,7 @@
-import { mutation, query } from './_generated/server';
+import { mutation, query, internalMutation, internalQuery } from './_generated/server';
 import { v } from 'convex/values';
+import { Doc, Id } from './_generated/dataModel';
+import { checkUserAuth, getUserFromIdentity } from './helpers';
 
 export interface BusinessData {
     name: string;
@@ -18,8 +20,28 @@ export interface BusinessData {
     description?: string;
 }
 
-// Create a new business entry
-export const create = mutation({
+// Helper function to verify business ownership
+async function verifyBusinessOwnership(
+    ctx: { db: { get: (id: Id<"businesses">) => Promise<Doc<"businesses"> | null> } },
+    businessId: Id<"businesses">,
+    userId: Id<"users">
+) {
+    const business = await ctx.db.get(businessId);
+    if (!business) {
+        throw new Error("Business not found");
+    }
+
+    if (business.userId !== userId) {
+        throw new Error("Not authorized to modify this business");
+    }
+
+    return business;
+}
+
+// ==================== INTERNAL FUNCTIONS ====================
+
+// Internal mutation to create a business
+export const internal_createBusiness = internalMutation({
     args: {
         business: v.object({
             name: v.string(),
@@ -37,7 +59,7 @@ export const create = mutation({
             photos: v.array(v.string()),
             description: v.optional(v.string())
         }),
-        userId: v.optional(v.id("users"))
+        userId: v.id("users")
     },
     handler: async (ctx, args) => {
         // Check if business with this placeId already exists
@@ -58,6 +80,113 @@ export const create = mutation({
             ...args.business,
             createdAt: Date.now(),
             userId: args.userId
+        });
+
+        return businessId;
+    }
+});
+
+// Internal mutation to update a business
+export const internal_updateBusiness = internalMutation({
+    args: {
+        id: v.id("businesses"),
+        business: v.object({
+            name: v.optional(v.string()),
+            description: v.optional(v.string()),
+            address: v.optional(v.string()),
+            phone: v.optional(v.string()),
+            website: v.optional(v.string()),
+            hours: v.optional(v.array(v.string())),
+        }),
+    },
+    handler: async (ctx, args) => {
+        const updates = { ...args.business };
+
+        Object.keys(updates).forEach(key => {
+            if (updates[key as keyof typeof updates] === undefined) {
+                delete updates[key as keyof typeof updates];
+            }
+        });
+
+        return await ctx.db.patch(args.id, updates);
+    },
+});
+
+// Internal mutation to delete a business
+export const internal_deleteBusiness = internalMutation({
+    args: { id: v.id("businesses") },
+    handler: async (ctx, args) => {
+        await ctx.db.delete(args.id);
+        return true;
+    }
+});
+
+// Internal mutation to update business photos
+export const internal_updateBusinessPhotos = internalMutation({
+    args: {
+        id: v.id("businesses"),
+        photos: v.array(v.string()),
+    },
+    handler: async (ctx, args) => {
+        return await ctx.db.patch(args.id, {
+            photos: args.photos,
+        });
+    },
+});
+
+// Internal mutation to update business description
+export const internal_updateBusinessDescription = internalMutation({
+    args: {
+        id: v.id("businesses"),
+        description: v.string(),
+    },
+    handler: async (ctx, args) => {
+        return await ctx.db.patch(args.id, {
+            description: args.description,
+        });
+    },
+});
+
+// Internal query to get business by ID
+export const internal_getBusinessById = internalQuery({
+    args: { id: v.id("businesses") },
+    handler: async (ctx, args) => {
+        return await ctx.db.get(args.id);
+    }
+});
+
+// ==================== PUBLIC FUNCTIONS ====================
+
+// Create a new business entry
+export const create = mutation({
+    args: {
+        business: v.object({
+            name: v.string(),
+            placeId: v.string(),
+            address: v.string(),
+            phone: v.optional(v.string()),
+            website: v.optional(v.string()),
+            hours: v.array(v.string()),
+            rating: v.optional(v.number()),
+            reviews: v.array(v.object({
+                reviewer: v.string(),
+                rating: v.string(),
+                text: v.string()
+            })),
+            photos: v.array(v.string()),
+            description: v.optional(v.string())
+        }),
+    },
+    handler: async (ctx, args) => {
+        const identity = await checkUserAuth(ctx);
+
+        // Get the user ID from the identity
+        const user = await getUserFromIdentity(ctx, identity);
+
+        // Create the business using the internal mutation
+        const businessId = await internal_createBusiness(ctx, {
+            business: args.business,
+            userId: user._id
         });
 
         return businessId;
@@ -101,6 +230,7 @@ export const list = query({
 export const listByUser = query({
     args: { userId: v.id("users") },
     handler: async (ctx, args) => {
+        // Optional: Add auth check if you want to restrict who can view a user's businesses
         return await ctx.db
             .query("businesses")
             .withIndex("by_userId", q => q.eq("userId", args.userId))
@@ -116,6 +246,14 @@ export const associateWithDomain = mutation({
         domainId: v.id("domains")
     },
     handler: async (ctx, args) => {
+        const identity = await checkUserAuth(ctx);
+
+        // Get the user ID from the identity
+        const user = await getUserFromIdentity(ctx, identity);
+
+        // Verify ownership
+        await verifyBusinessOwnership(ctx, args.businessId, user._id);
+
         return await ctx.db.patch(args.businessId, {
             domainId: args.domainId
         });
@@ -126,7 +264,16 @@ export const associateWithDomain = mutation({
 export const remove = mutation({
     args: { id: v.id("businesses") },
     handler: async (ctx, args) => {
-        await ctx.db.delete(args.id);
+        const identity = await checkUserAuth(ctx);
+
+        // Get the user ID from the identity
+        const user = await getUserFromIdentity(ctx, identity);
+
+        // Verify ownership
+        await verifyBusinessOwnership(ctx, args.id, user._id);
+
+        // Use the internal mutation directly
+        await internal_deleteBusiness(ctx, { id: args.id });
     }
 });
 
@@ -153,19 +300,19 @@ export const update = mutation({
         }),
     },
     handler: async (ctx, args) => {
-        const business = await ctx.db.get(args.id);
-        if (!business) {
-            throw new Error("Business not found");
-        }
-        const updates = { ...args.business };
+        const identity = await checkUserAuth(ctx);
 
-        Object.keys(updates).forEach(key => {
-            if (updates[key as keyof typeof updates] === undefined) {
-                delete updates[key as keyof typeof updates];
-            }
+        // Get the user ID from the identity
+        const user = await getUserFromIdentity(ctx, identity);
+
+        // Verify ownership
+        await verifyBusinessOwnership(ctx, args.id, user._id);
+
+        // Use the internal mutation directly
+        return await internal_updateBusiness(ctx, {
+            id: args.id,
+            business: args.business
         });
-
-        return await ctx.db.patch(args.id, updates);
     },
 });
 
@@ -176,14 +323,18 @@ export const updatePhotos = mutation({
         photos: v.array(v.string()),
     },
     handler: async (ctx, args) => {
-        const business = await ctx.db.get(args.id);
+        const identity = await checkUserAuth(ctx);
 
-        if (!business) {
-            throw new Error("Business not found");
-        }
+        // Get the user ID from the identity
+        const user = await getUserFromIdentity(ctx, identity);
 
-        return await ctx.db.patch(args.id, {
-            photos: args.photos,
+        // Verify ownership
+        await verifyBusinessOwnership(ctx, args.id, user._id);
+
+        // Use the internal mutation directly
+        return await internal_updateBusinessPhotos(ctx, {
+            id: args.id,
+            photos: args.photos
         });
     },
 });
@@ -194,23 +345,18 @@ export const updateBusinessDescription = mutation({
         description: v.string(),
     },
     handler: async (ctx, args) => {
-        const identity = await ctx.auth.getUserIdentity();
+        const identity = await checkUserAuth(ctx);
 
-        if (!identity) {
-            throw new Error("Unauthorized");
-        }
+        // Get the user ID from the identity
+        const user = await getUserFromIdentity(ctx, identity);
 
-        const business = await ctx.db.get(args.businessId);
-        if (!business) {
-            throw new Error("Business not found");
-        }
+        // Verify ownership
+        await verifyBusinessOwnership(ctx, args.businessId, user._id);
 
-        if (business.userId !== identity.subject) {
-            throw new Error("Not authorized to edit this business");
-        }
-
-        return await ctx.db.patch(args.businessId, {
-            description: args.description,
+        // Use the internal mutation directly
+        return await internal_updateBusinessDescription(ctx, {
+            id: args.businessId,
+            description: args.description
         });
     },
 });
