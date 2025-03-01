@@ -16,7 +16,6 @@ export default async function middleware(req: NextRequest) {
         // Check if it's a subdomain
         if (hostname !== "localhost:3000") {
             const subdomain = hostname.split(".")[0];
-            console.log(`Subdomain detected: ${subdomain}`);
 
             // Handle app subdomain with auth
             if (subdomain === "app") {
@@ -32,7 +31,6 @@ export default async function middleware(req: NextRequest) {
             }
 
             // For other subdomains, rewrite to /[subdomain]/[path]
-            // This will handle nested paths like el-cero.localhost:3000/about
             return NextResponse.rewrite(new URL(`/${subdomain}${path}`, req.url));
         }
     }

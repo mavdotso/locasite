@@ -24,7 +24,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const { domain: businessDomain } = await params;
-    
+
     // Get domain from database
     const domain = await convex.query(api.domains.getBySubdomain, {
       subdomain: businessDomain,
@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     const businessData = business[0];
-    
+
     return {
       title: domain.name || "Business",
       description: businessData.description || `Welcome to ${domain.name}`,
@@ -66,9 +66,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default async function BusinessPage({ params }: PageProps ) {
+export default async function BusinessPage({ params }: PageProps) {
 
-  const {domain: businessDomain} = await params;
+  const { domain: businessDomain } = await params;
 
   try {
     // Get domain from database
@@ -119,13 +119,31 @@ export default async function BusinessPage({ params }: PageProps ) {
       );
     }
 
+
     return (
       <div className="flex flex-col min-h-screen">
         <BusinessHeader
-          businessName={domain.name}
+          domain={domain.name}
           pages={pages}
           currentSlug="home"
         />
+
+        {/* {!businessData.userId && (
+          <div className="bg-amber-50 px-4 py-2">
+            <div className="flex justify-between items-center mx-auto container">
+              <p className="text-amber-800 text-sm">
+                Are you the owner of this business?
+              </p>
+              <a 
+                href={`/claim/${businessData._id}`}
+                className="bg-amber-600 hover:bg-amber-700 px-3 py-1 rounded-md text-white text-sm"
+              >
+                Claim this Business
+              </a>
+            </div>
+          </div>
+        )} */} 
+
         <main className="flex-grow">
           {content.sections?.map((section: Section, index: number) => {
             switch (section.type) {

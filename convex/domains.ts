@@ -1,6 +1,21 @@
 import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
+import { query, mutation, internalMutation } from "./_generated/server";
+import { checkUserAuth, getUserFromIdentity } from './helpers';
 
+// Internal mutation to create a domain
+export const internal_createDomain = internalMutation({
+    args: {
+        name: v.string(),
+        subdomain: v.string(),
+    },
+    handler: async (ctx, args) => {
+        return await ctx.db.insert("domains", {
+            name: args.name,
+            subdomain: args.subdomain,
+            createdAt: Date.now()
+        });
+    }
+});
 
 // Generate a subdomain from business name
 export const generateSubdomain = mutation({
@@ -9,9 +24,17 @@ export const generateSubdomain = mutation({
         customSubdomain: v.optional(v.string())
     },
     handler: async (ctx, args) => {
+        const identity = await checkUserAuth(ctx);
+        const user = await getUserFromIdentity(ctx, identity);
+
         const business = await ctx.db.get(args.businessId);
         if (!business) {
             throw new Error("Business not found");
+        }
+
+        // Verify business ownership
+        if (business.userId !== user._id) {
+            throw new Error("Not authorized to create domain for this business");
         }
 
         // Use custom subdomain if provided, otherwise generate from business name
@@ -65,10 +88,9 @@ export const generateSubdomain = mutation({
         }
 
         // Create the domain
-        const domainId = await ctx.db.insert("domains", {
+        const domainId = await internal_createDomain(ctx, {
             name: business.name,
             subdomain,
-            createdAt: Date.now()
         });
 
         // Associate the domain with the business
