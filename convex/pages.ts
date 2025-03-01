@@ -1,5 +1,19 @@
-import { query, mutation } from './_generated/server';
+import { query, mutation, internalMutation } from './_generated/server';
 import { v } from 'convex/values';
+import { checkUserAuth, getUserFromIdentity } from './helpers';
+
+// Internal mutation to update a page
+export const internal_updatePage = internalMutation({
+    args: {
+        pageId: v.id("pages"),
+        content: v.string(),
+    },
+    handler: async (ctx, args) => {
+        return await ctx.db.patch(args.pageId, {
+            content: args.content,
+        });
+    },
+});
 
 // Create default pages for a business
 export const createDefaultPages = mutation({
@@ -8,9 +22,17 @@ export const createDefaultPages = mutation({
         businessId: v.id("businesses"),
     },
     handler: async (ctx, args) => {
+        const identity = await checkUserAuth(ctx);
+        const user = await getUserFromIdentity(ctx, identity);
+
         const business = await ctx.db.get(args.businessId);
         if (!business) {
             throw new Error("Business not found");
+        }
+
+        // Verify business ownership
+        if (business.userId !== user._id) {
+            throw new Error("Not authorized to create pages for this business");
         }
 
         const domain = await ctx.db.get(args.domainId);
@@ -167,11 +189,8 @@ export const updatePage = mutation({
         content: v.string(),
     },
     handler: async (ctx, args) => {
-        const identity = await ctx.auth.getUserIdentity();
-
-        if (!identity) {
-            throw new Error("Unauthorized");
-        }
+        const identity = await checkUserAuth(ctx);
+        const user = await getUserFromIdentity(ctx, identity);
 
         const page = await ctx.db.get(args.pageId);
         if (!page) {
@@ -179,7 +198,6 @@ export const updatePage = mutation({
         }
 
         const domain = await ctx.db.get(page.domainId);
-
         if (!domain) {
             throw new Error("Domain not found");
         }
@@ -189,11 +207,12 @@ export const updatePage = mutation({
             .withIndex("by_domainId", q => q.eq("domainId", domain._id))
             .first();
 
-        if (!business || business.userId !== identity.subject) {
+        if (!business || business.userId !== user._id) {
             throw new Error("Not authorized to edit this page");
         }
 
-        return await ctx.db.patch(args.pageId, {
+        return await internal_updatePage(ctx, {
+            pageId: args.pageId,
             content: args.content,
         });
     },
