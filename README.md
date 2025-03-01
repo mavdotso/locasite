@@ -29,7 +29,7 @@
     - [x] Set up business ownership system
     - [x] Add relationship between users and business sites
     - [x] Create "claim business" functionality
-    - [ ] Implement simple verification process
+    - [x] Implement simple verification process
     - [x] Add permissions for site editing
 
 5. Design Customization

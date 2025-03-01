@@ -24,7 +24,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const { domain: businessDomain } = await params;
-    
+
     // Get domain from database
     const domain = await convex.query(api.domains.getBySubdomain, {
       subdomain: businessDomain,
@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     const businessData = business[0];
-    
+
     return {
       title: domain.name || "Business",
       description: businessData.description || `Welcome to ${domain.name}`,
@@ -66,9 +66,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default async function BusinessPage({ params }: PageProps ) {
+export default async function BusinessPage({ params }: PageProps) {
 
-  const {domain: businessDomain} = await params;
+  const { domain: businessDomain } = await params;
 
   try {
     // Get domain from database
@@ -128,7 +128,7 @@ export default async function BusinessPage({ params }: PageProps ) {
           currentSlug="home"
         />
 
-        {!businessData.userId && (
+        {/* {!businessData.userId && (
           <div className="bg-amber-50 px-4 py-2">
             <div className="flex justify-between items-center mx-auto container">
               <p className="text-amber-800 text-sm">
@@ -142,8 +142,8 @@ export default async function BusinessPage({ params }: PageProps ) {
               </a>
             </div>
           </div>
-        )}
-        
+        )} */} 
+
         <main className="flex-grow">
           {content.sections?.map((section: Section, index: number) => {
             switch (section.type) {

@@ -41,8 +41,6 @@ export default async function ClaimBusinessPage({ params }: ClaimPageProps) {
   
   const businessIdParam = businessId as Id<"businesses">;
 
-
-
   if (!businessIdParam) {
     return (
       <div className="flex justify-center items-center h-64">

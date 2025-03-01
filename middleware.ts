@@ -31,7 +31,6 @@ export default async function middleware(req: NextRequest) {
             }
 
             // For other subdomains, rewrite to /[subdomain]/[path]
-            // This will handle nested paths like el-cero.localhost:3000/about
             return NextResponse.rewrite(new URL(`/${subdomain}${path}`, req.url));
         }
     }
