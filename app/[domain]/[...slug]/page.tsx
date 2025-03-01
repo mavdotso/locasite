@@ -55,7 +55,7 @@ export async function generateMetadata({
     openGraph: {
       title: content.title || domain.name,
       description: content.description || `Welcome to ${domain.name}`,
-      url: `https://${domain.subdomain}.yourdomain.com/${slug}`,
+      url: `https://${domain.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}/${slug}`,
       siteName: domain.name,
       images: (() => {
         const heroSection = content.sections?.find(

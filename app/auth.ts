@@ -8,7 +8,7 @@ const CONVEX_SITE_URL = process.env.NEXT_PUBLIC_CONVEX_URL!.replace(
 );
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-    debug: true, // TODO
+    debug: false,
     providers: [],
     adapter: ConvexAdapter,
     callbacks: {

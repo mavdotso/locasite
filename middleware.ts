@@ -16,19 +16,19 @@ export const config = {
 
 export default async function middleware(req: NextRequest) {
     const url = req.nextUrl;
+    const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN;
 
-    // Get hostname of request (e.g. demo.vercel.pub, demo.localhost:3000)
+    // Get hostname of request (e.g. demo.locasite.xyz, demo.localhost:3000)
     let hostname = req.headers
         .get("host")!
-        .replace(".localhost:3000", `.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`);
+        .replace(".localhost:3000", `.${rootDomain}`);
 
     // Special case for Vercel preview deployment URLs
     if (
         hostname.includes("---") &&
         hostname.endsWith(`.${process.env.NEXT_PUBLIC_VERCEL_DEPLOYMENT_SUFFIX}`)
     ) {
-        hostname = `${hostname.split("---")[0]}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN
-            }`;
+        hostname = `${hostname.split("---")[0]}.${rootDomain}`;
     }
 
     const searchParams = req.nextUrl.searchParams.toString();
@@ -37,7 +37,7 @@ export default async function middleware(req: NextRequest) {
         }`;
 
     // Rewrite for app pages
-    if (hostname == `app.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) {
+    if (hostname == `app.${rootDomain}`) {
         const session = await getToken({ req });
         if (!session && path !== "/login") {
             return NextResponse.redirect(new URL("/login", req.url));
@@ -52,7 +52,7 @@ export default async function middleware(req: NextRequest) {
     // Rewrite root application to `/home` folder
     if (
         hostname === "localhost:3000" ||
-        hostname === process.env.NEXT_PUBLIC_ROOT_DOMAIN
+        hostname === rootDomain
     ) {
         console.log("Rewriting to /home path");
         return NextResponse.rewrite(

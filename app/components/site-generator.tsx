@@ -67,7 +67,7 @@ export default function SiteGenerator({ businessId }: SiteGeneratorProps) {
                         disabled={isGenerating}
                     />
                     <span className="bg-gray-100 p-2 border-y border-r rounded-r-md text-gray-500">
-                        .yourdomain.com
+                        {process.env.NEXT_PUBLIC_ROOT_DOMAIN}
                     </span>
                 </div>
                 <p className="mt-1 text-gray-500 text-xs">
@@ -95,12 +95,12 @@ export default function SiteGenerator({ businessId }: SiteGeneratorProps) {
                     <p className="mt-2">
                         Your site is available at:
                         <a
-                            href={`https://${subdomain}.yourdomain.com`}
+                            href={`https://${subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="block mt-1 text-blue-600 underline"
                         >
-                            {subdomain}.yourdomain.com
+                            {subdomain}.{process.env.NEXT_PUBLIC_ROOT_DOMAIN}
                         </a>
                     </p>
                 </div>
