@@ -35,18 +35,10 @@ export default async function middleware(req: NextRequest) {
             // This will handle nested paths like el-cero.localhost:3000/about
             return NextResponse.rewrite(new URL(`/${subdomain}${path}`, req.url));
         }
-
-        // For root domain (localhost:3000), rewrite to /home
-        return NextResponse.rewrite(new URL(`/home${path}`, req.url));
     }
 
     // For production
     const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN;
-
-    // Handle root domain
-    if (hostname === rootDomain) {
-        return NextResponse.rewrite(new URL(`/home${path}`, req.url));
-    }
 
     // Handle subdomains in production
     if (hostname.endsWith(`.${rootDomain}`)) {
