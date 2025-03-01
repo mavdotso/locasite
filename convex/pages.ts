@@ -126,7 +126,6 @@ export const createDefaultPages = mutation({
     },
 });
 
-// Get all pages for a domain
 export const listByDomain = query({
     args: {
         domainId: v.id("domains"),
@@ -162,40 +161,40 @@ export const getBySlug = query({
     }
 });
 
-// Add this mutation to the existing pages.ts file
-
-// Update page content
 export const updatePage = mutation({
     args: {
         pageId: v.id("pages"),
         content: v.string(),
     },
     handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+
+        if (!identity) {
+            throw new Error("Unauthorized");
+        }
+
         const page = await ctx.db.get(args.pageId);
         if (!page) {
             throw new Error("Page not found");
         }
 
-        return await ctx.db.patch(args.pageId, {
-            content: args.content,
-        });
-    },
-});
+        const domain = await ctx.db.get(page.domainId);
 
-// Update business description
-export const updateBusinessDescription = mutation({
-    args: {
-        businessId: v.id("businesses"),
-        description: v.string(),
-    },
-    handler: async (ctx, args) => {
-        const business = await ctx.db.get(args.businessId);
-        if (!business) {
-            throw new Error("Business not found");
+        if (!domain) {
+            throw new Error("Domain not found");
         }
 
-        return await ctx.db.patch(args.businessId, {
-            description: args.description,
+        const business = await ctx.db
+            .query("businesses")
+            .withIndex("by_domainId", q => q.eq("domainId", domain._id))
+            .first();
+
+        if (!business || business.userId !== identity.subject) {
+            throw new Error("Not authorized to edit this page");
+        }
+
+        return await ctx.db.patch(args.pageId, {
+            content: args.content,
         });
     },
 });

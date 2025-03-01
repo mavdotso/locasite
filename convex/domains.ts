@@ -1,7 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
-
 // Generate a subdomain from business name
 export const generateSubdomain = mutation({
     args: {

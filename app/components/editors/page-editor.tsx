@@ -110,11 +110,41 @@ export default function PageEditor({ page, onClose }: PageEditorProps) {
           </TabsList>
           
           <TabsContent value="sections">
+            <div className="mb-4">
+              <Button
+                onClick={() => {
+                  setContent(prev => ({
+                    ...prev,
+                    sections: [
+                      ...prev.sections,
+                      { type: "content", text: "" }
+                    ]
+                  }));
+                }}
+                size="sm"
+              >
+                Add New Section
+              </Button>
+            </div>
           {content.sections?.map((section, index: number) => (
               <Card key={index} className="mb-4 border border-gray-200">
                 <CardHeader className="py-2">
                   <CardTitle className="font-medium text-sm">
                     {section.type.charAt(0).toUpperCase() + section.type.slice(1)} Section
+                      <Button
+                      onClick={() => {
+                        setContent(prev => {
+                          const newSections = [...prev.sections];
+                          newSections.splice(index, 1);
+                          return { ...prev, sections: newSections };
+                        });
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="float-right"
+                    >
+                      Remove
+                    </Button>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>

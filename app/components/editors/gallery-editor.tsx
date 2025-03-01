@@ -49,6 +49,20 @@ export default function GalleryEditor({ business, onClose }: GalleryEditorProps)
 
   const addPhoto = () => {
     if (newPhotoUrl.trim()) {
+     try {
+       const url = new URL(newPhotoUrl.trim());
+       if (!url.protocol.startsWith('http')) {
+         toast.error("Invalid URL", {
+           description: "Please enter a valid HTTP or HTTPS URL.",
+         });
+         return;
+       }
+     } catch {
+       toast.error("Invalid URL", {
+         description: "Please enter a valid URL.",
+       });
+       return;
+     }
       setPhotos([...photos, newPhotoUrl.trim()]);
       setNewPhotoUrl("");
     }

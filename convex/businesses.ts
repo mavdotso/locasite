@@ -186,3 +186,30 @@ export const updatePhotos = mutation({
         });
     },
 });
+
+export const updateBusinessDescription = mutation({
+    args: {
+        businessId: v.id("businesses"),
+        description: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+
+        if (!identity) {
+            throw new Error("Unauthorized");
+        }
+
+        const business = await ctx.db.get(args.businessId);
+        if (!business) {
+            throw new Error("Business not found");
+        }
+
+        if (business.userId !== identity.subject) {
+            throw new Error("Not authorized to edit this business");
+        }
+
+        return await ctx.db.patch(args.businessId, {
+            description: args.description,
+        });
+    },
+});
