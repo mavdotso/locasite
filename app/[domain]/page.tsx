@@ -12,12 +12,58 @@ import BusinessContact from "@/app/components/business/contact";
 import BusinessMap from "@/app/components/business/map";
 import BusinessContactForm from "@/app/components/business/contact-form";
 import { Section } from "@/app/types/businesses";
+import { Metadata } from "next";
 
 interface PageProps {
   params: Promise<{
     domain: string;
     slug: string[];
   }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  try {
+    const { domain: businessDomain } = await params;
+    
+    // Get domain from database
+    const domain = await convex.query(api.domains.getBySubdomain, {
+      subdomain: businessDomain,
+    });
+
+    if (!domain) {
+      return {
+        title: "Business Not Found",
+      };
+    }
+
+    // Get the business associated with this domain
+    const business = await convex.query(api.businesses.listByDomain, {
+      domain: domain._id,
+    });
+
+    if (!business || !business.length) {
+      return {
+        title: domain.name || "Business",
+      };
+    }
+
+    const businessData = business[0];
+    
+    return {
+      title: domain.name || "Business",
+      description: businessData.description || `Welcome to ${domain.name}`,
+      openGraph: {
+        title: domain.name || "Business",
+        description: businessData.description || `Welcome to ${domain.name}`,
+        images: businessData.photos?.[0] ? [businessData.photos[0]] : [],
+      },
+    };
+  } catch (error) {
+    console.error("Error generating metadata:", error);
+    return {
+      title: "Business Page",
+    };
+  }
 }
 
 export default async function BusinessPage({ params }: PageProps ) {

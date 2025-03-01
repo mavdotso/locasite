@@ -10,10 +10,10 @@
 
 2. Domain & Site Generation
 
-    - [ ] Complete basic site generation system
-    - [ ] Create mutation function to generate subdomain from business name
-    - [ ] Implement automatic page creation with scraped business data
-    - [ ] Build default template for displaying business information
+    - [x] Complete basic site generation system
+    - [x] Create mutation function to generate subdomain from business name
+    - [x] Implement automatic page creation with scraped business data
+    - [x] Build default template for displaying business information
     - [ ] Add basic SEO metadata generation
 
 3. Content Management
