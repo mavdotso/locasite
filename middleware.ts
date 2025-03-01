@@ -20,9 +20,9 @@ export default async function middleware(req: NextRequest) {
             // Handle app subdomain with auth
             if (subdomain === "app") {
                 const session = await getToken({ req });
-                if (!session && path !== "/login") {
-                    return NextResponse.redirect(new URL("/login", req.url));
-                } else if (session && path === "/login") {
+                if (!session && path !== "/sign-in") {
+                    return NextResponse.redirect(new URL("/sign-in", req.url));
+                } else if (session && path === "/sign-in") {
                     return NextResponse.redirect(new URL("/", req.url));
                 }
 
@@ -45,9 +45,9 @@ export default async function middleware(req: NextRequest) {
         // Handle app subdomain with auth
         if (subdomain === "app") {
             const session = await getToken({ req });
-            if (!session && path !== "/login") {
-                return NextResponse.redirect(new URL("/login", req.url));
-            } else if (session && path === "/login") {
+            if (!session && path !== "/sign-in") {
+                return NextResponse.redirect(new URL("/sign-in", req.url));
+            } else if (session && path === "/sign-in") {
                 return NextResponse.redirect(new URL("/", req.url));
             }
 
