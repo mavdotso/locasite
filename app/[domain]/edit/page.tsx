@@ -6,7 +6,6 @@ import PageEditor from "@/app/components/editors/page-editor";
 import BusinessEditor from "@/app/components/editors/business-editor";
 import GalleryEditor from "@/app/components/editors/gallery-editor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { auth } from "@/app/auth";
 import ThemeEditor from "@/app/components/editors/theme-editor";
 
 interface EditPageProps {
@@ -17,13 +16,11 @@ interface EditPageProps {
 
 export default async function EditPage({ params }: EditPageProps) {
   const { domain: businessDomain } = await params;
-  const session = await auth();
-  console.log(session)
 
   // TODO: Check if user is authenticated
   // if (!session?.user) {
   //   return (
-  //     <div className="mx-auto p-8 container">
+  //     <div className="container p-8 mx-auto">
   //       <Card>
   //         <CardHeader>
   //           <CardTitle>Authentication Required</CardTitle>
@@ -63,7 +60,7 @@ export default async function EditPage({ params }: EditPageProps) {
     // TODO: Check if user owns this business
     // if (business.userId !== session.user.id) {
     //   return (
-    //     <div className="mx-auto p-8 container">
+    //     <div className="container p-8 mx-auto">
     //       <Card>
     //         <CardHeader>
     //           <CardTitle>Access Denied</CardTitle>
@@ -85,7 +82,7 @@ export default async function EditPage({ params }: EditPageProps) {
     });
 
     return (
-      <div className="mx-auto p-8 container">
+      <div className="container p-8 mx-auto">
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>Edit {domain.name}</CardTitle>
@@ -119,7 +116,7 @@ export default async function EditPage({ params }: EditPageProps) {
             <div className="space-y-8">
               {pages.map((page) => (
                 <div key={page._id}>
-                  <h3 className="mb-2 font-medium text-lg capitalize">
+                  <h3 className="mb-2 text-lg font-medium capitalize">
                     {page.slug} Page
                   </h3>
                   <PageEditor page={page} />
@@ -133,7 +130,7 @@ export default async function EditPage({ params }: EditPageProps) {
   } catch (error) {
     console.error("Error loading edit page:", error);
     return (
-      <div className="mx-auto p-8 container">
+      <div className="container p-8 mx-auto">
         <Card>
           <CardHeader>
             <CardTitle>Error</CardTitle>
