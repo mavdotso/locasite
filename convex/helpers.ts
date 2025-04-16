@@ -1,5 +1,6 @@
 import { Auth, GenericQueryCtx, UserIdentity } from "convex/server";
 import { DataModel } from "./_generated/dataModel";
+import { query } from "./_generated/server";
 
 export async function checkUserAuth(ctx: { auth: Auth }) {
   const identity = await ctx.auth.getUserIdentity();
@@ -25,3 +26,18 @@ export async function getUserFromIdentity(ctx: GenericQueryCtx<DataModel>, ident
 
   return user;
 }
+
+export const getCurrentUser = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return null;
+    }
+    return {
+      userId: identity.subject,
+      name: identity.name,
+      email: identity.email,
+      pictureUrl: identity.pictureUrl,
+    };
+  },
+});
