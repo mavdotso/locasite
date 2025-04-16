@@ -11,7 +11,8 @@
   "dependencies": {
     "@ai-sdk/openai": "^1.1.15",
     "@ai-sdk/react": "^1.1.18",
-    "@auth/core": "^0.37.4",
+    "@auth/core": "0.37.0",
+    "@convex-dev/auth": "^0.0.81",
     "@hookform/resolvers": "^4.1.2",
     "@radix-ui/react-hover-card": "^1.1.6",
     "@radix-ui/react-label": "^2.1.2",
@@ -27,7 +28,6 @@
     "jose": "^6.0.8",
     "lucide-react": "^0.477.0",
     "next": "15.2.0-canary.71",
-    "next-auth": "5.0.0-beta.25",
     "next-themes": "^0.4.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

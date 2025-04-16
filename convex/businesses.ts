@@ -192,10 +192,12 @@ export const create = mutation({
         const user = await getUserFromIdentity(ctx, identity);
 
         // Create the business using the internal mutation
-        const businessId = await internal_createBusiness(ctx, {
-            business: args.business,
+        const businessId = await ctx.db.insert("businesses", {
+            ...args.business,
+            createdAt: Date.now(),
             userId: user._id
         });
+
 
         return businessId;
     }
@@ -281,7 +283,7 @@ export const remove = mutation({
         await verifyBusinessOwnership(ctx, args.id, user._id);
 
         // Use the internal mutation directly
-        await internal_deleteBusiness(ctx, { id: args.id });
+        await ctx.db.delete(args.id);
     }
 });
 
@@ -325,10 +327,13 @@ export const update = mutation({
         await verifyBusinessOwnership(ctx, args.id, user._id);
 
         // Use the internal mutation directly
-        return await internal_updateBusiness(ctx, {
-            id: args.id,
-            business: args.business
+        const updates = { ...args.business };
+        Object.keys(updates).forEach(key => {
+            if (updates[key as keyof typeof updates] === undefined) {
+                delete updates[key as keyof typeof updates];
+            }
         });
+        return await ctx.db.patch(args.id, updates);
     },
 });
 
@@ -348,8 +353,7 @@ export const updatePhotos = mutation({
         await verifyBusinessOwnership(ctx, args.id, user._id);
 
         // Use the internal mutation directly
-        return await internal_updateBusinessPhotos(ctx, {
-            id: args.id,
+        return await ctx.db.patch(args.id, {
             photos: args.photos
         });
     },
@@ -370,8 +374,7 @@ export const updateBusinessDescription = mutation({
         await verifyBusinessOwnership(ctx, args.businessId, user._id);
 
         // Use the internal mutation directly
-        return await internal_updateBusinessDescription(ctx, {
-            id: args.businessId,
+        return await ctx.db.patch(args.businessId, {
             description: args.description
         });
     },

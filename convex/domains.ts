@@ -88,9 +88,10 @@ export const generateSubdomain = mutation({
         }
 
         // Create the domain
-        const domainId = await internal_createDomain(ctx, {
+        const domainId = await ctx.db.insert("domains", {
             name: business.name,
             subdomain,
+            createdAt: Date.now()
         });
 
         // Associate the domain with the business

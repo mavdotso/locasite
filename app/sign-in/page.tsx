@@ -1,8 +1,12 @@
+"use client"
+
 import { Button } from '@/app/components/ui/button';
-import { signIn } from '@/app/lib/server-actions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/app/components/ui/card';
+import { useAuthActions } from "@convex-dev/auth/react";
 
 export default function SignIn() {
+    const { signIn } = useAuthActions();
+
     return (
         <div className="flex justify-center items-center bg-secondary px-4 py-12 h-screen">
             <Card className="shadow-lg border-none w-full max-w-md">
@@ -33,12 +37,11 @@ export default function SignIn() {
                     </div>
                     
                     <div className="w-full">
-                        <form action={signIn}>
-                            <Button
-                                type="submit"
-                                variant="default"
-                                className="flex justify-center items-center w-full h-11 text-base"
-                            >
+                    <Button
+                            onClick={() => signIn("google")}
+                            variant="default"
+                            className="flex justify-center items-center w-full h-11 text-base"
+                        >
                                 <svg
                                     className="mr-2 w-5 h-5"
                                     aria-hidden="true"
@@ -56,7 +59,6 @@ export default function SignIn() {
                                 </svg>
                                 Sign in with Google
                             </Button>
-                        </form>
                     </div>
                 </CardContent>
                 

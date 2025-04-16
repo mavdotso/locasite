@@ -1,4 +1,5 @@
 import { defineSchema, defineTable } from "convex/server";
+import { authTables } from "@convex-dev/auth/server";
 import { v, Validator } from "convex/values";
 
 export const userSchema = {
@@ -50,29 +51,12 @@ export const authenticatorSchema = {
     transports: v.optional(v.string()),
 };
 
-const authTables = {
-    users: defineTable(userSchema).index("email", ["email"]),
-    sessions: defineTable(sessionSchema)
-        .index("sessionToken", ["sessionToken"])
-        .index("userId", ["userId"]),
-    accounts: defineTable(accountSchema)
-        .index("providerAndAccountId", ["provider", "providerAccountId"])
-        .index("userId", ["userId"]),
-    verificationTokens: defineTable(verificationTokenSchema).index(
-        "identifierToken",
-        ["identifier", "token"],
-    ),
-    authenticators: defineTable(authenticatorSchema)
-        .index("userId", ["userId"])
-        .index("credentialID", ["credentialID"]),
-};
 
 export const reviewSchema = {
     reviewer: v.string(),
     rating: v.string(),
     text: v.string()
 };
-
 
 export default defineSchema({
     ...authTables,

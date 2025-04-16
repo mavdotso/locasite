@@ -93,10 +93,14 @@ export const claimBusiness = mutation({
     }
 
     // Create the claim
-    const claimId = await internal_createBusinessClaim(ctx, {
+    const claimId = await ctx.db.insert("businessClaims", {
       businessId: args.businessId,
       userId: user._id,
+      status: "pending",
+      googleVerificationStatus: "pending",
+      createdAt: Date.now(),
     });
+
 
     return {
       claimId,

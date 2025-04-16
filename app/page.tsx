@@ -8,21 +8,21 @@ import Scraper from "./components/scraper";
 
 export default function HomePage() {
     const [scrapedBusinessId, setScrapedBusinessId] = useState<Id<"businesses"> | null>(null);
-
+    
     return (
-        <div className="bg-gray-50 py-12 min-h-screen">
-            <div className="mx-auto px-4 max-w-4xl container">
+        <div className="min-h-screen py-12 bg-gray-50">
+            <div className="container max-w-4xl px-4 mx-auto">
                 <div className="mb-10 text-center">
-                    <h1 className="font-bold text-4xl tracking-tight">Business Site Generator</h1>
-                    <p className="mt-3 text-muted-foreground text-lg">
+                    <h1 className="text-4xl font-bold tracking-tight">Business Site Generator</h1>
+                    <p className="mt-3 text-lg text-muted-foreground">
                         Create a professional website for your business in minutes
                     </p>
                 </div>
 
-                <Card className="shadow-md mb-10 border-none">
+                <Card className="mb-10 border-none shadow-md">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <span className="flex justify-center items-center bg-primary rounded-full w-7 h-7 font-medium text-primary-foreground text-sm">1</span>
+                            <span className="flex items-center justify-center text-sm font-medium rounded-full bg-primary w-7 h-7 text-primary-foreground">1</span>
                             Import Business Information
                         </CardTitle>
                         <CardDescription>
@@ -35,10 +35,10 @@ export default function HomePage() {
                 </Card>
 
                 {scrapedBusinessId ? (
-                    <Card className="shadow-md border-none">
+                    <Card className="border-none shadow-md">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <span className="flex justify-center items-center bg-primary rounded-full w-7 h-7 font-medium text-primary-foreground text-sm">2</span>
+                                <span className="flex items-center justify-center text-sm font-medium rounded-full bg-primary w-7 h-7 text-primary-foreground">2</span>
                                 Generate Website
                             </CardTitle>
                             <CardDescription>
@@ -50,8 +50,8 @@ export default function HomePage() {
                         </CardContent>
                     </Card>
                 ) : (
-                    <div className="opacity-50 py-8 text-center">
-                        <ArrowDown className="mx-auto mb-4 w-8 h-8 animate-bounce" />
+                    <div className="py-8 text-center opacity-50">
+                        <ArrowDown className="w-8 h-8 mx-auto mb-4 animate-bounce" />
                         <p className="text-muted-foreground">Complete step 1 to continue</p>
                     </div>
                 )}

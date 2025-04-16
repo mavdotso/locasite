@@ -211,9 +211,8 @@ export const updatePage = mutation({
             throw new Error("Not authorized to edit this page");
         }
 
-        return await internal_updatePage(ctx, {
-            pageId: args.pageId,
-            content: args.content,
+        return await ctx.db.patch(args.pageId, {
+            content: args.content
         });
     },
 });
