@@ -7,13 +7,18 @@ import { Input } from "@/app/components/ui/input";
 import { Textarea } from "@/app/components/ui/textarea";
 import { toast } from "sonner"
 import { cn } from '@/app/lib/utils';
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 
 interface BusinessContactFormProps {
+    businessId: Id<"businesses">;
     title?: string;
     className?: string;
 }
 
-export default function BusinessContactForm({ title, className }: BusinessContactFormProps) {
+export default function BusinessContactForm({ businessId, title, className }: BusinessContactFormProps) {
+    const sendMessage = useMutation(api.contactMessages.send);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -31,10 +36,15 @@ export default function BusinessContactForm({ title, className }: BusinessContac
         e.preventDefault();
         setFormStatus('submitting');
 
-        // Simulate form submission
         try {
-            // TODO: send the form data to your API
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await sendMessage({
+                businessId,
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone || undefined,
+                message: formData.message
+            });
+            
             setFormStatus('success');
             
             toast.success("Message sent!", {
@@ -49,13 +59,14 @@ export default function BusinessContactForm({ title, className }: BusinessContac
                 message: ''
             });
             setTimeout(() => setFormStatus('idle'), 3000);
-        } catch {
+        } catch (error) {
             setFormStatus('error');
             
             toast.error("Something went wrong", {
                 description: "There was an error submitting your form. Please try again.",
             });
             
+            console.error('Contact form error:', error);
             setTimeout(() => setFormStatus('idle'), 3000);
         }
     };

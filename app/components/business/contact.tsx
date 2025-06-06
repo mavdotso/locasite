@@ -5,10 +5,13 @@ import { cn } from "@/app/lib/utils";
 interface BusinessContactProps {
     title?: string;
     subtitle?: string;
+    phone?: string;
+    email?: string;
+    address?: string;
     className?: string;
 }
 
-export default function BusinessContact({ title, subtitle, className }: BusinessContactProps) {
+export default function BusinessContact({ title, subtitle, phone, email, address, className }: BusinessContactProps) {
     return (
         <section className={cn("bg-gray-50 py-12", className)}>
             <div className="mx-auto px-4 container">
@@ -32,7 +35,13 @@ export default function BusinessContact({ title, subtitle, className }: Business
                                                 </svg>
                                             </div>
                                             <h3 className="font-medium">Phone</h3>
-                                            <p className="text-gray-600">Call us for information</p>
+                                            {phone ? (
+                                                <a href={`tel:${phone}`} className="text-primary hover:underline">
+                                                    {phone}
+                                                </a>
+                                            ) : (
+                                                <p className="text-gray-600">Not available</p>
+                                            )}
                                         </div>
                                     </HoverCardTrigger>
                                     <HoverCardContent className="w-80">
@@ -52,7 +61,13 @@ export default function BusinessContact({ title, subtitle, className }: Business
                                                 </svg>
                                             </div>
                                             <h3 className="font-medium">Email</h3>
-                                            <p className="text-gray-600">Send us your questions</p>
+                                            {email ? (
+                                                <a href={`mailto:${email}`} className="text-primary hover:underline">
+                                                    {email}
+                                                </a>
+                                            ) : (
+                                                <p className="text-gray-600">Use contact form</p>
+                                            )}
                                         </div>
                                     </HoverCardTrigger>
                                     <HoverCardContent className="w-80">
@@ -73,7 +88,13 @@ export default function BusinessContact({ title, subtitle, className }: Business
                                                 </svg>
                                             </div>
                                             <h3 className="font-medium">Location</h3>
-                                            <p className="text-gray-600">Visit our business</p>
+                                            {address ? (
+                                                <p className="text-primary text-sm">
+                                                    {address}
+                                                </p>
+                                            ) : (
+                                                <p className="text-gray-600">Visit our business</p>
+                                            )}
                                         </div>
                                     </HoverCardTrigger>
                                     <HoverCardContent className="w-80">

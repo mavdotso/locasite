@@ -77,6 +77,7 @@ export default defineSchema({
         placeId: v.string(),
         address: v.string(),
         phone: v.optional(v.string()),
+        email: v.optional(v.string()),
         website: v.optional(v.string()),
         hours: v.array(v.string()),
         rating: v.optional(v.number()),
@@ -120,5 +121,23 @@ export default defineSchema({
         .index("by_business", ["businessId"])
         .index("by_user", ["userId"])
         .index("by_status", ["status"])
+        .index("by_business_status", ["businessId", "status"]),
+
+    contactMessages: defineTable({
+        businessId: v.id("businesses"),
+        name: v.string(),
+        email: v.string(),
+        phone: v.optional(v.string()),
+        message: v.string(),
+        status: v.union(
+            v.literal("unread"),
+            v.literal("read"),
+            v.literal("responded")
+        ),
+        createdAt: v.number(),
+        updatedAt: v.optional(v.number())
+    })
+        .index("by_business", ["businessId"])
         .index("by_business_status", ["businessId", "status"])
+        .index("by_createdAt", ["createdAt"])
 });

@@ -15,6 +15,7 @@ export interface Section {
     items?: Review[];
     address?: string;
     phone?: string;
+    email?: string;
     website?: string;
     hours?: string[];
     text?: string;

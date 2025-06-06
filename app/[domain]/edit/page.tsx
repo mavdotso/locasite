@@ -7,6 +7,7 @@ import BusinessEditor from "@/app/components/editors/business-editor";
 import GalleryEditor from "@/app/components/editors/gallery-editor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
 import ThemeEditor from "@/app/components/editors/theme-editor";
+import MessageList from "@/app/components/messages/message-list";
 
 interface EditPageProps {
   params: Promise<{
@@ -81,6 +82,16 @@ export default async function EditPage({ params }: EditPageProps) {
       domainId: domain._id,
     });
 
+    // Fetch contact messages
+    const messages = await convex.query(api.contactMessages.getByBusiness, {
+      businessId: business._id,
+    });
+    
+    // Get unread count
+    const unreadCount = await convex.query(api.contactMessages.getUnreadCount, {
+      businessId: business._id,
+    });
+
     return (
       <div className="container p-8 mx-auto">
         <Card className="mb-8">
@@ -98,6 +109,14 @@ export default async function EditPage({ params }: EditPageProps) {
             <TabsTrigger value="gallery">Photo Gallery</TabsTrigger>
             <TabsTrigger value="pages">Pages</TabsTrigger>
             <TabsTrigger value="theme">Theme & Design</TabsTrigger>
+            <TabsTrigger value="messages">
+              Messages
+              {unreadCount > 0 && (
+                <span className="ml-2 px-2 py-0.5 text-xs bg-primary text-primary-foreground rounded-full">
+                  {unreadCount}
+                </span>
+              )}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="business">
@@ -109,7 +128,7 @@ export default async function EditPage({ params }: EditPageProps) {
           </TabsContent>
 
           <TabsContent value="theme">
-        <ThemeEditor business={business} />
+            <ThemeEditor business={business} />
           </TabsContent>
 
           <TabsContent value="pages">
@@ -123,6 +142,18 @@ export default async function EditPage({ params }: EditPageProps) {
                 </div>
               ))}
             </div>
+          </TabsContent>
+
+          <TabsContent value="messages">
+            <Card className="mb-4">
+              <CardHeader>
+                <CardTitle>Contact Form Submissions</CardTitle>
+                <CardDescription>
+                  Messages from visitors who filled out your contact form
+                </CardDescription>
+              </CardHeader>
+            </Card>
+            <MessageList initialMessages={messages} />
           </TabsContent>
         </Tabs>
       </div>
