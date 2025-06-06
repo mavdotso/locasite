@@ -3,9 +3,25 @@
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { useAuthActions } from "@convex-dev/auth/react";
+import { useEffect, useState } from 'react';
+import { BusinessData } from '@/convex/businesses';
 
 export default function SignIn() {
     const { signIn } = useAuthActions();
+    const [pendingBusiness, setPendingBusiness] = useState<BusinessData | null>(null);
+
+    useEffect(() => {
+        // Check if there's a pending business in session storage
+        const pending = sessionStorage.getItem('pendingBusiness');
+        if (pending) {
+            try {
+                setPendingBusiness(JSON.parse(pending));
+            } catch (error) {
+                console.error('Error parsing pending business:', error);
+                sessionStorage.removeItem('pendingBusiness');
+            }
+        }
+    }, []);
 
     return (
         <div className="flex justify-center items-center bg-secondary px-4 py-12 h-screen">
@@ -13,7 +29,10 @@ export default function SignIn() {
                 <CardHeader className="space-y-1 text-center">
                     <CardTitle className="font-bold text-2xl">Welcome to Locasite</CardTitle>
                     <CardDescription>
-                        Sign in to manage your business sites
+                        {pendingBusiness 
+                            ? `Sign in to publish your ${pendingBusiness.name} website`
+                            : 'Sign in to manage your business sites'
+                        }
                     </CardDescription>
                 </CardHeader>
                 

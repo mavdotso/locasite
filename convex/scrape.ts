@@ -1,6 +1,14 @@
 import { httpAction } from "./_generated/server";
 import { api } from "./_generated/api";
+import { RateLimiter } from "@convex-dev/rate-limiter";
+import { components } from "./_generated/api";
 import axios from "axios";
+
+const MINUTE = 60 * 1000; // 1 minute in milliseconds
+
+const rateLimiter = new RateLimiter(components.rateLimiter, {
+  previewScrape: { kind: "fixed window", rate: 3, period: MINUTE },
+});
 
 interface GooglePlaceReview {
   author_name: string;
@@ -16,7 +24,27 @@ interface GooglePlacePhoto {
 
 export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
   try {
-    const { url } = await request.json();
+    const { url, preview = false } = await request.json();
+    
+    // Apply rate limiting for preview requests (unauthenticated users)
+    if (preview) {
+      const identifier = request.headers.get("x-forwarded-for") || "anonymous";
+      const status = await rateLimiter.limit(ctx, "previewScrape", { key: identifier });
+      
+      if (!status.ok) {
+        return new Response(
+          JSON.stringify({ error: 'Rate limit exceeded. Please try again in a minute.' }),
+          {
+            status: 429,
+            headers: {
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+              "Vary": "origin"
+            }
+          }
+        );
+      }
+    }
 
     if (!url || !url.includes('google.com/maps')) {
       return new Response(
@@ -121,13 +149,16 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
       placeId: placeId
     };
 
-    // Save the data using a mutation
-    const businessId = await ctx.runMutation(api.businesses.create, {
-      business: businessData
-    });
+    // Only save to database if not in preview mode
+    let businessId = null;
+    if (!preview) {
+      businessId = await ctx.runMutation(api.businesses.create, {
+        business: businessData
+      });
+    }
 
     return new Response(
-      JSON.stringify({ success: true, data: businessData, businessId }),
+      JSON.stringify({ success: true, data: businessData, businessId, preview }),
       {
         status: 200,
         headers: {

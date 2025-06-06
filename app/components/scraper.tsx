@@ -11,9 +11,11 @@ import { Label } from "@/app/components/ui/label";
 
 interface ScraperProps {
     onBusinessCreated?: (businessId: Id<"businesses">) => void;
+    previewMode?: boolean;
+    onPreviewComplete?: (businessData: BusinessData) => void;
 }
 
-export default function Scraper({ onBusinessCreated }: ScraperProps) {
+export default function Scraper({ onBusinessCreated, previewMode = false, onPreviewComplete }: ScraperProps) {
     const [url, setUrl] = useState('');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<BusinessData | null>(null);
@@ -45,7 +47,7 @@ export default function Scraper({ onBusinessCreated }: ScraperProps) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ url }),
+                body: JSON.stringify({ url, preview: previewMode }),
             });
     
             // Check if response is JSON before trying to parse it
@@ -65,7 +67,9 @@ export default function Scraper({ onBusinessCreated }: ScraperProps) {
     
             setResult(data.data);
     
-            if (onBusinessCreated && data.businessId) {
+            if (previewMode && onPreviewComplete) {
+                onPreviewComplete(data.data);
+            } else if (onBusinessCreated && data.businessId) {
                 onBusinessCreated(data.businessId);
             }
         } catch (err) {

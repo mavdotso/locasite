@@ -7,11 +7,6 @@ export default async function middleware(request: NextRequest, event: NextFetchE
     const authResponse = await authMiddleware(request, event);
 
     if (authResponse) {
-        console.log('Auth middleware returned response:', {
-            status: authResponse.status,
-            headers: Object.fromEntries(authResponse.headers.entries()),
-            url: authResponse.url
-        });
         return authResponse;
     }
 

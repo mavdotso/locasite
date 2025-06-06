@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "sonner";
+import { ConvexClientProvider } from "./components/providers/ConvexClientProvider";
+import { AuthHandler } from "./components/auth-handler";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,7 +28,12 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ConvexAuthNextjsServerProvider>{children}</ConvexAuthNextjsServerProvider>
+        <ConvexAuthNextjsServerProvider>
+          <ConvexClientProvider>
+            <AuthHandler />
+            {children}
+          </ConvexClientProvider>
+        </ConvexAuthNextjsServerProvider>
         <Toaster />
       </body>
     </html>

@@ -379,3 +379,52 @@ export const updateBusinessDescription = mutation({
         });
     },
 });
+
+// Create business from preview data (for authenticated users after sign-up)
+export const createFromPreview = mutation({
+    args: {
+        businessData: v.object({
+            name: v.string(),
+            placeId: v.string(),
+            address: v.string(),
+            phone: v.optional(v.string()),
+            website: v.optional(v.string()),
+            hours: v.array(v.string()),
+            rating: v.optional(v.number()),
+            reviews: v.array(v.object({
+                reviewer: v.string(),
+                rating: v.string(),
+                text: v.string()
+            })),
+            photos: v.array(v.string()),
+            description: v.optional(v.string())
+        }),
+    },
+    handler: async (ctx, args) => {
+        const identity = await checkUserAuth(ctx);
+
+        // Get the user ID from the identity
+        const user = await getUserFromIdentity(ctx, identity);
+
+        // Check if business with this placeId already exists for this user
+        const existingBusiness = await ctx.db
+            .query("businesses")
+            .withIndex("by_placeId", q => q.eq("placeId", args.businessData.placeId))
+            .filter(q => q.eq(q.field("userId"), user._id))
+            .first();
+
+        if (existingBusiness) {
+            // Return the existing business ID
+            return existingBusiness._id;
+        }
+
+        // Create the business
+        const businessId = await ctx.db.insert("businesses", {
+            ...args.businessData,
+            createdAt: Date.now(),
+            userId: user._id
+        });
+
+        return businessId;
+    }
+});
