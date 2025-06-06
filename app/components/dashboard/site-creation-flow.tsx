@@ -18,12 +18,13 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { BusinessData } from '@/convex/businesses';
 
 export default function SiteCreationFlow() {
   const [step, setStep] = useState(1);
   const [googleMapsUrl, setGoogleMapsUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [businessData, setBusinessData] = useState<any>(null);
+  const [businessData, setBusinessData] = useState<BusinessData | null>(null);
   const [error, setError] = useState('');
   const router = useRouter();
 
@@ -47,8 +48,9 @@ export default function SiteCreationFlow() {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Mock business data
-      const mockBusinessData = {
+      const mockBusinessData: BusinessData = {
         name: 'Sample Business',
+        placeId: 'ChIJN1t_tDeuEmsRUsoyG83frY4',
         address: '123 Main St, City, State 12345',
         phone: '(555) 123-4567',
         website: 'https://example.com',

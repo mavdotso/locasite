@@ -117,7 +117,7 @@ export const claimBusiness = mutation({
     }
 
     // Create the claim
-    const claimData: any = {
+    const claimData: Omit<Doc<"businessClaims">, "_id" | "_creationTime" | "updatedAt" | "notes"> = {
       businessId: args.businessId,
       userId: user._id,
       status: "pending",

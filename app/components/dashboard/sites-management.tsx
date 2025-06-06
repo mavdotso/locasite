@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { Id, Doc } from '@/convex/_generated/dataModel';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
@@ -54,10 +55,10 @@ export default function SitesManagement() {
     return matchesSearch && matchesStatus;
   }) || [];
 
-  const handleDeleteSite = async (businessId: string, businessName: string) => {
+  const handleDeleteSite = async (businessId: Id<"businesses">, businessName: string) => {
     if (window.confirm(`Are you sure you want to delete "${businessName}"? This action cannot be undone.`)) {
       try {
-        await deleteBusiness({ id: businessId as any });
+        await deleteBusiness({ id: businessId });
         toast.success('Site deleted successfully');
       } catch (error) {
         console.error('Error deleting site:', error);
@@ -66,7 +67,7 @@ export default function SitesManagement() {
     }
   };
 
-  const getSiteStatus = (business: any) => {
+  const getSiteStatus = (business: Doc<"businesses">) => {
     if (business.domainId) return 'published';
     if (business.userId) return 'draft';
     return 'pending';

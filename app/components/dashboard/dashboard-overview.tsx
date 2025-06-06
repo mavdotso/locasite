@@ -21,10 +21,10 @@ import {
 import Link from 'next/link';
 
 interface DashboardOverviewProps {
-  initialData?: any;
+  initialData?: Record<string, unknown>;
 }
 
-export default function DashboardOverview({ initialData }: DashboardOverviewProps) {
+export default function DashboardOverview({ initialData: _initialData }: DashboardOverviewProps) {
   const user = useQuery(api.auth.currentUser);
   const userBusinesses = useQuery(api.businesses.listByUser, 
     user ? { userId: user._id } : 'skip'

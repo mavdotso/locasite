@@ -66,7 +66,7 @@ export default function DragDropSectionEditor({ page, onPreview }: DragDropSecti
   const [sections, setSections] = useState<Section[]>(() => {
     try {
       const content = JSON.parse(page.content);
-      return content.sections?.map((section: any, index: number) => ({
+      return content.sections?.map((section: Section, index: number) => ({
         ...section,
         id: section.id || `section-${index}`,
         visible: section.visible !== false

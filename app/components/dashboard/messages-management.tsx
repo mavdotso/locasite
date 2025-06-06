@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { Id } from '@/convex/_generated/dataModel';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
@@ -28,8 +29,8 @@ import { toast } from 'sonner';
 type MessageStatus = 'all' | 'unread' | 'read' | 'responded';
 
 interface MessageWithBusiness {
-  _id: string;
-  businessId: string;
+  _id: Id<"contactMessages">;
+  businessId: Id<"businesses">;
   name: string;
   email: string;
   phone?: string;
@@ -39,7 +40,7 @@ interface MessageWithBusiness {
   updatedAt?: number;
   business?: {
     name: string;
-    _id: string;
+    _id: Id<"businesses">;
   };
 }
 
@@ -67,9 +68,9 @@ export default function MessagesManagement() {
     return matchesSearch && matchesStatus;
   });
 
-  const handleMarkAsRead = async (messageId: string) => {
+  const handleMarkAsRead = async (messageId: Id<"contactMessages">) => {
     try {
-      await markAsRead({ messageId: messageId as any });
+      await markAsRead({ messageId });
       toast.success('Message marked as read');
     } catch (error) {
       console.error('Error marking message as read:', error);
@@ -77,9 +78,9 @@ export default function MessagesManagement() {
     }
   };
 
-  const handleMarkAsResponded = async (messageId: string) => {
+  const handleMarkAsResponded = async (messageId: Id<"contactMessages">) => {
     try {
-      await markAsResponded({ messageId: messageId as any });
+      await markAsResponded({ messageId });
       toast.success('Message marked as responded');
       setSelectedMessage(null);
       setReplyText('');

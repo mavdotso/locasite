@@ -6,12 +6,12 @@ import { Card } from '@/app/components/ui/card';
 
 export default async function DashboardPage() {
   // Pre-fetch dashboard data for better performance
-  let dashboardData = null;
+  let dashboardData: Record<string, unknown> | undefined = undefined;
   
   try {
     // In a real app, you'd check auth here and pass user ID
     // For now, we'll handle auth checks in the component
-    dashboardData = await Promise.resolve(null); // Placeholder for server-side data fetching
+    dashboardData = await Promise.resolve(undefined); // Placeholder for server-side data fetching
   } catch (error) {
     console.error('Error fetching dashboard data:', error);
   }
