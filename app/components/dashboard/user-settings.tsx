@@ -31,7 +31,6 @@ export default function UserSettings() {
   const userBusinesses = useQuery(api.businesses.listByUser, 
     user ? { userId: user._id } : 'skip'
   );
-  const userClaims = useQuery(api.businessClaims.getClaimsByUser) || [];
 
   // Form states
   const [profileData, setProfileData] = useState({
@@ -80,9 +79,7 @@ export default function UserSettings() {
 
   const accountStats = {
     totalSites: userBusinesses?.length || 0,
-    activeSites: userBusinesses?.filter(b => b.domainId).length || 0,
-    totalClaims: userClaims.length,
-    approvedClaims: userClaims.filter(c => c.status === 'approved').length
+    activeSites: userBusinesses?.filter(b => b.domainId).length || 0
   };
 
   return (
@@ -186,7 +183,7 @@ export default function UserSettings() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <div className="text-2xl font-bold text-blue-600">{accountStats.totalSites}</div>
                 <div className="text-sm text-gray-600">Total Sites</div>
@@ -194,14 +191,6 @@ export default function UserSettings() {
               <div className="text-center p-4 bg-green-50 rounded-lg">
                 <div className="text-2xl font-bold text-green-600">{accountStats.activeSites}</div>
                 <div className="text-sm text-gray-600">Active Sites</div>
-              </div>
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">{accountStats.totalClaims}</div>
-                <div className="text-sm text-gray-600">Business Claims</div>
-              </div>
-              <div className="text-center p-4 bg-orange-50 rounded-lg">
-                <div className="text-2xl font-bold text-orange-600">{accountStats.approvedClaims}</div>
-                <div className="text-sm text-gray-600">Approved Claims</div>
               </div>
             </div>
           </CardContent>

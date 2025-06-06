@@ -14,9 +14,6 @@ import {
   ExternalLink,
   Edit3,
   BarChart3,
-  Clock,
-  CheckCircle,
-  AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -30,13 +27,10 @@ export default function DashboardOverview({ initialData: _initialData }: Dashboa
     user ? { userId: user._id } : 'skip'
   );
   const totalUnreadMessages = useQuery(api.contactMessages.getTotalUnreadCount) || 0;
-  const userClaims = useQuery(api.businessClaims.getClaimsByUser) || [];
 
   // Calculate stats
   const totalSites = userBusinesses?.length || 0;
   const activeSites = userBusinesses?.filter(b => b.domainId).length || 0;
-  const pendingClaims = userClaims.filter(c => c.status === 'pending').length;
-  const approvedClaims = userClaims.filter(c => c.status === 'approved').length;
 
   // Mock analytics data (in a real app, this would come from your analytics service)
   const mockAnalytics = {
@@ -64,14 +58,6 @@ export default function DashboardOverview({ initialData: _initialData }: Dashboa
       icon: MessageSquare,
       color: 'text-blue-600'
     },
-    {
-      id: 3,
-      type: 'claim_approved',
-      message: 'Business claim approved for "Restaurant Main St"',
-      time: '1 day ago',
-      icon: CheckCircle,
-      color: 'text-green-600'
-    }
   ];
 
   const statCards = [
@@ -257,14 +243,6 @@ export default function DashboardOverview({ initialData: _initialData }: Dashboa
                 </Link>
               </Button>
               
-              {pendingClaims > 0 && (
-                <Button variant="outline" className="w-full justify-start" asChild>
-                  <Link href="/claims">
-                    <Clock className="w-4 h-4 mr-2" />
-                    Pending Claims ({pendingClaims})
-                  </Link>
-                </Button>
-              )}
             </CardContent>
           </Card>
 
