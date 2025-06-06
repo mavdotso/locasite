@@ -1,15 +1,12 @@
+"use client"
 import Link from 'next/link';
-import { Id } from '@/convex/_generated/dataModel';
+import { Doc } from '@/convex/_generated/dataModel';
 import { Button } from "@/app/components/ui/button";
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 
 interface BusinessHeaderProps {
-    pages: Array<{
-        _id: Id<"pages">;
-        slug: string;
-        content: string;
-    }>;
+    pages: Doc<"pages">[]
     currentSlug: string;
     domain: string;
     businessUserId?: string;

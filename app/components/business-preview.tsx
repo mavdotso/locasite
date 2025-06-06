@@ -87,11 +87,19 @@ export default function BusinessPreview({ businessData, onGetStarted }: Business
 
       {/* Business Website Preview */}
       <div className="flex flex-col min-h-screen">
-        <BusinessHeader
-          domain={businessData.name}
-          pages={[{ _id: 'home' as Id<"pages">, slug: 'home', content: '' }]}
-          currentSlug="home"
-        />
+      <BusinessHeader
+        domain={businessData.name}
+        pages={[
+          {
+            _id: 'home' as Id<"pages">,
+            _creationTime: 0,
+            domainId: '' as Id<"domains">,
+            slug: 'home',
+            content: ''
+          }
+        ]}
+        currentSlug="home"
+      />
 
         <main className="flex-grow">
           {defaultSections.map((section, index) => {
