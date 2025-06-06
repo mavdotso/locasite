@@ -87,7 +87,7 @@ export default function BusinessPreview({ business, pageContent, viewport = 'des
         >
           <BusinessHeader
             domain={business.name}
-            pages={pages}
+            pages={[]}
             currentSlug="home"
             businessUserId={business.userId}
           />

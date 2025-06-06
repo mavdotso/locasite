@@ -7,14 +7,15 @@ import { BusinessPreviewWrapper } from "@/components/business/business-preview-w
 export default async function BusinessPreviewPage({
   params,
 }: {
-  params: { businessId: string };
+  params: Promise<{ businessId: string }>;
 }) {
   try {
-    const businessId = params.businessId as Id<"businesses">;
+    const { businessId } = await params;
+    const businessIdTyped = businessId as Id<"businesses">;
     
     // Preload business data with draft content
     const preloadedBusiness = await preloadQuery(api.businesses.getByIdWithDraft, {
-      id: businessId,
+      id: businessIdTyped,
     });
 
     if (!preloadedBusiness) {
@@ -23,11 +24,11 @@ export default async function BusinessPreviewPage({
 
     return (
       <BusinessPreviewWrapper
-        businessId={businessId}
+        businessId={businessIdTyped}
         preloadedBusiness={preloadedBusiness}
       />
     );
-  } catch (error) {
+  } catch {
     notFound();
   }
 }

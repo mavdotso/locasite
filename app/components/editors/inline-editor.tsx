@@ -69,30 +69,36 @@ export function InlineEditor({
   }
 
   if (isEditing) {
-    const commonProps = {
-      ref: inputRef as any,
-      value: localValue,
-      onChange: (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) =>
-        setLocalValue(e.target.value),
-      onBlur: handleBlur,
-      onKeyDown: handleKeyDown,
-      className: cn(
-        "outline-none bg-transparent border-2 border-primary rounded px-2 py-1",
-        className
-      ),
-    };
+    const baseClassName = cn(
+      "outline-none bg-transparent border-2 border-primary rounded px-2 py-1",
+      className
+    );
 
     if (multiline) {
       return (
         <textarea
-          {...commonProps}
+          ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+          value={localValue}
+          onChange={(e) => setLocalValue(e.target.value)}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
           rows={3}
-          className={cn(commonProps.className, "resize-none w-full")}
+          className={cn(baseClassName, "resize-none w-full")}
         />
       );
     }
 
-    return <input {...commonProps} type="text" />;
+    return (
+      <input
+        ref={inputRef as React.RefObject<HTMLInputElement>}
+        type="text"
+        value={localValue}
+        onChange={(e) => setLocalValue(e.target.value)}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
+        className={baseClassName}
+      />
+    );
   }
 
   return (

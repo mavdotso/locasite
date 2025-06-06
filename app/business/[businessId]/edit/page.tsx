@@ -8,14 +8,15 @@ import AuthGuard from "@/components/auth/auth-guard";
 export default async function BusinessEditPage({
   params,
 }: {
-  params: { businessId: string };
+  params: Promise<{ businessId: string }>;
 }) {
   try {
-    const businessId = params.businessId as Id<"businesses">;
+    const { businessId } = await params;
+    const businessIdTyped = businessId as Id<"businesses">;
     
     // Preload business data
     const preloadedBusiness = await preloadQuery(api.businesses.getById, {
-      id: businessId,
+      id: businessIdTyped,
     });
 
     if (!preloadedBusiness) {
@@ -25,12 +26,12 @@ export default async function BusinessEditPage({
     return (
       <AuthGuard>
         <UnifiedEditor
-          businessId={businessId}
+          businessId={businessIdTyped}
           preloadedBusiness={preloadedBusiness}
         />
       </AuthGuard>
     );
-  } catch (error) {
+  } catch {
     notFound();
   }
 }

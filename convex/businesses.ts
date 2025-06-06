@@ -460,7 +460,7 @@ export const publishDraft = mutation({
         }
         
         // Apply draft content to main fields
-        const updates: any = {
+        const updates: Record<string, unknown> = {
             isPublished: true,
             publishedAt: Date.now(),
             lastEditedAt: Date.now(),

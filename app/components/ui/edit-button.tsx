@@ -1,7 +1,5 @@
 'use client';
 
-import { useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { Button } from '@/app/components/ui/button';
 import Link from 'next/link';
@@ -21,10 +19,8 @@ export default function EditButton({
   children, 
   variant = 'default',
   size = 'default',
-  className = '',
-  pageSlug = 'home'
+  className = ''
 }: EditButtonProps) {
-  const domain = useQuery(api.domains.getByBusinessId, { businessId });
 
   // Always use unified editor with business ID
   const editUrl = `/business/${businessId}/edit`;

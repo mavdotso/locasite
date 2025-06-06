@@ -1,12 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { EditModeProvider } from "@/components/providers/edit-mode-provider";
 import { EditToolbar } from "@/components/editors/edit-toolbar";
-import BusinessPageContent from "@/components/business/business-page-content";
 import { cn } from "@/lib/utils";
 import { Monitor, Tablet, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";

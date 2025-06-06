@@ -3,15 +3,15 @@
 import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
 
 interface EditModeContextType {
   isEditMode: boolean;
   setEditMode: (enabled: boolean) => void;
   businessId: Id<"businesses"> | null;
-  draftData: any;
-  updateDraft: (field: string, value: any) => void;
+  draftData: Doc<"businesses">["draftContent"];
+  updateDraft: (field: string, value: unknown) => void;
   saveDraft: () => Promise<void>;
   publishDraft: () => Promise<void>;
   discardDraft: () => Promise<void>;
@@ -42,7 +42,7 @@ export function EditModeProvider({
   initialEditMode = false,
 }: EditModeProviderProps) {
   const [isEditMode, setEditMode] = useState(initialEditMode);
-  const [draftData, setDraftData] = useState<any>({});
+  const [draftData, setDraftData] = useState<Doc<"businesses">["draftContent"]>({});
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -71,28 +71,27 @@ export function EditModeProvider({
   }, [business]);
 
   // Update draft data
-  const updateDraft = useCallback((field: string, value: any) => {
-    setDraftData((prev: any) => {
-      // Handle nested fields (e.g., theme.primaryColor)
+  const updateDraft = useCallback((field: string, value: unknown) => {
+    setDraftData((prev) => {
       const keys = field.split(".");
       if (keys.length > 1) {
         const newData = { ...prev };
-        let current = newData;
-        
+        let current: Record<string, unknown> = newData;
+  
         for (let i = 0; i < keys.length - 1; i++) {
-          if (!current[keys[i]]) {
-            current[keys[i]] = {};
-          } else {
-            current[keys[i]] = { ...current[keys[i]] };
+          const key = keys[i];
+          if (!current[key]) {
+            current[key] = {};
+          } else if (typeof current[key] === 'object' && current[key] !== null) {
+            current[key] = { ...(current[key] as Record<string, unknown>) };
           }
-          current = current[keys[i]];
+          current = current[key] as Record<string, unknown>;
         }
-        
+  
         current[keys[keys.length - 1]] = value;
-        return newData;
+        return newData as Doc<"businesses">["draftContent"];
       }
-      
-      return { ...prev, [field]: value };
+      return { ...prev, [field]: value } as Doc<"businesses">["draftContent"];
     });
     setHasUnsavedChanges(true);
   }, []);
@@ -103,7 +102,7 @@ export function EditModeProvider({
     try {
       await saveDraftMutation({
         businessId,
-        draftContent: draftData,
+        draftContent: draftData ?? {},
       });
       setHasUnsavedChanges(false);
       toast.success("Draft saved");
@@ -122,7 +121,7 @@ export function EditModeProvider({
       // First save the draft
       await saveDraftMutation({
         businessId,
-        draftContent: draftData,
+        draftContent: draftData ?? {},
       });
       
       // Then publish it
@@ -180,7 +179,7 @@ export function EditModeProvider({
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
         e.preventDefault();
-        e.returnValue = "";
+        return "";
       }
     };
 
