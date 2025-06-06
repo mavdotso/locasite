@@ -70,7 +70,7 @@ export default async function BusinessEditPage({ params }: BusinessEditPageProps
                   {domain && (
                     <>
                       <Button variant="outline" asChild>
-                        <a href={`/${domain.subdomain}/live-edit`} target="_blank" rel="noopener noreferrer">
+                        <a href={`/${domain.subdomain}/home/edit`} target="_blank" rel="noopener noreferrer">
                           Live Editor
                         </a>
                       </Button>

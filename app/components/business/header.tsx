@@ -29,7 +29,7 @@ export default function BusinessHeader({
                         <h1 className="text-xl font-bold text-primary">{domain}</h1>
                         {isOwner && (
                             <Button asChild size="sm" variant="outline">
-                                <Link href={`/${domain}/edit`}>
+                                <Link href={`/${domain}/home/edit`}>
                                     Edit Site
                                 </Link>
                             </Button>
@@ -47,7 +47,7 @@ export default function BusinessHeader({
                                 })();
 
                                 return (
-                                    <li key={page._id as string}>
+                                    <li key={page._id as string} className="flex items-center gap-1">
                                         <Button
                                             asChild
                                             variant={currentSlug === page.slug ? "default" : "ghost"}
@@ -57,6 +57,18 @@ export default function BusinessHeader({
                                                 {title}
                                             </Link>
                                         </Button>
+                                        {isOwner && (
+                                            <Button
+                                                asChild
+                                                variant="ghost"
+                                                size="sm"
+                                                className="px-2 h-8 text-muted-foreground hover:text-foreground"
+                                            >
+                                                <Link href={`/${page.slug}/edit`} title={`Edit ${title} page`}>
+                                                    ✏️
+                                                </Link>
+                                            </Button>
+                                        )}
                                     </li>
                                 );
                             })}

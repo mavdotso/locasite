@@ -9,13 +9,13 @@ import { fetchQuery } from "convex/nextjs";
 interface PageProps {
   params: Promise<{
     domain: string;
-    slug: string[];
+    slug: string;
   }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
-    const { domain: businessDomain } = await params;
+    const { domain: businessDomain, slug } = await params;
 
     // Get domain from database
     const domain = await fetchQuery(api.domains.getBySubdomain, {
@@ -24,43 +24,44 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     if (!domain) {
       return {
-        title: "Business Not Found",
+        title: "Page Not Found",
       };
     }
 
-    // Get the business associated with this domain
-    const business = await fetchQuery(api.businesses.listByDomain, {
-      domain: domain._id,
+    // Get the page
+    const page = await fetchQuery(api.pages.getBySlug, {
+      domain: businessDomain,
+      slug: slug,
     });
 
-    if (!business || !business.length) {
+    if (!page) {
       return {
-        title: domain.name || "Business",
+        title: "Page Not Found",
       };
     }
 
-    const businessData = business[0];
+    let pageTitle = slug;
+    try {
+      const content = JSON.parse(page.content);
+      pageTitle = content.title || slug;
+    } catch {
+      // Use slug as fallback
+    }
 
     return {
-      title: domain.name || "Business",
-      description: businessData.description || `Welcome to ${domain.name}`,
-      openGraph: {
-        title: domain.name || "Business",
-        description: businessData.description || `Welcome to ${domain.name}`,
-        images: businessData.photos?.[0] ? [businessData.photos[0]] : [],
-      },
+      title: `${pageTitle} - ${domain.name}`,
+      description: `${pageTitle} page for ${domain.name}`,
     };
   } catch (error) {
     console.error("Error generating metadata:", error);
     return {
-      title: "Business Page",
+      title: "Page",
     };
   }
 }
 
-export default async function BusinessPage({ params }: PageProps) {
-
-  const { domain: businessDomain } = await params;
+export default async function BusinessSlugPage({ params }: PageProps) {
+  const { domain: businessDomain, slug } = await params;
 
   try {
     // Get domain from database
@@ -73,13 +74,14 @@ export default async function BusinessPage({ params }: PageProps) {
       notFound();
     }
 
-    // Get the home page
+    // Get the specific page
     const page = await fetchQuery(api.pages.getBySlug, {
       domain: businessDomain,
-      slug: "home",
+      slug: slug,
     });
 
     if (!page) {
+      console.log("Page not found:", slug);
       notFound();
     }
 
@@ -111,13 +113,12 @@ export default async function BusinessPage({ params }: PageProps) {
       );
     }
 
-
     return (
       <div className="flex flex-col min-h-screen">
         <BusinessHeader
           domain={domain.name}
           pages={pages}
-          currentSlug="home"
+          currentSlug={slug}
           businessUserId={businessData.userId}
         />
 
@@ -154,4 +155,3 @@ export default async function BusinessPage({ params }: PageProps) {
     notFound();
   }
 }
-

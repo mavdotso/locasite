@@ -13,6 +13,7 @@ interface EditButtonProps {
   variant?: 'default' | 'outline' | 'ghost';
   size?: 'sm' | 'default' | 'lg';
   className?: string;
+  pageSlug?: string; // Optional page slug, defaults to "home"
 }
 
 export default function EditButton({ 
@@ -20,14 +21,15 @@ export default function EditButton({
   children, 
   variant = 'default',
   size = 'default',
-  className = ''
+  className = '',
+  pageSlug = 'home'
 }: EditButtonProps) {
   const domain = useQuery(api.domains.getByBusinessId, { businessId });
 
-  // Always provide an edit link - either to published site editor or pre-domain editor
+  // Always use live editor - either with domain subdomain or business ID
   const editUrl = domain 
-    ? `/${domain.subdomain}/edit`  // Published business - use main editor (includes live preview)
-    : `/dashboard/business/${businessId}`;  // Unpublished business - use dashboard editor
+    ? `/${domain.subdomain}/${pageSlug}/edit`  // Published business - use domain subdomain
+    : `/business/${businessId}/${pageSlug}/edit`;  // Unpublished business - use business ID
 
   return (
     <Button variant={variant} size={size} className={className} asChild>
