@@ -401,16 +401,32 @@ export const createFromPreview = mutation({
         }),
     },
     handler: async (ctx, args) => {
-        const identity = await checkUserAuth(ctx);
+        // Check if user is authenticated using the current approach
+        const identity = await ctx.auth.getUserIdentity();
 
-        // Get the user ID from the identity
-        const user = await getUserFromIdentity(ctx, identity);
+        if (!identity) {
+            throw new Error("Unauthorized: You must be logged in");
+        }
+
+        // Extract user ID from subject (format: "userId|sessionId")
+        const userIdString = identity.subject.split('|')[0];
+        const userId = userIdString as Id<"users">;
+        
+        // Get the user record directly by ID
+        const user = await ctx.db.get(userId);
+        
+        if (!user) {
+            console.log("User not found with ID:", userId);
+            throw new Error("User not found. Please try signing in again.");
+        }
+
+        console.log("Found user:", user);
 
         // Check if business with this placeId already exists for this user
         const existingBusiness = await ctx.db
             .query("businesses")
             .withIndex("by_placeId", q => q.eq("placeId", args.businessData.placeId))
-            .filter(q => q.eq(q.field("userId"), user._id))
+            .filter(q => q.eq(q.field("userId"), userId))
             .first();
 
         if (existingBusiness) {
@@ -422,7 +438,7 @@ export const createFromPreview = mutation({
         const businessId = await ctx.db.insert("businesses", {
             ...args.businessData,
             createdAt: Date.now(),
-            userId: user._id
+            userId: userId
         });
 
         return businessId;

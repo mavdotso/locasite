@@ -15,6 +15,7 @@ export async function checkUserAuth(ctx: { auth: Auth }) {
 }
 
 export async function getUserFromIdentity(ctx: GenericQueryCtx<DataModel>, identity: UserIdentity) {
+  // Find user by email (the main identifier in our schema)
   const user = await ctx.db
     .query("users")
     .filter(q => q.eq(q.field("email"), identity.email))
