@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 import LivePreviewEditor from "@/app/components/editors/live-preview-editor";
+import AuthGuard from "@/app/components/auth/auth-guard";
 
 interface LiveEditPageProps {
   params: Promise<{
@@ -33,19 +34,14 @@ export default async function LiveEditPage({ params }: LiveEditPageProps) {
 
     const business = businesses[0];
 
-    // TODO: Check if user owns this business
-    // This should be implemented when authentication is fully set up
-
-    // Fetch all pages for the domain
-    // const pages = await fetchQuery(api.pages.listByDomain, {
-    //   domainId: domain._id,
-    // });
 
     return (
-      <LivePreviewEditor
-        business={business}
-        domain={domain}
-      />
+      <AuthGuard businessUserId={business.userId} requireOwnership={true}>
+        <LivePreviewEditor
+          business={business}
+          domain={domain}
+        />
+      </AuthGuard>
     );
   } catch (error) {
     console.error("Error loading live edit page:", error);

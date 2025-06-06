@@ -9,6 +9,7 @@ import GalleryEditor from "@/app/components/editors/gallery-editor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
 import ThemeEditor from "@/app/components/editors/theme-editor";
 import MessageList from "@/app/components/messages/message-list";
+import AuthGuard from "@/app/components/auth/auth-guard";
 
 interface EditPageProps {
   params: Promise<{
@@ -19,24 +20,6 @@ interface EditPageProps {
 export default async function EditPage({ params }: EditPageProps) {
   const { domain: businessDomain } = await params;
 
-  // TODO: Check if user is authenticated
-  // if (!session?.user) {
-  //   return (
-  //     <div className="container p-8 mx-auto">
-  //       <Card>
-  //         <CardHeader>
-  //           <CardTitle>Authentication Required</CardTitle>
-  //           <CardDescription>
-  //             You need to be logged in to edit this business site.
-  //           </CardDescription>
-  //         </CardHeader>
-  //         <CardContent>
-  //           <p>Please log in to continue.</p>
-  //         </CardContent>
-  //       </Card>
-  //     </div>
-  //   );
-  // }
 
   try {
     // Get domain from database
@@ -59,24 +42,6 @@ export default async function EditPage({ params }: EditPageProps) {
 
     const business = businesses[0];
 
-    // TODO: Check if user owns this business
-    // if (business.userId !== session.user.id) {
-    //   return (
-    //     <div className="container p-8 mx-auto">
-    //       <Card>
-    //         <CardHeader>
-    //           <CardTitle>Access Denied</CardTitle>
-    //           <CardDescription>
-    //             You don&apos;t have permission to edit this business site.
-    //           </CardDescription>
-    //         </CardHeader>
-    //         <CardContent>
-    //           <p>Only the owner of this business can edit its content.</p>
-    //         </CardContent>
-    //       </Card>
-    //     </div>
-    //   );
-    // }
 
     // Fetch all pages for the domain
     const pages = await convex.query(api.pages.listByDomain, {
@@ -94,7 +59,8 @@ export default async function EditPage({ params }: EditPageProps) {
     });
 
     return (
-      <div className="container p-8 mx-auto">
+      <AuthGuard businessUserId={business.userId} requireOwnership={true}>
+        <div className="container p-8 mx-auto">
         <Card className="mb-8">
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -173,7 +139,8 @@ export default async function EditPage({ params }: EditPageProps) {
             <MessageList initialMessages={messages} />
           </TabsContent>
         </Tabs>
-      </div>
+        </div>
+      </AuthGuard>
     );
   } catch (error) {
     console.error("Error loading edit page:", error);
