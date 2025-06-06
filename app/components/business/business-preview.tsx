@@ -5,7 +5,7 @@ import BusinessPageContent from './business-page-content';
 import BusinessHeader from './header';
 import BusinessFooter from './footer';
 import { Section } from '@/app/types/businesses';
-import { Doc, Id } from '@/convex/_generated/dataModel';
+import { Doc } from '@/convex/_generated/dataModel';
 
 interface BusinessPreviewProps {
   business: Doc<"businesses">
@@ -52,30 +52,6 @@ export default function BusinessPreview({ business, pageContent, viewport = 'des
     }
   }, [viewport]);
 
-  const mockPages = [
-    { 
-      _id: 'home' as Id<'pages'>, 
-      slug: 'home', 
-      content: JSON.stringify(pageContent),
-      _creationTime: Date.now(),
-      domainId: 'mock' as Id<'domains'>
-    },
-    { 
-      _id: 'about' as Id<'pages'>, 
-      slug: 'about', 
-      content: '{}',
-      _creationTime: Date.now(),
-      domainId: 'mock' as Id<'domains'>
-    },
-    { 
-      _id: 'contact' as Id<'pages'>, 
-      slug: 'contact', 
-      content: '{}',
-      _creationTime: Date.now(),
-      domainId: 'mock' as Id<'domains'>
-    },
-  ];
-
   const previewStyle = viewport !== 'desktop' ? {
     width: viewport === 'mobile' ? 375 : 768,
     height: viewport === 'mobile' ? 667 : 1024,
@@ -111,7 +87,7 @@ export default function BusinessPreview({ business, pageContent, viewport = 'des
         >
           <BusinessHeader
             domain={business.name}
-            pages={mockPages}
+            pages={pages}
             currentSlug="home"
             businessUserId={business.userId}
           />
