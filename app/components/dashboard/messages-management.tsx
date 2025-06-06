@@ -18,9 +18,6 @@ import {
   Clock,
   Check,
   Reply,
-  Archive,
-  Trash2,
-  ExternalLink,
   User,
   Building
 } from 'lucide-react';
@@ -113,7 +110,7 @@ export default function MessagesManagement() {
   if (!user) {
     return (
       <Card className="p-8 text-center">
-        <div className="text-gray-500">
+        <div className="text-muted-foreground">
           <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
           <p>Please sign in to view your messages.</p>
         </div>
@@ -129,7 +126,7 @@ export default function MessagesManagement() {
         <div className="flex flex-col sm:flex-row gap-4 justify-between">
           <div className="flex-1 max-w-md">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground/50 w-4 h-4" />
               <Input
                 placeholder="Search messages..."
                 value={searchQuery}
@@ -146,15 +143,15 @@ export default function MessagesManagement() {
         </div>
 
         {/* Status Filter Tabs */}
-        <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
+        <div className="flex gap-1 bg-muted p-1 rounded-lg w-fit">
           {(['all', 'unread', 'read', 'responded'] as MessageStatus[]).map((status) => (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
               className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                 statusFilter === status
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)} ({statusCounts[status]})
@@ -181,15 +178,15 @@ export default function MessagesManagement() {
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                        <User className="w-5 h-5 text-gray-500" />
+                      <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
+                        <User className="w-5 h-5 text-muted-foreground" />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-medium text-gray-900">{message.name}</h3>
+                          <h3 className="font-medium text-foreground">{message.name}</h3>
                           {getStatusBadge(message.status)}
                         </div>
-                        <div className="text-sm text-gray-500 space-y-1">
+                        <div className="text-sm text-muted-foreground space-y-1">
                           <div className="flex items-center gap-2">
                             <Mail className="w-3 h-3" />
                             <span>{message.email}</span>
@@ -207,13 +204,13 @@ export default function MessagesManagement() {
                         </div>
                       </div>
                     </div>
-                    <div className="text-sm text-gray-500 flex items-center gap-2">
+                    <div className="text-sm text-muted-foreground flex items-center gap-2">
                       <Clock className="w-3 h-3" />
                       {new Date(message.createdAt).toLocaleDateString()}
                     </div>
                   </div>
                   
-                  <p className="text-gray-700 text-sm line-clamp-2 mb-2">
+                  <p className="text-muted-foreground text-sm line-clamp-2 mb-2">
                     {message.message}
                   </p>
                   
@@ -241,11 +238,11 @@ export default function MessagesManagement() {
           </div>
         ) : (
           <Card className="p-12 text-center">
-            <div className="text-gray-500">
+            <div className="text-muted-foreground">
               {searchQuery || statusFilter !== 'all' ? (
                 <>
                   <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No messages found</h3>
+                  <h3 className="text-lg font-medium text-foreground mb-2">No messages found</h3>
                   <p className="mb-4">Try adjusting your search or filter criteria.</p>
                   <Button variant="outline" onClick={() => {
                     setSearchQuery('');
@@ -257,7 +254,7 @@ export default function MessagesManagement() {
               ) : (
                 <>
                   <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No messages yet</h3>
+                  <h3 className="text-lg font-medium text-foreground mb-2">No messages yet</h3>
                   <p className="mb-4">When customers contact you through your sites, messages will appear here.</p>
                 </>
               )}
@@ -280,31 +277,31 @@ export default function MessagesManagement() {
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <div>
-                    <label className="text-sm font-medium text-gray-700">From</label>
-                    <div className="text-sm text-gray-900">{selectedMessage.name}</div>
+                    <label className="text-sm font-medium text-muted-foreground">From</label>
+                    <div className="text-sm text-foreground">{selectedMessage.name}</div>
                   </div>
                   
                   <div>
-                    <label className="text-sm font-medium text-gray-700">Email</label>
-                    <div className="text-sm text-gray-900">{selectedMessage.email}</div>
+                    <label className="text-sm font-medium text-muted-foreground">Email</label>
+                    <div className="text-sm text-foreground">{selectedMessage.email}</div>
                   </div>
                   
                   {selectedMessage.phone && (
                     <div>
-                      <label className="text-sm font-medium text-gray-700">Phone</label>
-                      <div className="text-sm text-gray-900">{selectedMessage.phone}</div>
+                      <label className="text-sm font-medium text-muted-foreground">Phone</label>
+                      <div className="text-sm text-foreground">{selectedMessage.phone}</div>
                     </div>
                   )}
                   
                   <div>
-                    <label className="text-sm font-medium text-gray-700">Received</label>
-                    <div className="text-sm text-gray-900">
+                    <label className="text-sm font-medium text-muted-foreground">Received</label>
+                    <div className="text-sm text-foreground">
                       {new Date(selectedMessage.createdAt).toLocaleString()}
                     </div>
                   </div>
                   
                   <div>
-                    <label className="text-sm font-medium text-gray-700">Status</label>
+                    <label className="text-sm font-medium text-muted-foreground">Status</label>
                     <div className="mt-1">
                       {getStatusBadge(selectedMessage.status)}
                     </div>
@@ -312,8 +309,8 @@ export default function MessagesManagement() {
                 </div>
                 
                 <div>
-                  <label className="text-sm font-medium text-gray-700">Message</label>
-                  <div className="mt-1 p-3 bg-gray-50 rounded-lg text-sm text-gray-900">
+                  <label className="text-sm font-medium text-muted-foreground">Message</label>
+                  <div className="mt-1 p-3 bg-muted rounded-lg text-sm text-foreground">
                     {selectedMessage.message}
                   </div>
                 </div>
@@ -357,9 +354,9 @@ export default function MessagesManagement() {
           </>
         ) : (
           <Card className="p-8 text-center">
-            <div className="text-gray-500">
+            <div className="text-muted-foreground">
               <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Select a message</h3>
+              <h3 className="text-lg font-medium text-foreground mb-2">Select a message</h3>
               <p>Choose a message from the list to view details and reply.</p>
             </div>
           </Card>

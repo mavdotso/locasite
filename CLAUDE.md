@@ -80,8 +80,22 @@ Locasite is a Business Site Generator SaaS that creates professional websites fo
 - The app uses server components where possible for performance
 - Theme customization is stored per-business in the database
 - Gallery images are stored in Convex storage with public URLs
+- Never change files inside @/components/ui. They are preset components from Shadcn.
 
 ## Code Quality Rules
+
+### Color System & Design Tokens
+- **ONLY use semantic color classes from globals.css** - Never use hardcoded Tailwind neutral colors
+- **Forbidden neutral color classes**: `text-gray-*`, `bg-gray-*`, `border-gray-*`, `text-black`, `bg-white`, `text-slate-*`, `bg-neutral-*`, etc.
+- **Required semantic color mappings**:
+  - `text-gray-500/600` → `text-muted-foreground`
+  - `text-gray-900` → `text-foreground`
+  - `text-gray-400` → `text-muted-foreground/50`
+  - `bg-gray-50/100` → `bg-muted`
+  - `bg-white` → `bg-background` or `bg-card`
+  - `border-gray-200/300` → `border-border`
+- **Colorful classes are allowed**: Keep blue, green, red, orange, purple, amber, etc. for accent colors
+- **Exception**: `text-white` is allowed on colored backgrounds for contrast
 
 ### TypeScript Typing
 - **NEVER use `any` as a type** - Always use proper TypeScript types

@@ -15,13 +15,9 @@ import {
   Bell, 
   Shield, 
   CreditCard, 
-  Globe,
-  Mail,
   Smartphone,
   Key,
   Trash2,
-  ExternalLink,
-  Check,
   AlertTriangle
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -69,7 +65,7 @@ export default function UserSettings() {
   if (!user) {
     return (
       <Card className="p-8 text-center">
-        <div className="text-gray-500">
+        <div className="text-muted-foreground">
           <User className="w-12 h-12 mx-auto mb-4 opacity-50" />
           <p>Please sign in to view your settings.</p>
         </div>
@@ -186,11 +182,11 @@ export default function UserSettings() {
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <div className="text-2xl font-bold text-blue-600">{accountStats.totalSites}</div>
-                <div className="text-sm text-gray-600">Total Sites</div>
+                <div className="text-sm text-muted-foreground">Total Sites</div>
               </div>
               <div className="text-center p-4 bg-green-50 rounded-lg">
                 <div className="text-2xl font-bold text-green-600">{accountStats.activeSites}</div>
-                <div className="text-sm text-gray-600">Active Sites</div>
+                <div className="text-sm text-muted-foreground">Active Sites</div>
               </div>
             </div>
           </CardContent>
@@ -211,7 +207,7 @@ export default function UserSettings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">Email Notifications</div>
-                  <div className="text-sm text-gray-500">Receive notifications via email</div>
+                  <div className="text-sm text-muted-foreground">Receive notifications via email</div>
                 </div>
                 <input
                   type="checkbox"
@@ -226,7 +222,7 @@ export default function UserSettings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">New Messages</div>
-                  <div className="text-sm text-gray-500">Get notified when you receive contact form submissions</div>
+                  <div className="text-sm text-muted-foreground">Get notified when you receive contact form submissions</div>
                 </div>
                 <input
                   type="checkbox"
@@ -239,7 +235,7 @@ export default function UserSettings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">Site Updates</div>
-                  <div className="text-sm text-gray-500">Notifications about your website updates and changes</div>
+                  <div className="text-sm text-muted-foreground">Notifications about your website updates and changes</div>
                 </div>
                 <input
                   type="checkbox"
@@ -252,7 +248,7 @@ export default function UserSettings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">Security Alerts</div>
-                  <div className="text-sm text-gray-500">Important security notifications and login alerts</div>
+                  <div className="text-sm text-muted-foreground">Important security notifications and login alerts</div>
                 </div>
                 <input
                   type="checkbox"
@@ -267,7 +263,7 @@ export default function UserSettings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="font-medium">Marketing Emails</div>
-                  <div className="text-sm text-gray-500">Product updates, tips, and promotional content</div>
+                  <div className="text-sm text-muted-foreground">Product updates, tips, and promotional content</div>
                 </div>
                 <input
                   type="checkbox"
@@ -298,10 +294,10 @@ export default function UserSettings() {
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center gap-3">
-                  <Key className="w-5 h-5 text-gray-500" />
+                  <Key className="w-5 h-5 text-muted-foreground" />
                   <div>
                     <div className="font-medium">Password</div>
-                    <div className="text-sm text-gray-500">Last changed 30 days ago</div>
+                    <div className="text-sm text-muted-foreground">Last changed 30 days ago</div>
                   </div>
                 </div>
                 <Button variant="outline" size="sm">
@@ -311,10 +307,10 @@ export default function UserSettings() {
 
               <div className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center gap-3">
-                  <Shield className="w-5 h-5 text-gray-500" />
+                  <Shield className="w-5 h-5 text-muted-foreground" />
                   <div>
                     <div className="font-medium">Two-Factor Authentication</div>
-                    <div className="text-sm text-gray-500">Add an extra layer of security</div>
+                    <div className="text-sm text-muted-foreground">Add an extra layer of security</div>
                   </div>
                 </div>
                 <Badge variant="outline">Not Enabled</Badge>
@@ -322,10 +318,10 @@ export default function UserSettings() {
 
               <div className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center gap-3">
-                  <Smartphone className="w-5 h-5 text-gray-500" />
+                  <Smartphone className="w-5 h-5 text-muted-foreground" />
                   <div>
                     <div className="font-medium">Connected Devices</div>
-                    <div className="text-sm text-gray-500">Manage your logged-in devices</div>
+                    <div className="text-sm text-muted-foreground">Manage your logged-in devices</div>
                   </div>
                 </div>
                 <Button variant="outline" size="sm">
@@ -373,9 +369,9 @@ export default function UserSettings() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="text-center py-8">
-              <CreditCard className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Free Plan</h3>
-              <p className="text-gray-500 mb-4">
+              <CreditCard className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">Free Plan</h3>
+              <p className="text-muted-foreground mb-4">
                 You&apos;re currently on the free plan. Upgrade to unlock more features.
               </p>
               <Button>
@@ -387,7 +383,7 @@ export default function UserSettings() {
 
             <div className="space-y-4">
               <h4 className="font-medium">Billing History</h4>
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-muted-foreground">
                 <div className="text-sm">No billing history available</div>
               </div>
             </div>

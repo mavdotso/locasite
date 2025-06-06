@@ -62,7 +62,7 @@ export default function MessageList({ initialMessages }: MessageListProps) {
       {messages.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-gray-500">No messages yet. Messages from your contact form will appear here.</p>
+            <p className="text-muted-foreground">No messages yet. Messages from your contact form will appear here.</p>
           </CardContent>
         </Card>
       ) : (
@@ -81,7 +81,7 @@ export default function MessageList({ initialMessages }: MessageListProps) {
                     </a>
                     {message.phone && (
                       <>
-                        <span className="text-gray-400">•</span>
+                        <span className="text-muted-foreground/50">•</span>
                         <a href={`tel:${message.phone}`} className="text-sm text-primary hover:underline">
                           {message.phone}
                         </a>
@@ -95,12 +95,12 @@ export default function MessageList({ initialMessages }: MessageListProps) {
                     message.status === "unread" 
                       ? "bg-blue-100 text-blue-800" 
                       : message.status === "read"
-                      ? "bg-gray-100 text-gray-800"
+                      ? "bg-muted text-foreground"
                       : "bg-green-100 text-green-800"
                   )}>
                     {message.status}
                   </span>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-muted-foreground">
                     {formatDate(message.createdAt)}
                   </span>
                 </div>

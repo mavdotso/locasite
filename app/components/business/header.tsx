@@ -25,7 +25,7 @@ export default function BusinessHeader({
     const isOwner = currentUser?.userId === businessUserId;
 
     return (
-        <header className="sticky top-0 z-50 bg-white shadow-sm">
+        <header className="sticky top-0 z-50 bg-background shadow-sm">
             <div className="container px-4 py-4 mx-auto">
                 <div className="flex flex-col md:flex-row md:justify-between md:items-center">
                     <div className="flex items-center gap-4 mb-4 md:mb-0">

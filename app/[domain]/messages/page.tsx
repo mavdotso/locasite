@@ -39,11 +39,11 @@ export default async function MessagesPage({ params }: PageProps) {
     });
 
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-muted">
         <div className="container mx-auto px-4 py-8">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold">Contact Messages</h1>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-muted-foreground">
               Business: {businessData.name}
             </div>
           </div>

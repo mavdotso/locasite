@@ -105,7 +105,7 @@ export default function BusinessHours({ hours, className }: BusinessHoursProps) 
                             <span className="text-sm">{parsed?.day || hour.split(":")[0]}</span>
                             <span className={cn(
                                 "text-sm",
-                                parsed?.isClosed && "text-gray-500"
+                                parsed?.isClosed && "text-muted-foreground"
                             )}>
                                 {parsed?.isClosed ? "Closed" : hour.split(": ")[1]}
                             </span>

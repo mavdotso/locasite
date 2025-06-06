@@ -72,7 +72,7 @@ export default function BusinessContactForm({ businessId, title, className }: Bu
     };
 
     return (
-        <section className={cn("py-16 bg-gray-50", className)}>
+        <section className={cn("py-16 bg-muted", className)}>
             <div className="mx-auto px-4 container">
                 <div className="mx-auto max-w-lg">
                     <Card className="shadow-lg">
@@ -82,7 +82,7 @@ export default function BusinessContactForm({ businessId, title, className }: Bu
                         <CardContent>
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div className="space-y-2">
-                                    <label htmlFor="name" className="block font-medium text-gray-700 text-sm">
+                                    <label htmlFor="name" className="block font-medium text-foreground text-sm">
                                         Your Name
                                     </label>
                                     <Input
@@ -97,7 +97,7 @@ export default function BusinessContactForm({ businessId, title, className }: Bu
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="email" className="block font-medium text-gray-700 text-sm">
+                                    <label htmlFor="email" className="block font-medium text-foreground text-sm">
                                         Email Address
                                     </label>
                                     <Input
@@ -112,7 +112,7 @@ export default function BusinessContactForm({ businessId, title, className }: Bu
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="phone" className="block font-medium text-gray-700 text-sm">
+                                    <label htmlFor="phone" className="block font-medium text-foreground text-sm">
                                         Phone Number (optional)
                                     </label>
                                     <Input
@@ -126,7 +126,7 @@ export default function BusinessContactForm({ businessId, title, className }: Bu
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="message" className="block font-medium text-gray-700 text-sm">
+                                    <label htmlFor="message" className="block font-medium text-foreground text-sm">
                                         Your Message
                                     </label>
                                     <Textarea

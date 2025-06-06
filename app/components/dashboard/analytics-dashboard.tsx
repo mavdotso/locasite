@@ -5,7 +5,6 @@ import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
-import { Badge } from '@/app/components/ui/badge';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -13,11 +12,9 @@ import {
   Eye,
   Clock,
   Globe,
-  MousePointer,
   Smartphone,
   Monitor,
-  Calendar,
-  ExternalLink
+  Link,
 } from 'lucide-react';
 
 export default function AnalyticsDashboard() {
@@ -107,7 +104,7 @@ export default function AnalyticsDashboard() {
   if (!user) {
     return (
       <Card className="p-8 text-center">
-        <div className="text-gray-500">
+        <div className="text-muted-foreground">
           <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
           <p>Please sign in to view your analytics.</p>
         </div>
@@ -118,12 +115,12 @@ export default function AnalyticsDashboard() {
   if (publishedSites.length === 0) {
     return (
       <Card className="p-8 text-center">
-        <div className="text-gray-500">
+        <div className="text-muted-foreground">
           <Globe className="w-12 h-12 mx-auto mb-4 opacity-50" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No published sites</h3>
+          <h3 className="text-lg font-medium text-foreground mb-2">No published sites</h3>
           <p className="mb-4">Publish your first site to start tracking analytics.</p>
           <Button asChild>
-            <a href="/dashboard/sites">View Your Sites</a>
+            <Link href="/dashboard/sites">View Your Sites</Link>
           </Button>
         </div>
       </Card>
@@ -138,7 +135,7 @@ export default function AnalyticsDashboard() {
           <select 
             value={selectedSite}
             onChange={(e) => setSelectedSite(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+            className="px-3 py-2 border border-border rounded-md text-sm"
           >
             <option value="all">All Sites</option>
             {publishedSites.map(site => (
@@ -149,15 +146,15 @@ export default function AnalyticsDashboard() {
           </select>
         </div>
         
-        <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+        <div className="flex gap-1 bg-muted p-1 rounded-lg">
           {(['7d', '30d', '90d'] as const).map((range) => (
             <button
               key={range}
               onClick={() => setSelectedTimeRange(range)}
               className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                 selectedTimeRange === range
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {range === '7d' ? 'Last 7 days' : range === '30d' ? 'Last 30 days' : 'Last 90 days'}
@@ -173,8 +170,8 @@ export default function AnalyticsDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
+                  <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">{stat.value}</p>
                   <p className={`text-xs mt-1 ${
                     stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
                   }`}>
@@ -202,12 +199,12 @@ export default function AnalyticsDashboard() {
               {mockAnalytics.topPages.map((page, index) => (
                 <div key={index} className="flex items-center justify-between">
                   <div className="flex-1">
-                    <p className="font-medium text-gray-900">{page.title}</p>
-                    <p className="text-sm text-gray-500">{page.path}</p>
+                    <p className="font-medium text-foreground">{page.title}</p>
+                    <p className="text-sm text-muted-foreground">{page.path}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-gray-900">{page.views.toLocaleString()}</p>
-                    <p className="text-sm text-gray-500">views</p>
+                    <p className="font-medium text-foreground">{page.views.toLocaleString()}</p>
+                    <p className="text-sm text-muted-foreground">views</p>
                   </div>
                 </div>
               ))}
@@ -226,14 +223,14 @@ export default function AnalyticsDashboard() {
               {mockAnalytics.deviceBreakdown.map((device, index) => (
                 <div key={index} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    {device.device === 'Desktop' && <Monitor className="w-4 h-4 text-gray-500" />}
-                    {device.device === 'Mobile' && <Smartphone className="w-4 h-4 text-gray-500" />}
-                    {device.device === 'Tablet' && <Monitor className="w-4 h-4 text-gray-500" />}
-                    <span className="font-medium text-gray-900">{device.device}</span>
+                    {device.device === 'Desktop' && <Monitor className="w-4 h-4 text-muted-foreground" />}
+                    {device.device === 'Mobile' && <Smartphone className="w-4 h-4 text-muted-foreground" />}
+                    {device.device === 'Tablet' && <Monitor className="w-4 h-4 text-muted-foreground" />}
+                    <span className="font-medium text-foreground">{device.device}</span>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-gray-900">{device.percentage}%</p>
-                    <p className="text-sm text-gray-500">{device.visitors} visitors</p>
+                    <p className="font-medium text-foreground">{device.percentage}%</p>
+                    <p className="text-sm text-muted-foreground">{device.visitors} visitors</p>
                   </div>
                 </div>
               ))}
@@ -252,8 +249,8 @@ export default function AnalyticsDashboard() {
               {mockAnalytics.topReferrers.map((referrer, index) => (
                 <div key={index} className="flex items-center justify-between">
                   <div className="flex-1">
-                    <p className="font-medium text-gray-900">{referrer.source}</p>
-                    <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                    <p className="font-medium text-foreground">{referrer.source}</p>
+                    <div className="w-full bg-muted rounded-full h-2 mt-1">
                       <div 
                         className="bg-blue-600 h-2 rounded-full" 
                         style={{ width: `${referrer.percentage}%` }}
@@ -261,8 +258,8 @@ export default function AnalyticsDashboard() {
                     </div>
                   </div>
                   <div className="text-right ml-4">
-                    <p className="font-medium text-gray-900">{referrer.visitors}</p>
-                    <p className="text-sm text-gray-500">{referrer.percentage}%</p>
+                    <p className="font-medium text-foreground">{referrer.visitors}</p>
+                    <p className="text-sm text-muted-foreground">{referrer.percentage}%</p>
                   </div>
                 </div>
               ))}
@@ -278,7 +275,7 @@ export default function AnalyticsDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-muted-foreground">
                 <BarChart3 className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">Real-time analytics coming soon</p>
               </div>

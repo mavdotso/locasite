@@ -2,7 +2,6 @@ import { mutation, query, internalMutation, internalQuery } from './_generated/s
 import { v } from 'convex/values';
 import { Doc, Id } from './_generated/dataModel';
 import { getUserFromAuth } from './helpers';
-import { auth } from './auth';
 
 export interface BusinessData {
     name: string;

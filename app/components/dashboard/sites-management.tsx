@@ -96,7 +96,7 @@ export default function SitesManagement() {
   if (!user) {
     return (
       <Card className="p-8 text-center">
-        <div className="text-gray-500">
+        <div className="text-muted-foreground">
           <Globe className="w-12 h-12 mx-auto mb-4 opacity-50" />
           <p>Please sign in to view your sites.</p>
         </div>
@@ -110,7 +110,7 @@ export default function SitesManagement() {
       <div className="flex flex-col sm:flex-row gap-4 justify-between">
         <div className="flex-1 max-w-md">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground/50 w-4 h-4" />
             <Input
               placeholder="Search sites..."
               value={searchQuery}
@@ -135,15 +135,15 @@ export default function SitesManagement() {
       </div>
 
       {/* Status Filter Tabs */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
+      <div className="flex gap-1 bg-muted p-1 rounded-lg w-fit">
         {(['all', 'published', 'draft', 'pending'] as SiteStatus[]).map((status) => (
           <button
             key={status}
             onClick={() => setStatusFilter(status)}
             className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
               statusFilter === status
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             {status.charAt(0).toUpperCase() + status.slice(1)} ({statusCounts[status]})
@@ -171,7 +171,7 @@ export default function SitesManagement() {
               
               <CardContent className="space-y-4">
                 {/* Site Preview */}
-                <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                <div className="aspect-video bg-muted rounded-lg flex items-center justify-center overflow-hidden">
                   {business.photos && business.photos[0] ? (
                     <img 
                       src={business.photos[0]} 
@@ -179,12 +179,12 @@ export default function SitesManagement() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <Globe className="w-8 h-8 text-gray-400" />
+                    <Globe className="w-8 h-8 text-muted-foreground/50" />
                   )}
                 </div>
 
                 {/* Site Info */}
-                <div className="space-y-2 text-sm text-gray-600">
+                <div className="space-y-2 text-sm text-muted-foreground">
                   {business.phone && (
                     <div className="flex items-center gap-2">
                       <Phone className="w-3 h-3" />
@@ -242,16 +242,16 @@ export default function SitesManagement() {
                 {business.domainId && (
                   <div className="grid grid-cols-3 gap-2 pt-2 border-t">
                     <div className="text-center">
-                      <div className="text-sm font-medium text-gray-900">0</div>
-                      <div className="text-xs text-gray-500">Views</div>
+                      <div className="text-sm font-medium text-foreground">0</div>
+                      <div className="text-xs text-muted-foreground">Views</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-sm font-medium text-gray-900">0</div>
-                      <div className="text-xs text-gray-500">Messages</div>
+                      <div className="text-sm font-medium text-foreground">0</div>
+                      <div className="text-xs text-muted-foreground">Messages</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-sm font-medium text-gray-900">0</div>
-                      <div className="text-xs text-gray-500">Visitors</div>
+                      <div className="text-sm font-medium text-foreground">0</div>
+                      <div className="text-xs text-muted-foreground">Visitors</div>
                     </div>
                   </div>
                 )}
@@ -261,11 +261,11 @@ export default function SitesManagement() {
         </div>
       ) : (
         <Card className="p-12 text-center">
-          <div className="text-gray-500">
+          <div className="text-muted-foreground">
             {searchQuery || statusFilter !== 'all' ? (
               <>
                 <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No sites found</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">No sites found</h3>
                 <p className="mb-4">Try adjusting your search or filter criteria.</p>
                 <Button variant="outline" onClick={() => {
                   setSearchQuery('');
@@ -277,7 +277,7 @@ export default function SitesManagement() {
             ) : (
               <>
                 <Globe className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No sites yet</h3>
+                <h3 className="text-lg font-medium text-foreground mb-2">No sites yet</h3>
                 <p className="mb-4">Create your first business website to get started.</p>
                 <Button asChild>
                   <Link href="/dashboard/sites/new">

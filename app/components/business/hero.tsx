@@ -10,7 +10,7 @@ interface BusinessHeroProps {
 
 export default function BusinessHero({ title, subtitle, image, className }: BusinessHeroProps) {
     return (
-        <div className={cn("relative bg-gradient-to-r from-gray-900 to-gray-800 text-white overflow-hidden", className)}>
+        <div className={cn("relative bg-gradient-to-r from-foreground to-foreground/90 text-white overflow-hidden", className)}>
             {image && (
                 <div className="absolute inset-0 w-full h-full">
                     <Image 
@@ -21,7 +21,7 @@ export default function BusinessHero({ title, subtitle, image, className }: Busi
                         className="opacity-60 w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                         priority
                     />
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
+                    <div className="absolute inset-0 bg-foreground/40 backdrop-blur-[2px]"></div>
                 </div>
             )}
             <div className="z-10 relative mx-auto px-4 py-32 text-center container">
@@ -31,7 +31,7 @@ export default function BusinessHero({ title, subtitle, image, className }: Busi
                     </h1>
                 )}
                 {subtitle && (
-                    <p className="mx-auto max-w-2xl text-gray-100 text-xl md:text-2xl leading-relaxed">
+                    <p className="mx-auto max-w-2xl text-white/90 text-xl md:text-2xl leading-relaxed">
                         {subtitle}
                     </p>
                 )}

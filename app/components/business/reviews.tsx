@@ -13,7 +13,7 @@ export default function BusinessReviews({ reviews, className }: BusinessReviewsP
     }
 
     return (
-        <section className={cn("bg-white py-12", className)}>
+        <section className={cn("bg-background py-12", className)}>
             <div className="mx-auto px-4 container">
                 <h2 className="mb-8 font-bold text-3xl text-center">Customer Reviews</h2>
                 <div className="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
@@ -25,7 +25,7 @@ export default function BusinessReviews({ reviews, className }: BusinessReviewsP
                                         {[...Array(5)].map((_, i) => (
                                             <svg
                                                 key={i}
-                                                className={`w-5 h-5 ${i < Number(review.rating) ? 'text-yellow-400' : 'text-gray-300'}`}
+                                                className={`w-5 h-5 ${i < Number(review.rating) ? 'text-yellow-400' : 'text-muted-foreground/50'}`}
                                                 fill="currentColor"
                                                 viewBox="0 0 20 20"
                                             >
@@ -33,12 +33,12 @@ export default function BusinessReviews({ reviews, className }: BusinessReviewsP
                                             </svg>
                                         ))}
                                     </div>
-                                    <span className="font-medium text-gray-700">{review.rating}/5.0</span>
+                                    <span className="font-medium text-foreground">{review.rating}/5.0</span>
                                 </div>
                             </CardHeader>
                             <CardContent>
-                                <p className="mb-3 text-gray-800">{review.text}</p>
-                                <p className="font-medium text-gray-600 text-sm">— {review.author_name}</p>
+                                <p className="mb-3 text-foreground">{review.text}</p>
+                                <p className="font-medium text-muted-foreground text-sm">— {review.author_name}</p>
                             </CardContent>
                         </Card>
                     ))}

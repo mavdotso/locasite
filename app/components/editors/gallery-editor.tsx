@@ -140,7 +140,7 @@ export default function GalleryEditor({ business, onClose }: GalleryEditorProps)
                 >
                   ↑
                 </Button>
-                <span className="text-gray-500 text-sm">#{index + 1}</span>
+                <span className="text-muted-foreground text-sm">#{index + 1}</span>
                 <Button
                   variant="outline"
                   size="sm"

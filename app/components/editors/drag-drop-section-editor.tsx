@@ -296,10 +296,10 @@ export default function DragDropSectionEditor({ page, onPreview }: DragDropSecti
               className="h-auto p-3 justify-start text-left"
             >
               <div className="flex items-start gap-3">
-                <sectionType.icon className="w-5 h-5 mt-0.5 text-gray-500" />
+                <sectionType.icon className="w-5 h-5 mt-0.5 text-muted-foreground" />
                 <div>
                   <div className="font-medium">{sectionType.label}</div>
-                  <div className="text-xs text-gray-500">{sectionType.description}</div>
+                  <div className="text-xs text-muted-foreground">{sectionType.description}</div>
                 </div>
               </div>
             </Button>
@@ -368,7 +368,7 @@ export default function DragDropSectionEditor({ page, onPreview }: DragDropSecti
                                 )}
                               </div>
                               {section.title && (
-                                <div className="text-xs text-gray-500 mt-1">{section.title}</div>
+                                <div className="text-xs text-muted-foreground mt-1">{section.title}</div>
                               )}
                             </div>
 
@@ -435,7 +435,7 @@ export default function DragDropSectionEditor({ page, onPreview }: DragDropSecti
         ) : (
           <Card>
             <CardContent className="text-center py-12">
-              <div className="text-gray-500">
+              <div className="text-muted-foreground">
                 <Plus className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>Select a section to edit its properties</p>
               </div>

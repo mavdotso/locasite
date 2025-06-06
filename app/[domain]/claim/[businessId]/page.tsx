@@ -85,26 +85,26 @@ export default async function ClaimBusinessPage({ params }: ClaimPageProps) {
       
       <CardContent>
         <div className="space-y-6">
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-medium text-gray-900 mb-2">Business Details</h3>
-            <div className="space-y-1 text-sm text-gray-600">
+          <div className="p-4 bg-muted rounded-lg">
+            <h3 className="font-medium text-foreground mb-2">Business Details</h3>
+            <div className="space-y-1 text-sm text-muted-foreground">
               <p className="flex items-center gap-2">
-                <span className="w-16 text-gray-500">Name:</span>
+                <span className="w-16 text-muted-foreground">Name:</span>
                 <span className="font-medium">{business.name}</span>
               </p>
               <p className="flex items-center gap-2">
-                <span className="w-16 text-gray-500">Address:</span>
+                <span className="w-16 text-muted-foreground">Address:</span>
                 <span>{business.address}</span>
               </p>
               {business.phone && (
                 <p className="flex items-center gap-2">
-                  <span className="w-16 text-gray-500">Phone:</span>
+                  <span className="w-16 text-muted-foreground">Phone:</span>
                   <span>{business.phone}</span>
                 </p>
               )}
               {business.website && (
                 <p className="flex items-center gap-2">
-                  <span className="w-16 text-gray-500">Website:</span>
+                  <span className="w-16 text-muted-foreground">Website:</span>
                   <span>{business.website}</span>
                 </p>
               )}
@@ -118,25 +118,25 @@ export default async function ClaimBusinessPage({ params }: ClaimPageProps) {
                 Verification Methods
               </h3>
               <div className="space-y-3 text-sm">
-                <div className="flex items-start gap-3 p-3 bg-white rounded border">
+                <div className="flex items-start gap-3 p-3 bg-background rounded border">
                   <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
                   <div>
-                    <p className="font-medium text-gray-900">Google Business Profile</p>
-                    <p className="text-gray-600">Verify ownership through your Google Business Profile account (Recommended)</p>
+                    <p className="font-medium text-foreground">Google Business Profile</p>
+                    <p className="text-muted-foreground">Verify ownership through your Google Business Profile account (Recommended)</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 p-3 bg-gray-50 rounded border">
-                  <Mail className="w-5 h-5 text-gray-400 mt-0.5" />
+                <div className="flex items-start gap-3 p-3 bg-muted rounded border">
+                  <Mail className="w-5 h-5 text-muted-foreground/50 mt-0.5" />
                   <div>
-                    <p className="font-medium text-gray-500">Email Verification</p>
-                    <p className="text-gray-500">Manual review process (Coming soon)</p>
+                    <p className="font-medium text-muted-foreground">Email Verification</p>
+                    <p className="text-muted-foreground">Manual review process (Coming soon)</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 p-3 bg-gray-50 rounded border">
-                  <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
+                <div className="flex items-start gap-3 p-3 bg-muted rounded border">
+                  <Phone className="w-5 h-5 text-muted-foreground/50 mt-0.5" />
                   <div>
-                    <p className="font-medium text-gray-500">Phone Verification</p>
-                    <p className="text-gray-500">SMS or call verification (Coming soon)</p>
+                    <p className="font-medium text-muted-foreground">Phone Verification</p>
+                    <p className="text-muted-foreground">SMS or call verification (Coming soon)</p>
                   </div>
                 </div>
               </div>

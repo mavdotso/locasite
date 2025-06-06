@@ -78,7 +78,7 @@ export default function BusinessPreview({ businessData, onGetStarted }: Business
           </div>
           <Button 
             onClick={handleGetStarted}
-            className="bg-white text-blue-600 hover:bg-gray-100 font-semibold"
+            className="bg-background text-blue-600 hover:bg-muted font-semibold"
           >
             Publish Website
           </Button>

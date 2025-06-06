@@ -1,19 +1,16 @@
 "use client"
 import { useState } from "react";
-import { Id } from "@/convex/_generated/dataModel";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/app/components/ui/card";
 import { ArrowDown } from "lucide-react";
-import SiteGenerator from "./components/site-generator";
 import Scraper from "./components/scraper";
 import BusinessPreview from "./components/business-preview";
 import { BusinessData } from '@/convex/businesses';
 
 export default function HomePage() {
-    const [scrapedBusinessId, setScrapedBusinessId] = useState<Id<"businesses"> | null>(null);
     const [previewBusiness, setPreviewBusiness] = useState<BusinessData | null>(null);
     
     return (
-        <div className="min-h-screen py-12 bg-gray-50">
+        <div className="min-h-screen py-12 bg-muted">
             <div className="container max-w-4xl px-4 mx-auto">
                 <div className="mb-10 text-center">
                     <h1 className="text-4xl font-bold tracking-tight">Business Site Generator</h1>

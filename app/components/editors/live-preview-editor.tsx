@@ -107,9 +107,9 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
+    <div className="h-screen flex flex-col bg-muted">
       {/* Top Toolbar */}
-      <div className="bg-white border-b border-gray-200 px-4 py-3">
+      <div className="bg-background border-b border-border px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <h1 className="text-lg font-semibold">{domain.name} Editor</h1>
@@ -122,7 +122,7 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
           
           <div className="flex items-center gap-2">
             {/* Viewport Controls */}
-            <div className="flex items-center border rounded-lg p-1 bg-gray-50">
+            <div className="flex items-center border rounded-lg p-1 bg-muted">
               {(['desktop', 'tablet', 'mobile'] as ViewportSize[]).map((size) => (
                 <Button
                   key={size}
@@ -179,7 +179,7 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
       <div className="flex-1 flex overflow-hidden">
         {/* Sidebar (when in edit mode) */}
         {editMode && (
-          <div className="w-80 bg-white border-r border-gray-200 overflow-y-auto">
+          <div className="w-80 bg-background border-r border-border overflow-y-auto">
             <Tabs defaultValue="content" className="h-full">
               <TabsList className="grid w-full grid-cols-3 m-4">
                 <TabsTrigger value="content">Content</TabsTrigger>
@@ -198,7 +198,7 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
                       <input
                         type="text"
                         value={business.name}
-                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full mt-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         onChange={() => {
                           setUnsavedChanges(true);
                         }}
@@ -209,7 +209,7 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
                       <label className="text-sm font-medium">Description</label>
                       <textarea
                         value={business.description || ''}
-                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full mt-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         rows={3}
                         onChange={() => {
                           setUnsavedChanges(true);
@@ -222,7 +222,7 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
                       <input
                         type="tel"
                         value={business.phone || ''}
-                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full mt-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         onChange={() => {
                           setUnsavedChanges(true);
                         }}
@@ -234,7 +234,7 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
                       <input
                         type="url"
                         value={business.website || ''}
-                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full mt-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         onChange={() => {
                           setUnsavedChanges(true);
                         }}
@@ -255,7 +255,7 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
                       <input
                         type="color"
                         value={business.theme?.primaryColor || '#3B82F6'}
-                        className="w-full mt-1 h-10 border border-gray-300 rounded-md"
+                        className="w-full mt-1 h-10 border border-border rounded-md"
                         onChange={() => {
                           setUnsavedChanges(true);
                         }}
@@ -267,7 +267,7 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
                       <input
                         type="color"
                         value={business.theme?.secondaryColor || '#6B7280'}
-                        className="w-full mt-1 h-10 border border-gray-300 rounded-md"
+                        className="w-full mt-1 h-10 border border-border rounded-md"
                         onChange={() => {
                           setUnsavedChanges(true);
                         }}
@@ -278,7 +278,7 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
                       <label className="text-sm font-medium">Font Family</label>
                       <select
                         value={business.theme?.fontFamily || 'Inter'}
-                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full mt-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         onChange={() => {
                           setUnsavedChanges(true);
                         }}
@@ -304,7 +304,7 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
                       <label className="text-sm font-medium">SEO Title</label>
                       <input
                         type="text"
-                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full mt-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Enter SEO title"
                       />
                     </div>
@@ -312,7 +312,7 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
                     <div>
                       <label className="text-sm font-medium">Meta Description</label>
                       <textarea
-                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full mt-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         rows={2}
                         placeholder="Enter meta description"
                       />
@@ -325,12 +325,12 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
         )}
 
         {/* Preview Area */}
-        <div className="flex-1 bg-gray-100 flex items-center justify-center p-4">
+        <div className="flex-1 bg-muted flex items-center justify-center p-4">
           <div
             className={cn(
-              'bg-white shadow-lg rounded-lg overflow-hidden transition-all duration-300',
+              'bg-card shadow-lg rounded-lg overflow-hidden transition-all duration-300',
               getViewportClasses(),
-              viewport !== 'desktop' && 'border border-gray-300'
+              viewport !== 'desktop' && 'border border-border'
             )}
           >
             <iframe
@@ -349,7 +349,7 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
       </div>
 
       {/* Bottom Status Bar */}
-      <div className="bg-white border-t border-gray-200 px-4 py-2 text-sm text-gray-600">
+      <div className="bg-background border-t border-border px-4 py-2 text-sm text-muted-foreground">
         <div className="flex items-center justify-between">
           <div>
             Live Preview • {domain.subdomain}.locasite.com

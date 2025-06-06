@@ -133,7 +133,7 @@ export default function PageEditor({ page, onClose }: PageEditorProps) {
               </Button>
             </div>
           {content.sections?.map((section, index: number) => (
-              <Card key={index} className="mb-4 border border-gray-200">
+              <Card key={index} className="mb-4 border border-border">
                 <CardHeader className="py-2">
                   <CardTitle className="font-medium text-sm">
                     {section.type.charAt(0).toUpperCase() + section.type.slice(1)} Section

@@ -101,20 +101,20 @@ export default function SiteCreationFlow() {
     <div className="space-y-6">
       {/* Progress Steps */}
       <div className="flex items-center justify-center space-x-4">
-        <div className={`flex items-center gap-2 ${step >= 1 ? 'text-blue-600' : 'text-gray-400'}`}>
+        <div className={`flex items-center gap-2 ${step >= 1 ? 'text-blue-600' : 'text-muted-foreground/50'}`}>
           <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-            step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200'
+            step >= 1 ? 'bg-blue-600 text-white' : 'bg-muted'
           }`}>
             {step > 1 ? <CheckCircle className="w-5 h-5" /> : '1'}
           </div>
           <span className="text-sm font-medium">Enter URL</span>
         </div>
         
-        <ArrowRight className="w-4 h-4 text-gray-400" />
+        <ArrowRight className="w-4 h-4 text-muted-foreground/50" />
         
-        <div className={`flex items-center gap-2 ${step >= 2 ? 'text-blue-600' : 'text-gray-400'}`}>
+        <div className={`flex items-center gap-2 ${step >= 2 ? 'text-blue-600' : 'text-muted-foreground/50'}`}>
           <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-            step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200'
+            step >= 2 ? 'bg-blue-600 text-white' : 'bg-muted'
           }`}>
             {step > 2 ? <CheckCircle className="w-5 h-5" /> : '2'}
           </div>
@@ -205,23 +205,23 @@ export default function SiteCreationFlow() {
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">Business Name</Label>
-                  <p className="text-lg font-semibold text-gray-900">{businessData.name}</p>
+                  <Label className="text-sm font-medium text-muted-foreground">Business Name</Label>
+                  <p className="text-lg font-semibold text-foreground">{businessData.name}</p>
                 </div>
                 
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">Phone</Label>
-                  <p className="text-gray-900">{businessData.phone || 'Not available'}</p>
+                  <Label className="text-sm font-medium text-muted-foreground">Phone</Label>
+                  <p className="text-foreground">{businessData.phone || 'Not available'}</p>
                 </div>
                 
                 <div className="md:col-span-2">
-                  <Label className="text-sm font-medium text-gray-700">Address</Label>
-                  <p className="text-gray-900">{businessData.address}</p>
+                  <Label className="text-sm font-medium text-muted-foreground">Address</Label>
+                  <p className="text-foreground">{businessData.address}</p>
                 </div>
                 
                 {businessData.website && (
                   <div>
-                    <Label className="text-sm font-medium text-gray-700">Website</Label>
+                    <Label className="text-sm font-medium text-muted-foreground">Website</Label>
                     <a 
                       href={businessData.website}
                       target="_blank"
@@ -236,18 +236,18 @@ export default function SiteCreationFlow() {
                 
                 {businessData.rating && (
                   <div>
-                    <Label className="text-sm font-medium text-gray-700">Rating</Label>
-                    <p className="text-gray-900">{businessData.rating} ⭐</p>
+                    <Label className="text-sm font-medium text-muted-foreground">Rating</Label>
+                    <p className="text-foreground">{businessData.rating} ⭐</p>
                   </div>
                 )}
               </div>
 
               {businessData.hours && businessData.hours.length > 0 && (
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">Business Hours</Label>
+                  <Label className="text-sm font-medium text-muted-foreground mb-2 block">Business Hours</Label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-sm">
                     {businessData.hours.map((hour: string, index: number) => (
-                      <p key={index} className="text-gray-900">{hour}</p>
+                      <p key={index} className="text-foreground">{hour}</p>
                     ))}
                   </div>
                 </div>
@@ -255,8 +255,8 @@ export default function SiteCreationFlow() {
 
               {businessData.description && (
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">Description</Label>
-                  <p className="text-gray-900">{businessData.description}</p>
+                  <Label className="text-sm font-medium text-muted-foreground">Description</Label>
+                  <p className="text-foreground">{businessData.description}</p>
                 </div>
               )}
             </CardContent>

@@ -220,7 +220,7 @@ export default async function BusinessPage({ params }: PageProps) {
               case "contactInfo":
                 return (
                   <div key={index} className="container px-4 py-8 mx-auto">
-                    <div className="max-w-lg p-6 mx-auto bg-white rounded-lg shadow">
+                    <div className="max-w-lg p-6 mx-auto bg-card rounded-lg shadow">
                       <h3 className="mb-4 text-xl font-semibold">
                         Contact Information
                       </h3>
@@ -239,7 +239,7 @@ export default async function BusinessPage({ params }: PageProps) {
                             {section.hours?.map((hour, i) => (
                               <li
                                 key={i}
-                                className="py-1 text-sm border-b border-gray-100"
+                                className="py-1 text-sm border-b border-border"
                               >
                                 {hour}
                               </li>

@@ -98,7 +98,7 @@ export default function DashboardOverview({ initialData: _initialData }: Dashboa
   if (!user) {
     return (
       <Card className="p-8 text-center">
-        <div className="text-gray-500">
+        <div className="text-muted-foreground">
           <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
           <p>Please sign in to view your dashboard.</p>
         </div>
@@ -112,12 +112,12 @@ export default function DashboardOverview({ initialData: _initialData }: Dashboa
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((stat, index) => (
           <Card key={index} className="transition-all hover:shadow-md">
-            <CardContent className="p-6">
+            <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
-                  <p className="text-xs text-gray-500 mt-1">{stat.description}</p>
+                  <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">{stat.value}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{stat.description}</p>
                 </div>
                 <div className={`p-3 rounded-lg ${stat.bgColor}`}>
                   <stat.icon className={`w-6 h-6 ${stat.color}`} />
@@ -148,14 +148,14 @@ export default function DashboardOverview({ initialData: _initialData }: Dashboa
             {userBusinesses && userBusinesses.length > 0 ? (
               <div className="space-y-4">
                 {userBusinesses.slice(0, 3).map((business) => (
-                  <div key={business._id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                  <div key={business._id} className="flex items-center justify-between p-4 border border-border rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                         <Globe className="w-5 h-5 text-blue-600" />
                       </div>
                       <div>
-                        <h3 className="font-medium text-gray-900">{business.name}</h3>
-                        <p className="text-sm text-gray-500">{business.address}</p>
+                        <h3 className="font-medium text-foreground">{business.name}</h3>
+                        <p className="text-sm text-muted-foreground">{business.address}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -184,9 +184,9 @@ export default function DashboardOverview({ initialData: _initialData }: Dashboa
                 
                 {userBusinesses.length === 0 && (
                   <div className="text-center py-8">
-                    <Globe className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No sites yet</h3>
-                    <p className="text-gray-500 mb-4">Create your first business website to get started.</p>
+                    <Globe className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">No sites yet</h3>
+                    <p className="text-muted-foreground mb-4">Create your first business website to get started.</p>
                     <Button asChild>
                       <Link href="/dashboard/sites/new">
                         <Plus className="w-4 h-4 mr-2" />
@@ -198,9 +198,9 @@ export default function DashboardOverview({ initialData: _initialData }: Dashboa
               </div>
             ) : (
               <div className="text-center py-8">
-                <Globe className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No sites yet</h3>
-                <p className="text-gray-500 mb-4">Create your first business website to get started.</p>
+                <Globe className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">No sites yet</h3>
+                <p className="text-muted-foreground mb-4">Create your first business website to get started.</p>
                 <Button asChild>
                   <Link href="/dashboard/sites/new">
                     <Plus className="w-4 h-4 mr-2" />
@@ -255,12 +255,12 @@ export default function DashboardOverview({ initialData: _initialData }: Dashboa
               <div className="space-y-4">
                 {recentActivity.map((activity) => (
                   <div key={activity.id} className="flex items-start gap-3">
-                    <div className="p-1.5 rounded-full bg-gray-100">
+                    <div className="p-1.5 rounded-full bg-muted">
                       <activity.icon className={`w-3 h-3 ${activity.color}`} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-900">{activity.message}</p>
-                      <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+                      <p className="text-sm text-foreground">{activity.message}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
                     </div>
                   </div>
                 ))}

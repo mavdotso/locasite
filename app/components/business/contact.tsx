@@ -13,11 +13,11 @@ interface BusinessContactProps {
 
 export default function BusinessContact({ title, subtitle, phone, email, address, className }: BusinessContactProps) {
     return (
-        <section className={cn("bg-gray-50 py-12", className)}>
+        <section className={cn("bg-muted py-12", className)}>
             <div className="mx-auto px-4 container">
                 <div className="mx-auto max-w-2xl text-center">
                     <h2 className="mb-4 font-bold text-3xl">{title || "Contact Us"}</h2>
-                    {subtitle && <p className="mb-8 text-gray-600 text-lg">{subtitle}</p>}
+                    {subtitle && <p className="mb-8 text-muted-foreground text-lg">{subtitle}</p>}
                     <Card>
                         <CardHeader>
                             <CardTitle className="font-medium text-lg text-center">
@@ -40,7 +40,7 @@ export default function BusinessContact({ title, subtitle, phone, email, address
                                                     {phone}
                                                 </a>
                                             ) : (
-                                                <p className="text-gray-600">Not available</p>
+                                                <p className="text-muted-foreground">Not available</p>
                                             )}
                                         </div>
                                     </HoverCardTrigger>
@@ -66,7 +66,7 @@ export default function BusinessContact({ title, subtitle, phone, email, address
                                                     {email}
                                                 </a>
                                             ) : (
-                                                <p className="text-gray-600">Use contact form</p>
+                                                <p className="text-muted-foreground">Use contact form</p>
                                             )}
                                         </div>
                                     </HoverCardTrigger>
@@ -93,7 +93,7 @@ export default function BusinessContact({ title, subtitle, phone, email, address
                                                     {address}
                                                 </p>
                                             ) : (
-                                                <p className="text-gray-600">Visit our business</p>
+                                                <p className="text-muted-foreground">Visit our business</p>
                                             )}
                                         </div>
                                     </HoverCardTrigger>

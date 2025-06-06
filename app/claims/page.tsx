@@ -41,7 +41,7 @@ export default function ClaimsPage() {
         }
         return <Clock className="w-5 h-5 text-blue-500" />;
       default:
-        return <Clock className="w-5 h-5 text-gray-500" />;
+        return <Clock className="w-5 h-5 text-muted-foreground" />;
     }
   };
 
@@ -57,7 +57,7 @@ export default function ClaimsPage() {
         }
         return "bg-blue-100 text-blue-800";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-muted text-foreground";
     }
   };
 
@@ -72,8 +72,8 @@ export default function ClaimsPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Business Claims</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-3xl font-bold text-foreground">Business Claims</h1>
+          <p className="text-muted-foreground mt-2">
             Manage your business ownership claims and verification status.
           </p>
         </div>
@@ -81,7 +81,7 @@ export default function ClaimsPage() {
         {claims.length === 0 ? (
           <Card>
             <CardContent className="text-center py-12">
-              <div className="text-gray-500 mb-4">
+              <div className="text-muted-foreground mb-4">
                 <Clock className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <h3 className="text-lg font-medium">No Claims Yet</h3>
                 <p className="text-sm">You haven&apos;t submitted any business claims.</p>
@@ -116,14 +116,14 @@ export default function ClaimsPage() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                       <div>
-                        <span className="font-medium text-gray-700">Submitted:</span>
-                        <span className="ml-2 text-gray-600">
+                        <span className="font-medium text-foreground">Submitted:</span>
+                        <span className="ml-2 text-muted-foreground">
                           {new Date(claim.createdAt).toLocaleDateString()}
                         </span>
                       </div>
                       <div>
-                        <span className="font-medium text-gray-700">Verification Method:</span>
-                        <span className="ml-2 text-gray-600">
+                        <span className="font-medium text-foreground">Verification Method:</span>
+                        <span className="ml-2 text-muted-foreground">
                           {claim.verificationMethod ? 
                             claim.verificationMethod.charAt(0).toUpperCase() + claim.verificationMethod.slice(1) 
                             : 'Google Business Profile'
@@ -132,8 +132,8 @@ export default function ClaimsPage() {
                       </div>
                       {claim.updatedAt && (
                         <div className="md:col-span-2">
-                          <span className="font-medium text-gray-700">Last Updated:</span>
-                          <span className="ml-2 text-gray-600">
+                          <span className="font-medium text-foreground">Last Updated:</span>
+                          <span className="ml-2 text-muted-foreground">
                             {new Date(claim.updatedAt).toLocaleDateString()}
                           </span>
                         </div>

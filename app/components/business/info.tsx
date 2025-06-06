@@ -13,7 +13,7 @@ interface BusinessInfoProps {
 
 export default function BusinessInfo({ address, phone, email, website, hours, className }: BusinessInfoProps) {
     return (
-        <section className={cn("bg-white py-8", className)}>
+        <section className={cn("bg-background py-8", className)}>
             <div className="mx-auto px-4 container">
                 <Card className="mx-auto max-w-xl">
                     <CardHeader>

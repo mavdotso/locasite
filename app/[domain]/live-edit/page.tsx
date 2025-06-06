@@ -37,9 +37,9 @@ export default async function LiveEditPage({ params }: LiveEditPageProps) {
     // This should be implemented when authentication is fully set up
 
     // Fetch all pages for the domain
-    const pages = await fetchQuery(api.pages.listByDomain, {
-      domainId: domain._id,
-    });
+    // const pages = await fetchQuery(api.pages.listByDomain, {
+    //   domainId: domain._id,
+    // });
 
     return (
       <LivePreviewEditor
