@@ -13,7 +13,11 @@ export default defineSchema({
     pages: defineTable({
         domainId: v.id("domains"),
         slug: v.string(),
-        content: v.string()
+        content: v.string(),
+        // Draft content for unpublished changes
+        draftContent: v.optional(v.string()),
+        isPublished: v.optional(v.boolean()),
+        lastEditedAt: v.optional(v.number())
     }).index("by_domain_slug", ["domainId", "slug"]),
 
     businesses: defineTable({
@@ -42,7 +46,28 @@ export default defineSchema({
             accentColor: v.optional(v.string()),
             fontFamily: v.optional(v.string()),
             logoUrl: v.optional(v.string())
-        }))
+        })),
+        // Publishing state
+        isPublished: v.optional(v.boolean()),
+        publishedAt: v.optional(v.number()),
+        // Draft content - stores unsaved changes
+        draftContent: v.optional(v.object({
+            name: v.optional(v.string()),
+            description: v.optional(v.string()),
+            phone: v.optional(v.string()),
+            email: v.optional(v.string()),
+            website: v.optional(v.string()),
+            hours: v.optional(v.array(v.string())),
+            theme: v.optional(v.object({
+                colorScheme: v.optional(v.string()),
+                primaryColor: v.optional(v.string()),
+                secondaryColor: v.optional(v.string()),
+                accentColor: v.optional(v.string()),
+                fontFamily: v.optional(v.string()),
+                logoUrl: v.optional(v.string())
+            }))
+        })),
+        lastEditedAt: v.optional(v.number())
     })
         .index("by_placeId", ["placeId"])
         .index("by_userId", ["userId"])

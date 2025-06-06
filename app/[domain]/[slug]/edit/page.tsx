@@ -1,8 +1,6 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { convex } from "@/app/lib/convex";
 import { api } from "@/convex/_generated/api";
-import PageLiveEditor from "@/app/components/editors/page-live-editor";
-import AuthGuard from "@/app/components/auth/auth-guard";
 
 interface PageLiveEditProps {
   params: Promise<{
@@ -45,11 +43,8 @@ export default async function PageLiveEdit({ params }: PageLiveEditProps) {
       notFound();
     }
 
-    return (
-      <AuthGuard businessUserId={business.userId} requireOwnership={true}>
-        <PageLiveEditor page={page} domain={domain} business={business} />
-      </AuthGuard>
-    );
+    // Redirect to unified editor
+    redirect(`/business/${business._id}/edit`);
   } catch (error) {
     console.error("Error loading page live editor:", error);
     notFound();

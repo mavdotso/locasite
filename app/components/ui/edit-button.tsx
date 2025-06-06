@@ -26,10 +26,8 @@ export default function EditButton({
 }: EditButtonProps) {
   const domain = useQuery(api.domains.getByBusinessId, { businessId });
 
-  // Always use live editor - either with domain subdomain or business ID
-  const editUrl = domain 
-    ? `/${domain.subdomain}/${pageSlug}/edit`  // Published business - use domain subdomain
-    : `/business/${businessId}/${pageSlug}/edit`;  // Unpublished business - use business ID
+  // Always use unified editor with business ID
+  const editUrl = `/business/${businessId}/edit`;
 
   return (
     <Button variant={variant} size={size} className={className} asChild>
