@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app
 import ThemeEditor from "@/app/components/editors/theme-editor";
 import MessageList from "@/app/components/messages/message-list";
 import AuthGuard from "@/app/components/auth/auth-guard";
+import LivePreviewTab from "@/app/components/editors/live-preview-tab";
 
 interface EditPageProps {
   params: Promise<{
@@ -72,11 +73,6 @@ export default async function EditPage({ params }: EditPageProps) {
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" asChild>
-                  <a href={`/${businessDomain}/live-edit`} target="_blank" rel="noopener noreferrer">
-                    Live Editor
-                  </a>
-                </Button>
-                <Button variant="outline" asChild>
                   <a href={`/${businessDomain}`} target="_blank" rel="noopener noreferrer">
                     View Site
                   </a>
@@ -86,8 +82,9 @@ export default async function EditPage({ params }: EditPageProps) {
           </CardHeader>
         </Card>
 
-        <Tabs defaultValue="business">
+        <Tabs defaultValue="live-preview">
           <TabsList className="mb-8">
+            <TabsTrigger value="live-preview">Live Preview</TabsTrigger>
             <TabsTrigger value="business">Business Information</TabsTrigger>
             <TabsTrigger value="gallery">Photo Gallery</TabsTrigger>
             <TabsTrigger value="pages">Pages</TabsTrigger>
@@ -101,6 +98,10 @@ export default async function EditPage({ params }: EditPageProps) {
               )}
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="live-preview" className="mt-0">
+            <LivePreviewTab business={business} domain={domain} />
+          </TabsContent>
 
           <TabsContent value="business">
             <BusinessEditor business={business} />

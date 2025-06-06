@@ -24,18 +24,14 @@ export default function EditButton({
 }: EditButtonProps) {
   const domain = useQuery(api.domains.getByBusinessId, { businessId });
 
-  if (!domain) {
-    // If no domain exists, the business isn't published yet, so no edit link
-    return (
-      <Button variant={variant} size={size} className={className} disabled>
-        {children}
-      </Button>
-    );
-  }
+  // Always provide an edit link - either to published site editor or pre-domain editor
+  const editUrl = domain 
+    ? `/${domain.subdomain}/edit`  // Published business - use main editor (includes live preview)
+    : `/dashboard/business/${businessId}`;  // Unpublished business - use dashboard editor
 
   return (
     <Button variant={variant} size={size} className={className} asChild>
-      <Link href={`/${domain.subdomain}/live-edit`}>
+      <Link href={editUrl}>
         {children}
       </Link>
     </Button>
