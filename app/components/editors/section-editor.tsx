@@ -4,12 +4,15 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface SectionData {
+  [key: string]: unknown;
+}
 import { 
   X,
   Type,
   Palette,
   Image as ImageIcon,
-  Layout,
   Settings
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -21,8 +24,8 @@ interface SectionEditorProps {
   isOpen: boolean;
   onClose: () => void;
   sectionType: string;
-  sectionData: any;
-  onSave: (data: any) => void;
+  sectionData: SectionData;
+  onSave: (data: SectionData) => void;
   className?: string;
 }
 
@@ -34,7 +37,7 @@ export function SectionEditor({
   onSave,
   className
 }: SectionEditorProps) {
-  const [data, setData] = useState(sectionData || {});
+  const [data, setData] = useState<SectionData>(sectionData || {});
   const [activeTab, setActiveTab] = useState("content");
 
   const handleSave = () => {
@@ -42,8 +45,8 @@ export function SectionEditor({
     onClose();
   };
 
-  const updateData = (field: string, value: any) => {
-    setData((prev: any) => ({
+  const updateData = (field: string, value: unknown) => {
+    setData((prev) => ({
       ...prev,
       [field]: value
     }));
@@ -142,7 +145,7 @@ export function SectionEditor({
                   {sectionType === "gallery" && (
                     <TabsContent value="gallery" className="mt-0">
                       <GalleryManager
-                        value={data.images || []}
+                        value={(data.images as string[]) || []}
                         onChange={(value) => updateData("images", value)}
                       />
                     </TabsContent>
@@ -174,8 +177,8 @@ function SectionContentEditor({
   onChange 
 }: { 
   sectionType: string; 
-  data: any; 
-  onChange: (field: string, value: any) => void; 
+  data: SectionData; 
+  onChange: (field: string, value: unknown) => void; 
 }) {
   switch (sectionType) {
     case "hero":
@@ -191,14 +194,14 @@ function SectionContentEditor({
   }
 }
 
-function HeroContentEditor({ data, onChange }: { data: any; onChange: (field: string, value: any) => void }) {
+function HeroContentEditor({ data, onChange }: { data: SectionData; onChange: (field: string, value: unknown) => void }) {
   return (
     <div className="space-y-4">
       <div>
         <label className="text-sm font-medium">Title</label>
         <input
           type="text"
-          value={data.title || ""}
+          value={(data.title as string) || ""}
           onChange={(e) => onChange("title", e.target.value)}
           className="w-full mt-1 px-3 py-2 border rounded-md"
           placeholder="Enter hero title"
@@ -207,7 +210,7 @@ function HeroContentEditor({ data, onChange }: { data: any; onChange: (field: st
       <div>
         <label className="text-sm font-medium">Subtitle</label>
         <textarea
-          value={data.subtitle || ""}
+          value={(data.subtitle as string) || ""}
           onChange={(e) => onChange("subtitle", e.target.value)}
           className="w-full mt-1 px-3 py-2 border rounded-md"
           rows={3}
@@ -218,13 +221,13 @@ function HeroContentEditor({ data, onChange }: { data: any; onChange: (field: st
   );
 }
 
-function AboutContentEditor({ data, onChange }: { data: any; onChange: (field: string, value: any) => void }) {
+function AboutContentEditor({ data, onChange }: { data: SectionData; onChange: (field: string, value: unknown) => void }) {
   return (
     <div className="space-y-4">
       <div>
         <label className="text-sm font-medium">About Text</label>
         <textarea
-          value={data.content || ""}
+          value={(data.content as string) || ""}
           onChange={(e) => onChange("content", e.target.value)}
           className="w-full mt-1 px-3 py-2 border rounded-md"
           rows={6}
@@ -235,14 +238,14 @@ function AboutContentEditor({ data, onChange }: { data: any; onChange: (field: s
   );
 }
 
-function InfoContentEditor({ data, onChange }: { data: any; onChange: (field: string, value: any) => void }) {
+function InfoContentEditor({ data, onChange }: { data: SectionData; onChange: (field: string, value: unknown) => void }) {
   return (
     <div className="space-y-4">
       <div>
         <label className="text-sm font-medium">Phone</label>
         <input
           type="text"
-          value={data.phone || ""}
+          value={(data.phone as string) || ""}
           onChange={(e) => onChange("phone", e.target.value)}
           className="w-full mt-1 px-3 py-2 border rounded-md"
           placeholder="(555) 123-4567"
@@ -252,7 +255,7 @@ function InfoContentEditor({ data, onChange }: { data: any; onChange: (field: st
         <label className="text-sm font-medium">Email</label>
         <input
           type="email"
-          value={data.email || ""}
+          value={(data.email as string) || ""}
           onChange={(e) => onChange("email", e.target.value)}
           className="w-full mt-1 px-3 py-2 border rounded-md"
           placeholder="hello@business.com"
@@ -261,7 +264,7 @@ function InfoContentEditor({ data, onChange }: { data: any; onChange: (field: st
       <div>
         <label className="text-sm font-medium">Address</label>
         <textarea
-          value={data.address || ""}
+          value={(data.address as string) || ""}
           onChange={(e) => onChange("address", e.target.value)}
           className="w-full mt-1 px-3 py-2 border rounded-md"
           rows={2}
@@ -272,14 +275,14 @@ function InfoContentEditor({ data, onChange }: { data: any; onChange: (field: st
   );
 }
 
-function ContactContentEditor({ data, onChange }: { data: any; onChange: (field: string, value: any) => void }) {
+function ContactContentEditor({ data, onChange }: { data: SectionData; onChange: (field: string, value: unknown) => void }) {
   return (
     <div className="space-y-4">
       <div>
         <label className="text-sm font-medium">Section Title</label>
         <input
           type="text"
-          value={data.title || ""}
+          value={(data.title as string) || ""}
           onChange={(e) => onChange("title", e.target.value)}
           className="w-full mt-1 px-3 py-2 border rounded-md"
           placeholder="Get In Touch"
@@ -288,7 +291,7 @@ function ContactContentEditor({ data, onChange }: { data: any; onChange: (field:
       <div>
         <label className="text-sm font-medium">Description</label>
         <textarea
-          value={data.subtitle || ""}
+          value={(data.subtitle as string) || ""}
           onChange={(e) => onChange("subtitle", e.target.value)}
           className="w-full mt-1 px-3 py-2 border rounded-md"
           rows={3}

@@ -8,6 +8,10 @@ import { SectionEditor } from "@/components/editors/section-editor";
 import { useContext, useState } from "react";
 import { EditModeContext } from "@/components/providers/edit-mode-provider";
 
+interface SectionData {
+    [key: string]: unknown;
+}
+
 interface BusinessHeroProps {
     title?: string;
     subtitle?: string;
@@ -19,7 +23,7 @@ export default function BusinessHero({ title, subtitle, image, className }: Busi
     const editMode = useContext(EditModeContext);
     const { isEditMode, draftData, updateDraft } = editMode || {};
     const [showEditor, setShowEditor] = useState(false);
-    const [sectionData, setSectionData] = useState({
+    const [sectionData, setSectionData] = useState<SectionData>({
         title,
         subtitle,
         image,
@@ -31,29 +35,41 @@ export default function BusinessHero({ title, subtitle, image, className }: Busi
     const displayTitle = isEditMode && draftData?.name ? draftData.name : title;
     const displaySubtitle = isEditMode && draftData?.description ? draftData.description : subtitle;
 
-    const handleSectionSave = (data: any) => {
+    const handleSectionSave = (data: SectionData) => {
         setSectionData(data);
         // Update the business data through the edit context
         if (data.title !== title) {
-            updateDraft?.("name", data.title);
+            updateDraft?.("name", data.title as string);
         }
         if (data.subtitle !== subtitle) {
-            updateDraft?.("description", data.subtitle);
+            updateDraft?.("description", data.subtitle as string);
         }
     };
     
+    const background = sectionData.background as { type?: string; color?: string; image?: string; size?: string; position?: string; repeat?: string; overlay?: { color: string; opacity: number } } | undefined;
+    const typography = sectionData.typography as { 
+        fontSize?: number; 
+        fontFamily?: string; 
+        fontWeight?: string; 
+        lineHeight?: number; 
+        letterSpacing?: number; 
+        textAlign?: string; 
+        color?: string; 
+        textTransform?: string; 
+    } | undefined;
+
     const heroStyle = {
-        ...(sectionData.background?.type === "color" && {
-            backgroundColor: sectionData.background.color
+        ...(background?.type === "color" && {
+            backgroundColor: background.color
         }),
-        ...(sectionData.background?.type === "image" && {
-            backgroundImage: `url(${sectionData.background.image})`,
-            backgroundSize: sectionData.background.size || "cover",
-            backgroundPosition: sectionData.background.position || "center",
-            backgroundRepeat: sectionData.background.repeat || "no-repeat"
+        ...(background?.type === "image" && {
+            backgroundImage: `url(${background.image})`,
+            backgroundSize: background.size || "cover",
+            backgroundPosition: background.position || "center",
+            backgroundRepeat: background.repeat || "no-repeat"
         }),
-        ...(sectionData.typography?.fontSize && {
-            fontSize: `${sectionData.typography.fontSize}px`
+        ...(typography?.fontSize && {
+            fontSize: `${typography.fontSize}px`
         })
     };
 
@@ -69,23 +85,23 @@ export default function BusinessHero({ title, subtitle, image, className }: Busi
                     className={cn("relative bg-gradient-to-r from-foreground to-foreground/90 text-white overflow-hidden")}
                     style={heroStyle}
                 >
-                    {(image || sectionData.background?.image) && (
+                    {(image || background?.image) && (
                         <div className="absolute inset-0 w-full h-full">
                             <Image 
                                 height={800} 
                                 width={2500} 
-                                src={sectionData.background?.image || image || ""} 
+                                src={background?.image || image || ""} 
                                 alt={title ?? ''} 
                                 className="opacity-60 w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                                 priority
                             />
                             <div className="absolute inset-0 bg-foreground/40 backdrop-blur-[2px]"></div>
-                            {sectionData.background?.overlay && (
+                            {background?.overlay && (
                                 <div 
                                     className="absolute inset-0"
                                     style={{
-                                        backgroundColor: sectionData.background.overlay.color,
-                                        opacity: sectionData.background.overlay.opacity / 100
+                                        backgroundColor: background.overlay.color,
+                                        opacity: background.overlay.opacity / 100
                                     }}
                                 />
                             )}
@@ -96,14 +112,14 @@ export default function BusinessHero({ title, subtitle, image, className }: Busi
                             <h1 
                                 className="drop-shadow-md mb-6 font-bold text-4xl md:text-6xl tracking-tight"
                                 style={{
-                                    fontFamily: sectionData.typography?.fontFamily,
-                                    fontSize: sectionData.typography?.fontSize ? `${sectionData.typography.fontSize}px` : undefined,
-                                    fontWeight: sectionData.typography?.fontWeight,
-                                    lineHeight: sectionData.typography?.lineHeight,
-                                    letterSpacing: sectionData.typography?.letterSpacing ? `${sectionData.typography.letterSpacing}px` : undefined,
-                                    textAlign: sectionData.typography?.textAlign as any,
-                                    color: sectionData.typography?.color,
-                                    textTransform: sectionData.typography?.textTransform as any
+                                    fontFamily: typography?.fontFamily,
+                                    fontSize: typography?.fontSize ? `${typography.fontSize}px` : undefined,
+                                    fontWeight: typography?.fontWeight,
+                                    lineHeight: typography?.lineHeight,
+                                    letterSpacing: typography?.letterSpacing ? `${typography.letterSpacing}px` : undefined,
+                                    textAlign: typography?.textAlign as React.CSSProperties['textAlign'],
+                                    color: typography?.color,
+                                    textTransform: typography?.textTransform as React.CSSProperties['textTransform']
                                 }}
                             >
                                 {isEditMode ? (
@@ -115,7 +131,7 @@ export default function BusinessHero({ title, subtitle, image, className }: Busi
                                         tag="span"
                                     />
                                 ) : (
-                                    sectionData.title || title
+                                    (sectionData.title as string) || title
                                 )}
                             </h1>
                         )}
@@ -123,9 +139,9 @@ export default function BusinessHero({ title, subtitle, image, className }: Busi
                             <p 
                                 className="mx-auto max-w-2xl text-white/90 text-xl md:text-2xl leading-relaxed"
                                 style={{
-                                    fontFamily: sectionData.typography?.fontFamily,
-                                    textAlign: sectionData.typography?.textAlign as any,
-                                    color: sectionData.typography?.color
+                                    fontFamily: typography?.fontFamily,
+                                    textAlign: typography?.textAlign as React.CSSProperties['textAlign'],
+                                    color: typography?.color
                                 }}
                             >
                                 {isEditMode ? (
@@ -137,7 +153,7 @@ export default function BusinessHero({ title, subtitle, image, className }: Busi
                                         multiline
                                     />
                                 ) : (
-                                    sectionData.subtitle || subtitle
+                                    (sectionData.subtitle as string) || subtitle
                                 )}
                             </p>
                         )}

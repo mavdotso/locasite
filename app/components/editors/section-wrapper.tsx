@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useRef, useContext } from "react";
+import { useState, useContext } from "react";
 import { EditModeContext } from "@/components/providers/edit-mode-provider";
 import { Button } from "@/components/ui/button";
 import { AddSectionModal } from "@/components/editors/add-section-modal";
 import { 
   Settings, 
   Trash2, 
-  Move, 
   Palette,
   Type,
   Image as ImageIcon,
@@ -29,7 +28,7 @@ interface SectionWrapperProps {
 export function SectionWrapper({
   children,
   sectionType,
-  sectionId,
+  sectionId: _sectionId,
   onEdit,
   onDelete,
   onDuplicate,

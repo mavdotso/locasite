@@ -8,6 +8,10 @@ import { useContext, useState } from "react";
 import { EditModeContext } from "@/components/providers/edit-mode-provider";
 import { cn } from "@/app/lib/utils";
 
+interface SectionData {
+    [key: string]: unknown;
+}
+
 interface BusinessGalleryProps {
     images?: string[];
     className?: string;
@@ -17,7 +21,7 @@ export default function BusinessGallery({ images, className }: BusinessGalleryPr
     const editMode = useContext(EditModeContext);
     const { isEditMode } = editMode || {};
     const [showEditor, setShowEditor] = useState(false);
-    const [sectionData, setSectionData] = useState({
+    const [sectionData, setSectionData] = useState<SectionData>({
         images: images || [],
         title: "Photo Gallery",
         layout: "grid",
@@ -27,25 +31,35 @@ export default function BusinessGallery({ images, className }: BusinessGalleryPr
         background: {}
     });
 
-    const handleSectionSave = (data: any) => {
+    const handleSectionSave = (data: SectionData) => {
         setSectionData(data);
     };
 
-    const displayImages = sectionData.images.length > 0 ? sectionData.images : images;
+    const displayImages = (sectionData.images as string[])?.length > 0 ? (sectionData.images as string[]) : images;
 
     if (!displayImages || (displayImages.length === 0 && !isEditMode)) {
         return null;
     }
 
+    const background = sectionData.background as { type?: string; color?: string; image?: string; size?: string; position?: string; repeat?: string } | undefined;
+    const typography = sectionData.typography as { 
+        fontSize?: number; 
+        fontFamily?: string; 
+        fontWeight?: string; 
+        textAlign?: string; 
+        color?: string; 
+        textTransform?: string; 
+    } | undefined;
+    
     const galleryStyle = {
-        ...(sectionData.background?.type === "color" && {
-            backgroundColor: sectionData.background.color
+        ...(background?.type === "color" && {
+            backgroundColor: background.color
         }),
-        ...(sectionData.background?.type === "image" && {
-            backgroundImage: `url(${sectionData.background.image})`,
-            backgroundSize: sectionData.background.size || "cover",
-            backgroundPosition: sectionData.background.position || "center",
-            backgroundRepeat: sectionData.background.repeat || "no-repeat"
+        ...(background?.type === "image" && {
+            backgroundImage: `url(${background.image})`,
+            backgroundSize: background.size || "cover",
+            backgroundPosition: background.position || "center",
+            backgroundRepeat: background.repeat || "no-repeat"
         })
     };
 
@@ -56,7 +70,7 @@ export default function BusinessGallery({ images, className }: BusinessGalleryPr
         4: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
         5: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5",
         6: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6"
-    }[sectionData.columns] || "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4";
+    }[sectionData.columns as number] || "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4";
 
     const gapSize = {
         none: "gap-0",
@@ -64,7 +78,7 @@ export default function BusinessGallery({ images, className }: BusinessGalleryPr
         normal: "gap-4",
         large: "gap-6",
         xl: "gap-8"
-    }[sectionData.spacing] || "gap-4";
+    }[sectionData.spacing as string] || "gap-4";
 
     return (
         <>
@@ -82,15 +96,15 @@ export default function BusinessGallery({ images, className }: BusinessGalleryPr
                         <h2 
                             className="mb-8 font-bold text-3xl text-center"
                             style={{
-                                fontFamily: sectionData.typography?.fontFamily,
-                                fontSize: sectionData.typography?.fontSize ? `${sectionData.typography.fontSize}px` : undefined,
-                                fontWeight: sectionData.typography?.fontWeight,
-                                textAlign: sectionData.typography?.textAlign as any,
-                                color: sectionData.typography?.color,
-                                textTransform: sectionData.typography?.textTransform as any
+                                fontFamily: typography?.fontFamily,
+                                fontSize: typography?.fontSize ? `${typography.fontSize}px` : undefined,
+                                fontWeight: typography?.fontWeight,
+                                textAlign: typography?.textAlign as React.CSSProperties['textAlign'],
+                                color: typography?.color,
+                                textTransform: typography?.textTransform as React.CSSProperties['textTransform']
                             }}
                         >
-                            {sectionData.title}
+                            {sectionData.title as string}
                         </h2>
                         
                         {displayImages && displayImages.length > 0 ? (

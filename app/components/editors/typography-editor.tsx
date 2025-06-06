@@ -4,6 +4,17 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+interface TypographySettings {
+  fontSize?: number;
+  fontFamily?: string;
+  fontWeight?: string;
+  lineHeight?: number;
+  letterSpacing?: number;
+  textAlign?: string;
+  color?: string;
+  textTransform?: string;
+}
 import { 
   Select,
   SelectContent,
@@ -24,17 +35,8 @@ import {
 import { cn } from "@/lib/utils";
 
 interface TypographyEditorProps {
-  value: {
-    fontSize?: number;
-    fontFamily?: string;
-    fontWeight?: string;
-    lineHeight?: number;
-    letterSpacing?: number;
-    textAlign?: string;
-    color?: string;
-    textTransform?: string;
-  };
-  onChange: (value: any) => void;
+  value: TypographySettings;
+  onChange: (value: TypographySettings) => void;
   className?: string;
 }
 
@@ -74,11 +76,11 @@ export function TypographyEditor({ value, onChange, className }: TypographyEdito
     underline: false, // Would need to track this separately
   });
 
-  const handleChange = (field: string, newValue: any) => {
+  const handleChange = (field: string, newValue: unknown) => {
     onChange({ ...value, [field]: newValue });
   };
 
-  const toggleStyle = (style: string) => {
+  const toggleStyle = (style: keyof typeof activeStyles) => {
     const newActiveStyles = { ...activeStyles, [style]: !activeStyles[style] };
     setActiveStyles(newActiveStyles);
 

@@ -4,6 +4,24 @@ import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+interface BackgroundSettings {
+  type?: "color" | "image" | "gradient";
+  color?: string;
+  image?: string;
+  size?: string;
+  position?: string;
+  repeat?: string;
+  gradient?: {
+    type: "linear" | "radial";
+    direction?: string;
+    colors: Array<{ color: string; position: number }>;
+  };
+  overlay?: {
+    color: string;
+    opacity: number;
+  };
+}
 import { 
   Select,
   SelectContent,
@@ -16,31 +34,12 @@ import { Slider } from "@/components/ui/slider";
 import { 
   Upload,
   Trash2,
-  RotateCcw,
-  Image as ImageIcon,
-  Palette
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BackgroundEditorProps {
-  value: {
-    type?: "color" | "image" | "gradient";
-    color?: string;
-    image?: string;
-    size?: string;
-    position?: string;
-    repeat?: string;
-    gradient?: {
-      type: "linear" | "radial";
-      direction?: string;
-      colors: Array<{ color: string; position: number }>;
-    };
-    overlay?: {
-      color: string;
-      opacity: number;
-    };
-  };
-  onChange: (value: any) => void;
+  value: BackgroundSettings;
+  onChange: (value: BackgroundSettings) => void;
   className?: string;
 }
 
@@ -74,13 +73,13 @@ export function BackgroundEditor({ value, onChange, className }: BackgroundEdito
   const [activeTab, setActiveTab] = useState(value.type || "color");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleChange = (field: string, newValue: any) => {
+  const handleChange = (field: string, newValue: unknown) => {
     onChange({ ...value, [field]: newValue });
   };
 
   const handleTypeChange = (type: string) => {
-    setActiveTab(type);
-    onChange({ ...value, type });
+    setActiveTab(type as "color" | "image" | "gradient");
+    onChange({ ...value, type: type as "color" | "image" | "gradient" });
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
