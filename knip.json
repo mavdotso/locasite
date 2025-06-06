@@ -1,0 +1,9 @@
+{
+  "ignoreDependencies": [],
+  "ignoreWorkspaces": [],
+  "ignore": [
+    "app/components/ui/**"
+  ],
+  "ignoreBinaries": [],
+  "ignoreExportsUsedInFile": true
+}

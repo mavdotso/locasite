@@ -46,6 +46,7 @@
     "@types/react-dom": "^19.0.4",
     "eslint": "^9.21.0",
     "eslint-config-next": "15.2.0-canary.71",
+    "knip": "^5.60.2",
     "tailwindcss": "^4.0.9",
     "typescript": "^5.8.2"
   }
