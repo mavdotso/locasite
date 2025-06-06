@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { EditModeProvider } from "@/components/providers/edit-mode-provider";
 import { EditToolbar } from "@/components/editors/edit-toolbar";
+import { DirectPreview } from "@/components/editors/direct-preview";
 import { cn } from "@/lib/utils";
 import { Monitor, Tablet, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,22 +21,6 @@ interface UnifiedEditorProps {
 export function UnifiedEditor({ businessId, preloadedBusiness }: UnifiedEditorProps) {
   const [viewportSize, setViewportSize] = useState<ViewportSize>("desktop");
   const business = usePreloadedQuery(preloadedBusiness);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
-  // Send edit mode state to iframe
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data.type === "PREVIEW_READY" && iframeRef.current) {
-        iframeRef.current.contentWindow?.postMessage(
-          { type: "SET_EDIT_MODE", enabled: true },
-          "*"
-        );
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
 
   if (!business) {
     return <div>Business not found</div>;
@@ -79,7 +64,7 @@ export function UnifiedEditor({ businessId, preloadedBusiness }: UnifiedEditorPr
         <div className="flex-1 flex items-center justify-center p-4 pb-20">
           <div
             className={cn(
-              "bg-background rounded-lg shadow-2xl overflow-hidden transition-all duration-300",
+              "bg-background rounded-lg shadow-2xl overflow-auto transition-all duration-300",
               viewportSize === "mobile" && "border-8 border-foreground/10 rounded-[2rem]"
             )}
             style={{
@@ -88,14 +73,8 @@ export function UnifiedEditor({ businessId, preloadedBusiness }: UnifiedEditorPr
               height: "100%",
             }}
           >
-            <iframe
-              ref={iframeRef}
-              src={`/preview/${businessId}`}
-              className="w-full h-full"
-              style={{
-                border: "none",
-              }}
-            />
+            {/* Direct preview without iframe for better edit experience */}
+            <DirectPreview businessId={businessId} />
           </div>
         </div>
 
