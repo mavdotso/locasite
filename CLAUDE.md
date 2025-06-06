@@ -80,3 +80,13 @@ Locasite is a Business Site Generator SaaS that creates professional websites fo
 - The app uses server components where possible for performance
 - Theme customization is stored per-business in the database
 - Gallery images are stored in Convex storage with public URLs
+
+## Code Quality Rules
+
+### TypeScript Typing
+- **NEVER use `any` as a type** - Always use proper TypeScript types
+- **Use Convex generated types** when working with Convex functions:
+  - Import from `convex/_generated/dataModel` for database types
+  - Import from `convex/_generated/server` for server types
+  - Use `QueryCtx`, `MutationCtx`, `ActionCtx` for context types
+- **Prefer strict typing** over loose typing for better code quality and IDE support

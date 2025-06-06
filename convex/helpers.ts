@@ -1,7 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { query } from "./_generated/server";
+import { query, QueryCtx } from "./_generated/server";
 
-export async function checkUserAuth(ctx: any) {
+export async function checkUserAuth(ctx: QueryCtx) {
   const userId = await getAuthUserId(ctx);
 
   if (!userId) {
@@ -11,7 +11,7 @@ export async function checkUserAuth(ctx: any) {
   return userId;
 }
 
-export async function getUserFromAuth(ctx: any) {
+export async function getUserFromAuth(ctx: QueryCtx) {
   const userId = await getAuthUserId(ctx);
 
   if (!userId) {
@@ -32,13 +32,13 @@ export const getCurrentUser = query({
   args: {},
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
-    
+
     if (!userId) {
       return null;
     }
 
     const user = await ctx.db.get(userId);
-    
+
     if (!user) {
       return null;
     }
