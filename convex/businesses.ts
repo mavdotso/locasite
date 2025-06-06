@@ -10,7 +10,7 @@ export interface BusinessData {
     phone?: string;
     website?: string;
     hours: string[];
-    rating: number | null;
+    rating?: number;
     reviews: Array<{
         reviewer: string;
         rating: string;

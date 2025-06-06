@@ -4,7 +4,7 @@ import { Id } from '@/convex/_generated/dataModel';
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/app/components/ui/alert';
-import { Loader } from 'lucide-react';
+import { Loader, Shield, Mail, Phone, CheckCircle } from 'lucide-react';
 import { fetchMutation, fetchQuery } from 'convex/nextjs';
 
 // Server actions
@@ -79,17 +79,69 @@ export default async function ClaimBusinessPage({ params }: ClaimPageProps) {
       <CardHeader>
         <CardTitle>Claim Business: {business.name}</CardTitle>
         <CardDescription>
-          Claiming this business will allow you to manage its information and respond to reviews.
+          Claiming this business will allow you to manage its information, respond to customer messages, and customize your site.
         </CardDescription>
       </CardHeader>
       
       <CardContent>
-        <div className="space-y-4">
-          <div>
-            <h3 className="font-medium">Business Details</h3>
-            <p className="text-gray-500 text-sm">{business.address}</p>
-            {business.phone && <p className="text-gray-500 text-sm">{business.phone}</p>}
+        <div className="space-y-6">
+          <div className="p-4 bg-gray-50 rounded-lg">
+            <h3 className="font-medium text-gray-900 mb-2">Business Details</h3>
+            <div className="space-y-1 text-sm text-gray-600">
+              <p className="flex items-center gap-2">
+                <span className="w-16 text-gray-500">Name:</span>
+                <span className="font-medium">{business.name}</span>
+              </p>
+              <p className="flex items-center gap-2">
+                <span className="w-16 text-gray-500">Address:</span>
+                <span>{business.address}</span>
+              </p>
+              {business.phone && (
+                <p className="flex items-center gap-2">
+                  <span className="w-16 text-gray-500">Phone:</span>
+                  <span>{business.phone}</span>
+                </p>
+              )}
+              {business.website && (
+                <p className="flex items-center gap-2">
+                  <span className="w-16 text-gray-500">Website:</span>
+                  <span>{business.website}</span>
+                </p>
+              )}
+            </div>
           </div>
+          
+          {!alreadyClaimed && isClaimable && (
+            <div className="p-4 border border-blue-200 bg-blue-50 rounded-lg">
+              <h3 className="font-medium text-blue-900 mb-3 flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                Verification Methods
+              </h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-start gap-3 p-3 bg-white rounded border">
+                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-gray-900">Google Business Profile</p>
+                    <p className="text-gray-600">Verify ownership through your Google Business Profile account (Recommended)</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 bg-gray-50 rounded border">
+                  <Mail className="w-5 h-5 text-gray-400 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-gray-500">Email Verification</p>
+                    <p className="text-gray-500">Manual review process (Coming soon)</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 bg-gray-50 rounded border">
+                  <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-gray-500">Phone Verification</p>
+                    <p className="text-gray-500">SMS or call verification (Coming soon)</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           
           {alreadyClaimed && (
             <Alert className="bg-yellow-50 border-yellow-200">

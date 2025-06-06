@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { convex } from "@/app/lib/convex";
 import { api } from "@/convex/_generated/api";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
+import { Button } from "@/app/components/ui/button";
 import PageEditor from "@/app/components/editors/page-editor";
 import BusinessEditor from "@/app/components/editors/business-editor";
 import GalleryEditor from "@/app/components/editors/gallery-editor";
@@ -96,10 +97,26 @@ export default async function EditPage({ params }: EditPageProps) {
       <div className="container p-8 mx-auto">
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Edit {domain.name}</CardTitle>
-            <CardDescription>
-              Customize your business website content and information
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Edit {domain.name}</CardTitle>
+                <CardDescription>
+                  Customize your business website content and information
+                </CardDescription>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" asChild>
+                  <a href={`/${businessDomain}/live-edit`} target="_blank" rel="noopener noreferrer">
+                    Live Editor
+                  </a>
+                </Button>
+                <Button variant="outline" asChild>
+                  <a href={`/${businessDomain}`} target="_blank" rel="noopener noreferrer">
+                    View Site
+                  </a>
+                </Button>
+              </div>
+            </div>
           </CardHeader>
         </Card>
 

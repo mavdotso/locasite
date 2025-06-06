@@ -128,21 +128,26 @@ export default async function BusinessPage({ params }: PageProps) {
           currentSlug="home"
         />
 
-        {/* {!businessData.userId && (
-          <div className="px-4 py-2 bg-amber-50">
+        {!businessData.userId && (
+          <div className="px-4 py-2 bg-amber-50 border-b border-amber-200">
             <div className="container flex items-center justify-between mx-auto">
-              <p className="text-sm text-amber-800">
-                Are you the owner of this business?
-              </p>
+              <div>
+                <p className="text-sm font-medium text-amber-800">
+                  Are you the owner of this business?
+                </p>
+                <p className="text-xs text-amber-600">
+                  Claim your business to manage information and respond to customers
+                </p>
+              </div>
               <a 
-                href={`/claim/${businessData._id}`}
-                className="px-3 py-1 text-sm text-white rounded-md bg-amber-600 hover:bg-amber-700"
+                href={`/${businessDomain}/claim/${businessData._id}`}
+                className="px-4 py-2 text-sm font-medium text-white transition-colors rounded-md bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
               >
                 Claim this Business
               </a>
             </div>
           </div>
-        )} */} 
+        )} 
 
         <main className="flex-grow">
           {content.sections?.map((section: Section, index: number) => {

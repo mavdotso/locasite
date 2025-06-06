@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useAuthActions } from "@convex-dev/auth/react";
+// import { useAuthActions } from "@convex-dev/auth/react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { BusinessData } from '@/convex/businesses';
@@ -25,7 +25,7 @@ export function AuthHandler() {
                     const businessData: BusinessData = JSON.parse(pendingBusinessData);
                     
                     // Create the business
-                    const businessId = await createBusiness({ businessData });
+                    await createBusiness({ businessData });
                     
                     // Clear the pending data
                     sessionStorage.removeItem('pendingBusiness');

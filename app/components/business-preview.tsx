@@ -1,6 +1,7 @@
 'use client';
 
 import { BusinessData } from '@/convex/businesses';
+import { Id } from '@/convex/_generated/dataModel';
 import BusinessHeader from "@/app/components/business/header";
 import BusinessFooter from "@/app/components/business/footer";
 import BusinessHero from "@/app/components/business/hero";
@@ -41,7 +42,11 @@ export default function BusinessPreview({ businessData, onGetStarted }: Business
     }] : []),
     ...(businessData.reviews && businessData.reviews.length > 0 ? [{
       type: "reviews",
-      items: businessData.reviews
+      items: businessData.reviews.map(review => ({
+        author_name: review.reviewer,
+        rating: review.rating,
+        text: review.text
+      }))
     }] : []),
     {
       type: "contact"
@@ -84,7 +89,7 @@ export default function BusinessPreview({ businessData, onGetStarted }: Business
       <div className="flex flex-col min-h-screen">
         <BusinessHeader
           domain={businessData.name}
-          pages={[{ _id: 'home', slug: 'home', title: 'Home', domain: '', content: '', order: 0 }]}
+          pages={[{ _id: 'home' as Id<"pages">, slug: 'home', content: '' }]}
           currentSlug="home"
         />
 

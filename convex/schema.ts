@@ -2,13 +2,6 @@ import { defineSchema, defineTable } from "convex/server";
 import { authTables } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 
-
-export const reviewSchema = {
-    reviewer: v.string(),
-    rating: v.string(),
-    text: v.string()
-};
-
 export default defineSchema({
     ...authTables,
     domains: defineTable({
@@ -32,7 +25,11 @@ export default defineSchema({
         website: v.optional(v.string()),
         hours: v.array(v.string()),
         rating: v.optional(v.number()),
-        reviews: v.array(v.object(reviewSchema)),
+        reviews: v.array(v.object({
+            reviewer: v.string(),
+            rating: v.string(),
+            text: v.string()
+        })),
         photos: v.array(v.string()),
         description: v.optional(v.string()),
         createdAt: v.number(),
@@ -60,6 +57,11 @@ export default defineSchema({
             v.literal("approved"),
             v.literal("rejected")
         ),
+        verificationMethod: v.optional(v.union(
+            v.literal("google"),
+            v.literal("email"),
+            v.literal("phone")
+        )),
         googleVerificationStatus: v.optional(v.union(
             v.literal("pending"),
             v.literal("verified"),
