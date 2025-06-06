@@ -45,7 +45,6 @@ export default async function LiveEditPage({ params }: LiveEditPageProps) {
       <LivePreviewEditor
         business={business}
         domain={domain}
-        pages={pages}
       />
     );
   } catch (error) {

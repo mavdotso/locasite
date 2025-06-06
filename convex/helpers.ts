@@ -1,44 +1,52 @@
-import { Auth, GenericQueryCtx, UserIdentity } from "convex/server";
-import { DataModel } from "./_generated/dataModel";
+import { getAuthUserId } from "@convex-dev/auth/server";
 import { query } from "./_generated/server";
 
-export async function checkUserAuth(ctx: { auth: Auth }) {
-  const identity = await ctx.auth.getUserIdentity();
+export async function checkUserAuth(ctx: any) {
+  const userId = await getAuthUserId(ctx);
 
-  console.log("IDENTITY", identity)
-
-  if (!identity) {
+  if (!userId) {
     throw new Error("Unauthorized: You must be logged in");
   }
 
-  return identity;
+  return userId;
 }
 
-export async function getUserFromIdentity(ctx: GenericQueryCtx<DataModel>, identity: UserIdentity) {
-  // Find user by email (the main identifier in our schema)
-  const user = await ctx.db
-    .query("users")
-    .filter(q => q.eq(q.field("email"), identity.email))
-    .first();
+export async function getUserFromAuth(ctx: any) {
+  const userId = await getAuthUserId(ctx);
+
+  if (!userId) {
+    throw new Error("Unauthorized: You must be logged in");
+  }
+
+  const user = await ctx.db.get(userId);
 
   if (!user) {
-    throw new Error("User not found");
+    throw new Error("User not found. Please try signing in again.");
   }
 
   return user;
 }
 
+// Query to get current user info for frontend components
 export const getCurrentUser = query({
+  args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    
+    if (!userId) {
       return null;
     }
+
+    const user = await ctx.db.get(userId);
+    
+    if (!user) {
+      return null;
+    }
+
     return {
-      userId: identity.subject,
-      name: identity.name,
-      email: identity.email,
-      pictureUrl: identity.pictureUrl,
+      userId: user._id,
+      name: user.name,
+      email: user.email
     };
-  },
+  }
 });

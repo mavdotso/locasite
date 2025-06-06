@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation, internalMutation } from "./_generated/server";
-import { checkUserAuth, getUserFromIdentity } from './helpers';
+import { getUserFromAuth } from './helpers';
 
 // Internal mutation to create a domain
 export const internal_createDomain = internalMutation({
@@ -24,8 +24,7 @@ export const generateSubdomain = mutation({
         customSubdomain: v.optional(v.string())
     },
     handler: async (ctx, args) => {
-        const identity = await checkUserAuth(ctx);
-        const user = await getUserFromIdentity(ctx, identity);
+        const user = await getUserFromAuth(ctx);
 
         const business = await ctx.db.get(args.businessId);
         if (!business) {

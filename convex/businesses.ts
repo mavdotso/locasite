@@ -1,7 +1,8 @@
 import { mutation, query, internalMutation, internalQuery } from './_generated/server';
 import { v } from 'convex/values';
 import { Doc, Id } from './_generated/dataModel';
-import { checkUserAuth, getUserFromIdentity } from './helpers';
+import { getUserFromAuth } from './helpers';
+import { auth } from './auth';
 
 export interface BusinessData {
     name: string;
@@ -186,10 +187,7 @@ export const create = mutation({
         }),
     },
     handler: async (ctx, args) => {
-        const identity = await checkUserAuth(ctx);
-
-        // Get the user ID from the identity
-        const user = await getUserFromIdentity(ctx, identity);
+        const user = await getUserFromAuth(ctx);
 
         // Create the business using the internal mutation
         const businessId = await ctx.db.insert("businesses", {
@@ -256,10 +254,7 @@ export const associateWithDomain = mutation({
         domainId: v.id("domains")
     },
     handler: async (ctx, args) => {
-        const identity = await checkUserAuth(ctx);
-
-        // Get the user ID from the identity
-        const user = await getUserFromIdentity(ctx, identity);
+        const user = await getUserFromAuth(ctx);
 
         // Verify ownership
         await verifyBusinessOwnership(ctx, args.businessId, user._id);
@@ -274,10 +269,7 @@ export const associateWithDomain = mutation({
 export const remove = mutation({
     args: { id: v.id("businesses") },
     handler: async (ctx, args) => {
-        const identity = await checkUserAuth(ctx);
-
-        // Get the user ID from the identity
-        const user = await getUserFromIdentity(ctx, identity);
+        const user = await getUserFromAuth(ctx);
 
         // Verify ownership
         await verifyBusinessOwnership(ctx, args.id, user._id);
@@ -318,10 +310,7 @@ export const update = mutation({
         }),
     },
     handler: async (ctx, args) => {
-        const identity = await checkUserAuth(ctx);
-
-        // Get the user ID from the identity
-        const user = await getUserFromIdentity(ctx, identity);
+        const user = await getUserFromAuth(ctx);
 
         // Verify ownership
         await verifyBusinessOwnership(ctx, args.id, user._id);
@@ -344,10 +333,7 @@ export const updatePhotos = mutation({
         photos: v.array(v.string()),
     },
     handler: async (ctx, args) => {
-        const identity = await checkUserAuth(ctx);
-
-        // Get the user ID from the identity
-        const user = await getUserFromIdentity(ctx, identity);
+        const user = await getUserFromAuth(ctx);
 
         // Verify ownership
         await verifyBusinessOwnership(ctx, args.id, user._id);
@@ -365,10 +351,7 @@ export const updateBusinessDescription = mutation({
         description: v.string(),
     },
     handler: async (ctx, args) => {
-        const identity = await checkUserAuth(ctx);
-
-        // Get the user ID from the identity
-        const user = await getUserFromIdentity(ctx, identity);
+        const user = await getUserFromAuth(ctx);
 
         // Verify ownership
         await verifyBusinessOwnership(ctx, args.businessId, user._id);
@@ -401,32 +384,13 @@ export const createFromPreview = mutation({
         }),
     },
     handler: async (ctx, args) => {
-        // Check if user is authenticated using the current approach
-        const identity = await ctx.auth.getUserIdentity();
-
-        if (!identity) {
-            throw new Error("Unauthorized: You must be logged in");
-        }
-
-        // Extract user ID from subject (format: "userId|sessionId")
-        const userIdString = identity.subject.split('|')[0];
-        const userId = userIdString as Id<"users">;
-        
-        // Get the user record directly by ID
-        const user = await ctx.db.get(userId);
-        
-        if (!user) {
-            console.log("User not found with ID:", userId);
-            throw new Error("User not found. Please try signing in again.");
-        }
-
-        console.log("Found user:", user);
+        const user = await getUserFromAuth(ctx);
 
         // Check if business with this placeId already exists for this user
         const existingBusiness = await ctx.db
             .query("businesses")
             .withIndex("by_placeId", q => q.eq("placeId", args.businessData.placeId))
-            .filter(q => q.eq(q.field("userId"), userId))
+            .filter(q => q.eq(q.field("userId"), user._id))
             .first();
 
         if (existingBusiness) {
@@ -438,7 +402,7 @@ export const createFromPreview = mutation({
         const businessId = await ctx.db.insert("businesses", {
             ...args.businessData,
             createdAt: Date.now(),
-            userId: userId
+            userId: user._id
         });
 
         return businessId;

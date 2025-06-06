@@ -1,7 +1,8 @@
 import { mutation, query, internalMutation, internalQuery, action } from './_generated/server';
 import { v } from 'convex/values';
 import { Doc, Id } from './_generated/dataModel';
-import { checkUserAuth, getUserFromIdentity } from './helpers';
+import { getUserFromAuth } from './helpers';
+import { auth } from './auth';
 import { internal } from "./_generated/api";
 
 // Internal mutation to create a business claim
@@ -79,8 +80,7 @@ export const claimBusiness = mutation({
     ))
   },
   handler: async (ctx, args) => {
-    const identity = await checkUserAuth(ctx);
-    const user = await getUserFromIdentity(ctx, identity);
+    const user = await getUserFromAuth(ctx);
 
     // Check if the business exists
     const business = await ctx.db.get(args.businessId);
@@ -154,8 +154,7 @@ export const getClaimById = query({
     claimId: v.id("businessClaims"),
   },
   handler: async (ctx, args) => {
-    const identity = await checkUserAuth(ctx);
-    const user = await getUserFromIdentity(ctx, identity);
+    const user = await getUserFromAuth(ctx);
 
     const claim = await ctx.db.get(args.claimId);
     if (!claim) {
@@ -305,8 +304,7 @@ export const internal_updateClaimStatus = internalMutation({
 export const getClaimsByUser = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await checkUserAuth(ctx);
-    const user = await getUserFromIdentity(ctx, identity);
+    const user = await getUserFromAuth(ctx);
 
     const claims = await ctx.db
       .query("businessClaims")
@@ -354,11 +352,8 @@ export const isBusinessClaimable = query({
     // Check if current user has pending claim (if authenticated)
     let userHasPendingClaim = false;
     try {
-      const identity = await ctx.auth.getUserIdentity();
-      if (identity) {
-        const userIdString = identity.subject.split('|')[0];
-        const userId = userIdString as Id<"users">;
-        
+      const userId = await auth.getUserId(ctx);
+      if (userId) {
         const userClaim = pendingClaims.find(claim => claim.userId === userId);
         userHasPendingClaim = !!userClaim;
       }
@@ -381,8 +376,7 @@ export const cancelClaim = mutation({
     claimId: v.id("businessClaims")
   },
   handler: async (ctx, args) => {
-    const identity = await checkUserAuth(ctx);
-    const user = await getUserFromIdentity(ctx, identity);
+    const user = await getUserFromAuth(ctx);
 
     const claim = await ctx.db.get(args.claimId);
     if (!claim) {
