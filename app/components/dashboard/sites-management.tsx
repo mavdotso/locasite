@@ -11,23 +11,18 @@ import { Input } from '@/app/components/ui/input';
 import { 
   Globe, 
   Plus,
-  ExternalLink,
   Edit3,
-  BarChart3,
-  MessageSquare,
-  Settings,
   Search,
   Filter,
-  MoreVertical,
-  Trash2,
-  Copy,
   Eye,
   Calendar,
   MapPin,
-  Phone
+  Phone,
+  Trash
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import Image from 'next/image';
 
 type SiteStatus = 'all' | 'published' | 'draft' | 'pending';
 
@@ -173,9 +168,11 @@ export default function SitesManagement() {
                 {/* Site Preview */}
                 <div className="aspect-video bg-muted rounded-lg flex items-center justify-center overflow-hidden">
                   {business.photos && business.photos[0] ? (
-                    <img 
+                    <Image 
                       src={business.photos[0]} 
                       alt={business.name}
+                      width={400}
+                      height={225}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -229,13 +226,15 @@ export default function SitesManagement() {
                     </>
                   )}
                   
-                  {/* More Actions Dropdown */}
-                  <div className="relative">
-                    <Button size="sm" variant="ghost" className="px-2">
-                      <MoreVertical className="w-3 h-3" />
-                    </Button>
-                    {/* Dropdown menu would go here */}
-                  </div>
+                  {/* Delete Button */}
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    className="px-2 text-destructive hover:text-destructive"
+                    onClick={() => handleDeleteSite(business._id, business.name)}
+                  >
+                    <Trash className="w-3 h-3" />
+                  </Button>
                 </div>
 
                 {/* Quick Stats (for published sites) */}
