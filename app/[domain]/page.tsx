@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { convex } from "@/app/lib/convex";
 import { api } from "@/convex/_generated/api";
 import BusinessHeader from "@/app/components/business/header";
 import BusinessFooter from "@/app/components/business/footer";
@@ -13,6 +12,7 @@ import BusinessMap from "@/app/components/business/map";
 import BusinessContactForm from "@/app/components/business/contact-form";
 import { Section } from "@/app/types/businesses";
 import { Metadata } from "next";
+import { fetchQuery } from "convex/nextjs";
 
 interface PageProps {
   params: Promise<{
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const { domain: businessDomain } = await params;
 
     // Get domain from database
-    const domain = await convex.query(api.domains.getBySubdomain, {
+    const domain = await fetchQuery(api.domains.getBySubdomain, {
       subdomain: businessDomain,
     });
 
@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     // Get the business associated with this domain
-    const business = await convex.query(api.businesses.listByDomain, {
+    const business = await fetchQuery(api.businesses.listByDomain, {
       domain: domain._id,
     });
 
@@ -72,7 +72,7 @@ export default async function BusinessPage({ params }: PageProps) {
 
   try {
     // Get domain from database
-    const domain = await convex.query(api.domains.getBySubdomain, {
+    const domain = await fetchQuery(api.domains.getBySubdomain, {
       subdomain: businessDomain,
     });
 
@@ -82,7 +82,7 @@ export default async function BusinessPage({ params }: PageProps) {
     }
 
     // Get the home page
-    const page = await convex.query(api.pages.getBySlug, {
+    const page = await fetchQuery(api.pages.getBySlug, {
       domain: businessDomain,
       slug: "home",
     });
@@ -92,7 +92,7 @@ export default async function BusinessPage({ params }: PageProps) {
     }
 
     // Get the business associated with this domain
-    const business = await convex.query(api.businesses.listByDomain, {
+    const business = await fetchQuery(api.businesses.listByDomain, {
       domain: domain._id,
     });
 
@@ -101,7 +101,7 @@ export default async function BusinessPage({ params }: PageProps) {
     }
 
     // Fetch all pages for the navigation
-    const pages = await convex.query(api.pages.listByDomain, {
+    const pages = await fetchQuery(api.pages.listByDomain, {
       domainId: domain._id,
     });
 
@@ -113,7 +113,7 @@ export default async function BusinessPage({ params }: PageProps) {
       console.error("Error parsing page content:", error);
       return (
         <div className="p-8">
-          <h1 className="font-bold text-red-500 text-2xl">Invalid Content</h1>
+          <h1 className="text-2xl font-bold text-red-500">Invalid Content</h1>
           <p>Page content is not in valid JSON format</p>
         </div>
       );
@@ -128,21 +128,26 @@ export default async function BusinessPage({ params }: PageProps) {
           currentSlug="home"
         />
 
-        {/* {!businessData.userId && (
-          <div className="bg-amber-50 px-4 py-2">
-            <div className="flex justify-between items-center mx-auto container">
-              <p className="text-amber-800 text-sm">
-                Are you the owner of this business?
-              </p>
+        {!businessData.userId && (
+          <div className="px-4 py-2 bg-amber-50 border-b border-amber-200">
+            <div className="container flex items-center justify-between mx-auto">
+              <div>
+                <p className="text-sm font-medium text-amber-800">
+                  Are you the owner of this business?
+                </p>
+                <p className="text-xs text-amber-600">
+                  Claim your business to manage information and respond to customers
+                </p>
+              </div>
               <a 
-                href={`/claim/${businessData._id}`}
-                className="bg-amber-600 hover:bg-amber-700 px-3 py-1 rounded-md text-white text-sm"
+                href={`/${businessDomain}/claim/${businessData._id}`}
+                className="px-4 py-2 text-sm font-medium text-white transition-colors rounded-md bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
               >
                 Claim this Business
               </a>
             </div>
           </div>
-        )} */} 
+        )} 
 
         <main className="flex-grow">
           {content.sections?.map((section: Section, index: number) => {
@@ -162,6 +167,7 @@ export default async function BusinessPage({ params }: PageProps) {
                     key={index}
                     address={section.address || businessData.address}
                     phone={section.phone || businessData.phone}
+                    email={section.email || businessData.email}
                     website={section.website || businessData.website}
                     hours={section.hours || businessData.hours}
                   />
@@ -183,6 +189,9 @@ export default async function BusinessPage({ params }: PageProps) {
                     key={index}
                     title={section.title}
                     subtitle={section.subtitle}
+                    phone={businessData.phone}
+                    email={businessData.email}
+                    address={businessData.address}
                   />
                 );
               case "map":
@@ -193,26 +202,26 @@ export default async function BusinessPage({ params }: PageProps) {
                   />
                 );
               case "contactForm":
-                return <BusinessContactForm key={index} title={section.title} />;
+                return <BusinessContactForm key={index} businessId={businessData._id} title={section.title} />;
               case "header":
                 return (
-                  <div key={index} className="mx-auto px-4 py-12 container">
-                    <h1 className="font-bold text-3xl md:text-4xl text-center">
+                  <div key={index} className="container px-4 py-12 mx-auto">
+                    <h1 className="text-3xl font-bold text-center md:text-4xl">
                       {section.title}
                     </h1>
                   </div>
                 );
               case "content":
                 return (
-                  <div key={index} className="mx-auto px-4 py-8 container">
-                    <div className="mx-auto max-w-none prose">{section.text}</div>
+                  <div key={index} className="container px-4 py-8 mx-auto">
+                    <div className="mx-auto prose max-w-none">{section.text}</div>
                   </div>
                 );
               case "contactInfo":
                 return (
-                  <div key={index} className="mx-auto px-4 py-8 container">
-                    <div className="bg-white shadow mx-auto p-6 rounded-lg max-w-lg">
-                      <h3 className="mb-4 font-semibold text-xl">
+                  <div key={index} className="container px-4 py-8 mx-auto">
+                    <div className="max-w-lg p-6 mx-auto bg-card rounded-lg shadow">
+                      <h3 className="mb-4 text-xl font-semibold">
                         Contact Information
                       </h3>
                       <div className="space-y-3">
@@ -226,11 +235,11 @@ export default async function BusinessPage({ params }: PageProps) {
                         )}
                         <div>
                           <strong>Hours:</strong>
-                          <ul className="mt-1 pl-0 list-none">
+                          <ul className="pl-0 mt-1 list-none">
                             {section.hours?.map((hour, i) => (
                               <li
                                 key={i}
-                                className="py-1 border-gray-100 border-b text-sm"
+                                className="py-1 text-sm border-b border-border"
                               >
                                 {hour}
                               </li>
@@ -254,3 +263,4 @@ export default async function BusinessPage({ params }: PageProps) {
     notFound();
   }
 }
+

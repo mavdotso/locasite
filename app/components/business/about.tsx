@@ -8,7 +8,7 @@ interface BusinessAboutProps {
 
 export default function BusinessAbout({ content, className }: BusinessAboutProps) {
     return (
-        <section className={cn("py-16 bg-white", className)}>
+        <section className={cn("py-16 bg-background", className)}>
             <div className="mx-auto px-4 container">
                 <div className="mx-auto max-w-3xl">
                     <Card className="shadow-md border-none">
@@ -20,7 +20,7 @@ export default function BusinessAbout({ content, className }: BusinessAboutProps
                                 {content ? (
                                     <div dangerouslySetInnerHTML={{ __html: content }} />
                                 ) : (
-                                    <p className="text-gray-500 text-center italic">No information available.</p>
+                                    <p className="text-muted-foreground text-center italic">No information available.</p>
                                 )}
                             </div>
                         </CardContent>

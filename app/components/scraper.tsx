@@ -11,9 +11,11 @@ import { Label } from "@/app/components/ui/label";
 
 interface ScraperProps {
     onBusinessCreated?: (businessId: Id<"businesses">) => void;
+    previewMode?: boolean;
+    onPreviewComplete?: (businessData: BusinessData) => void;
 }
 
-export default function Scraper({ onBusinessCreated }: ScraperProps) {
+export default function Scraper({ onBusinessCreated, previewMode = false, onPreviewComplete }: ScraperProps) {
     const [url, setUrl] = useState('');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<BusinessData | null>(null);
@@ -22,7 +24,7 @@ export default function Scraper({ onBusinessCreated }: ScraperProps) {
     async function handleScrape() {
         setLoading(true);
         setError(null);
-
+    
         // Validate that the URL is a Google Maps URL
         const googleMapsRegex = /^https:\/\/(www\.)?google\.com\/maps\/(place|search)/;
         if (!googleMapsRegex.test(url)) {
@@ -30,33 +32,53 @@ export default function Scraper({ onBusinessCreated }: ScraperProps) {
             setLoading(false);
             return;
         }
-
+    
         try {
-            const response = await fetch('/api/scrape', {
+            // Get the Convex deployment URL
+            const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL || '';
+            // Extract deployment name from the URL (e.g., "careful-emu-235" from "https://careful-emu-235.convex.cloud")
+            const deploymentName = convexUrl.split('//')[1]?.split('.')[0];
+            const convexSiteUrl = `https://${deploymentName}.convex.site`;
+            
+            console.log(`Calling Convex endpoint: ${convexSiteUrl}/scrape`);
+            
+            const response = await fetch(`${convexSiteUrl}/scrape`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ url }),
+                body: JSON.stringify({ url, preview: previewMode }),
             });
-
+    
+            // Check if response is JSON before trying to parse it
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.error('Received non-JSON response:', text);
+                throw new Error(`Received non-JSON response: ${text.substring(0, 100)}...`);
+            }
+    
             const data = await response.json();
-
+            console.log('Response data:', data);
+    
             if (!response.ok) {
                 throw new Error(data.error || 'Failed to scrape data');
             }
-
+    
             setResult(data.data);
-
-            if (onBusinessCreated && data.businessId) {
+    
+            if (previewMode && onPreviewComplete) {
+                onPreviewComplete(data.data);
+            } else if (onBusinessCreated && data.businessId) {
                 onBusinessCreated(data.businessId);
             }
         } catch (err) {
+            console.error('Error during scrape:', err);
             setError(err instanceof Error ? err.message : 'An unknown error occurred');
         } finally {
             setLoading(false);
         }
-    };
+    }
 
     return (
         <div className="space-y-6">

@@ -1,9 +1,10 @@
+import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import { Geist, Geist_Mono } from "next/font/google";
 import type { Metadata } from "next";
 import "./globals.css";
-import ConvexClientProvider from "./components/providers/ConvexClientProvider";
-import { auth } from "./auth";
 import { Toaster } from "sonner";
+import { ConvexClientProvider } from "./components/providers/ConvexClientProvider";
+import { AuthHandler } from "./components/auth-handler";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,12 +22,18 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const session = await auth();
-
   return (
     <html lang="en">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ConvexClientProvider session={session}>{children}</ConvexClientProvider>
+        <ConvexAuthNextjsServerProvider>
+          <ConvexClientProvider>
+            <AuthHandler />
+            {children}
+          </ConvexClientProvider>
+        </ConvexAuthNextjsServerProvider>
         <Toaster />
       </body>
     </html>

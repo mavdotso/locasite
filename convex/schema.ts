@@ -1,78 +1,6 @@
 import { defineSchema, defineTable } from "convex/server";
-import { v, Validator } from "convex/values";
-
-export const userSchema = {
-    email: v.string(),
-    name: v.optional(v.string()),
-    emailVerified: v.optional(v.number()),
-    image: v.optional(v.string()),
-};
-
-export const sessionSchema = {
-    userId: v.id("users"),
-    expires: v.number(),
-    sessionToken: v.string(),
-};
-
-export const accountSchema = {
-    userId: v.id("users"),
-    type: v.union(
-        v.literal("email"),
-        v.literal("oidc"),
-        v.literal("oauth"),
-        v.literal("webauthn"),
-    ),
-    provider: v.string(),
-    providerAccountId: v.string(),
-    refresh_token: v.optional(v.string()),
-    access_token: v.optional(v.string()),
-    expires_at: v.optional(v.number()),
-    token_type: v.optional(v.string() as Validator<Lowercase<string>>),
-    scope: v.optional(v.string()),
-    id_token: v.optional(v.string()),
-    session_state: v.optional(v.string()),
-};
-
-export const verificationTokenSchema = {
-    identifier: v.string(),
-    token: v.string(),
-    expires: v.number(),
-};
-
-export const authenticatorSchema = {
-    credentialID: v.string(),
-    userId: v.id("users"),
-    providerAccountId: v.string(),
-    credentialPublicKey: v.string(),
-    counter: v.number(),
-    credentialDeviceType: v.string(),
-    credentialBackedUp: v.boolean(),
-    transports: v.optional(v.string()),
-};
-
-const authTables = {
-    users: defineTable(userSchema).index("email", ["email"]),
-    sessions: defineTable(sessionSchema)
-        .index("sessionToken", ["sessionToken"])
-        .index("userId", ["userId"]),
-    accounts: defineTable(accountSchema)
-        .index("providerAndAccountId", ["provider", "providerAccountId"])
-        .index("userId", ["userId"]),
-    verificationTokens: defineTable(verificationTokenSchema).index(
-        "identifierToken",
-        ["identifier", "token"],
-    ),
-    authenticators: defineTable(authenticatorSchema)
-        .index("userId", ["userId"])
-        .index("credentialID", ["credentialID"]),
-};
-
-export const reviewSchema = {
-    reviewer: v.string(),
-    rating: v.string(),
-    text: v.string()
-};
-
+import { authTables } from "@convex-dev/auth/server";
+import { v } from "convex/values";
 
 export default defineSchema({
     ...authTables,
@@ -93,15 +21,28 @@ export default defineSchema({
         placeId: v.string(),
         address: v.string(),
         phone: v.optional(v.string()),
+        email: v.optional(v.string()),
         website: v.optional(v.string()),
         hours: v.array(v.string()),
         rating: v.optional(v.number()),
-        reviews: v.array(v.object(reviewSchema)),
+        reviews: v.array(v.object({
+            reviewer: v.string(),
+            rating: v.string(),
+            text: v.string()
+        })),
         photos: v.array(v.string()),
         description: v.optional(v.string()),
         createdAt: v.number(),
         userId: v.optional(v.id("users")),
-        domainId: v.optional(v.id("domains"))
+        domainId: v.optional(v.id("domains")),
+        theme: v.optional(v.object({
+            colorScheme: v.optional(v.string()),
+            primaryColor: v.optional(v.string()),
+            secondaryColor: v.optional(v.string()),
+            accentColor: v.optional(v.string()),
+            fontFamily: v.optional(v.string()),
+            logoUrl: v.optional(v.string())
+        }))
     })
         .index("by_placeId", ["placeId"])
         .index("by_userId", ["userId"])
@@ -116,6 +57,11 @@ export default defineSchema({
             v.literal("approved"),
             v.literal("rejected")
         ),
+        verificationMethod: v.optional(v.union(
+            v.literal("google"),
+            v.literal("email"),
+            v.literal("phone")
+        )),
         googleVerificationStatus: v.optional(v.union(
             v.literal("pending"),
             v.literal("verified"),
@@ -128,5 +74,23 @@ export default defineSchema({
         .index("by_business", ["businessId"])
         .index("by_user", ["userId"])
         .index("by_status", ["status"])
+        .index("by_business_status", ["businessId", "status"]),
+
+    contactMessages: defineTable({
+        businessId: v.id("businesses"),
+        name: v.string(),
+        email: v.string(),
+        phone: v.optional(v.string()),
+        message: v.string(),
+        status: v.union(
+            v.literal("unread"),
+            v.literal("read"),
+            v.literal("responded")
+        ),
+        createdAt: v.number(),
+        updatedAt: v.optional(v.number())
+    })
+        .index("by_business", ["businessId"])
         .index("by_business_status", ["businessId", "status"])
+        .index("by_createdAt", ["createdAt"])
 });

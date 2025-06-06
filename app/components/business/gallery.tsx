@@ -13,7 +13,7 @@ export default function BusinessGallery({ images, className }: BusinessGalleryPr
     }
 
     return (
-        <section className={cn("bg-gray-50 py-12", className)}>
+        <section className={cn("bg-muted py-12", className)}>
             <div className="mx-auto px-4 container">
                 <h2 className="mb-8 font-bold text-3xl text-center">Photo Gallery</h2>
                 <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">

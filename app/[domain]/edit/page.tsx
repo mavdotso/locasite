@@ -2,11 +2,13 @@ import { notFound } from "next/navigation";
 import { convex } from "@/app/lib/convex";
 import { api } from "@/convex/_generated/api";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
+import { Button } from "@/app/components/ui/button";
 import PageEditor from "@/app/components/editors/page-editor";
 import BusinessEditor from "@/app/components/editors/business-editor";
 import GalleryEditor from "@/app/components/editors/gallery-editor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { auth } from "@/app/auth";
+import ThemeEditor from "@/app/components/editors/theme-editor";
+import MessageList from "@/app/components/messages/message-list";
 
 interface EditPageProps {
   params: Promise<{
@@ -16,13 +18,11 @@ interface EditPageProps {
 
 export default async function EditPage({ params }: EditPageProps) {
   const { domain: businessDomain } = await params;
-  const session = await auth();
-  console.log(session)
 
   // TODO: Check if user is authenticated
   // if (!session?.user) {
   //   return (
-  //     <div className="mx-auto p-8 container">
+  //     <div className="container p-8 mx-auto">
   //       <Card>
   //         <CardHeader>
   //           <CardTitle>Authentication Required</CardTitle>
@@ -62,7 +62,7 @@ export default async function EditPage({ params }: EditPageProps) {
     // TODO: Check if user owns this business
     // if (business.userId !== session.user.id) {
     //   return (
-    //     <div className="mx-auto p-8 container">
+    //     <div className="container p-8 mx-auto">
     //       <Card>
     //         <CardHeader>
     //           <CardTitle>Access Denied</CardTitle>
@@ -83,14 +83,40 @@ export default async function EditPage({ params }: EditPageProps) {
       domainId: domain._id,
     });
 
+    // Fetch contact messages
+    const messages = await convex.query(api.contactMessages.getByBusiness, {
+      businessId: business._id,
+    });
+    
+    // Get unread count
+    const unreadCount = await convex.query(api.contactMessages.getUnreadCount, {
+      businessId: business._id,
+    });
+
     return (
-      <div className="mx-auto p-8 container">
+      <div className="container p-8 mx-auto">
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Edit {domain.name}</CardTitle>
-            <CardDescription>
-              Customize your business website content and information
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Edit {domain.name}</CardTitle>
+                <CardDescription>
+                  Customize your business website content and information
+                </CardDescription>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" asChild>
+                  <a href={`/${businessDomain}/live-edit`} target="_blank" rel="noopener noreferrer">
+                    Live Editor
+                  </a>
+                </Button>
+                <Button variant="outline" asChild>
+                  <a href={`/${businessDomain}`} target="_blank" rel="noopener noreferrer">
+                    View Site
+                  </a>
+                </Button>
+              </div>
+            </div>
           </CardHeader>
         </Card>
 
@@ -99,6 +125,15 @@ export default async function EditPage({ params }: EditPageProps) {
             <TabsTrigger value="business">Business Information</TabsTrigger>
             <TabsTrigger value="gallery">Photo Gallery</TabsTrigger>
             <TabsTrigger value="pages">Pages</TabsTrigger>
+            <TabsTrigger value="theme">Theme & Design</TabsTrigger>
+            <TabsTrigger value="messages">
+              Messages
+              {unreadCount > 0 && (
+                <span className="ml-2 px-2 py-0.5 text-xs bg-primary text-primary-foreground rounded-full">
+                  {unreadCount}
+                </span>
+              )}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="business">
@@ -109,11 +144,15 @@ export default async function EditPage({ params }: EditPageProps) {
             <GalleryEditor business={business} />
           </TabsContent>
 
+          <TabsContent value="theme">
+            <ThemeEditor business={business} />
+          </TabsContent>
+
           <TabsContent value="pages">
             <div className="space-y-8">
               {pages.map((page) => (
                 <div key={page._id}>
-                  <h3 className="mb-2 font-medium text-lg capitalize">
+                  <h3 className="mb-2 text-lg font-medium capitalize">
                     {page.slug} Page
                   </h3>
                   <PageEditor page={page} />
@@ -121,13 +160,25 @@ export default async function EditPage({ params }: EditPageProps) {
               ))}
             </div>
           </TabsContent>
+
+          <TabsContent value="messages">
+            <Card className="mb-4">
+              <CardHeader>
+                <CardTitle>Contact Form Submissions</CardTitle>
+                <CardDescription>
+                  Messages from visitors who filled out your contact form
+                </CardDescription>
+              </CardHeader>
+            </Card>
+            <MessageList initialMessages={messages} />
+          </TabsContent>
         </Tabs>
       </div>
     );
   } catch (error) {
     console.error("Error loading edit page:", error);
     return (
-      <div className="mx-auto p-8 container">
+      <div className="container p-8 mx-auto">
         <Card>
           <CardHeader>
             <CardTitle>Error</CardTitle>

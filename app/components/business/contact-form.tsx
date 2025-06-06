@@ -7,13 +7,18 @@ import { Input } from "@/app/components/ui/input";
 import { Textarea } from "@/app/components/ui/textarea";
 import { toast } from "sonner"
 import { cn } from '@/app/lib/utils';
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 
 interface BusinessContactFormProps {
+    businessId: Id<"businesses">;
     title?: string;
     className?: string;
 }
 
-export default function BusinessContactForm({ title, className }: BusinessContactFormProps) {
+export default function BusinessContactForm({ businessId, title, className }: BusinessContactFormProps) {
+    const sendMessage = useMutation(api.contactMessages.send);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -31,10 +36,15 @@ export default function BusinessContactForm({ title, className }: BusinessContac
         e.preventDefault();
         setFormStatus('submitting');
 
-        // Simulate form submission
         try {
-            // TODO: send the form data to your API
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await sendMessage({
+                businessId,
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone || undefined,
+                message: formData.message
+            });
+            
             setFormStatus('success');
             
             toast.success("Message sent!", {
@@ -49,19 +59,20 @@ export default function BusinessContactForm({ title, className }: BusinessContac
                 message: ''
             });
             setTimeout(() => setFormStatus('idle'), 3000);
-        } catch {
+        } catch (error) {
             setFormStatus('error');
             
             toast.error("Something went wrong", {
                 description: "There was an error submitting your form. Please try again.",
             });
             
+            console.error('Contact form error:', error);
             setTimeout(() => setFormStatus('idle'), 3000);
         }
     };
 
     return (
-        <section className={cn("py-16 bg-gray-50", className)}>
+        <section className={cn("py-16 bg-muted", className)}>
             <div className="mx-auto px-4 container">
                 <div className="mx-auto max-w-lg">
                     <Card className="shadow-lg">
@@ -71,7 +82,7 @@ export default function BusinessContactForm({ title, className }: BusinessContac
                         <CardContent>
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div className="space-y-2">
-                                    <label htmlFor="name" className="block font-medium text-gray-700 text-sm">
+                                    <label htmlFor="name" className="block font-medium text-foreground text-sm">
                                         Your Name
                                     </label>
                                     <Input
@@ -86,7 +97,7 @@ export default function BusinessContactForm({ title, className }: BusinessContac
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="email" className="block font-medium text-gray-700 text-sm">
+                                    <label htmlFor="email" className="block font-medium text-foreground text-sm">
                                         Email Address
                                     </label>
                                     <Input
@@ -101,7 +112,7 @@ export default function BusinessContactForm({ title, className }: BusinessContac
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="phone" className="block font-medium text-gray-700 text-sm">
+                                    <label htmlFor="phone" className="block font-medium text-foreground text-sm">
                                         Phone Number (optional)
                                     </label>
                                     <Input
@@ -115,7 +126,7 @@ export default function BusinessContactForm({ title, className }: BusinessContac
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label htmlFor="message" className="block font-medium text-gray-700 text-sm">
+                                    <label htmlFor="message" className="block font-medium text-foreground text-sm">
                                         Your Message
                                     </label>
                                     <Textarea

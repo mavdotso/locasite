@@ -1,6 +1,6 @@
 import { query, mutation, internalMutation } from './_generated/server';
 import { v } from 'convex/values';
-import { checkUserAuth, getUserFromIdentity } from './helpers';
+import { getUserFromAuth } from './helpers';
 
 // Internal mutation to update a page
 export const internal_updatePage = internalMutation({
@@ -22,8 +22,7 @@ export const createDefaultPages = mutation({
         businessId: v.id("businesses"),
     },
     handler: async (ctx, args) => {
-        const identity = await checkUserAuth(ctx);
-        const user = await getUserFromIdentity(ctx, identity);
+        const user = await getUserFromAuth(ctx);
 
         const business = await ctx.db.get(args.businessId);
         if (!business) {
@@ -189,8 +188,7 @@ export const updatePage = mutation({
         content: v.string(),
     },
     handler: async (ctx, args) => {
-        const identity = await checkUserAuth(ctx);
-        const user = await getUserFromIdentity(ctx, identity);
+        const user = await getUserFromAuth(ctx);
 
         const page = await ctx.db.get(args.pageId);
         if (!page) {
@@ -211,9 +209,8 @@ export const updatePage = mutation({
             throw new Error("Not authorized to edit this page");
         }
 
-        return await internal_updatePage(ctx, {
-            pageId: args.pageId,
-            content: args.content,
+        return await ctx.db.patch(args.pageId, {
+            content: args.content
         });
     },
 });

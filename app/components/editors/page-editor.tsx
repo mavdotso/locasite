@@ -10,6 +10,7 @@ import { Input } from "@/app/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
 import { toast } from "sonner";
+import DragDropSectionEditor from "./drag-drop-section-editor";
 
 interface PageEditorProps {
   page: {
@@ -103,11 +104,16 @@ export default function PageEditor({ page, onClose }: PageEditorProps) {
           />
         </div>
 
-        <Tabs defaultValue="sections">
+        <Tabs defaultValue="visual">
           <TabsList>
-            <TabsTrigger value="sections">Sections</TabsTrigger>
+            <TabsTrigger value="visual">Visual Editor</TabsTrigger>
+            <TabsTrigger value="sections">Basic Sections</TabsTrigger>
             <TabsTrigger value="json">Advanced (JSON)</TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="visual" className="mt-6">
+            <DragDropSectionEditor page={page} />
+          </TabsContent>
           
           <TabsContent value="sections">
             <div className="mb-4">
@@ -127,7 +133,7 @@ export default function PageEditor({ page, onClose }: PageEditorProps) {
               </Button>
             </div>
           {content.sections?.map((section, index: number) => (
-              <Card key={index} className="mb-4 border border-gray-200">
+              <Card key={index} className="mb-4 border border-border">
                 <CardHeader className="py-2">
                   <CardTitle className="font-medium text-sm">
                     {section.type.charAt(0).toUpperCase() + section.type.slice(1)} Section

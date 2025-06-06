@@ -34,15 +34,15 @@ export default function BusinessMap({ address, className }: BusinessMapProps) {
                                     allowFullScreen
                                 ></iframe>
                                 {!process.env.GOOGLE_MAPS_API_KEY && (
-                                    <div className="absolute inset-0 flex justify-center items-center bg-gray-200">
-                                        <p className="text-gray-600">
+                                    <div className="absolute inset-0 flex justify-center items-center bg-muted">
+                                        <p className="text-muted-foreground">
                                             Please add a Google Maps API key to display the map.
                                         </p>
                                     </div>
                                 )}
                             </div>
                         </div>
-                        <div className="mt-4 text-gray-700 text-center">
+                        <div className="mt-4 text-foreground text-center">
                             <p>{address}</p>
                         </div>
                     </CardContent>

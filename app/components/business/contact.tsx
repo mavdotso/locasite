@@ -5,16 +5,19 @@ import { cn } from "@/app/lib/utils";
 interface BusinessContactProps {
     title?: string;
     subtitle?: string;
+    phone?: string;
+    email?: string;
+    address?: string;
     className?: string;
 }
 
-export default function BusinessContact({ title, subtitle, className }: BusinessContactProps) {
+export default function BusinessContact({ title, subtitle, phone, email, address, className }: BusinessContactProps) {
     return (
-        <section className={cn("bg-gray-50 py-12", className)}>
+        <section className={cn("bg-muted py-12", className)}>
             <div className="mx-auto px-4 container">
                 <div className="mx-auto max-w-2xl text-center">
                     <h2 className="mb-4 font-bold text-3xl">{title || "Contact Us"}</h2>
-                    {subtitle && <p className="mb-8 text-gray-600 text-lg">{subtitle}</p>}
+                    {subtitle && <p className="mb-8 text-muted-foreground text-lg">{subtitle}</p>}
                     <Card>
                         <CardHeader>
                             <CardTitle className="font-medium text-lg text-center">
@@ -32,7 +35,13 @@ export default function BusinessContact({ title, subtitle, className }: Business
                                                 </svg>
                                             </div>
                                             <h3 className="font-medium">Phone</h3>
-                                            <p className="text-gray-600">Call us for information</p>
+                                            {phone ? (
+                                                <a href={`tel:${phone}`} className="text-primary hover:underline">
+                                                    {phone}
+                                                </a>
+                                            ) : (
+                                                <p className="text-muted-foreground">Not available</p>
+                                            )}
                                         </div>
                                     </HoverCardTrigger>
                                     <HoverCardContent className="w-80">
@@ -52,7 +61,13 @@ export default function BusinessContact({ title, subtitle, className }: Business
                                                 </svg>
                                             </div>
                                             <h3 className="font-medium">Email</h3>
-                                            <p className="text-gray-600">Send us your questions</p>
+                                            {email ? (
+                                                <a href={`mailto:${email}`} className="text-primary hover:underline">
+                                                    {email}
+                                                </a>
+                                            ) : (
+                                                <p className="text-muted-foreground">Use contact form</p>
+                                            )}
                                         </div>
                                     </HoverCardTrigger>
                                     <HoverCardContent className="w-80">
@@ -73,7 +88,13 @@ export default function BusinessContact({ title, subtitle, className }: Business
                                                 </svg>
                                             </div>
                                             <h3 className="font-medium">Location</h3>
-                                            <p className="text-gray-600">Visit our business</p>
+                                            {address ? (
+                                                <p className="text-primary text-sm">
+                                                    {address}
+                                                </p>
+                                            ) : (
+                                                <p className="text-muted-foreground">Visit our business</p>
+                                            )}
                                         </div>
                                     </HoverCardTrigger>
                                     <HoverCardContent className="w-80">
