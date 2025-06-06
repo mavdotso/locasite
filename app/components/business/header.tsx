@@ -29,7 +29,7 @@ export default function BusinessHeader({
                         <h1 className="text-xl font-bold text-primary">{domain}</h1>
                         {isOwner && (
                             <Button asChild size="sm" variant="outline">
-                                <Link href={`/${domain}/edit`}>
+                                <Link href={`/${domain}/live-edit`}>
                                     Edit Site
                                 </Link>
                             </Button>

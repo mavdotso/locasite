@@ -23,6 +23,8 @@ import {
 import Link from 'next/link';
 import { toast } from 'sonner';
 import Image from 'next/image';
+import EditButton from '@/app/components/ui/edit-button';
+import ViewButton from '@/app/components/ui/view-button';
 
 type SiteStatus = 'all' | 'published' | 'draft' | 'pending';
 
@@ -198,27 +200,21 @@ export default function SitesManagement() {
                 <div className="flex gap-2 pt-2">
                   {business.domainId ? (
                     <>
-                      <Button size="sm" variant="outline" className="flex-1" asChild>
-                        <Link href={`/business/${business._id}`}>
-                          <Eye className="w-3 h-3 mr-1" />
-                          View
-                        </Link>
-                      </Button>
-                      <Button size="sm" className="flex-1" asChild>
-                        <Link href={`/business/${business._id}/edit`}>
-                          <Edit3 className="w-3 h-3 mr-1" />
-                          Edit
-                        </Link>
-                      </Button>
+                      <ViewButton businessId={business._id} size="sm" variant="outline" className="flex-1">
+                        <Eye className="w-3 h-3 mr-1" />
+                        View
+                      </ViewButton>
+                      <EditButton businessId={business._id} size="sm" className="flex-1">
+                        <Edit3 className="w-3 h-3 mr-1" />
+                        Edit
+                      </EditButton>
                     </>
                   ) : (
                     <>
-                      <Button size="sm" variant="outline" className="flex-1" asChild>
-                        <Link href={`/business/${business._id}/edit`}>
-                          <Edit3 className="w-3 h-3 mr-1" />
-                          Edit
-                        </Link>
-                      </Button>
+                      <EditButton businessId={business._id} size="sm" variant="outline" className="flex-1">
+                        <Edit3 className="w-3 h-3 mr-1" />
+                        Edit
+                      </EditButton>
                       <Button size="sm" className="flex-1">
                         <Globe className="w-3 h-3 mr-1" />
                         Publish

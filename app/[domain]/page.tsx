@@ -2,15 +2,7 @@ import { notFound } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import BusinessHeader from "@/app/components/business/header";
 import BusinessFooter from "@/app/components/business/footer";
-import BusinessHero from "@/app/components/business/hero";
-import BusinessInfo from "@/app/components/business/info";
-import BusinessAbout from "@/app/components/business/about";
-import BusinessGallery from "@/app/components/business/gallery";
-import BusinessReviews from "@/app/components/business/reviews";
-import BusinessContact from "@/app/components/business/contact";
-import BusinessMap from "@/app/components/business/map";
-import BusinessContactForm from "@/app/components/business/contact-form";
-import { Section } from "@/app/types/businesses";
+import BusinessPageContent from "@/app/components/business/business-page-content";
 import { Metadata } from "next";
 import { fetchQuery } from "convex/nextjs";
 
@@ -149,112 +141,10 @@ export default async function BusinessPage({ params }: PageProps) {
           </div>
         )} 
 
-        <main className="flex-grow">
-          {content.sections?.map((section: Section, index: number) => {
-            switch (section.type) {
-              case "hero":
-                return (
-                  <BusinessHero
-                    key={index}
-                    title={section.title}
-                    subtitle={section.subtitle}
-                    image={section.image}
-                  />
-                );
-              case "info":
-                return (
-                  <BusinessInfo
-                    key={index}
-                    address={section.address || businessData.address}
-                    phone={section.phone || businessData.phone}
-                    email={section.email || businessData.email}
-                    website={section.website || businessData.website}
-                    hours={section.hours || businessData.hours}
-                  />
-                );
-              case "about":
-                return <BusinessAbout key={index} content={section.content} />;
-              case "gallery":
-                return (
-                  <BusinessGallery
-                    key={index}
-                    images={section.images || businessData.photos || []}
-                  />
-                );
-              case "reviews":
-                return <BusinessReviews key={index} reviews={section.items} />;
-              case "contact":
-                return (
-                  <BusinessContact
-                    key={index}
-                    title={section.title}
-                    subtitle={section.subtitle}
-                    phone={businessData.phone}
-                    email={businessData.email}
-                    address={businessData.address}
-                  />
-                );
-              case "map":
-                return (
-                  <BusinessMap
-                    key={index}
-                    address={section.address || businessData.address}
-                  />
-                );
-              case "contactForm":
-                return <BusinessContactForm key={index} businessId={businessData._id} title={section.title} />;
-              case "header":
-                return (
-                  <div key={index} className="container px-4 py-12 mx-auto">
-                    <h1 className="text-3xl font-bold text-center md:text-4xl">
-                      {section.title}
-                    </h1>
-                  </div>
-                );
-              case "content":
-                return (
-                  <div key={index} className="container px-4 py-8 mx-auto">
-                    <div className="mx-auto prose max-w-none">{section.text}</div>
-                  </div>
-                );
-              case "contactInfo":
-                return (
-                  <div key={index} className="container px-4 py-8 mx-auto">
-                    <div className="max-w-lg p-6 mx-auto bg-card rounded-lg shadow">
-                      <h3 className="mb-4 text-xl font-semibold">
-                        Contact Information
-                      </h3>
-                      <div className="space-y-3">
-                        <p>
-                          <strong>Address:</strong> {section.address}
-                        </p>
-                        {section.phone && (
-                          <p>
-                            <strong>Phone:</strong> {section.phone}
-                          </p>
-                        )}
-                        <div>
-                          <strong>Hours:</strong>
-                          <ul className="pl-0 mt-1 list-none">
-                            {section.hours?.map((hour, i) => (
-                              <li
-                                key={i}
-                                className="py-1 text-sm border-b border-border"
-                              >
-                                {hour}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              default:
-                return null;
-            }
-          })}
-        </main>
+        <BusinessPageContent 
+          initialBusiness={businessData}
+          content={content}
+        />
         <BusinessFooter businessName={domain.name} />
       </div>
     );

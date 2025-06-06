@@ -16,6 +16,8 @@ import {
   BarChart3,
 } from 'lucide-react';
 import Link from 'next/link';
+import EditButton from '@/app/components/ui/edit-button';
+import ViewButton from '@/app/components/ui/view-button';
 
 interface DashboardOverviewProps {
   initialData?: Record<string, unknown>;
@@ -166,17 +168,13 @@ export default function DashboardOverview({ initialData: _initialData }: Dashboa
                       )}
                       <div className="flex gap-1">
                         {business.domainId && (
-                          <Button size="sm" variant="ghost" asChild>
-                            <Link href={`/business/${business._id}`}>
-                              <ExternalLink className="w-4 h-4" />
-                            </Link>
-                          </Button>
+                          <ViewButton businessId={business._id} size="sm" variant="ghost">
+                            <ExternalLink className="w-4 h-4" />
+                          </ViewButton>
                         )}
-                        <Button size="sm" variant="ghost" asChild>
-                          <Link href={`/business/${business._id}/edit`}>
-                            <Edit3 className="w-4 h-4" />
-                          </Link>
-                        </Button>
+                        <EditButton businessId={business._id} size="sm" variant="ghost">
+                          <Edit3 className="w-4 h-4" />
+                        </EditButton>
                       </div>
                     </div>
                   </div>
