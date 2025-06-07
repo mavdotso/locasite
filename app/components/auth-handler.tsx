@@ -33,16 +33,16 @@ export function AuthHandler() {
                     sessionStorage.removeItem('pendingBusinessData');
                     
                     // Show success message
-                    toast.success("Website published!", {
-                        description: `Your ${businessData.name} website has been created successfully.`,
+                    toast.success("Website created!", {
+                        description: `Your ${businessData.name} website has been created as a draft.`,
                     });
                     
-                    // Redirect to edit page
-                    router.push(`/business/${businessId}/edit`);
+                    // Redirect to dashboard
+                    router.push('/dashboard');
                     
                 } catch (error) {
                     console.error('Error creating business from preview:', error);
-                    toast.error("Error publishing website", {
+                    toast.error("Error creating website", {
                         description: "There was an error creating your website. Please try again.",
                     });
                 }

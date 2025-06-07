@@ -109,11 +109,13 @@ export const createDefaultPages = mutation({
             sections: sections,
         });
 
-        // Create home page
+        // Create home page as draft
         const homePageId = await ctx.db.insert("pages", {
             domainId: args.domainId,
             slug: "home",
             content: homePageContent,
+            isPublished: false,
+            lastEditedAt: Date.now()
         });
 
         // Create about page
@@ -139,6 +141,8 @@ export const createDefaultPages = mutation({
             domainId: args.domainId,
             slug: "about",
             content: aboutPageContent,
+            isPublished: false,
+            lastEditedAt: Date.now()
         });
 
         // Create contact page
@@ -170,6 +174,8 @@ export const createDefaultPages = mutation({
             domainId: args.domainId,
             slug: "contact",
             content: contactPageContent,
+            isPublished: false,
+            lastEditedAt: Date.now()
         });
 
         return {

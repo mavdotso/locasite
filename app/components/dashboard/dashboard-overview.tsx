@@ -1,8 +1,7 @@
 'use client';
 
-import { useQuery, useMutation } from 'convex/react';
+import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
-import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
@@ -25,44 +24,17 @@ interface DashboardOverviewProps {
 }
 
 export default function DashboardOverview({ initialData: _initialData }: DashboardOverviewProps) {
-  const [isProcessingPending, setIsProcessingPending] = useState(false);
   const user = useQuery(api.auth.currentUser);
   const userBusinesses = useQuery(api.businesses.listByUser, 
     user ? { userId: user._id } : 'skip'
   );
   const totalUnreadMessages = useQuery(api.contactMessages.getTotalUnreadCount) || 0;
-  const createFromPending = useMutation(api.createFromPending.createBusinessFromPendingData);
 
-  // Check for pending business data and process it
-  useEffect(() => {
-    if (!user || isProcessingPending) return;
-
-    const pendingData = sessionStorage.getItem('pendingBusinessData');
-    if (pendingData) {
-      setIsProcessingPending(true);
-      try {
-        const { businessData, aiContent } = JSON.parse(pendingData);
-        createFromPending({ businessData, aiContent })
-          .then(({ businessId }) => {
-            sessionStorage.removeItem('pendingBusinessData');
-            // Redirect to edit page
-            window.location.href = `/business/${businessId}/edit`;
-          })
-          .catch((error) => {
-            console.error('Failed to create business from pending data:', error);
-            setIsProcessingPending(false);
-          });
-      } catch (error) {
-        console.error('Failed to parse pending business data:', error);
-        sessionStorage.removeItem('pendingBusinessData');
-        setIsProcessingPending(false);
-      }
-    }
-  }, [user, createFromPending, isProcessingPending]);
+  // Note: Pending business data is now handled by AuthHandler component
 
   // Calculate stats
   const totalSites = userBusinesses?.length || 0;
-  const activeSites = userBusinesses?.filter(b => b.domainId).length || 0;
+  const activeSites = userBusinesses?.filter(b => b.isPublished).length || 0;
 
   // Mock analytics data (in a real app, this would come from your analytics service)
   const mockAnalytics = {
@@ -191,13 +163,13 @@ export default function DashboardOverview({ initialData: _initialData }: Dashboa
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {business.domainId ? (
+                      {business.isPublished ? (
                         <Badge className="bg-green-100 text-green-800">Published</Badge>
                       ) : (
                         <Badge variant="outline">Draft</Badge>
                       )}
                       <div className="flex gap-1">
-                        {business.domainId && (
+                        {business.isPublished && business.domainId && (
                           <ViewButton businessId={business._id} size="sm" variant="ghost">
                             <ExternalLink className="w-4 h-4" />
                           </ViewButton>

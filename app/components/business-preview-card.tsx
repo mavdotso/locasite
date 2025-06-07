@@ -15,7 +15,7 @@ export default function BusinessPreviewCard({ businessData }: BusinessPreviewCar
     const { signIn } = useAuthActions();
     const user = useQuery(api.auth.currentUser);
 
-    const handlePublish = () => {
+    const handlePublish = async () => {
         // Store business data in sessionStorage
         sessionStorage.setItem('pendingBusinessData', JSON.stringify({
             businessData,
@@ -26,8 +26,9 @@ export default function BusinessPreviewCard({ businessData }: BusinessPreviewCar
             // Redirect to sign-in
             signIn("google");
         } else {
-            // User is already logged in, trigger the creation flow
-            window.location.href = '/sign-in'; // This will trigger AuthHandler
+            // User is already logged in, go directly to dashboard
+            // The AuthHandler will pick it up from there
+            window.location.href = '/dashboard';
         }
     };
 
@@ -115,7 +116,7 @@ export default function BusinessPreviewCard({ businessData }: BusinessPreviewCar
                         onClick={handlePublish}
                         className="flex-1"
                     >
-                        {user ? 'Continue to Editor' : 'Sign in to Continue'}
+                        {user ? 'Continue to Dashboard' : 'Sign in to Continue'}
                     </Button>
                     <Button 
                         variant="outline"

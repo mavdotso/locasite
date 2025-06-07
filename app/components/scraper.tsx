@@ -77,7 +77,7 @@ export default function Scraper() {
                 <div className="text-center">
                     <h2 className="text-2xl font-bold mb-2">Website Preview</h2>
                     <p className="text-muted-foreground">
-                        Review your business information and publish when ready
+                        Review your business information before continuing
                     </p>
                 </div>
                 

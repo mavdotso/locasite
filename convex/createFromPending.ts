@@ -21,7 +21,7 @@ export const createBusinessFromPendingData = mutation({
       photos: v.array(v.string()),
       description: v.optional(v.string())
     }),
-    aiContent: v.optional(v.object({
+    aiContent: v.optional(v.union(v.null(), v.object({
       hero: v.optional(v.object({
         title: v.string(),
         subtitle: v.string()
@@ -50,18 +50,20 @@ export const createBusinessFromPendingData = mutation({
         metaDescription: v.string(),
         keywords: v.array(v.string())
       }))
-    }))
+    })))
   },
   handler: async (ctx, args): Promise<{ businessId: any; domainId: any }> => {
     const user = await getUserFromAuth(ctx);
     
-    // Create the business
+    // Create the business as a draft (unpublished)
     const businessId = await ctx.db.insert("businesses", {
       ...args.businessData,
-      ...(args.aiContent && { aiGeneratedContent: args.aiContent }),
+      ...(args.aiContent && args.aiContent !== null && { aiGeneratedContent: args.aiContent }),
       createdAt: Date.now(),
       userId: user._id,
-      domainId: undefined // Will be set when domain is created
+      domainId: undefined, // Will be set when domain is created
+      isPublished: false, // Keep as draft until user publishes
+      publishedAt: undefined
     });
 
     // Automatically generate domain and create pages
@@ -72,7 +74,7 @@ export const createBusinessFromPendingData = mutation({
     // Update business with domainId
     await ctx.db.patch(businessId, { domainId });
 
-    // Create default pages with AI content
+    // Create default pages as drafts
     await ctx.runMutation(api.pages.createDefaultPages, {
       domainId,
       businessId
