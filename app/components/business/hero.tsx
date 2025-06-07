@@ -17,9 +17,11 @@ interface BusinessHeroProps {
     subtitle?: string;
     image?: string;
     className?: string;
+    'data-editable'?: string;
+    'data-editable-subtitle'?: string;
 }
 
-export default function BusinessHero({ title, subtitle, image, className }: BusinessHeroProps) {
+export default function BusinessHero({ title, subtitle, image, className, ...props }: BusinessHeroProps) {
     const editMode = useContext(EditModeContext);
     const { isEditMode, draftData, updateDraft } = editMode || {};
     const [showEditor, setShowEditor] = useState(false);
@@ -129,9 +131,12 @@ export default function BusinessHero({ title, subtitle, image, className }: Busi
                                         placeholder="Business Name"
                                         className="text-white"
                                         tag="span"
+                                        data-editable={props['data-editable']}
                                     />
                                 ) : (
-                                    (sectionData.title as string) || title
+                                    <span data-editable={props['data-editable']}>
+                                        {(sectionData.title as string) || title}
+                                    </span>
                                 )}
                             </h1>
                         )}
@@ -151,9 +156,12 @@ export default function BusinessHero({ title, subtitle, image, className }: Busi
                                         placeholder="Business Description"
                                         className="text-white/90 block w-full text-center"
                                         multiline
+                                        data-editable={props['data-editable-subtitle']}
                                     />
                                 ) : (
-                                    (sectionData.subtitle as string) || subtitle
+                                    <span data-editable={props['data-editable-subtitle']}>
+                                        {(sectionData.subtitle as string) || subtitle}
+                                    </span>
                                 )}
                             </p>
                         )}

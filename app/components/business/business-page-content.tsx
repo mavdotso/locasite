@@ -16,11 +16,13 @@ import { Section } from "@/app/types/businesses";
 interface BusinessPageContentProps {
   initialBusiness: Doc<'businesses'>;
   content: { sections?: Section[] };
+  isVisualEditor?: boolean;
 }
 
 export default function BusinessPageContent({ 
   initialBusiness, 
-  content 
+  content,
+  isVisualEditor = false 
 }: BusinessPageContentProps) {
   const [business, setBusiness] = useState(initialBusiness);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -28,7 +30,8 @@ export default function BusinessPageContent({
 
   useEffect(() => {
     // Check if we're in edit mode
-    setIsEditMode(searchParams.get('edit') === 'true');
+    const urlEditMode = searchParams.get('edit') === 'true';
+    setIsEditMode(urlEditMode || isVisualEditor);
 
     // Listen for messages from the live editor
     const handleMessage = (event: MessageEvent) => {
@@ -74,7 +77,7 @@ export default function BusinessPageContent({
       window.addEventListener('message', handleMessage);
       return () => window.removeEventListener('message', handleMessage);
     }
-  }, [searchParams, isEditMode]);
+  }, [searchParams, isEditMode, isVisualEditor]);
 
   const applyThemeToDocument = (theme: { primaryColor?: string; secondaryColor?: string; fontFamily?: string } | undefined) => {
     if (!theme) return;
@@ -131,55 +134,77 @@ export default function BusinessPageContent({
           switch (section.type) {
             case "hero":
               return (
-                <BusinessHero
-                  key={index}
-                  title={section.title}
-                  subtitle={section.subtitle}
-                  image={section.image}
-                />
+                <div key={index} className={section.hidden ? 'hidden' : ''}>
+                  <BusinessHero
+                    title={section.title}
+                    subtitle={section.subtitle}
+                    image={section.image}
+                    data-editable={`sections[${index}].title`}
+                    data-editable-subtitle={`sections[${index}].subtitle`}
+                  />
+                </div>
               );
             case "info":
               return (
-                <BusinessInfo
-                  key={index}
-                  address={section.address || business.address}
-                  phone={section.phone || business.phone}
-                  email={section.email || business.email}
-                  website={section.website || business.website}
-                  hours={section.hours || business.hours}
-                />
+                <div key={index} className={section.hidden ? 'hidden' : ''}>
+                  <BusinessInfo
+                    address={section.address || business.address}
+                    phone={section.phone || business.phone}
+                    email={section.email || business.email}
+                    website={section.website || business.website}
+                    hours={section.hours || business.hours}
+                  />
+                </div>
               );
             case "about":
-              return <BusinessAbout key={index} content={section.content} />;
+              return (
+                <div key={index} className={section.hidden ? 'hidden' : ''}>
+                  <BusinessAbout 
+                    content={section.content} 
+                    data-editable={`sections[${index}].content`}
+                  />
+                </div>
+              );
             case "gallery":
               return (
-                <BusinessGallery
-                  key={index}
-                  images={section.images || business.photos || []}
-                />
+                <div key={index} className={section.hidden ? 'hidden' : ''}>
+                  <BusinessGallery
+                    images={section.images || business.photos || []}
+                  />
+                </div>
               );
             case "reviews":
-              return <BusinessReviews key={index} reviews={section.items} />;
+              return (
+                <div key={index} className={section.hidden ? 'hidden' : ''}>
+                  <BusinessReviews reviews={section.items} />
+                </div>
+              );
             case "contact":
               return (
-                <BusinessContact
-                  key={index}
-                  title={section.title}
-                  subtitle={section.subtitle}
-                  phone={business.phone}
-                  email={business.email}
-                  address={business.address}
-                />
+                <div key={index} className={section.hidden ? 'hidden' : ''}>
+                  <BusinessContact
+                    title={section.title}
+                    subtitle={section.subtitle}
+                    phone={business.phone}
+                    email={business.email}
+                    address={business.address}
+                  />
+                </div>
               );
             case "map":
               return (
-                <BusinessMap
-                  key={index}
-                  address={section.address || business.address}
-                />
+                <div key={index} className={section.hidden ? 'hidden' : ''}>
+                  <BusinessMap
+                    address={section.address || business.address}
+                  />
+                </div>
               );
             case "contactForm":
-              return <BusinessContactForm key={index} businessId={business._id} title={section.title} />;
+              return (
+                <div key={index} className={section.hidden ? 'hidden' : ''}>
+                  <BusinessContactForm businessId={business._id} title={section.title} />
+                </div>
+              );
             case "header":
               return (
                 <div key={index} className="container px-4 py-12 mx-auto">

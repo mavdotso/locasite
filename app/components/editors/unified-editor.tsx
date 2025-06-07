@@ -3,84 +3,44 @@
 import { useState } from "react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { EditModeProvider } from "@/components/providers/edit-mode-provider";
-import { EditToolbar } from "@/components/editors/edit-toolbar";
 import { DirectPreview } from "@/components/editors/direct-preview";
-import { cn } from "@/lib/utils";
-import { Monitor, Tablet, Smartphone } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Preloaded, usePreloadedQuery } from "convex/react";
+import FullyInlineBuilder from "@/components/editors/fully-inline-builder";
+import { Preloaded, usePreloadedQuery, useQuery } from "convex/react";
 
-type ViewportSize = "desktop" | "tablet" | "mobile";
 
 interface UnifiedEditorProps {
   businessId: Id<"businesses">;
   preloadedBusiness: Preloaded<typeof api.businesses.getById>;
+  pageId?: Id<"pages">;
 }
 
-export function UnifiedEditor({ businessId, preloadedBusiness }: UnifiedEditorProps) {
-  const [viewportSize, setViewportSize] = useState<ViewportSize>("desktop");
+export function UnifiedEditor({ businessId, preloadedBusiness, pageId }: UnifiedEditorProps) {
+  const [useVisualBuilder] = useState(true);
   const business = usePreloadedQuery(preloadedBusiness);
+  
+  // Get the homepage if no pageId is provided
+  const pages = useQuery(api.pages.listByDomain, business?.domainId ? { domainId: business.domainId } : "skip");
+  const homePage = pages?.find(p => p.slug === "home");
+  const currentPageId = pageId || homePage?._id;
+  
+  // Always use the inline builder even if no page exists
+  const shouldUseInlineBuilder = true;
 
   if (!business) {
     return <div>Business not found</div>;
   }
 
-  const viewportWidths = {
-    desktop: "100%",
-    tablet: "768px",
-    mobile: "375px",
-  };
-
   return (
-    <EditModeProvider businessId={businessId} initialEditMode={true}>
-      <div className="flex h-screen overflow-hidden bg-muted">
-        {/* Viewport Controls */}
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 bg-background rounded-lg shadow-md p-1 flex gap-1">
-          <Button
-            variant={viewportSize === "desktop" ? "default" : "ghost"}
-            size="sm"
-            onClick={() => setViewportSize("desktop")}
-          >
-            <Monitor className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={viewportSize === "tablet" ? "default" : "ghost"}
-            size="sm"
-            onClick={() => setViewportSize("tablet")}
-          >
-            <Tablet className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={viewportSize === "mobile" ? "default" : "ghost"}
-            size="sm"
-            onClick={() => setViewportSize("mobile")}
-          >
-            <Smartphone className="h-4 w-4" />
-          </Button>
-        </div>
-
-        {/* Preview Area */}
-        <div className="flex-1 flex items-center justify-center p-4 pb-20">
-          <div
-            className={cn(
-              "bg-background rounded-lg shadow-2xl overflow-auto transition-all duration-300",
-              viewportSize === "mobile" && "border-8 border-foreground/10 rounded-[2rem]"
-            )}
-            style={{
-              width: viewportWidths[viewportSize],
-              maxWidth: "100%",
-              height: "100%",
-            }}
-          >
-            {/* Direct preview without iframe for better edit experience */}
-            <DirectPreview businessId={businessId} />
-          </div>
-        </div>
-
-        {/* Edit Toolbar */}
-        <EditToolbar />
-      </div>
-    </EditModeProvider>
+    <div className="min-h-screen">
+      {shouldUseInlineBuilder ? (
+        <FullyInlineBuilder 
+          businessId={businessId} 
+          pageId={currentPageId}
+          initialContent={homePage?.content || '{"title": "Your Business Page", "sections": []}'}
+        />
+      ) : (
+        <DirectPreview businessId={businessId} />
+      )}
+    </div>
   );
 }

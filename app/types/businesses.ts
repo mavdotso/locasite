@@ -19,4 +19,5 @@ export interface Section {
     website?: string;
     hours?: string[];
     text?: string;
+    hidden?: boolean;
 }
