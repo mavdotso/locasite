@@ -45,8 +45,8 @@ export default function SitesManagement() {
                          business.address.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || 
-      (statusFilter === 'published' && business.domainId) ||
-      (statusFilter === 'draft' && !business.domainId && business.userId) ||
+      (statusFilter === 'published' && business.isPublished) ||
+      (statusFilter === 'draft' && !business.isPublished && business.userId) ||
       (statusFilter === 'pending' && !business.userId);
     
     return matchesSearch && matchesStatus;
@@ -65,7 +65,7 @@ export default function SitesManagement() {
   };
 
   const getSiteStatus = (business: Doc<"businesses">) => {
-    if (business.domainId) return 'published';
+    if (business.isPublished) return 'published';
     if (business.userId) return 'draft';
     return 'pending';
   };
@@ -85,8 +85,8 @@ export default function SitesManagement() {
 
   const statusCounts = {
     all: filteredBusinesses.length,
-    published: filteredBusinesses.filter(b => b.domainId).length,
-    draft: filteredBusinesses.filter(b => !b.domainId && b.userId).length,
+    published: filteredBusinesses.filter(b => b.isPublished).length,
+    draft: filteredBusinesses.filter(b => !b.isPublished && b.userId).length,
     pending: filteredBusinesses.filter(b => !b.userId).length,
   };
 
@@ -198,7 +198,7 @@ export default function SitesManagement() {
 
                 {/* Action Buttons */}
                 <div className="flex gap-2 pt-2">
-                  {business.domainId ? (
+                  {business.isPublished ? (
                     <>
                       <ViewButton businessId={business._id} size="sm" variant="outline" className="flex-1">
                         <Eye className="w-3 h-3 mr-1" />
@@ -234,7 +234,7 @@ export default function SitesManagement() {
                 </div>
 
                 {/* Quick Stats (for published sites) */}
-                {business.domainId && (
+                {business.isPublished && (
                   <div className="grid grid-cols-3 gap-2 pt-2 border-t">
                     <div className="text-center">
                       <div className="text-sm font-medium text-foreground">0</div>
