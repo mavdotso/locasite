@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation, useQuery, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/app/components/ui/button";
@@ -40,6 +40,8 @@ const AVAILABLE_SECTIONS = [
   { type: "hero", label: "Hero Banner", icon: ImageIcon },
   { type: "info", label: "Business Info", icon: Type },
   { type: "about", label: "About Section", icon: Type },
+  { type: "services", label: "Services", icon: Type },
+  { type: "whyChooseUs", label: "Why Choose Us", icon: Type },
   { type: "gallery", label: "Photo Gallery", icon: ImageIcon },
   { type: "reviews", label: "Reviews", icon: Type },
   { type: "contact", label: "Contact Section", icon: Type },
@@ -64,8 +66,10 @@ export default function FullyInlineBuilder({
 }: FullyInlineBuilderProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [pageContent, setPageContent] = useState<PageContent>(() => {
+    console.log('FullyInlineBuilder - initialContent:', initialContent);
     try {
       const parsed = JSON.parse(initialContent);
+      console.log('FullyInlineBuilder - parsed content:', parsed);
       // If no sections, create default ones
       if (!parsed.sections || parsed.sections.length === 0) {
         return {
@@ -129,11 +133,12 @@ export default function FullyInlineBuilder({
   const generateUploadUrl = useMutation(api.storage.generateUploadUrl);
   const storeFile = useMutation(api.storage.storeFile);
   const updateBusiness = useMutation(api.businesses.update);
+  const regenerateAI = useAction(api.regenerateAI.regenerateAIContentForBusiness);
 
-  const updateContentByPath = (path: string, value: string | boolean | string[]) => {
+  const updateContentByPath = (path: string, value: string | boolean | string[] | object) => {
     const parts = path.split('.');
     setPageContent((prev) => {
-      const newContent = { ...prev };
+      const newContent = JSON.parse(JSON.stringify(prev)); // Deep clone
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let current: any = newContent;
       
@@ -141,13 +146,25 @@ export default function FullyInlineBuilder({
         if (parts[i].includes('[')) {
           const [key, index] = parts[i].split('[');
           const idx = parseInt(index.replace(']', ''));
+          if (!current[key]) current[key] = [];
+          if (!current[key][idx]) current[key][idx] = {};
           current = current[key][idx];
         } else {
+          if (!current[parts[i]]) current[parts[i]] = {};
           current = current[parts[i]];
         }
       }
       
-      current[parts[parts.length - 1]] = value;
+      const finalKey = parts[parts.length - 1];
+      if (finalKey.includes('[')) {
+        const [key, index] = finalKey.split('[');
+        const idx = parseInt(index.replace(']', ''));
+        if (!current[key]) current[key] = [];
+        current[key][idx] = value;
+      } else {
+        current[finalKey] = value;
+      }
+      
       return newContent;
     });
   };
@@ -199,6 +216,32 @@ export default function FullyInlineBuilder({
       ...(type === 'contact' && {
         title: 'Get in Touch',
         subtitle: 'We\'d love to hear from you'
+      }),
+      ...(type === 'services' && {
+        title: 'Our Services',
+        items: [
+          {
+            title: 'Service 1',
+            description: 'Description of your first service'
+          },
+          {
+            title: 'Service 2', 
+            description: 'Description of your second service'
+          },
+          {
+            title: 'Service 3',
+            description: 'Description of your third service'
+          }
+        ]
+      }),
+      ...(type === 'whyChooseUs' && {
+        title: 'Why Choose Us',
+        points: [
+          'Experienced professionals',
+          'Quality service guaranteed',
+          'Competitive pricing',
+          'Customer satisfaction focused'
+        ]
       }),
     };
 
@@ -351,6 +394,26 @@ export default function FullyInlineBuilder({
             </div>
           )}
         </div>
+
+        {/* Regenerate AI Button */}
+        {!business?.aiGeneratedContent && (
+          <Button
+            onClick={async () => {
+              try {
+                console.log('Regenerating AI content...');
+                await regenerateAI({ businessId });
+                toast.success("AI content generated! Refresh the page to see changes.");
+              } catch (error) {
+                console.error('AI regeneration failed:', error);
+                toast.error("Failed to generate AI content");
+              }
+            }}
+            variant="outline"
+            className="shadow-lg"
+          >
+            Generate AI Content
+          </Button>
+        )}
 
         {/* Save Button */}
         <Button
@@ -677,8 +740,84 @@ export default function FullyInlineBuilder({
                 </section>
               )}
 
+              {section.type === 'services' && (
+                <section className="py-16 bg-background">
+                  <div className="container mx-auto px-4">
+                    <h2 
+                      className={cn(
+                        "text-3xl font-bold text-center mb-12 cursor-text transition-all",
+                        "hover:ring-2 hover:ring-blue-400 rounded px-2 py-1"
+                      )}
+                      onClick={(e) => makeEditable(e.target as HTMLElement, `sections[${index}].title`)}
+                    >
+                      {section.title || "Our Services"}
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {(section.items || []).map((service, serviceIndex) => (
+                        <div key={serviceIndex} className="bg-muted/30 p-6 rounded-lg">
+                          <h3 
+                            className={cn(
+                              "text-xl font-semibold mb-3 cursor-text transition-all",
+                              "hover:ring-2 hover:ring-blue-400 rounded px-2 py-1"
+                            )}
+                            onClick={(e) => makeEditable(e.target as HTMLElement, `sections[${index}].items[${serviceIndex}].title`)}
+                          >
+                            {service.title || "Service Title"}
+                          </h3>
+                          <p 
+                            className={cn(
+                              "text-muted-foreground cursor-text transition-all",
+                              "hover:ring-2 hover:ring-blue-400 rounded p-2"
+                            )}
+                            onClick={(e) => makeEditable(e.target as HTMLElement, `sections[${index}].items[${serviceIndex}].description`)}
+                          >
+                            {service.description || "Service description..."}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {section.type === 'whyChooseUs' && (
+                <section className="py-16 bg-muted/30">
+                  <div className="container mx-auto px-4">
+                    <h2 
+                      className={cn(
+                        "text-3xl font-bold text-center mb-12 cursor-text transition-all",
+                        "hover:ring-2 hover:ring-blue-400 rounded px-2 py-1"
+                      )}
+                      onClick={(e) => makeEditable(e.target as HTMLElement, `sections[${index}].title`)}
+                    >
+                      {section.title || "Why Choose Us"}
+                    </h2>
+                    <div className="max-w-4xl mx-auto">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {(section.points || []).map((point, pointIndex) => (
+                          <div key={pointIndex} className="flex items-start gap-3">
+                            <div className="flex-shrink-0 w-6 h-6 bg-primary rounded-full flex items-center justify-center mt-1">
+                              <span className="text-white text-sm">✓</span>
+                            </div>
+                            <p 
+                              className={cn(
+                                "text-foreground cursor-text transition-all",
+                                "hover:ring-2 hover:ring-blue-400 rounded p-1"
+                              )}
+                              onClick={(e) => makeEditable(e.target as HTMLElement, `sections[${index}].points[${pointIndex}]`)}
+                            >
+                              {point || "Why choose us point..."}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              )}
+
               {/* Fallback for any other section types */}
-              {!['hero', 'about', 'gallery', 'contact', 'contactForm', 'info', 'reviews', 'map'].includes(section.type) && (
+              {!['hero', 'about', 'gallery', 'contact', 'contactForm', 'info', 'reviews', 'map', 'services', 'whyChooseUs'].includes(section.type) && (
                 <section className="py-16 bg-background">
                   <div className="container mx-auto px-4">
                     <h2 className="text-3xl font-bold text-center mb-12">

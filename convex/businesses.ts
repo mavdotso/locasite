@@ -182,7 +182,37 @@ export const create = mutation({
                 text: v.string()
             })),
             photos: v.array(v.string()),
-            description: v.optional(v.string())
+            description: v.optional(v.string()),
+            aiGeneratedContent: v.optional(v.object({
+                hero: v.optional(v.object({
+                    title: v.string(),
+                    subtitle: v.string()
+                })),
+                about: v.optional(v.object({
+                    content: v.string()
+                })),
+                services: v.optional(v.object({
+                    title: v.string(),
+                    items: v.array(v.object({
+                        title: v.string(),
+                        description: v.string()
+                    }))
+                })),
+                whyChooseUs: v.optional(v.object({
+                    title: v.string(),
+                    points: v.array(v.string())
+                })),
+                callToAction: v.optional(v.object({
+                    primary: v.string(),
+                    secondary: v.string(),
+                    urgency: v.string()
+                })),
+                seo: v.optional(v.object({
+                    metaTitle: v.string(),
+                    metaDescription: v.string(),
+                    keywords: v.array(v.string())
+                }))
+            }))
         }),
     },
     handler: async (ctx, args) => {
@@ -305,6 +335,36 @@ export const update = mutation({
                 accentColor: v.optional(v.string()),
                 fontFamily: v.optional(v.string()),
                 logoUrl: v.optional(v.string())
+            })),
+            aiGeneratedContent: v.optional(v.object({
+                hero: v.optional(v.object({
+                    title: v.string(),
+                    subtitle: v.string()
+                })),
+                about: v.optional(v.object({
+                    content: v.string()
+                })),
+                services: v.optional(v.object({
+                    title: v.string(),
+                    items: v.array(v.object({
+                        title: v.string(),
+                        description: v.string()
+                    }))
+                })),
+                whyChooseUs: v.optional(v.object({
+                    title: v.string(),
+                    points: v.array(v.string())
+                })),
+                callToAction: v.optional(v.object({
+                    primary: v.string(),
+                    secondary: v.string(),
+                    urgency: v.string()
+                })),
+                seo: v.optional(v.object({
+                    metaTitle: v.string(),
+                    metaDescription: v.string(),
+                    keywords: v.array(v.string())
+                }))
             }))
         }),
     },

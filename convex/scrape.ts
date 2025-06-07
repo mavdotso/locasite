@@ -149,11 +149,36 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
       placeId: placeId
     };
 
+    // Generate AI content for the business
+    let aiContent = null;
+    try {
+      console.log('Starting AI content generation for:', businessData.name);
+      const aiResult = await ctx.runAction(api.aiContentGenerator.generateBusinessContent, {
+        businessData: {
+          name: businessData.name,
+          address: businessData.address,
+          phone: businessData.phone,
+          website: businessData.website,
+          description: businessData.description,
+          reviews: businessData.reviews,
+          rating: businessData.rating
+        }
+      });
+      console.log('AI content generation successful:', aiResult);
+      aiContent = aiResult.content;
+    } catch (error) {
+      console.error('AI content generation failed:', error);
+      // Continue without AI content if generation fails
+    }
+
     // Only save to database if not in preview mode
     let businessId = null;
     if (!preview) {
       businessId = await ctx.runMutation(api.businesses.create, {
-        business: businessData
+        business: {
+          ...businessData,
+          aiGeneratedContent: aiContent
+        }
       });
     }
 

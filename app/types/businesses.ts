@@ -12,7 +12,7 @@ export interface Section {
     content?: string;
     image?: string;
     images?: string[];
-    items?: Review[];
+    items?: Review[] | ServiceItem[];
     address?: string;
     phone?: string;
     email?: string;
@@ -20,4 +20,15 @@ export interface Section {
     hours?: string[];
     text?: string;
     hidden?: boolean;
+    // For services section
+    // For whyChooseUs section
+    points?: string[];
+    // For contact section with CTAs
+    primaryCTA?: string;
+    secondaryCTA?: string;
+}
+
+export interface ServiceItem {
+    title: string;
+    description: string;
 }

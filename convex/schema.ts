@@ -67,7 +67,38 @@ export default defineSchema({
                 logoUrl: v.optional(v.string())
             }))
         })),
-        lastEditedAt: v.optional(v.number())
+        lastEditedAt: v.optional(v.number()),
+        // AI-generated content for website sections
+        aiGeneratedContent: v.optional(v.object({
+            hero: v.optional(v.object({
+                title: v.string(),
+                subtitle: v.string()
+            })),
+            about: v.optional(v.object({
+                content: v.string()
+            })),
+            services: v.optional(v.object({
+                title: v.string(),
+                items: v.array(v.object({
+                    title: v.string(),
+                    description: v.string()
+                }))
+            })),
+            whyChooseUs: v.optional(v.object({
+                title: v.string(),
+                points: v.array(v.string())
+            })),
+            callToAction: v.optional(v.object({
+                primary: v.string(),
+                secondary: v.string(),
+                urgency: v.string()
+            })),
+            seo: v.optional(v.object({
+                metaTitle: v.string(),
+                metaDescription: v.string(),
+                keywords: v.array(v.string())
+            }))
+        }))
     })
         .index("by_placeId", ["placeId"])
         .index("by_userId", ["userId"])

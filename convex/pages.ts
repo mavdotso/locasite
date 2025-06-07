@@ -39,41 +39,74 @@ export const createDefaultPages = mutation({
             throw new Error("Domain not found");
         }
 
-        // Generate homepage content
+        // Use AI-generated content if available, otherwise fall back to basic content
+        const aiContent = business.aiGeneratedContent;
+        
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const sections: any[] = [
+            {
+                type: "hero",
+                title: aiContent?.hero?.title || business.name,
+                subtitle: aiContent?.hero?.subtitle || business.description || `Welcome to ${business.name}`,
+                image: business.photos[0] || "",
+            },
+            {
+                type: "info",
+                address: business.address,
+                phone: business.phone || "",
+                website: business.website || "",
+                hours: business.hours,
+            },
+            {
+                type: "about",
+                content: aiContent?.about?.content || business.description || `About ${business.name}`,
+            }
+        ];
+
+        // Add services section if AI generated services content
+        if (aiContent?.services) {
+            sections.push({
+                type: "services",
+                title: aiContent.services.title,
+                items: aiContent.services.items,
+            });
+        }
+
+        // Add why choose us section if AI generated content
+        if (aiContent?.whyChooseUs) {
+            sections.push({
+                type: "whyChooseUs",
+                title: aiContent.whyChooseUs.title,
+                points: aiContent.whyChooseUs.points,
+            });
+        }
+
+        // Add gallery section
+        sections.push({
+            type: "gallery",
+            images: business.photos,
+        });
+
+        // Add reviews section
+        sections.push({
+            type: "reviews",
+            items: business.reviews,
+        });
+
+        // Add contact section with AI-generated CTA if available
+        sections.push({
+            type: "contact",
+            title: "Contact Us",
+            subtitle: aiContent?.callToAction?.urgency || "Get in touch with us",
+            primaryCTA: aiContent?.callToAction?.primary || "Contact Us",
+            secondaryCTA: aiContent?.callToAction?.secondary || "Learn More",
+        });
+
         const homePageContent = JSON.stringify({
-            title: business.name,
-            sections: [
-                {
-                    type: "hero",
-                    title: business.name,
-                    subtitle: business.description || `Welcome to ${business.name}`,
-                    image: business.photos[0] || "",
-                },
-                {
-                    type: "info",
-                    address: business.address,
-                    phone: business.phone || "",
-                    website: business.website || "",
-                    hours: business.hours,
-                },
-                {
-                    type: "about",
-                    content: business.description || `About ${business.name}`,
-                },
-                {
-                    type: "gallery",
-                    images: business.photos,
-                },
-                {
-                    type: "reviews",
-                    items: business.reviews,
-                },
-                {
-                    type: "contact",
-                    title: "Contact Us",
-                    subtitle: "Get in touch with us",
-                },
-            ],
+            title: aiContent?.seo?.metaTitle || business.name,
+            metaDescription: aiContent?.seo?.metaDescription || business.description,
+            keywords: aiContent?.seo?.keywords || [],
+            sections: sections,
         });
 
         // Create home page
