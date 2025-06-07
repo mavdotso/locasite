@@ -4,12 +4,11 @@ import { useEffect } from 'react';
 // import { useAuthActions } from "@convex-dev/auth/react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { BusinessData } from '@/convex/businesses';
 import { useRouter } from 'next/navigation';
 import { toast } from "sonner";
 
 export function AuthHandler() {
-    const createBusiness = useMutation(api.businesses.createFromPreview);
+    const createFromPending = useMutation(api.createFromPending.createBusinessFromPendingData);
     const user = useQuery(api.auth.currentUser);
     const router = useRouter();
     
@@ -18,26 +17,28 @@ export function AuthHandler() {
             // Only proceed if user is authenticated
             if (!user) return;
             
-            const pendingBusinessData = sessionStorage.getItem('pendingBusiness');
+            const pendingBusinessDataStr = sessionStorage.getItem('pendingBusinessData');
             
-            if (pendingBusinessData) {
+            if (pendingBusinessDataStr) {
                 try {
-                    const businessData: BusinessData = JSON.parse(pendingBusinessData);
+                    const { businessData, aiContent } = JSON.parse(pendingBusinessDataStr);
                     
                     // Create the business
-                    await createBusiness({ businessData });
+                    const { businessId } = await createFromPending({ 
+                        businessData,
+                        aiContent: aiContent || undefined
+                    });
                     
                     // Clear the pending data
-                    sessionStorage.removeItem('pendingBusiness');
+                    sessionStorage.removeItem('pendingBusinessData');
                     
                     // Show success message
                     toast.success("Website published!", {
                         description: `Your ${businessData.name} website has been created successfully.`,
                     });
                     
-                    // Redirect to the business management page or dashboard
-                    // For now, we'll redirect to the main page
-                    router.push('/');
+                    // Redirect to edit page
+                    router.push(`/business/${businessId}/edit`);
                     
                 } catch (error) {
                     console.error('Error creating business from preview:', error);
@@ -49,7 +50,7 @@ export function AuthHandler() {
         };
 
         handlePendingBusiness();
-    }, [user, createBusiness, router]);
+    }, [user, createFromPending, router]);
 
     return null; // This component doesn't render anything
 }

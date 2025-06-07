@@ -12,13 +12,14 @@ export default function SignIn() {
 
     useEffect(() => {
         // Check if there's a pending business in session storage
-        const pending = sessionStorage.getItem('pendingBusiness');
+        const pending = sessionStorage.getItem('pendingBusinessData');
         if (pending) {
             try {
-                setPendingBusiness(JSON.parse(pending));
+                const { businessData } = JSON.parse(pending);
+                setPendingBusiness(businessData);
             } catch (error) {
                 console.error('Error parsing pending business:', error);
-                sessionStorage.removeItem('pendingBusiness');
+                sessionStorage.removeItem('pendingBusinessData');
             }
         }
     }, []);

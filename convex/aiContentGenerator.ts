@@ -1,7 +1,8 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { openai } from '@ai-sdk/openai';
-import { generateText } from 'ai';
+import { generateObject, generateText } from 'ai';
+import { z } from 'zod';
 
 export const generateBusinessContent = action({
   args: {
@@ -23,31 +24,60 @@ export const generateBusinessContent = action({
     const { businessData } = args;
 
     try {
+      console.log('AI content generation starting for:', businessData.name);
+      
       // Determine business category/industry from name and description
       const businessCategory = await inferBusinessCategory(businessData);
+      console.log('Business category inferred:', businessCategory);
       
-      // Generate comprehensive content
-      const content = await generateText({
+      // Define the schema for the content structure
+      const contentSchema = z.object({
+        hero: z.object({
+          title: z.string(),
+          subtitle: z.string()
+        }),
+        about: z.object({
+          content: z.string()
+        }),
+        services: z.object({
+          title: z.string(),
+          items: z.array(z.object({
+            title: z.string(),
+            description: z.string()
+          }))
+        }),
+        whyChooseUs: z.object({
+          title: z.string(),
+          points: z.array(z.string())
+        }),
+        callToAction: z.object({
+          primary: z.string(),
+          secondary: z.string(),
+          urgency: z.string()
+        }),
+        seo: z.object({
+          metaTitle: z.string(),
+          metaDescription: z.string(),
+          keywords: z.array(z.string())
+        })
+      });
+
+      // Generate comprehensive content using structured output
+      const result = await generateObject({
         model: openai('gpt-4o'),
-        messages: [
-          {
-            role: 'system',
-            content: `You are a professional copywriter specializing in creating compelling website content for local businesses. Generate engaging, professional content that converts visitors into customers.`
-          },
-          {
-            role: 'user',
-            content: `Create comprehensive website content for this business:
+        schema: contentSchema,
+        prompt: `Create comprehensive website content for this business:
 
 Business Name: ${businessData.name}
 Address: ${businessData.address || 'Not provided'}
 Phone: ${businessData.phone || 'Not provided'}
 Website: ${businessData.website || 'Not provided'}
-Description: ${businessData.description || 'Not provided'}
+Description: ${businessData.description || 'No description provided - please infer from business name and category'}
 Category: ${businessCategory}
 Rating: ${businessData.rating ? `${businessData.rating} stars` : 'Not available'}
 Number of Reviews: ${businessData.reviews?.length || 0}
 
-Sample Reviews: ${businessData.reviews?.slice(0, 3).map(r => `"${r.text}" - ${r.reviewer}`).join('\n') || 'No reviews available'}
+Sample Reviews: ${businessData.reviews?.slice(0, 3).map(r => `"${r.text}" - ${r.reviewer}`).join('\n\n') || 'No reviews available'}
 
 IMPORTANT: You must respond with ONLY valid JSON. Do not include any other text, explanations, or markdown formatting. Start with { and end with }.
 
@@ -108,81 +138,11 @@ Make the content:
 - Specific to the business type/industry
 
 Do not use generic placeholder text. Create specific, compelling content based on the business information provided.`
-          }
-        ]
       });
 
-      // Parse the generated JSON content
-      let generatedContent;
-      try {
-        // Try to extract JSON from the response if it's wrapped in other text
-        let jsonText = content.text.trim();
-        
-        // Look for JSON block if wrapped in markdown code blocks
-        const jsonMatch = jsonText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-        if (jsonMatch) {
-          jsonText = jsonMatch[1].trim();
-        }
-        
-        // Try to find JSON object start/end if mixed with other text
-        const jsonStart = jsonText.indexOf('{');
-        const jsonEnd = jsonText.lastIndexOf('}');
-        if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
-          jsonText = jsonText.substring(jsonStart, jsonEnd + 1);
-        }
-        
-        generatedContent = JSON.parse(jsonText);
-      } catch (e) {
-        console.error('Failed to parse AI response as JSON:', e);
-        console.error('AI response was:', content.text);
-        
-        // Create fallback content based on business data
-        generatedContent = {
-          hero: {
-            title: businessData.name,
-            subtitle: businessData.description || `Welcome to ${businessData.name} - your trusted local business`
-          },
-          about: {
-            content: businessData.description || `${businessData.name} is committed to providing excellent service to our customers. Located at ${businessData.address}, we pride ourselves on quality and customer satisfaction.`
-          },
-          services: {
-            title: "Our Services",
-            items: [
-              {
-                title: "Professional Service",
-                description: "We provide professional, high-quality service to meet your needs."
-              },
-              {
-                title: "Customer Support", 
-                description: "Our dedicated team is here to help you every step of the way."
-              },
-              {
-                title: "Quality Guarantee",
-                description: "We stand behind our work with a commitment to excellence."
-              }
-            ]
-          },
-          whyChooseUs: {
-            title: "Why Choose Us",
-            points: [
-              "Experienced and professional team",
-              "Commitment to quality and excellence", 
-              "Customer satisfaction guaranteed",
-              "Competitive pricing and value"
-            ]
-          },
-          callToAction: {
-            primary: "Contact Us Today",
-            secondary: "Learn More",
-            urgency: "Get in touch today for exceptional service"
-          },
-          seo: {
-            metaTitle: businessData.name,
-            metaDescription: businessData.description || `${businessData.name} - your trusted local business`,
-            keywords: [businessData.name.toLowerCase(), "local business", "professional service"]
-          }
-        };
-      }
+      // The result is already a parsed object from generateObject
+      const generatedContent = result.object;
+      console.log('AI content generation completed successfully for:', businessData.name);
 
       return {
         success: true,
@@ -191,8 +151,9 @@ Do not use generic placeholder text. Create specific, compelling content based o
       };
 
     } catch (error) {
-      console.error('AI content generation error:', error);
-      throw new Error(`Failed to generate content: ${error}`);
+      console.error('AI content generation error for', businessData.name, ':', error);
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      throw new Error(`Failed to generate content: ${error instanceof Error ? error.message : error}`);
     }
   }
 });

@@ -1,7 +1,8 @@
 'use client';
 
-import { useQuery } from 'convex/react';
+import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
@@ -24,11 +25,40 @@ interface DashboardOverviewProps {
 }
 
 export default function DashboardOverview({ initialData: _initialData }: DashboardOverviewProps) {
+  const [isProcessingPending, setIsProcessingPending] = useState(false);
   const user = useQuery(api.auth.currentUser);
   const userBusinesses = useQuery(api.businesses.listByUser, 
     user ? { userId: user._id } : 'skip'
   );
   const totalUnreadMessages = useQuery(api.contactMessages.getTotalUnreadCount) || 0;
+  const createFromPending = useMutation(api.createFromPending.createBusinessFromPendingData);
+
+  // Check for pending business data and process it
+  useEffect(() => {
+    if (!user || isProcessingPending) return;
+
+    const pendingData = sessionStorage.getItem('pendingBusinessData');
+    if (pendingData) {
+      setIsProcessingPending(true);
+      try {
+        const { businessData, aiContent } = JSON.parse(pendingData);
+        createFromPending({ businessData, aiContent })
+          .then(({ businessId }) => {
+            sessionStorage.removeItem('pendingBusinessData');
+            // Redirect to edit page
+            window.location.href = `/business/${businessId}/edit`;
+          })
+          .catch((error) => {
+            console.error('Failed to create business from pending data:', error);
+            setIsProcessingPending(false);
+          });
+      } catch (error) {
+        console.error('Failed to parse pending business data:', error);
+        sessionStorage.removeItem('pendingBusinessData');
+        setIsProcessingPending(false);
+      }
+    }
+  }, [user, createFromPending, isProcessingPending]);
 
   // Calculate stats
   const totalSites = userBusinesses?.length || 0;

@@ -149,41 +149,47 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
       placeId: placeId
     };
 
-    // Generate AI content for the business
-    let aiContent = null;
-    try {
-      console.log('Starting AI content generation for:', businessData.name);
-      const aiResult = await ctx.runAction(api.aiContentGenerator.generateBusinessContent, {
-        businessData: {
-          name: businessData.name,
-          address: businessData.address,
-          phone: businessData.phone,
-          website: businessData.website,
-          description: businessData.description,
-          reviews: businessData.reviews,
-          rating: businessData.rating
-        }
-      });
-      console.log('AI content generation successful:', aiResult);
-      aiContent = aiResult.content;
-    } catch (error) {
-      console.error('AI content generation failed:', error);
-      // Continue without AI content if generation fails
-    }
+    // AI content generation removed - will be a premium feature
 
-    // Only save to database if not in preview mode
+    // Only save to database if not in preview mode AND user is authenticated
     let businessId = null;
+    let domainId = null;
+    let authenticationRequired = false;
+    
     if (!preview) {
-      businessId = await ctx.runMutation(api.businesses.create, {
-        business: {
-          ...businessData,
-          aiGeneratedContent: aiContent
-        }
-      });
+      try {
+        // Create the business
+        businessId = await ctx.runMutation(api.businesses.create, {
+          business: businessData
+        });
+
+        // Automatically generate domain and create pages
+        const { domainId: generatedDomainId } = await ctx.runMutation(api.domains.generateSubdomain, {
+          businessId
+        });
+        domainId = generatedDomainId;
+
+        // Create default pages with AI content
+        await ctx.runMutation(api.pages.createDefaultPages, {
+          domainId: generatedDomainId,
+          businessId
+        });
+      } catch (error) {
+        console.log('Authentication required for business creation:', error);
+        authenticationRequired = true;
+      }
     }
 
     return new Response(
-      JSON.stringify({ success: true, data: businessData, businessId, preview }),
+      JSON.stringify({ 
+        success: true, 
+        data: businessData, 
+        businessId, 
+        domainId,
+        preview,
+        hasAIContent: false,
+        authenticationRequired
+      }),
       {
         status: 200,
         headers: {

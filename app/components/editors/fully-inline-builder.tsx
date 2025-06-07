@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { useMutation, useQuery, useAction } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/app/components/ui/button";
@@ -66,10 +66,8 @@ export default function FullyInlineBuilder({
 }: FullyInlineBuilderProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [pageContent, setPageContent] = useState<PageContent>(() => {
-    console.log('FullyInlineBuilder - initialContent:', initialContent);
     try {
       const parsed = JSON.parse(initialContent);
-      console.log('FullyInlineBuilder - parsed content:', parsed);
       // If no sections, create default ones
       if (!parsed.sections || parsed.sections.length === 0) {
         return {
@@ -133,7 +131,6 @@ export default function FullyInlineBuilder({
   const generateUploadUrl = useMutation(api.storage.generateUploadUrl);
   const storeFile = useMutation(api.storage.storeFile);
   const updateBusiness = useMutation(api.businesses.update);
-  const regenerateAI = useAction(api.regenerateAI.regenerateAIContentForBusiness);
 
   const updateContentByPath = (path: string, value: string | boolean | string[] | object) => {
     const parts = path.split('.');
@@ -394,26 +391,6 @@ export default function FullyInlineBuilder({
             </div>
           )}
         </div>
-
-        {/* Regenerate AI Button */}
-        {!business?.aiGeneratedContent && (
-          <Button
-            onClick={async () => {
-              try {
-                console.log('Regenerating AI content...');
-                await regenerateAI({ businessId });
-                toast.success("AI content generated! Refresh the page to see changes.");
-              } catch (error) {
-                console.error('AI regeneration failed:', error);
-                toast.error("Failed to generate AI content");
-              }
-            }}
-            variant="outline"
-            className="shadow-lg"
-          >
-            Generate AI Content
-          </Button>
-        )}
 
         {/* Save Button */}
         <Button

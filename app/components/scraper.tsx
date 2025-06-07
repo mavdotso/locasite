@@ -1,25 +1,19 @@
 "use client";
 
-import { Id } from '@/convex/_generated/dataModel';
 import { BusinessData } from '@/convex/businesses';
 import { useState } from 'react';
 import { Input } from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";
 import { Alert, AlertDescription } from "@/app/components/ui/alert";
-import { Card, CardContent } from "@/app/components/ui/card";
 import { Label } from "@/app/components/ui/label";
+import BusinessPreviewCard from "./business-preview-card";
 
-interface ScraperProps {
-    onBusinessCreated?: (businessId: Id<"businesses">) => void;
-    previewMode?: boolean;
-    onPreviewComplete?: (businessData: BusinessData) => void;
-}
-
-export default function Scraper({ onBusinessCreated, previewMode = false, onPreviewComplete }: ScraperProps) {
+export default function Scraper() {
     const [url, setUrl] = useState('');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<BusinessData | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [showPreview, setShowPreview] = useState(false);
 
     async function handleScrape() {
         setLoading(true);
@@ -47,7 +41,7 @@ export default function Scraper({ onBusinessCreated, previewMode = false, onPrev
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ url, preview: previewMode }),
+                body: JSON.stringify({ url, preview: true }), // Always preview mode now
             });
     
             // Check if response is JSON before trying to parse it
@@ -66,18 +60,32 @@ export default function Scraper({ onBusinessCreated, previewMode = false, onPrev
             }
     
             setResult(data.data);
-    
-            if (previewMode && onPreviewComplete) {
-                onPreviewComplete(data.data);
-            } else if (onBusinessCreated && data.businessId) {
-                onBusinessCreated(data.businessId);
-            }
+            setShowPreview(true);
         } catch (err) {
             console.error('Error during scrape:', err);
             setError(err instanceof Error ? err.message : 'An unknown error occurred');
         } finally {
             setLoading(false);
         }
+    }
+
+
+    // Show preview if we have scraped data
+    if (showPreview && result) {
+        return (
+            <div className="space-y-6">
+                <div className="text-center">
+                    <h2 className="text-2xl font-bold mb-2">Website Preview</h2>
+                    <p className="text-muted-foreground">
+                        Review your business information and publish when ready
+                    </p>
+                </div>
+                
+                <BusinessPreviewCard 
+                    businessData={result}
+                />
+            </div>
+        );
     }
 
     return (
@@ -108,19 +116,6 @@ export default function Scraper({ onBusinessCreated, previewMode = false, onPrev
                     </Alert>
                 )}
             </div>
-
-            {result && (
-                <Card>
-                    <CardContent className="pt-6">
-                        <h3 className="mb-2 font-medium text-lg">Scraped Business Data:</h3>
-                        <div className="bg-muted/50 p-4 rounded-md max-h-[400px] overflow-auto">
-                            <pre className="font-mono text-sm">
-                                {JSON.stringify(result, null, 2)}
-                            </pre>
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
         </div>
     );
 }
