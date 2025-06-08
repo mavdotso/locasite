@@ -8,22 +8,28 @@
  * @module
  */
 
+import type * as aiContentGenerator from "../aiContentGenerator.js";
 import type * as auth from "../auth.js";
 import type * as businessClaims from "../businessClaims.js";
 import type * as businesses from "../businesses.js";
 import type * as contactMessages from "../contactMessages.js";
+import type * as createFromPending from "../createFromPending.js";
+import type * as debug from "../debug.js";
 import type * as domains from "../domains.js";
 import type * as helpers from "../helpers.js";
 import type * as http from "../http.js";
 import type * as pages from "../pages.js";
+import type * as regenerateAI from "../regenerateAI.js";
 import type * as scrape from "../scrape.js";
 import type * as storage from "../storage.js";
+import type * as testAI from "../testAI.js";
 
 import type {
   ApiFromModules,
   FilterApi,
   FunctionReference,
 } from "convex/server";
+
 /**
  * A utility for referencing Convex functions in your app's API.
  *
@@ -33,16 +39,21 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  aiContentGenerator: typeof aiContentGenerator;
   auth: typeof auth;
   businessClaims: typeof businessClaims;
   businesses: typeof businesses;
   contactMessages: typeof contactMessages;
+  createFromPending: typeof createFromPending;
+  debug: typeof debug;
   domains: typeof domains;
   helpers: typeof helpers;
   http: typeof http;
   pages: typeof pages;
+  regenerateAI: typeof regenerateAI;
   scrape: typeof scrape;
   storage: typeof storage;
+  testAI: typeof testAI;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 

@@ -16,6 +16,8 @@ import {
   BarChart3,
 } from 'lucide-react';
 import Link from 'next/link';
+import EditButton from '@/app/components/ui/edit-button';
+import ViewButton from '@/app/components/ui/view-button';
 
 interface DashboardOverviewProps {
   initialData?: Record<string, unknown>;
@@ -28,9 +30,11 @@ export default function DashboardOverview({ initialData: _initialData }: Dashboa
   );
   const totalUnreadMessages = useQuery(api.contactMessages.getTotalUnreadCount) || 0;
 
+  // Note: Pending business data is now handled by AuthHandler component
+
   // Calculate stats
   const totalSites = userBusinesses?.length || 0;
-  const activeSites = userBusinesses?.filter(b => b.domainId).length || 0;
+  const activeSites = userBusinesses?.filter(b => b.isPublished).length || 0;
 
   // Mock analytics data (in a real app, this would come from your analytics service)
   const mockAnalytics = {
@@ -159,24 +163,20 @@ export default function DashboardOverview({ initialData: _initialData }: Dashboa
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {business.domainId ? (
+                      {business.isPublished ? (
                         <Badge className="bg-green-100 text-green-800">Published</Badge>
                       ) : (
                         <Badge variant="outline">Draft</Badge>
                       )}
                       <div className="flex gap-1">
-                        {business.domainId && (
-                          <Button size="sm" variant="ghost" asChild>
-                            <Link href={`/business/${business._id}`}>
-                              <ExternalLink className="w-4 h-4" />
-                            </Link>
-                          </Button>
+                        {business.isPublished && business.domainId && (
+                          <ViewButton businessId={business._id} size="sm" variant="ghost">
+                            <ExternalLink className="w-4 h-4" />
+                          </ViewButton>
                         )}
-                        <Button size="sm" variant="ghost" asChild>
-                          <Link href={`/business/${business._id}/edit`}>
-                            <Edit3 className="w-4 h-4" />
-                          </Link>
-                        </Button>
+                        <EditButton businessId={business._id} size="sm" variant="ghost">
+                          <Edit3 className="w-4 h-4" />
+                        </EditButton>
                       </div>
                     </div>
                   </div>

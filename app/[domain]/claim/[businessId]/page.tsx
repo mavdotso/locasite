@@ -4,27 +4,42 @@ import { Id } from '@/convex/_generated/dataModel';
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/app/components/ui/alert';
-import { Loader, Shield, Mail, Phone, CheckCircle } from 'lucide-react';
+import { Loader, Shield, Mail, Phone, CheckCircle, LogIn } from 'lucide-react';
 import { fetchMutation, fetchQuery } from 'convex/nextjs';
+import Link from 'next/link';
 
 // Server actions
 async function claimBusinessAction(formData: FormData) {
   'use server'
   const businessIdStr = formData.get('businessId');
+  const verificationMethod = formData.get('verificationMethod');
+  
   if (typeof businessIdStr !== 'string' || !businessIdStr) {
     console.error("Invalid businessId:", businessIdStr);
-    return;
+    redirect(`/dashboard/claims?error=invalid_business_id`);
   }
   
   try {
-    await fetchMutation(api.businessClaims.claimBusiness, { 
-      businessId: businessIdStr as Id<"businesses"> 
+    const result = await fetchMutation(api.businessClaims.claimBusiness, { 
+      businessId: businessIdStr as Id<"businesses">,
+      verificationMethod: (verificationMethod as "google" | "email" | "phone") || "google"
     });
   
-    // Redirect after successful claim
-    redirect(`/business/${businessIdStr}`);
-  } catch (error) {
+    // If claim was successful and requires Google auth, redirect to verification page
+    if (result.requiresGoogleAuth) {
+      redirect(`/business/${businessIdStr}/verify?claimId=${result.claimId}`);
+    } else {
+      // For other methods, redirect to claim status page
+      redirect(`/dashboard/claims/${result.claimId}`);
+    }
+  } catch (error: unknown) {
     console.error("Claim error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Failed to claim business";
+    // Check if it's an authentication error
+    if (errorMessage.includes("Unauthorized") || errorMessage.includes("logged in")) {
+      redirect(`/sign-in?redirect=/claim/${businessIdStr}`);
+    }
+    redirect(`/dashboard/claims?error=claim_failed&message=${encodeURIComponent(errorMessage)}`);
   }
 }
 
@@ -37,7 +52,6 @@ interface ClaimPageProps {
 
 export default async function ClaimBusinessPage({ params }: ClaimPageProps) {
   const { domain, businessId } = await params;
-  console.log(businessId)
   
   const businessIdParam = businessId as Id<"businesses">;
 
@@ -71,8 +85,17 @@ export default async function ClaimBusinessPage({ params }: ClaimPageProps) {
     );
   }
 
+  // Check current user authentication status
+  let currentUser = null;
+  try {
+    currentUser = await fetchQuery(api.helpers.getCurrentUser, {});
+  } catch {
+    // User not authenticated
+  }
+
   const isClaimable = claimableStatus.isClaimable;
   const alreadyClaimed = business.userId !== undefined;
+  const isAuthenticated = !!currentUser;
 
   return (
     <Card className="mx-auto w-full max-w-2xl">
@@ -111,7 +134,17 @@ export default async function ClaimBusinessPage({ params }: ClaimPageProps) {
             </div>
           </div>
           
-          {!alreadyClaimed && isClaimable && (
+          {!alreadyClaimed && isClaimable && !isAuthenticated && (
+            <Alert className="bg-blue-50 border-blue-200">
+              <LogIn className="h-4 w-4" />
+              <AlertTitle>Sign In Required</AlertTitle>
+              <AlertDescription>
+                You need to sign in to claim this business. After signing in, you&rsquo;ll be able to verify ownership and manage your business listing.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {!alreadyClaimed && isClaimable && isAuthenticated && (
             <div className="p-4 border border-blue-200 bg-blue-50 rounded-lg">
               <h3 className="font-medium text-blue-900 mb-3 flex items-center gap-2">
                 <Shield className="w-4 h-4" />
@@ -163,24 +196,32 @@ export default async function ClaimBusinessPage({ params }: ClaimPageProps) {
         </div>
       </CardContent>
       
-      <CardFooter>
-      {!alreadyClaimed && isClaimable && (
-        <form action={claimBusinessAction}>
+      <CardFooter className="flex flex-col gap-2">
+      {!alreadyClaimed && isClaimable && !isAuthenticated && (
+        <Link href={`/sign-in?redirect=${encodeURIComponent(`/${domain}/claim/${businessId}`)}`} className="w-full">
+          <Button className="w-full">
+            <LogIn className="mr-2 h-4 w-4" />
+            Sign In to Claim This Business
+          </Button>
+        </Link>
+      )}
+
+      {!alreadyClaimed && isClaimable && isAuthenticated && (
+        <form action={claimBusinessAction} className="w-full">
           <input type="hidden" name="businessId" value={String(businessId)} />
+          <input type="hidden" name="verificationMethod" value="google" />
           <Button type="submit" className="w-full">
-            Claim This Business
+            Claim This Business with Google
           </Button>
         </form>
       )}
         
-      {(!isClaimable) && (
-        <Button 
-          onClick={() => redirect(`/${domain}`)} 
-          variant="outline" 
-          className="w-full"
-        >
-          Return to Business Page
-        </Button>
+      {(!isClaimable || alreadyClaimed) && (
+        <Link href={`/${domain}`} className="w-full">
+          <Button variant="outline" className="w-full">
+            Return to Business Page
+          </Button>
+        </Link>
       )}
       </CardFooter>
     </Card>

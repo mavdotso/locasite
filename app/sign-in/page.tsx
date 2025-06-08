@@ -5,33 +5,55 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useEffect, useState } from 'react';
 import { BusinessData } from '@/convex/businesses';
+import { useSearchParams } from 'next/navigation';
+import Logo from '@/app/components/ui/logo';
 
 export default function SignIn() {
     const { signIn } = useAuthActions();
     const [pendingBusiness, setPendingBusiness] = useState<BusinessData | null>(null);
+    const searchParams = useSearchParams();
+    const redirect = searchParams.get('redirect');
 
     useEffect(() => {
         // Check if there's a pending business in session storage
-        const pending = sessionStorage.getItem('pendingBusiness');
+        const pending = sessionStorage.getItem('pendingBusinessData');
         if (pending) {
             try {
-                setPendingBusiness(JSON.parse(pending));
+                const { businessData } = JSON.parse(pending);
+                setPendingBusiness(businessData);
             } catch (error) {
                 console.error('Error parsing pending business:', error);
-                sessionStorage.removeItem('pendingBusiness');
+                sessionStorage.removeItem('pendingBusinessData');
             }
         }
     }, []);
+
+    const handleSignIn = async () => {
+        try {
+            // Store redirect URL in sessionStorage before signing in
+            if (redirect) {
+                sessionStorage.setItem('authRedirect', redirect);
+            }
+            await signIn("google");
+        } catch (error) {
+            console.error('Sign in error:', error);
+        }
+    };
 
     return (
         <div className="flex justify-center items-center bg-secondary px-4 py-12 h-screen">
             <Card className="shadow-lg border-none w-full max-w-md">
                 <CardHeader className="space-y-1 text-center">
+                    <div className="flex justify-center mb-4">
+                        <Logo width={32} height={32} showText={false} />
+                    </div>
                     <CardTitle className="font-bold text-2xl">Welcome to Locasite</CardTitle>
                     <CardDescription>
                         {pendingBusiness 
                             ? `Sign in to publish your ${pendingBusiness.name} website`
-                            : 'Sign in to manage your business sites'
+                            : redirect?.includes('/claim/') 
+                                ? 'Sign in to claim this business'
+                                : 'Sign in to manage your business sites'
                         }
                     </CardDescription>
                 </CardHeader>
@@ -57,7 +79,7 @@ export default function SignIn() {
                     
                     <div className="w-full">
                     <Button
-                            onClick={() => signIn("google")}
+                            onClick={handleSignIn}
                             variant="default"
                             className="flex justify-center items-center w-full h-11 text-base"
                         >

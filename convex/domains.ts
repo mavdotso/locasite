@@ -121,6 +121,16 @@ export const getBySubdomain = query({
     }
 });
 
+// Get domain by business ID
+export const getByBusinessId = query({
+    args: { businessId: v.id("businesses") },
+    handler: async (ctx, args) => {
+        const business = await ctx.db.get(args.businessId);
+        if (!business?.domainId) return null;
+        return await ctx.db.get(business.domainId);
+    }
+});
+
 export const list = query({
     handler: async (ctx) => {
         return await ctx.db.query('domains').collect();

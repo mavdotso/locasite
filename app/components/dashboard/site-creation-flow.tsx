@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useMutation } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
@@ -27,6 +29,7 @@ export default function SiteCreationFlow() {
   const [businessData, setBusinessData] = useState<BusinessData | null>(null);
   const [error, setError] = useState('');
   const router = useRouter();
+  const createFromPending = useMutation(api.createFromPending.createBusinessFromPendingData);
 
   const handleUrlSubmit = async () => {
     if (!googleMapsUrl.trim()) {
@@ -43,55 +46,76 @@ export default function SiteCreationFlow() {
     setError('');
 
     try {
-      // TODO: Implement actual scraping
-      // For now, simulate the process
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Use the real Google Maps scraper
+      const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL || '';
+      const deploymentName = convexUrl.split('//')[1]?.split('.')[0];
+      const convexSiteUrl = `https://${deploymentName}.convex.site`;
       
-      // Mock business data
-      const mockBusinessData: BusinessData = {
-        name: 'Sample Business',
-        placeId: 'ChIJN1t_tDeuEmsRUsoyG83frY4',
-        address: '123 Main St, City, State 12345',
-        phone: '(555) 123-4567',
-        website: 'https://example.com',
-        hours: [
-          'Monday: 9:00 AM - 5:00 PM',
-          'Tuesday: 9:00 AM - 5:00 PM',
-          'Wednesday: 9:00 AM - 5:00 PM',
-          'Thursday: 9:00 AM - 5:00 PM',
-          'Friday: 9:00 AM - 5:00 PM',
-          'Saturday: 10:00 AM - 4:00 PM',
-          'Sunday: Closed'
-        ],
-        rating: 4.5,
-        reviews: [],
-        photos: [],
-        description: 'A sample business description'
-      };
+      const response = await fetch(`${convexSiteUrl}/scrape`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: googleMapsUrl, preview: true }),
+      });
 
-      setBusinessData(mockBusinessData);
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        throw new Error(`Server error: ${text.substring(0, 100)}...`);
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to extract business information');
+      }
+
+      if (!data.success || !data.data) {
+        throw new Error('No business data found at this URL');
+      }
+
+      setBusinessData(data.data);
       setStep(2);
       toast.success('Business information extracted successfully!');
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error scraping business data:', error);
-      setError('Failed to extract business information. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to extract business information. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleCreateSite = async () => {
+    if (!businessData) {
+      setError('No business data available');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      // TODO: Implement actual site creation
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Create the business using the real mutation
+      const { businessId } = await createFromPending({ 
+        businessData,
+        aiContent: null // No AI content for now
+      });
       
-      toast.success('Website created successfully!');
-      router.push('/dashboard/sites');
-    } catch (error) {
+      toast.success('Website created successfully!', {
+        description: `Your ${businessData.name} website has been created as a draft.`,
+      });
+      
+      // Redirect to the business editor
+      router.push(`/business/${businessId}/edit`);
+    } catch (error: unknown) {
       console.error('Error creating site:', error);
-      toast.error('Failed to create website. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create website. Please try again.';
+      if (errorMessage.includes('Unauthorized') || errorMessage.includes('logged in')) {
+        setError('You must be signed in to create a website. Please sign in and try again.');
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -185,6 +209,10 @@ export default function SiteCreationFlow() {
                 </>
               )}
             </Button>
+            
+            <div className="text-xs text-muted-foreground text-center">
+              <p>⚠️ Note: You&rsquo;ll need a Google Maps API key configured to use this feature</p>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -269,9 +297,18 @@ export default function SiteCreationFlow() {
                 <div className="flex-1">
                   <h3 className="font-medium text-green-900 mb-2">Ready to Create Your Website</h3>
                   <p className="text-green-800 text-sm mb-4">
-                    We&apos;ll create a professional website using this business information. 
+                    We&rsquo;ll create a professional website using this business information. 
                     You can customize it further after creation.
                   </p>
+                  {error && (
+                    <Alert className="border-red-200 bg-red-50 mb-4">
+                      <AlertCircle className="w-4 h-4 text-red-600" />
+                      <AlertDescription className="text-red-600">
+                        {error}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
                   <div className="flex gap-3">
                     <Button onClick={handleCreateSite} disabled={isLoading}>
                       {isLoading ? (
@@ -286,7 +323,7 @@ export default function SiteCreationFlow() {
                         </>
                       )}
                     </Button>
-                    <Button variant="outline" onClick={() => setStep(1)} disabled={isLoading}>
+                    <Button variant="outline" onClick={() => {setStep(1); setError('');}} disabled={isLoading}>
                       Back
                     </Button>
                   </div>

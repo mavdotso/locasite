@@ -18,9 +18,11 @@ import {
   LogOut,
   MessageSquare,
   BarChart3,
-  PlusCircle
+  PlusCircle,
+  Shield
 } from 'lucide-react';
 import { cn } from '@/app/lib/utils';
+import Logo from '@/app/components/ui/logo';
 
 const navigation = [
   { 
@@ -34,6 +36,12 @@ const navigation = [
     href: '/dashboard/sites', 
     icon: Globe, 
     description: 'Manage your business websites' 
+  },
+  { 
+    name: 'Claims', 
+    href: '/dashboard/claims', 
+    icon: Shield, 
+    description: 'Business ownership claims' 
   },
   { 
     name: 'Messages', 
@@ -88,11 +96,8 @@ export default function DashboardNav() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center">
-              <Link href="/dashboard" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <Globe className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-xl font-bold text-foreground">Locasite</span>
+              <Link href="/dashboard">
+                <Logo width={24} height={24} />
               </Link>
             </div>
 

@@ -182,7 +182,37 @@ export const create = mutation({
                 text: v.string()
             })),
             photos: v.array(v.string()),
-            description: v.optional(v.string())
+            description: v.optional(v.string()),
+            aiGeneratedContent: v.optional(v.object({
+                hero: v.optional(v.object({
+                    title: v.string(),
+                    subtitle: v.string()
+                })),
+                about: v.optional(v.object({
+                    content: v.string()
+                })),
+                services: v.optional(v.object({
+                    title: v.string(),
+                    items: v.array(v.object({
+                        title: v.string(),
+                        description: v.string()
+                    }))
+                })),
+                whyChooseUs: v.optional(v.object({
+                    title: v.string(),
+                    points: v.array(v.string())
+                })),
+                callToAction: v.optional(v.object({
+                    primary: v.string(),
+                    secondary: v.string(),
+                    urgency: v.string()
+                })),
+                seo: v.optional(v.object({
+                    metaTitle: v.string(),
+                    metaDescription: v.string(),
+                    keywords: v.array(v.string())
+                }))
+            }))
         }),
     },
     handler: async (ctx, args) => {
@@ -305,6 +335,36 @@ export const update = mutation({
                 accentColor: v.optional(v.string()),
                 fontFamily: v.optional(v.string()),
                 logoUrl: v.optional(v.string())
+            })),
+            aiGeneratedContent: v.optional(v.object({
+                hero: v.optional(v.object({
+                    title: v.string(),
+                    subtitle: v.string()
+                })),
+                about: v.optional(v.object({
+                    content: v.string()
+                })),
+                services: v.optional(v.object({
+                    title: v.string(),
+                    items: v.array(v.object({
+                        title: v.string(),
+                        description: v.string()
+                    }))
+                })),
+                whyChooseUs: v.optional(v.object({
+                    title: v.string(),
+                    points: v.array(v.string())
+                })),
+                callToAction: v.optional(v.object({
+                    primary: v.string(),
+                    secondary: v.string(),
+                    urgency: v.string()
+                })),
+                seo: v.optional(v.object({
+                    metaTitle: v.string(),
+                    metaDescription: v.string(),
+                    keywords: v.array(v.string())
+                }))
             }))
         }),
     },
@@ -401,9 +461,143 @@ export const createFromPreview = mutation({
         const businessId = await ctx.db.insert("businesses", {
             ...args.businessData,
             createdAt: Date.now(),
-            userId: user._id
+            userId: user._id,
+            isPublished: false // Start as unpublished
         });
 
         return businessId;
+    }
+});
+
+// Save draft changes without publishing
+export const saveDraft = mutation({
+    args: {
+        businessId: v.id("businesses"),
+        draftContent: v.object({
+            name: v.optional(v.string()),
+            description: v.optional(v.string()),
+            phone: v.optional(v.string()),
+            email: v.optional(v.string()),
+            website: v.optional(v.string()),
+            hours: v.optional(v.array(v.string())),
+            theme: v.optional(v.object({
+                colorScheme: v.optional(v.string()),
+                primaryColor: v.optional(v.string()),
+                secondaryColor: v.optional(v.string()),
+                accentColor: v.optional(v.string()),
+                fontFamily: v.optional(v.string()),
+                logoUrl: v.optional(v.string())
+            }))
+        })
+    },
+    handler: async (ctx, args) => {
+        const user = await getUserFromAuth(ctx);
+        
+        // Verify ownership
+        await verifyBusinessOwnership(ctx, args.businessId, user._id);
+        
+        // Update draft content
+        return await ctx.db.patch(args.businessId, {
+            draftContent: args.draftContent,
+            lastEditedAt: Date.now()
+        });
+    }
+});
+
+// Publish draft changes
+export const publishDraft = mutation({
+    args: {
+        businessId: v.id("businesses")
+    },
+    handler: async (ctx, args) => {
+        const user = await getUserFromAuth(ctx);
+        
+        // Verify ownership
+        const business = await verifyBusinessOwnership(ctx, args.businessId, user._id);
+        
+        if (!business.draftContent) {
+            throw new Error("No draft content to publish");
+        }
+        
+        // Apply draft content to main fields
+        const updates: Record<string, unknown> = {
+            isPublished: true,
+            publishedAt: Date.now(),
+            lastEditedAt: Date.now(),
+            draftContent: undefined // Clear draft after publishing
+        };
+        
+        // Copy draft fields to main fields
+        if (business.draftContent.name) updates.name = business.draftContent.name;
+        if (business.draftContent.description) updates.description = business.draftContent.description;
+        if (business.draftContent.phone) updates.phone = business.draftContent.phone;
+        if (business.draftContent.email) updates.email = business.draftContent.email;
+        if (business.draftContent.website) updates.website = business.draftContent.website;
+        if (business.draftContent.hours) updates.hours = business.draftContent.hours;
+        if (business.draftContent.theme) updates.theme = business.draftContent.theme;
+        
+        return await ctx.db.patch(args.businessId, updates);
+    }
+});
+
+// Discard draft changes
+export const discardDraft = mutation({
+    args: {
+        businessId: v.id("businesses")
+    },
+    handler: async (ctx, args) => {
+        const user = await getUserFromAuth(ctx);
+        
+        // Verify ownership
+        await verifyBusinessOwnership(ctx, args.businessId, user._id);
+        
+        // Clear draft content
+        return await ctx.db.patch(args.businessId, {
+            draftContent: undefined
+        });
+    }
+});
+
+// Unpublish a business
+export const unpublish = mutation({
+    args: {
+        businessId: v.id("businesses")
+    },
+    handler: async (ctx, args) => {
+        const user = await getUserFromAuth(ctx);
+        
+        // Verify ownership
+        await verifyBusinessOwnership(ctx, args.businessId, user._id);
+        
+        return await ctx.db.patch(args.businessId, {
+            isPublished: false
+        });
+    }
+});
+
+// Get business with draft content merged (for editing)
+export const getByIdWithDraft = query({
+    args: { id: v.id("businesses") },
+    handler: async (ctx, args) => {
+        const business = await ctx.db.get(args.id);
+        if (!business) return null;
+        
+        // If there's draft content, merge it with the main content
+        if (business.draftContent) {
+            return {
+                ...business,
+                // Override main fields with draft fields if they exist
+                name: business.draftContent.name || business.name,
+                description: business.draftContent.description || business.description,
+                phone: business.draftContent.phone !== undefined ? business.draftContent.phone : business.phone,
+                email: business.draftContent.email !== undefined ? business.draftContent.email : business.email,
+                website: business.draftContent.website !== undefined ? business.draftContent.website : business.website,
+                hours: business.draftContent.hours || business.hours,
+                theme: business.draftContent.theme || business.theme,
+                hasDraft: true
+            };
+        }
+        
+        return { ...business, hasDraft: false };
     }
 });

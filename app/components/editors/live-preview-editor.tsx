@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useRef } from 'react';
-// import { useMutation } from 'convex/react';
-// import { api } from '@/convex/_generated/api';
+import { useMutation } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { Button } from '@/app/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
@@ -46,11 +46,11 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
   const [viewport, setViewport] = useState<ViewportSize>('desktop');
   const [editMode, setEditMode] = useState(false);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
+  const [businessData, setBusinessData] = useState(business);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Mutations for future use
-  // const updateBusiness = useMutation(api.businesses.update);
-  // const updatePage = useMutation(api.pages.updatePage);
+  // Convex mutations
+  const updateBusiness = useMutation(api.businesses.update);
 
   const getViewportClasses = () => {
     switch (viewport) {
@@ -89,6 +89,27 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
 
   const handleSave = async () => {
     try {
+      await updateBusiness({
+        id: businessData._id,
+        business: {
+          name: businessData.name,
+          description: businessData.description,
+          address: businessData.address,
+          phone: businessData.phone,
+          website: businessData.website,
+          hours: businessData.hours,
+          theme: businessData.theme
+        }
+      });
+      
+      // Send update to iframe
+      if (iframeRef.current?.contentWindow) {
+        iframeRef.current.contentWindow.postMessage({
+          type: 'BUSINESS_UPDATE',
+          data: businessData
+        }, '*');
+      }
+      
       toast.success('Changes saved', {
         description: 'Your website has been updated successfully.'
       });
@@ -102,8 +123,49 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
   };
 
   const handleUndo = () => {
+    setBusinessData(business);
     setUnsavedChanges(false);
     toast.info('Changes undone');
+  };
+
+  const updateBusinessField = (field: string, value: unknown) => {
+    setBusinessData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    setUnsavedChanges(true);
+    
+    // Send real-time update to iframe
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage({
+        type: 'LIVE_UPDATE',
+        field,
+        value,
+        data: { ...businessData, [field]: value }
+      }, '*');
+    }
+  };
+
+  const updateThemeField = (field: string, value: unknown) => {
+    const updatedBusiness = {
+      ...businessData,
+      theme: {
+        ...businessData.theme,
+        [field]: value
+      }
+    };
+    setBusinessData(updatedBusiness);
+    setUnsavedChanges(true);
+    
+    // Send real-time update to iframe
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage({
+        type: 'THEME_UPDATE',
+        field,
+        value,
+        data: updatedBusiness
+      }, '*');
+    }
   };
 
   return (
@@ -197,23 +259,19 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
                       <label className="text-sm font-medium">Business Name</label>
                       <input
                         type="text"
-                        value={business.name}
+                        value={businessData.name}
                         className="w-full mt-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        onChange={() => {
-                          setUnsavedChanges(true);
-                        }}
+                        onChange={(e) => updateBusinessField('name', e.target.value)}
                       />
                     </div>
                     
                     <div>
                       <label className="text-sm font-medium">Description</label>
                       <textarea
-                        value={business.description || ''}
+                        value={businessData.description || ''}
                         className="w-full mt-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         rows={3}
-                        onChange={() => {
-                          setUnsavedChanges(true);
-                        }}
+                        onChange={(e) => updateBusinessField('description', e.target.value)}
                       />
                     </div>
 
@@ -221,11 +279,9 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
                       <label className="text-sm font-medium">Phone</label>
                       <input
                         type="tel"
-                        value={business.phone || ''}
+                        value={businessData.phone || ''}
                         className="w-full mt-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        onChange={() => {
-                          setUnsavedChanges(true);
-                        }}
+                        onChange={(e) => updateBusinessField('phone', e.target.value)}
                       />
                     </div>
 
@@ -233,11 +289,9 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
                       <label className="text-sm font-medium">Website</label>
                       <input
                         type="url"
-                        value={business.website || ''}
+                        value={businessData.website || ''}
                         className="w-full mt-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        onChange={() => {
-                          setUnsavedChanges(true);
-                        }}
+                        onChange={(e) => updateBusinessField('website', e.target.value)}
                       />
                     </div>
                   </CardContent>
@@ -254,11 +308,9 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
                       <label className="text-sm font-medium">Primary Color</label>
                       <input
                         type="color"
-                        value={business.theme?.primaryColor || '#3B82F6'}
+                        value={businessData.theme?.primaryColor || '#3B82F6'}
                         className="w-full mt-1 h-10 border border-border rounded-md"
-                        onChange={() => {
-                          setUnsavedChanges(true);
-                        }}
+                        onChange={(e) => updateThemeField('primaryColor', e.target.value)}
                       />
                     </div>
                     
@@ -266,22 +318,18 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
                       <label className="text-sm font-medium">Secondary Color</label>
                       <input
                         type="color"
-                        value={business.theme?.secondaryColor || '#6B7280'}
+                        value={businessData.theme?.secondaryColor || '#6B7280'}
                         className="w-full mt-1 h-10 border border-border rounded-md"
-                        onChange={() => {
-                          setUnsavedChanges(true);
-                        }}
+                        onChange={(e) => updateThemeField('secondaryColor', e.target.value)}
                       />
                     </div>
 
                     <div>
                       <label className="text-sm font-medium">Font Family</label>
                       <select
-                        value={business.theme?.fontFamily || 'Inter'}
+                        value={businessData.theme?.fontFamily || 'Inter'}
                         className="w-full mt-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        onChange={() => {
-                          setUnsavedChanges(true);
-                        }}
+                        onChange={(e) => updateThemeField('fontFamily', e.target.value)}
                       >
                         <option value="Inter">Inter</option>
                         <option value="Roboto">Roboto</option>
@@ -335,12 +383,16 @@ export default function LivePreviewEditor({ business, domain }: Omit<LivePreview
           >
             <iframe
               ref={iframeRef}
-              src={`http://${domain.subdomain}.localhost:3000${editMode ? '?edit=true' : ''}`}
+              src={`/${domain.subdomain}${editMode ? '?edit=true' : ''}`}
               className="w-full h-full border-0"
               title="Live Preview"
               onLoad={() => {
                 if (editMode && iframeRef.current?.contentWindow) {
-                  // Add click handlers for inline editing if needed
+                  // Send initial data to iframe
+                  iframeRef.current.contentWindow.postMessage({
+                    type: 'INIT_EDITOR',
+                    data: businessData
+                  }, '*');
                 }
               }}
             />
