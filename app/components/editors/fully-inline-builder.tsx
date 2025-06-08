@@ -26,7 +26,7 @@ import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
 import { Section } from "@/app/types/businesses";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/app/components/ui/sheet";
-import { SimpleThemeEditor } from "./simple-theme-editor";
+import { ModernThemeEditor } from "./modern-theme-editor";
 
 interface PageContent {
   title: string;
@@ -411,7 +411,7 @@ export default function FullyInlineBuilder({
         <Button
           onClick={handleSave}
           disabled={isSaving}
-          className="shadow-lg"
+          className="shadow-lg btn-primary"
         >
           {isSaving ? (
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -542,7 +542,7 @@ export default function FullyInlineBuilder({
               )}
 
               {section.type === 'about' && (
-                <section className="py-16 bg-background">
+                <section className="py-16 section-alt">
                   <div className="container mx-auto px-4">
                     <h2 className="text-3xl font-bold text-center mb-12">About Us</h2>
                     <div 
@@ -559,7 +559,7 @@ export default function FullyInlineBuilder({
               )}
 
               {section.type === 'gallery' && (
-                <section className="py-16 bg-muted/30">
+                <section className="py-16 bg-background">
                   <div className="container mx-auto px-4">
                     <h2 className="text-3xl font-bold text-center mb-12">Gallery</h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -601,7 +601,7 @@ export default function FullyInlineBuilder({
               )}
 
               {(section.type === 'contact' || section.type === 'contactForm') && (
-                <section className="py-16 bg-muted/30">
+                <section className="py-16 section-alt">
                   <div className="container mx-auto px-4">
                     <div className="text-center mb-12">
                       <h2 
@@ -628,10 +628,10 @@ export default function FullyInlineBuilder({
               )}
 
               {section.type === 'info' && (
-                <section className="py-16 bg-background">
+                <section className="py-16 section-alt">
                   <div className="container mx-auto px-4">
                     <h2 className="text-3xl font-bold text-center mb-12">Business Info</h2>
-                    <div className="max-w-2xl mx-auto space-y-4">
+                    <div className="max-w-2xl mx-auto space-y-4 bg-background p-6 rounded-lg border">
                       <div className="group relative">
                         <strong>Address:</strong>
                         <span 
@@ -686,7 +686,7 @@ export default function FullyInlineBuilder({
               )}
 
               {section.type === 'reviews' && (
-                <section className="py-16 bg-muted/30">
+                <section className="py-16 bg-background">
                   <div className="container mx-auto px-4">
                     <h2 className="text-3xl font-bold text-center mb-12">Reviews</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -733,7 +733,7 @@ export default function FullyInlineBuilder({
               )}
 
               {section.type === 'services' && (
-                <section className="py-16 bg-background">
+                <section className="py-16 section-alt">
                   <div className="container mx-auto px-4">
                     <h2 
                       className={cn(
@@ -746,7 +746,7 @@ export default function FullyInlineBuilder({
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {(section.items as ServiceItem[] || []).map((service, serviceIndex) => (
-                        <div key={serviceIndex} className="bg-muted/30 p-6 rounded-lg">
+                        <div key={serviceIndex} className="bg-background border p-6 rounded-lg">
                           <h3 
                             className={cn(
                               "text-xl font-semibold mb-3 cursor-text transition-all",
@@ -773,7 +773,7 @@ export default function FullyInlineBuilder({
               )}
 
               {section.type === 'whyChooseUs' && (
-                <section className="py-16 bg-muted/30">
+                <section className="py-16 bg-background">
                   <div className="container mx-auto px-4">
                     <h2 
                       className={cn(
@@ -882,23 +882,16 @@ export default function FullyInlineBuilder({
         }}
       />
 
-      {/* Theme Editor Sheet */}
-      <Sheet open={showThemeEditor} onOpenChange={setShowThemeEditor}>
-        <SheetContent className="w-full max-w-4xl sm:max-w-4xl overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>Customize Your Theme</SheetTitle>
-          </SheetHeader>
-          <div className="mt-6">
-            <SimpleThemeEditor 
-              businessId={businessId}
-              onSave={() => {
-                // Just close the sheet, the theme will apply automatically
-                setShowThemeEditor(false);
-              }}
-            />
-          </div>
-        </SheetContent>
-      </Sheet>
+      {/* Theme Editor Modal */}
+      {showThemeEditor && (
+        <ModernThemeEditor 
+          businessId={businessId}
+          onSave={() => {
+            setShowThemeEditor(false);
+          }}
+          onClose={() => setShowThemeEditor(false)}
+        />
+      )}
     </div>
   );
 }

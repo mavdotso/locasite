@@ -15,6 +15,33 @@ export interface SimpleTheme {
   fontFamily?: string;
 }
 
+export interface ModernTheme {
+  // Brand
+  brandColor: string;
+  
+  // Buttons
+  primaryButtonColor: string;
+  secondaryButtonColor: string;
+  secondaryButtonOpacity: number;
+  
+  // Text
+  textColor: string;
+  headingColor: string;
+  linkColor: string;
+  
+  // Background
+  backgroundColor: string;
+  sectionBackgroundColor: string;
+  
+  // Typography
+  fontFamily: string;
+  fontSize: 'small' | 'normal' | 'large';
+  
+  // Layout
+  borderRadius: 'none' | 'small' | 'medium' | 'large';
+  spacing: 'compact' | 'normal' | 'spacious';
+}
+
 // Convert simple theme to CSS variables
 export function simpleThemeToCSS(theme: SimpleTheme): string {
   const fontSizes = {
@@ -77,6 +104,32 @@ export function simpleThemeToCSS(theme: SimpleTheme): string {
     /* Typography */
     h1, h2, h3, h4, h5, h6 {
       font-size: var(--theme-font-size-heading);
+      color: var(--theme-text);
+      font-weight: 700;
+    }
+    
+    /* Links */
+    a {
+      color: var(--theme-primary);
+    }
+    
+    a:hover {
+      opacity: 0.8;
+    }
+    
+    /* Buttons */
+    .btn-primary,
+    button[type="submit"],
+    .bg-primary {
+      background-color: var(--theme-primary) !important;
+      color: white !important;
+      border-radius: var(--theme-border-radius);
+    }
+    
+    .btn-secondary {
+      background-color: var(--muted) !important;
+      color: var(--theme-text) !important;
+      border-radius: var(--theme-border-radius);
     }
     
     /* Sections */
@@ -88,12 +141,186 @@ export function simpleThemeToCSS(theme: SimpleTheme): string {
     /* Border radius for common elements */
     .rounded-lg,
     .rounded-md,
+    .rounded,
     .card,
     button,
     input,
     textarea,
     select {
       border-radius: var(--theme-border-radius) !important;
+    }
+    
+    /* Background sections */
+    .bg-muted {
+      background-color: var(--muted) !important;
+    }
+  `;
+}
+
+// Convert modern theme to CSS variables
+export function modernThemeToCSS(theme: ModernTheme): string {
+  const fontSizes = {
+    small: { base: '14px', h1: '2rem', h2: '1.75rem', h3: '1.5rem' },
+    normal: { base: '16px', h1: '2.5rem', h2: '2rem', h3: '1.75rem' },
+    large: { base: '18px', h1: '3rem', h2: '2.5rem', h3: '2rem' }
+  };
+  
+  const spacings = {
+    compact: { section: '2rem', element: '0.75rem', gap: '0.5rem' },
+    normal: { section: '4rem', element: '1.5rem', gap: '1rem' },
+    spacious: { section: '6rem', element: '2.5rem', gap: '1.5rem' }
+  };
+  
+  const radii = {
+    none: '0',
+    small: '0.375rem',
+    medium: '0.75rem',
+    large: '1.5rem'
+  };
+  
+  return `
+    :root {
+      /* Modern theme variables */
+      --theme-brand: ${theme.brandColor};
+      --theme-primary-button: ${theme.primaryButtonColor};
+      --theme-secondary-button: ${theme.secondaryButtonColor};
+      --theme-secondary-button-opacity: ${theme.secondaryButtonOpacity / 100};
+      --theme-text: ${theme.textColor};
+      --theme-heading: ${theme.headingColor};
+      --theme-link: ${theme.linkColor};
+      --theme-background: ${theme.backgroundColor};
+      --theme-section-background: ${theme.sectionBackgroundColor};
+      --theme-font-family: ${theme.fontFamily === 'system' ? 'system-ui, -apple-system, sans-serif' : theme.fontFamily};
+      --theme-font-size-base: ${fontSizes[theme.fontSize].base};
+      --theme-font-size-h1: ${fontSizes[theme.fontSize].h1};
+      --theme-font-size-h2: ${fontSizes[theme.fontSize].h2};
+      --theme-font-size-h3: ${fontSizes[theme.fontSize].h3};
+      --theme-spacing-section: ${spacings[theme.spacing].section};
+      --theme-spacing-element: ${spacings[theme.spacing].element};
+      --theme-spacing-gap: ${spacings[theme.spacing].gap};
+      --theme-border-radius: ${radii[theme.borderRadius]};
+      
+      /* Override Tailwind's semantic colors */
+      --primary: ${theme.brandColor};
+      --primary-foreground: #ffffff;
+      --background: ${theme.backgroundColor};
+      --foreground: ${theme.textColor};
+      --card: ${theme.backgroundColor};
+      --card-foreground: ${theme.textColor};
+      --muted: ${theme.sectionBackgroundColor};
+      --muted-foreground: ${theme.textColor}80;
+      --border: ${theme.textColor}20;
+      --input: ${theme.textColor}20;
+      --ring: ${theme.brandColor};
+    }
+    
+    /* Apply to body */
+    body {
+      background-color: var(--theme-background);
+      color: var(--theme-text);
+      font-family: var(--theme-font-family);
+      font-size: var(--theme-font-size-base);
+    }
+    
+    /* Typography */
+    h1 {
+      font-size: var(--theme-font-size-h1);
+      color: var(--theme-heading);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    
+    h2 {
+      font-size: var(--theme-font-size-h2);
+      color: var(--theme-heading);
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    
+    h3 {
+      font-size: var(--theme-font-size-h3);
+      color: var(--theme-heading);
+      font-weight: 600;
+      line-height: 1.4;
+    }
+    
+    h4, h5, h6 {
+      color: var(--theme-heading);
+      font-weight: 600;
+    }
+    
+    /* Links */
+    a {
+      color: var(--theme-link);
+      text-decoration: none;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Buttons */
+    .btn-primary,
+    button[type="submit"],
+    .bg-primary {
+      background-color: var(--theme-primary-button) !important;
+      color: white !important;
+      border-radius: var(--theme-border-radius);
+    }
+    
+    .btn-secondary {
+      background-color: var(--theme-secondary-button) !important;
+      opacity: var(--theme-secondary-button-opacity);
+      color: var(--theme-text) !important;
+      border-radius: var(--theme-border-radius);
+    }
+    
+    /* Sections */
+    section {
+      padding-top: var(--theme-spacing-section);
+      padding-bottom: var(--theme-spacing-section);
+    }
+    
+    .section-alt {
+      background-color: var(--theme-section-background);
+    }
+    
+    /* Spacing */
+    .container {
+      padding-left: var(--theme-spacing-element);
+      padding-right: var(--theme-spacing-element);
+    }
+    
+    .space-y-4 > * + * {
+      margin-top: var(--theme-spacing-gap);
+    }
+    
+    .gap-4 {
+      gap: var(--theme-spacing-gap);
+    }
+    
+    /* Border radius */
+    .rounded-lg,
+    .rounded-md,
+    .rounded,
+    .card,
+    button,
+    input,
+    textarea,
+    select,
+    img {
+      border-radius: var(--theme-border-radius) !important;
+    }
+    
+    /* Background sections */
+    .bg-muted {
+      background-color: var(--theme-section-background) !important;
+    }
+    
+    /* Cards */
+    .card {
+      background-color: var(--theme-background);
+      border: 1px solid var(--border);
     }
   `;
 }

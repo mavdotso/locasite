@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { SimpleTheme, simpleThemeToCSS } from "@/types/simple-theme";
+import { SimpleTheme, ModernTheme, simpleThemeToCSS, modernThemeToCSS } from "@/types/simple-theme";
 
 interface SimpleThemeWrapperProps {
   businessId: Id<"businesses">;
@@ -25,6 +25,18 @@ export default function SimpleThemeWrapper({ businessId, children }: SimpleTheme
         const themeData = JSON.parse(business.theme.colorScheme);
         if (themeData.version === "simple-v1") {
           themeToApply = themeData;
+        } else if (themeData.version === "modern-v1") {
+          // Apply modern theme directly
+          const modernTheme = themeData.theme as ModernTheme;
+          const css = modernThemeToCSS(modernTheme);
+          let styleEl = document.getElementById("business-theme-styles");
+          if (!styleEl) {
+            styleEl = document.createElement("style");
+            styleEl.id = "business-theme-styles";
+            document.head.appendChild(styleEl);
+          }
+          styleEl.textContent = css;
+          return; // Exit early for modern theme
         }
       } catch (e) {
         // Continue to fallback
