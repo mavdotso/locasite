@@ -48,5 +48,5 @@ export default async function middleware(request: NextRequest, event: NextFetchE
     return NextResponse.next();
 }
 export const config = {
-    matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
+    matcher: ["/((?!.*\\..*|_next|favicon\\.ico).*)", "/", "/(api|trpc)(.*)"],
 };

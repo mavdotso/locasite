@@ -118,13 +118,25 @@ export default async function BusinessPage({ params }: PageProps) {
       notFound();
     }
 
-    // Get the home page
-    const page = await fetchQuery(api.pages.getBySlug, {
+    // Get the home page (try published first, then fallback to unpublished)
+    let page = await fetchQuery(api.pages.getBySlug, {
       domain: businessDomain,
       slug: "home",
     });
 
+    // If no home page found, check if there are any pages and use the first one
     if (!page) {
+      const allPages = await fetchQuery(api.pages.listByDomain, {
+        domainId: domain._id,
+      });
+      
+      if (allPages && allPages.length > 0) {
+        page = allPages[0];
+      }
+    }
+
+    if (!page) {
+      console.log("No page found for domain:", businessDomain);
       notFound();
     }
 
