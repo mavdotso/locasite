@@ -3,7 +3,7 @@
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { DirectPreview } from "@/components/editors/direct-preview";
-import IntegratedThemeBuilder from "@/components/editors/integrated-theme-builder";
+import IntegratedThemeBuilder from "@/components/editors/integrated-theme-builder-v2";
 import { Preloaded, usePreloadedQuery, useQuery } from "convex/react";
 
 

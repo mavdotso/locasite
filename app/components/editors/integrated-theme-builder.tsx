@@ -26,7 +26,10 @@ import {
   Smartphone,
   Monitor,
   Tablet,
-  Layers
+  Layers,
+  Share2,
+  Undo,
+  Redo
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
@@ -469,35 +472,78 @@ export default function IntegratedThemeBuilder({
   ];
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Left Sidebar */}
-      <div className="w-20 border-r bg-muted/30 flex flex-col items-center py-4 gap-1">
-        {sidebarItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setActiveTab(item.id)}
-            className={cn(
-              "w-16 h-16 rounded-lg flex flex-col items-center justify-center gap-1 hover:bg-background transition-colors",
-              activeTab === item.id && "bg-background shadow-sm"
-            )}
+    <div className="flex flex-col h-screen overflow-hidden bg-background">
+      {/* Top Header */}
+      <div className="h-14 border-b bg-background flex items-center justify-between px-4">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Undo className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Redo className="h-4 w-4" />
+          </Button>
+          
+          <div className="ml-4 flex items-center gap-1 border rounded-lg p-1">
+            <Button
+              variant={devicePreview === 'mobile' ? 'secondary' : 'ghost'}
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => setDevicePreview('mobile')}
+            >
+              <Smartphone className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={devicePreview === 'tablet' ? 'secondary' : 'ghost'}
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => setDevicePreview('tablet')}
+            >
+              <Tablet className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={devicePreview === 'desktop' ? 'secondary' : 'ghost'}
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => setDevicePreview('desktop')}
+            >
+              <Monitor className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm">
+            <Share2 className="h-4 w-4 mr-2" />
+            Share/Preview
+          </Button>
+          <Button 
+            size="sm" 
+            onClick={handleSave} 
+            disabled={isSaving}
+            className="bg-foreground text-background hover:bg-foreground/90"
           >
-            <item.icon className={cn(
-              "h-5 w-5",
-              activeTab === item.id ? "text-foreground" : "text-muted-foreground"
-            )} />
-            <span className={cn(
-              "text-xs",
-              activeTab === item.id ? "text-foreground" : "text-muted-foreground"
-            )}>
-              {item.label}
-            </span>
-          </button>
-        ))}
+            {isSaving ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : (
+              <Save className="h-4 w-4 mr-2" />
+            )}
+            Save & Publish
+          </Button>
+        </div>
       </div>
 
-      {/* Settings Panel */}
-      <div className="w-96 border-r bg-background overflow-y-auto">
-        <div className="p-6">
+      {/* Main Content Area */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Website Preview Container */}
+        <div className="flex-1 overflow-hidden bg-gray-100">
+          <div className="h-full overflow-y-auto p-8">
+            <div className={cn(
+              "mx-auto transition-all duration-300 bg-background rounded-lg shadow-xl overflow-hidden",
+              devicePreview === 'desktop' && "max-w-none",
+              devicePreview === 'tablet' && "max-w-4xl",
+              devicePreview === 'mobile' && "max-w-sm"
+            )}>
+              <div className="overflow-y-auto">
           {activeTab === 'sections' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
