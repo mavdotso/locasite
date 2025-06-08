@@ -39,28 +39,48 @@ export default function VerifyBusinessPage({ params }: VerifyPageProps) {
     setErrorMessage('');
 
     try {
-      // In a real implementation, you would:
-      // 1. Redirect to Google OAuth with proper scopes
-      // 2. Get the access token from the OAuth callback
-      // 3. Use that token to verify ownership
-      
-      // For now, we'll show the process
-      const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+      const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_BUSINESS_CLIENT_ID;
       const REDIRECT_URI = `${window.location.origin}/api/auth/google-business/callback`;
-      const SCOPES = 'https://www.googleapis.com/auth/business.manage';
+      const SCOPES = [
+        'https://www.googleapis.com/auth/business.manage',
+        'openid',
+        'email',
+        'profile'
+      ].join(' ');
       
-      // Store claim ID for callback
-      sessionStorage.setItem('pendingClaimId', claimId || '');
+      if (!GOOGLE_CLIENT_ID) {
+        throw new Error('Google Business OAuth is not configured. Please contact support.');
+      }
+      
+      // Generate CSRF token for security
+      const csrfToken = Math.random().toString(36).substring(2, 15);
+      
+      // Create state parameter with claim ID and CSRF token
+      const stateData = {
+        claimId: claimId,
+        csrfToken: csrfToken,
+        timestamp: Date.now()
+      };
+      const state = Buffer.from(JSON.stringify(stateData)).toString('base64');
+      
+      // Build OAuth URL with all required parameters
+      const params = new URLSearchParams({
+        client_id: GOOGLE_CLIENT_ID,
+        redirect_uri: REDIRECT_URI,
+        response_type: 'code',
+        scope: SCOPES,
+        access_type: 'offline',
+        prompt: 'consent',
+        state: state,
+        include_granted_scopes: 'true'
+      });
+      
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+      
+      // Store CSRF token in session storage for validation later
+      sessionStorage.setItem('oauth_csrf_token', csrfToken);
       
       // Redirect to Google OAuth
-      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
-        `client_id=${GOOGLE_CLIENT_ID}&` +
-        `redirect_uri=${encodeURIComponent(REDIRECT_URI)}&` +
-        `response_type=code&` +
-        `scope=${encodeURIComponent(SCOPES)}&` +
-        `access_type=offline&` +
-        `prompt=consent`;
-      
       window.location.href = authUrl;
       
     } catch (error: any) {
@@ -149,12 +169,6 @@ export default function VerifyBusinessPage({ params }: VerifyPageProps) {
             You'll be redirected to Google to authorize access to your business listings.
           </p>
           
-          <Alert className="mb-4">
-            <AlertDescription>
-              <strong>Note:</strong> This feature requires Google Business Profile API access. 
-              For demonstration purposes, this will simulate the verification process.
-            </AlertDescription>
-          </Alert>
 
           <Button 
             onClick={handleGoogleVerification}

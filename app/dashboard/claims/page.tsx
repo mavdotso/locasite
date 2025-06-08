@@ -5,12 +5,41 @@ import { api } from '@/convex/_generated/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
 import { Button } from '@/app/components/ui/button';
-import { Loader, Building2, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/app/components/ui/alert';
+import { Loader, Building2, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
+import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 
 export default function ClaimsPage() {
   const claims = useQuery(api.businessClaims.getClaimsByUser);
+  const searchParams = useSearchParams();
+  
+  // Handle success/error messages from OAuth callback
+  useEffect(() => {
+    const success = searchParams.get('success');
+    const error = searchParams.get('error');
+    const message = searchParams.get('message');
+    
+    if (success === 'verification_complete') {
+      toast.success('Verification Successful!', {
+        description: message || 'Your business ownership has been verified.',
+      });
+    } else if (error) {
+      const errorMessages: Record<string, string> = {
+        auth_failed: 'Authentication failed. Please try again.',
+        no_code: 'No authorization code received. Please try again.',
+        invalid_state: 'Invalid request state. Please start the verification process again.',
+        verification_failed: message || 'Verification failed. Please ensure you have access to this business on Google.',
+      };
+      
+      toast.error('Verification Error', {
+        description: errorMessages[error] || 'An unexpected error occurred.',
+      });
+    }
+  }, [searchParams]);
 
   if (!claims) {
     return (
