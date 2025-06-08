@@ -26,7 +26,6 @@ import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
 import { Section } from "@/app/types/businesses";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/app/components/ui/sheet";
-import { ModernThemeEditor } from "./modern-theme-editor";
 
 interface PageContent {
   title: string;
@@ -126,7 +125,6 @@ export default function FullyInlineBuilder({
   const [hoveredSection, setHoveredSection] = useState<number | null>(null);
   const [showAddSection, setShowAddSection] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState<number | null>(null);
-  const [showThemeEditor, setShowThemeEditor] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingFor, setUploadingFor] = useState<{ section: number; type: string } | null>(null);
 
@@ -366,15 +364,6 @@ export default function FullyInlineBuilder({
     <div className="relative min-h-screen">
       {/* Fixed Controls */}
       <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
-        {/* Theme Editor Button */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowThemeEditor(true)}
-        >
-          <Paintbrush className="h-4 w-4 mr-2" />
-          Theme
-        </Button>
 
         {/* Color Picker */}
         <div className="relative">
@@ -882,16 +871,6 @@ export default function FullyInlineBuilder({
         }}
       />
 
-      {/* Theme Editor Modal */}
-      {showThemeEditor && (
-        <ModernThemeEditor 
-          businessId={businessId}
-          onSave={() => {
-            setShowThemeEditor(false);
-          }}
-          onClose={() => setShowThemeEditor(false)}
-        />
-      )}
     </div>
   );
 }

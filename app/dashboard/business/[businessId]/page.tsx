@@ -7,7 +7,6 @@ import PageEditor from "@/app/components/editors/page-editor";
 import BusinessEditor from "@/app/components/editors/business-editor";
 import GalleryEditor from "@/app/components/editors/gallery-editor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
-import ThemeEditor from "@/app/components/editors/theme-editor";
 import MessageList from "@/app/components/messages/message-list";
 import AuthGuard from "@/app/components/auth/auth-guard";
 import { Id } from "@/convex/_generated/dataModel";
@@ -98,7 +97,6 @@ export default async function BusinessEditPage({ params }: BusinessEditPageProps
               {pages.length > 0 && (
                 <TabsTrigger value="pages">Pages</TabsTrigger>
               )}
-              <TabsTrigger value="theme">Theme & Design</TabsTrigger>
               <TabsTrigger value="messages">
                 Messages
                 {unreadCount > 0 && (
@@ -117,9 +115,6 @@ export default async function BusinessEditPage({ params }: BusinessEditPageProps
               <GalleryEditor business={business} />
             </TabsContent>
 
-            <TabsContent value="theme">
-              <ThemeEditor business={business} />
-            </TabsContent>
 
             {pages.length > 0 && (
               <TabsContent value="pages">
