@@ -55,57 +55,51 @@ export function SimpleThemeEditor({ businessId, onSave }: SimpleThemeEditorProps
 
   // Load existing theme
   useEffect(() => {
-    if (business?.theme?.colorScheme) {
+    if (!business) return;
+    
+    if (business.theme?.colorScheme) {
       try {
         const saved = JSON.parse(business.theme.colorScheme);
         if (saved.version === "simple-v1") {
           setTheme(saved);
+          return;
         }
-      } catch {
-        // Fallback for old themes
-        if (business?.theme) {
-          setTheme({
-            primaryColor: business.theme.primaryColor || "#2563eb",
-            textColor: "#1f2937",
-            backgroundColor: "#ffffff",
-            fontSize: "normal",
-            spacing: "normal", 
-            borderRadius: "small",
-            fontFamily: business.theme.fontFamily || "default",
-          });
-        }
+      } catch (e) {
+        // Continue to fallback
       }
-    } else if (business?.theme) {
-      // Old theme format
-      setTheme({
-        primaryColor: business.theme.primaryColor || "#2563eb",
-        textColor: "#1f2937",
-        backgroundColor: "#ffffff",
-        fontSize: "normal",
-        spacing: "normal", 
-        borderRadius: "small",
-        fontFamily: business.theme.fontFamily || "default",
-      });
     }
+    
+    // Fallback for old themes or default
+    setTheme({
+      primaryColor: business.theme?.primaryColor || "#2563eb",
+      textColor: "#1f2937",
+      backgroundColor: "#ffffff",
+      fontSize: "normal",
+      spacing: "normal", 
+      borderRadius: "small",
+      fontFamily: business.theme?.fontFamily || "default",
+    });
   }, [business]);
 
   const handleSave = async () => {
     try {
       setIsSaving(true);
       
+      const themeData = {
+        primaryColor: theme.primaryColor,
+        fontFamily: theme.fontFamily === "default" ? undefined : theme.fontFamily,
+        // Store additional data as a JSON string in colorScheme for now
+        colorScheme: JSON.stringify({
+          ...theme,
+          version: "simple-v1"
+        })
+      };
+      
       // For now, save to the legacy theme field
       await updateBusiness({
         id: businessId,
         business: {
-          theme: {
-            primaryColor: theme.primaryColor,
-            fontFamily: theme.fontFamily === "default" ? undefined : theme.fontFamily,
-            // Store additional data as a JSON string in colorScheme for now
-            colorScheme: JSON.stringify({
-              ...theme,
-              version: "simple-v1"
-            })
-          }
+          theme: themeData
         }
       });
       

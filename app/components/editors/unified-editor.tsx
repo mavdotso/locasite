@@ -4,6 +4,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { DirectPreview } from "@/components/editors/direct-preview";
 import FullyInlineBuilder from "@/components/editors/fully-inline-builder";
+import SimpleThemeWrapper from "@/components/business/simple-theme-wrapper";
 import { Preloaded, usePreloadedQuery, useQuery } from "convex/react";
 
 
@@ -29,12 +30,13 @@ export function UnifiedEditor({ businessId, preloadedBusiness, pageId }: Unified
   }
 
   return (
-    <div className="min-h-screen">
-      {shouldUseInlineBuilder ? (
-        <FullyInlineBuilder 
-          businessId={businessId} 
-          pageId={currentPageId}
-          initialContent={homePage?.content || JSON.stringify({
+    <SimpleThemeWrapper businessId={businessId}>
+      <div className="min-h-screen">
+        {shouldUseInlineBuilder ? (
+          <FullyInlineBuilder 
+            businessId={businessId} 
+            pageId={currentPageId}
+            initialContent={homePage?.content || JSON.stringify({
             title: business.name,
             sections: [
               {
@@ -73,6 +75,7 @@ export function UnifiedEditor({ businessId, preloadedBusiness, pageId }: Unified
       ) : (
         <DirectPreview businessId={businessId} />
       )}
-    </div>
+      </div>
+    </SimpleThemeWrapper>
   );
 }

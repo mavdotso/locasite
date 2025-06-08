@@ -892,8 +892,8 @@ export default function FullyInlineBuilder({
             <SimpleThemeEditor 
               businessId={businessId}
               onSave={() => {
-                toast.success("Theme saved successfully!");
-                window.location.reload(); // Reload to apply theme changes
+                // Just close the sheet, the theme will apply automatically
+                setShowThemeEditor(false);
               }}
             />
           </div>
