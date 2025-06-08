@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: businessDescription,
       keywords: [
         businessName,
-        businessData.category || "local business",
+        "local business",
         businessData.address?.split(',').slice(-2).join(',').trim() || "local",
         "business",
         "local business",
@@ -87,13 +87,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         canonical: `/${businessDomain}`,
       },
       other: {
-        "geo.region": businessData.address?.includes(',') ? 
-          businessData.address.split(',').slice(-2, -1)[0]?.trim() : undefined,
-        "geo.placename": businessData.address?.split(',')[0]?.trim(),
-        "geo.position": businessData.coordinates ? 
-          `${businessData.coordinates.lat};${businessData.coordinates.lng}` : undefined,
-        "ICBM": businessData.coordinates ? 
-          `${businessData.coordinates.lat}, ${businessData.coordinates.lng}` : undefined,
+        ...(businessData.address?.includes(',') && {
+          "geo.region": businessData.address.split(',').slice(-2, -1)[0]?.trim()
+        }),
+        ...(businessData.address && {
+          "geo.placename": businessData.address.split(',')[0]?.trim()
+        }),
       }
     };
   } catch (error) {

@@ -78,9 +78,10 @@ export default function SiteCreationFlow() {
       setBusinessData(data.data);
       setStep(2);
       toast.success('Business information extracted successfully!');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error scraping business data:', error);
-      setError(error.message || 'Failed to extract business information. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to extract business information. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -96,7 +97,7 @@ export default function SiteCreationFlow() {
 
     try {
       // Create the business using the real mutation
-      const { businessId, domainId } = await createFromPending({ 
+      const { businessId } = await createFromPending({ 
         businessData,
         aiContent: null // No AI content for now
       });
@@ -107,12 +108,13 @@ export default function SiteCreationFlow() {
       
       // Redirect to the business editor
       router.push(`/business/${businessId}/edit`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating site:', error);
-      if (error.message?.includes('Unauthorized') || error.message?.includes('logged in')) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create website. Please try again.';
+      if (errorMessage.includes('Unauthorized') || errorMessage.includes('logged in')) {
         setError('You must be signed in to create a website. Please sign in and try again.');
       } else {
-        setError(error.message || 'Failed to create website. Please try again.');
+        setError(errorMessage);
       }
     } finally {
       setIsLoading(false);
@@ -209,7 +211,7 @@ export default function SiteCreationFlow() {
             </Button>
             
             <div className="text-xs text-muted-foreground text-center">
-              <p>⚠️ Note: You'll need a Google Maps API key configured to use this feature</p>
+              <p>⚠️ Note: You&rsquo;ll need a Google Maps API key configured to use this feature</p>
             </div>
           </CardContent>
         </Card>
@@ -295,7 +297,7 @@ export default function SiteCreationFlow() {
                 <div className="flex-1">
                   <h3 className="font-medium text-green-900 mb-2">Ready to Create Your Website</h3>
                   <p className="text-green-800 text-sm mb-4">
-                    We&apos;ll create a professional website using this business information. 
+                    We&rsquo;ll create a professional website using this business information. 
                     You can customize it further after creation.
                   </p>
                   {error && (

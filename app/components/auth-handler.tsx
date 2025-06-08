@@ -33,7 +33,7 @@ export function AuthHandler() {
                     const { businessData, aiContent } = JSON.parse(pendingBusinessDataStr);
                     
                     // Create the business
-                    const { businessId } = await createFromPending({ 
+                    await createFromPending({ 
                         businessData,
                         aiContent: aiContent || undefined
                     });

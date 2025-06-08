@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
   try {
     // Parse the state parameter (should contain claimId and CSRF token)
     const stateData = JSON.parse(Buffer.from(state, 'base64').toString());
-    const { claimId, csrfToken } = stateData;
+    const { claimId } = stateData;
     
     // In production, validate CSRF token against session
     // For now, we'll just check that claimId exists

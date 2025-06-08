@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/app/components/ui/button";
+import { ServiceItem } from '@/app/types/businesses';
 import { 
   Save, 
   Loader2,
@@ -730,7 +731,7 @@ export default function FullyInlineBuilder({
                       {section.title || "Our Services"}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                      {(section.items || []).map((service, serviceIndex) => (
+                      {(section.items as ServiceItem[] || []).map((service, serviceIndex) => (
                         <div key={serviceIndex} className="bg-muted/30 p-6 rounded-lg">
                           <h3 
                             className={cn(

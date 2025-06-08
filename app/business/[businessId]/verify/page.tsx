@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useQuery, useAction } from 'convex/react';
+import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { Button } from '@/app/components/ui/button';
@@ -32,7 +32,6 @@ export default function VerifyBusinessPage({ params }: VerifyPageProps) {
   const businessId = paramsData?.businessId as Id<"businesses"> | undefined;
   const business = useQuery(api.businesses.getById, businessId ? { id: businessId } : "skip");
   const claim = useQuery(api.businessClaims.getClaimById, claimId ? { claimId: claimId as Id<"businessClaims"> } : "skip");
-  const verifyGoogleOwnership = useAction(api.businessClaims.verifyGoogleBusinessOwnership);
 
   const handleGoogleVerification = async () => {
     setVerificationStatus('verifying');
@@ -83,12 +82,13 @@ export default function VerifyBusinessPage({ params }: VerifyPageProps) {
       // Redirect to Google OAuth
       window.location.href = authUrl;
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Verification error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to verify ownership';
       setVerificationStatus('error');
-      setErrorMessage(error.message || 'Failed to verify ownership');
+      setErrorMessage(errorMessage);
       toast.error('Verification failed', {
-        description: error.message || 'Failed to verify ownership'
+        description: errorMessage
       });
     }
   };
@@ -166,7 +166,7 @@ export default function VerifyBusinessPage({ params }: VerifyPageProps) {
           <h3 className="font-medium mb-3">Google Business Profile Verification</h3>
           <p className="text-sm text-muted-foreground mb-4">
             Click the button below to connect your Google account and verify ownership. 
-            You'll be redirected to Google to authorize access to your business listings.
+            You&rsquo;ll be redirected to Google to authorize access to your business listings.
           </p>
           
 
@@ -199,7 +199,7 @@ export default function VerifyBusinessPage({ params }: VerifyPageProps) {
         </Button>
         <Button 
           variant="ghost" 
-          onClick={() => router.push(`/${business.customDomain || business.slug}`)}
+          onClick={() => router.push(`/business/${business._id}`)}
         >
           Return to Business Page
         </Button>

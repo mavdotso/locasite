@@ -16,7 +16,7 @@ async function claimBusinessAction(formData: FormData) {
   
   if (typeof businessIdStr !== 'string' || !businessIdStr) {
     console.error("Invalid businessId:", businessIdStr);
-    return { error: "Invalid business ID" };
+    redirect(`/dashboard/claims?error=invalid_business_id`);
   }
   
   try {
@@ -32,13 +32,14 @@ async function claimBusinessAction(formData: FormData) {
       // For other methods, redirect to claim status page
       redirect(`/dashboard/claims/${result.claimId}`);
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Claim error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Failed to claim business";
     // Check if it's an authentication error
-    if (error.message?.includes("Unauthorized") || error.message?.includes("logged in")) {
+    if (errorMessage.includes("Unauthorized") || errorMessage.includes("logged in")) {
       redirect(`/sign-in?redirect=/claim/${businessIdStr}`);
     }
-    return { error: error.message || "Failed to claim business" };
+    redirect(`/dashboard/claims?error=claim_failed&message=${encodeURIComponent(errorMessage)}`);
   }
 }
 
@@ -88,7 +89,7 @@ export default async function ClaimBusinessPage({ params }: ClaimPageProps) {
   let currentUser = null;
   try {
     currentUser = await fetchQuery(api.helpers.getCurrentUser, {});
-  } catch (error) {
+  } catch {
     // User not authenticated
   }
 
@@ -138,7 +139,7 @@ export default async function ClaimBusinessPage({ params }: ClaimPageProps) {
               <LogIn className="h-4 w-4" />
               <AlertTitle>Sign In Required</AlertTitle>
               <AlertDescription>
-                You need to sign in to claim this business. After signing in, you'll be able to verify ownership and manage your business listing.
+                You need to sign in to claim this business. After signing in, you&rsquo;ll be able to verify ownership and manage your business listing.
               </AlertDescription>
             </Alert>
           )}

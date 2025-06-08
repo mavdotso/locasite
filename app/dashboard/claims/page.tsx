@@ -5,8 +5,7 @@ import { api } from '@/convex/_generated/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
 import { Button } from '@/app/components/ui/button';
-import { Alert, AlertDescription } from '@/app/components/ui/alert';
-import { Loader, Building2, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Loader, Building2, Clock, CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { useSearchParams } from 'next/navigation';
@@ -99,7 +98,7 @@ export default function ClaimsPage() {
             <Building2 className="w-12 h-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium mb-2">No claims yet</h3>
             <p className="text-muted-foreground text-center mb-4">
-              You haven't claimed any businesses yet. Find a business to claim and verify your ownership.
+              You haven&rsquo;t claimed any businesses yet. Find a business to claim and verify your ownership.
             </p>
             <Link href="/dashboard/sites">
               <Button>Browse Businesses</Button>
@@ -171,7 +170,7 @@ export default function ClaimsPage() {
                     </Link>
                   )}
                   {claim.business && (
-                    <Link href={`/${claim.business.customDomain || claim.business.slug}`}>
+                    <Link href={`/business/${claim.business._id}`}>
                       <Button size="sm" variant="outline">View Business Page</Button>
                     </Link>
                   )}

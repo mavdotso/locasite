@@ -5,13 +5,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useEffect, useState } from 'react';
 import { BusinessData } from '@/convex/businesses';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
 export default function SignIn() {
     const { signIn } = useAuthActions();
     const [pendingBusiness, setPendingBusiness] = useState<BusinessData | null>(null);
     const searchParams = useSearchParams();
-    const router = useRouter();
     const redirect = searchParams.get('redirect');
 
     useEffect(() => {

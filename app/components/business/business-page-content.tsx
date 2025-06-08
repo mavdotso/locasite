@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Doc } from '@/convex/_generated/dataModel';
+import { Review } from '@/app/types/businesses';
 import BusinessHero from "@/app/components/business/hero";
 import BusinessInfo from "@/app/components/business/info";
 import BusinessAbout from "@/app/components/business/about";
@@ -176,7 +177,7 @@ export default function BusinessPageContent({
             case "reviews":
               return (
                 <div key={index} className={section.hidden ? 'hidden' : ''}>
-                  <BusinessReviews reviews={section.items} />
+                  <BusinessReviews reviews={section.items as Review[] | undefined} />
                 </div>
               );
             case "contact":
