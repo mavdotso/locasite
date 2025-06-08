@@ -3,6 +3,7 @@ import { api } from "@/convex/_generated/api";
 import BusinessHeader from "@/app/components/business/header";
 import BusinessFooter from "@/app/components/business/footer";
 import BusinessPageContent from "@/app/components/business/business-page-content";
+import BusinessThemeWrapper from "@/app/components/business/business-theme-wrapper";
 import { Metadata } from "next";
 import { fetchQuery } from "convex/nextjs";
 
@@ -114,41 +115,43 @@ export default async function BusinessSlugPage({ params }: PageProps) {
     }
 
     return (
-      <div className="flex flex-col min-h-screen">
-        <BusinessHeader
-          domain={domain.name}
-          pages={pages}
-          currentSlug={slug}
-          businessUserId={businessData.userId}
-        />
+      <BusinessThemeWrapper businessId={businessData._id}>
+        <div className="flex flex-col min-h-screen">
+          <BusinessHeader
+            domain={domain.name}
+            pages={pages}
+            currentSlug={slug}
+            businessUserId={businessData.userId}
+          />
 
-        {!businessData.userId && (
-          <div className="px-4 py-2 bg-amber-50 border-b border-amber-200">
-            <div className="container flex items-center justify-between mx-auto">
-              <div>
-                <p className="text-sm font-medium text-amber-800">
-                  Are you the owner of this business?
-                </p>
-                <p className="text-xs text-amber-600">
-                  Claim your business to manage information and respond to customers
-                </p>
+          {!businessData.userId && (
+            <div className="px-4 py-2 bg-amber-50 border-b border-amber-200">
+              <div className="container flex items-center justify-between mx-auto">
+                <div>
+                  <p className="text-sm font-medium text-amber-800">
+                    Are you the owner of this business?
+                  </p>
+                  <p className="text-xs text-amber-600">
+                    Claim your business to manage information and respond to customers
+                  </p>
+                </div>
+                <a 
+                  href={`/${businessDomain}/claim/${businessData._id}`}
+                  className="px-4 py-2 text-sm font-medium text-white transition-colors rounded-md bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+                >
+                  Claim this Business
+                </a>
               </div>
-              <a 
-                href={`/${businessDomain}/claim/${businessData._id}`}
-                className="px-4 py-2 text-sm font-medium text-white transition-colors rounded-md bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
-              >
-                Claim this Business
-              </a>
             </div>
-          </div>
-        )} 
+          )} 
 
-        <BusinessPageContent 
-          initialBusiness={businessData}
-          content={content}
-        />
-        <BusinessFooter businessName={domain.name} />
-      </div>
+          <BusinessPageContent 
+            initialBusiness={businessData}
+            content={content}
+          />
+          <BusinessFooter businessName={domain.name} />
+        </div>
+      </BusinessThemeWrapper>
     );
   } catch (error) {
     console.error("Error loading business page:", error);

@@ -238,6 +238,14 @@ export const getById = query({
     }
 });
 
+// Public query for getting business (no auth required)
+export const getBusinessPublic = query({
+    args: { businessId: v.id("businesses") },
+    handler: async (ctx, args) => {
+        return await ctx.db.get(args.businessId);
+    }
+});
+
 // Get business by Google Place ID
 export const getByPlaceId = query({
     args: { placeId: v.string() },

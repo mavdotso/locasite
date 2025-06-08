@@ -25,7 +25,7 @@ interface AdvancedThemeEditorProps {
 }
 
 export function AdvancedThemeEditor({ businessId, onSave }: AdvancedThemeEditorProps) {
-  const business = useQuery(api.businesses.getBusiness, { businessId });
+  const business = useQuery(api.businesses.getById, { id: businessId });
   const presetThemes = useQuery(api.themes.getPresetThemes);
   const currentTheme = useQuery(
     api.themes.getTheme,
