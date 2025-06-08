@@ -25,6 +25,7 @@ import type * as storage from "../storage.js";
 import type * as testAI from "../testAI.js";
 import type * as themePresets from "../themePresets.js";
 import type * as themeSchema from "../themeSchema.js";
+import type * as themeSuggestions from "../themeSuggestions.js";
 import type * as themes from "../themes.js";
 
 import type {
@@ -58,6 +59,7 @@ declare const fullApi: ApiFromModules<{
   testAI: typeof testAI;
   themePresets: typeof themePresets;
   themeSchema: typeof themeSchema;
+  themeSuggestions: typeof themeSuggestions;
   themes: typeof themes;
 }>;
 declare const fullApiWithMounts: typeof fullApi;

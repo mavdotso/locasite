@@ -44,6 +44,44 @@ export const initializePresetThemes = mutation({
   },
 });
 
+// Reinitialize preset themes (clears existing and adds all)
+export const reinitializePresetThemes = mutation({
+  handler: async (ctx) => {
+    // Delete existing preset themes
+    const existingPresets = await ctx.db
+      .query("themes")
+      .withIndex("by_preset")
+      .filter((q) => q.eq(q.field("isPreset"), true))
+      .collect();
+    
+    for (const preset of existingPresets) {
+      await ctx.db.delete(preset._id);
+    }
+    
+    // Insert all preset themes
+    const insertedIds = [];
+    for (const preset of themePresets) {
+      const id = await ctx.db.insert("themes", {
+        name: preset.name,
+        description: preset.description,
+        isPreset: true,
+        presetId: preset.id,
+        config: preset.theme as Doc<"themes">["config"], // Type assertion needed due to Convex/TS differences
+        userId: undefined,
+        businessId: undefined,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        isPublic: true,
+        tags: preset.tags,
+        industry: preset.industry,
+      });
+      insertedIds.push(id);
+    }
+    
+    return { message: "Preset themes reinitialized", count: insertedIds.length, deleted: existingPresets.length };
+  },
+});
+
 // Get all preset themes
 export const getPresetThemes = query({
   handler: async (ctx) => {
