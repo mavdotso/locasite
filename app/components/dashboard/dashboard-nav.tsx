@@ -18,7 +18,8 @@ import {
   LogOut,
   MessageSquare,
   BarChart3,
-  PlusCircle
+  PlusCircle,
+  Shield
 } from 'lucide-react';
 import { cn } from '@/app/lib/utils';
 
@@ -34,6 +35,12 @@ const navigation = [
     href: '/dashboard/sites', 
     icon: Globe, 
     description: 'Manage your business websites' 
+  },
+  { 
+    name: 'Claims', 
+    href: '/dashboard/claims', 
+    icon: Shield, 
+    description: 'Business ownership claims' 
   },
   { 
     name: 'Messages', 

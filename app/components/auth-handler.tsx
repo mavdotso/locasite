@@ -13,10 +13,19 @@ export function AuthHandler() {
     const router = useRouter();
     
     useEffect(() => {
-        const handlePendingBusiness = async () => {
+        const handleAuthRedirect = async () => {
             // Only proceed if user is authenticated
             if (!user) return;
             
+            // First check for auth redirect
+            const authRedirect = sessionStorage.getItem('authRedirect');
+            if (authRedirect) {
+                sessionStorage.removeItem('authRedirect');
+                router.push(authRedirect);
+                return; // Exit early to avoid handling pending business
+            }
+            
+            // Then check for pending business
             const pendingBusinessDataStr = sessionStorage.getItem('pendingBusinessData');
             
             if (pendingBusinessDataStr) {
@@ -49,7 +58,7 @@ export function AuthHandler() {
             }
         };
 
-        handlePendingBusiness();
+        handleAuthRedirect();
     }, [user, createFromPending, router]);
 
     return null; // This component doesn't render anything

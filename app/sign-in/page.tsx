@@ -5,10 +5,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useEffect, useState } from 'react';
 import { BusinessData } from '@/convex/businesses';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 export default function SignIn() {
     const { signIn } = useAuthActions();
     const [pendingBusiness, setPendingBusiness] = useState<BusinessData | null>(null);
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const redirect = searchParams.get('redirect');
 
     useEffect(() => {
         // Check if there's a pending business in session storage
@@ -24,6 +28,18 @@ export default function SignIn() {
         }
     }, []);
 
+    const handleSignIn = async () => {
+        try {
+            // Store redirect URL in sessionStorage before signing in
+            if (redirect) {
+                sessionStorage.setItem('authRedirect', redirect);
+            }
+            await signIn("google");
+        } catch (error) {
+            console.error('Sign in error:', error);
+        }
+    };
+
     return (
         <div className="flex justify-center items-center bg-secondary px-4 py-12 h-screen">
             <Card className="shadow-lg border-none w-full max-w-md">
@@ -32,7 +48,9 @@ export default function SignIn() {
                     <CardDescription>
                         {pendingBusiness 
                             ? `Sign in to publish your ${pendingBusiness.name} website`
-                            : 'Sign in to manage your business sites'
+                            : redirect?.includes('/claim/') 
+                                ? 'Sign in to claim this business'
+                                : 'Sign in to manage your business sites'
                         }
                     </CardDescription>
                 </CardHeader>
@@ -58,7 +76,7 @@ export default function SignIn() {
                     
                     <div className="w-full">
                     <Button
-                            onClick={() => signIn("google")}
+                            onClick={handleSignIn}
                             variant="default"
                             className="flex justify-center items-center w-full h-11 text-base"
                         >
