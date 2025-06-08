@@ -693,33 +693,8 @@ export default function IntegratedThemeBuilder({
 
         {/* Right Sidebar */}
         <div className="flex border-l bg-background">
-          {/* Icon Navigation */}
-          <div className="w-20 border-r bg-gray-50 flex flex-col items-center py-4 gap-1">
-            {sidebarItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={cn(
-                  "w-16 h-16 rounded-lg flex flex-col items-center justify-center gap-1 hover:bg-background transition-colors",
-                  activeTab === item.id && "bg-background shadow-sm"
-                )}
-              >
-                <item.icon className={cn(
-                  "h-5 w-5",
-                  activeTab === item.id ? "text-foreground" : "text-muted-foreground"
-                )} />
-                <span className={cn(
-                  "text-xs",
-                  activeTab === item.id ? "text-foreground" : "text-muted-foreground"
-                )}>
-                  {item.label}
-                </span>
-              </button>
-            ))}
-          </div>
-
           {/* Settings Panel */}
-          <div className="w-96 bg-background overflow-y-auto">
+          <div className="w-96 bg-background overflow-y-auto border-r">
             <div className="p-6">
               {activeTab === 'sections' && (
                 <div className="space-y-6">
@@ -1014,6 +989,31 @@ export default function IntegratedThemeBuilder({
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Icon Navigation */}
+          <div className="w-20 bg-gray-50 flex flex-col items-center py-4 gap-1">
+            {sidebarItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={cn(
+                  "w-16 h-16 rounded-lg flex flex-col items-center justify-center gap-1 hover:bg-background transition-colors",
+                  activeTab === item.id && "bg-background shadow-sm"
+                )}
+              >
+                <item.icon className={cn(
+                  "h-5 w-5",
+                  activeTab === item.id ? "text-foreground" : "text-muted-foreground"
+                )} />
+                <span className={cn(
+                  "text-xs",
+                  activeTab === item.id ? "text-foreground" : "text-muted-foreground"
+                )}>
+                  {item.label}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
       </div>
