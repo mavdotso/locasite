@@ -41,14 +41,60 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     const businessData = business[0];
 
+    const businessName = domain.name || businessData.name || "Business";
+    const businessDescription = businessData.description || 
+      `${businessName} - Located at ${businessData.address}. ${businessData.hours ? 'Visit us today!' : 'Contact us for more information.'}`;
+    
     return {
-      title: domain.name || "Business",
-      description: businessData.description || `Welcome to ${domain.name}`,
+      title: businessName,
+      description: businessDescription,
+      keywords: [
+        businessName,
+        businessData.category || "local business",
+        businessData.address?.split(',').slice(-2).join(',').trim() || "local",
+        "business",
+        "local business",
+        ...(businessData.description?.split(' ').slice(0, 5) || [])
+      ],
       openGraph: {
-        title: domain.name || "Business",
-        description: businessData.description || `Welcome to ${domain.name}`,
-        images: businessData.photos?.[0] ? [businessData.photos[0]] : [],
+        type: "website",
+        locale: "en_US",
+        url: `/${businessDomain}`,
+        siteName: "Locasite",
+        title: businessName,
+        description: businessDescription,
+        images: businessData.photos?.slice(0, 4).map((photo: string, index: number) => ({
+          url: photo,
+          width: 1200,
+          height: 630,
+          alt: `${businessName} - Photo ${index + 1}`,
+        })) || [
+          {
+            url: "/default-business-og.png",
+            width: 1200, 
+            height: 630,
+            alt: businessName,
+          }
+        ],
       },
+      twitter: {
+        card: "summary_large_image",
+        title: businessName,
+        description: businessDescription,
+        images: businessData.photos?.[0] ? [businessData.photos[0]] : ["/default-business-og.png"],
+      },
+      alternates: {
+        canonical: `/${businessDomain}`,
+      },
+      other: {
+        "geo.region": businessData.address?.includes(',') ? 
+          businessData.address.split(',').slice(-2, -1)[0]?.trim() : undefined,
+        "geo.placename": businessData.address?.split(',')[0]?.trim(),
+        "geo.position": businessData.coordinates ? 
+          `${businessData.coordinates.lat};${businessData.coordinates.lng}` : undefined,
+        "ICBM": businessData.coordinates ? 
+          `${businessData.coordinates.lat}, ${businessData.coordinates.lng}` : undefined,
+      }
     };
   } catch (error) {
     console.error("Error generating metadata:", error);
