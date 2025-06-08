@@ -64,6 +64,9 @@ export const metadata: Metadata = {
   verification: {
     google: process.env.GOOGLE_SITE_VERIFICATION,
   },
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

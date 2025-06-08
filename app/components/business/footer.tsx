@@ -1,5 +1,6 @@
 import { cn } from "@/app/lib/utils";
 import { Separator } from "@/app/components/ui/separator";
+import Logo from "@/app/components/ui/logo";
 
 interface BusinessFooterProps {
     businessName: string;
@@ -13,7 +14,10 @@ export default function BusinessFooter({ businessName, className }: BusinessFoot
                 <Separator className="mb-6" />
                 <div className="text-center">
                     <p className="text-muted-foreground">© {new Date().getFullYear()} {businessName}. All rights reserved.</p>
-                    <p className="mt-2 text-muted-foreground/50 text-sm">Created with Business Site Generator</p>
+                    <div className="flex items-center justify-center gap-1 mt-2 text-muted-foreground/50 text-sm">
+                        <span>Created with</span>
+                        <Logo width={14} height={14} textClassName="text-xs" />
+                    </div>
                 </div>
             </div>
         </footer>

@@ -6,6 +6,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { useEffect, useState } from 'react';
 import { BusinessData } from '@/convex/businesses';
 import { useSearchParams } from 'next/navigation';
+import Logo from '@/app/components/ui/logo';
 
 export default function SignIn() {
     const { signIn } = useAuthActions();
@@ -43,6 +44,9 @@ export default function SignIn() {
         <div className="flex justify-center items-center bg-secondary px-4 py-12 h-screen">
             <Card className="shadow-lg border-none w-full max-w-md">
                 <CardHeader className="space-y-1 text-center">
+                    <div className="flex justify-center mb-4">
+                        <Logo width={32} height={32} showText={false} />
+                    </div>
                     <CardTitle className="font-bold text-2xl">Welcome to Locasite</CardTitle>
                     <CardDescription>
                         {pendingBusiness 
