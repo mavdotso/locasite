@@ -26,7 +26,7 @@ import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
 import { Section } from "@/app/types/businesses";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/app/components/ui/sheet";
-import { AdvancedThemeEditor } from "./advanced-theme-editor";
+import { SimpleThemeEditor } from "./simple-theme-editor";
 
 interface PageContent {
   title: string;
@@ -889,7 +889,7 @@ export default function FullyInlineBuilder({
             <SheetTitle>Customize Your Theme</SheetTitle>
           </SheetHeader>
           <div className="mt-6">
-            <AdvancedThemeEditor 
+            <SimpleThemeEditor 
               businessId={businessId}
               onSave={() => {
                 toast.success("Theme saved successfully!");

@@ -3,7 +3,7 @@ import { api } from "@/convex/_generated/api";
 import BusinessHeader from "@/app/components/business/header";
 import BusinessFooter from "@/app/components/business/footer";
 import BusinessPageContent from "@/app/components/business/business-page-content";
-import BusinessThemeWrapper from "@/app/components/business/business-theme-wrapper";
+import SimpleThemeWrapper from "@/app/components/business/simple-theme-wrapper";
 import { Metadata } from "next";
 import { fetchQuery } from "convex/nextjs";
 
@@ -115,7 +115,7 @@ export default async function BusinessSlugPage({ params }: PageProps) {
     }
 
     return (
-      <BusinessThemeWrapper businessId={businessData._id}>
+      <SimpleThemeWrapper businessId={businessData._id}>
         <div className="flex flex-col min-h-screen">
           <BusinessHeader
             domain={domain.name}
@@ -151,7 +151,7 @@ export default async function BusinessSlugPage({ params }: PageProps) {
           />
           <BusinessFooter businessName={domain.name} />
         </div>
-      </BusinessThemeWrapper>
+      </SimpleThemeWrapper>
     );
   } catch (error) {
     console.error("Error loading business page:", error);

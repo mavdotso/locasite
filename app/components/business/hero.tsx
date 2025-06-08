@@ -84,8 +84,12 @@ export default function BusinessHero({ title, subtitle, image, className, ...pro
                 className={className}
             >
                 <div 
-                    className={cn("relative bg-gradient-to-r from-foreground to-foreground/90 text-white overflow-hidden")}
-                    style={heroStyle}
+                    className={cn("relative overflow-hidden")}
+                    style={{
+                        ...heroStyle,
+                        backgroundColor: background?.type === 'color' ? background.color : 'var(--primary-color, #2563eb)',
+                        color: 'white'
+                    }}
                 >
                     {(image || background?.image) && (
                         <div className="absolute inset-0 w-full h-full">

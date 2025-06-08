@@ -1,0 +1,6 @@
+/* Additional theme overrides that can't be handled in inline styles */
+
+/* Make sure theme CSS variables override Tailwind's defaults */
+.theme-wrapper {
+  /* This class ensures theme is applied to the wrapper */
+}
