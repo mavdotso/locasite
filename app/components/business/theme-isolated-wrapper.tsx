@@ -4,7 +4,8 @@ import { useEffect, useRef } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { SimpleTheme, ModernTheme, simpleThemeToCSS, modernThemeToCSS } from "@/types/simple-theme";
+import { SimpleTheme, ModernTheme } from "@/types/simple-theme";
+import { generateBusinessThemeCSS } from "./business-theme-styles";
 
 interface ThemeIsolatedWrapperProps {
   businessId: Id<"businesses">;
@@ -41,7 +42,7 @@ export default function ThemeIsolatedWrapper({ businessId, children, className, 
 
     // If we have a temporary theme (during editing), use that
     if (temporaryTheme) {
-      scopedCSS = generateScopedCSS(scopeSelector, modernThemeToCSS(temporaryTheme, false));
+      scopedCSS = generateBusinessThemeCSS(temporaryTheme, scopeSelector);
     }
     // Handle new theme system with themeId
     else if (business?.themeId && theme) {
@@ -83,12 +84,8 @@ export default function ThemeIsolatedWrapper({ businessId, children, className, 
       }
       
       // Generate scoped CSS
-      if (themeToApply) {
-        if ('brandColor' in themeToApply) {
-          scopedCSS = generateScopedCSS(scopeSelector, modernThemeToCSS(themeToApply, false));
-        } else {
-          scopedCSS = generateScopedCSS(scopeSelector, simpleThemeToCSS(themeToApply, false));
-        }
+      if (themeToApply && 'brandColor' in themeToApply) {
+        scopedCSS = generateBusinessThemeCSS(themeToApply, scopeSelector);
       }
     }
 
@@ -106,8 +103,7 @@ export default function ThemeIsolatedWrapper({ businessId, children, className, 
     <div 
       ref={wrapperRef}
       data-theme-scope={businessId}
-      className={`theme-isolated-wrapper ${className || ''}`}
-      style={{ isolation: 'isolate' }}
+      className={className}
     >
       {children}
     </div>
@@ -139,134 +135,26 @@ interface ThemeConfig {
 }
 
 function generateScopedModernThemeCSS(scopeSelector: string, theme: ThemeConfig): string {
-  let css = "";
+  // Convert theme config to ModernTheme format
+  const modernTheme: ModernTheme = {
+    brandColor: theme.colors?.light?.primary || "#00C9A8",
+    primaryButtonColor: theme.colors?.light?.primary || "#035C67",
+    secondaryButtonColor: theme.colors?.light?.secondary || "#DAF1EE",
+    secondaryButtonOpacity: 100,
+    textColor: theme.colors?.light?.foreground || "#1f2937",
+    headingColor: theme.colors?.light?.foreground || "#111827",
+    linkColor: theme.colors?.light?.primary || "#00C9A8",
+    backgroundColor: theme.colors?.light?.background || "#ffffff",
+    sectionBackgroundColor: theme.colors?.light?.muted || "#f9fafb",
+    fontFamily: theme.typography?.fontFamilyBase || "Inter",
+    fontSize: "normal" as const,
+    borderRadius: "small" as const,
+    spacing: "normal" as const,
+  };
   
-  // Create a single rule with all CSS variables
-  css += `${scopeSelector} {\n`;
-  
-  // Apply color tokens
-  if (theme.colors?.light) {
-    Object.entries(theme.colors.light).forEach(([key, value]) => {
-      if (typeof value === 'string') {
-        css += `  --${key}: ${value};\n`;
-      }
-    });
-  }
-
-  // Apply typography
-  if (theme.typography) {
-    if (theme.typography.fontFamilyBase) {
-      css += `  --font-family: ${theme.typography.fontFamilyBase};\n`;
-    }
-    if (theme.typography.fontSize?.base) {
-      css += `  --font-size-base: ${theme.typography.fontSize.base};\n`;
-    }
-    if (theme.typography.fontWeight?.normal) {
-      css += `  --font-weight-normal: ${theme.typography.fontWeight.normal};\n`;
-    }
-    if (theme.typography.lineHeight?.normal) {
-      css += `  --line-height-normal: ${theme.typography.lineHeight.normal};\n`;
-    }
-  }
-
-  // Apply spacing
-  if (theme.spacing) {
-    Object.entries(theme.spacing).forEach(([key, value]) => {
-      if (typeof value === 'string') {
-        css += `  --spacing-${key}: ${value};\n`;
-      }
-    });
-  }
-
-  // Apply border radius
-  if (theme.borderRadius) {
-    Object.entries(theme.borderRadius).forEach(([key, value]) => {
-      if (typeof value === 'string') {
-        css += `  --radius-${key}: ${value};\n`;
-      }
-    });
-  }
-
-  // Apply effects
-  if (theme.effects?.shadow) {
-    Object.entries(theme.effects.shadow).forEach(([key, value]) => {
-      if (typeof value === 'string') {
-        css += `  --shadow-${key}: ${value};\n`;
-      }
-    });
-  }
-  
-  css += `}\n\n`;
-  
-  // Apply font-family to all elements
-  if (theme.typography?.fontFamilyBase) {
-    css += `${scopeSelector} * { font-family: var(--font-family); }\n`;
-  }
-
-  // Apply custom CSS if provided
-  if (theme.customCSS) {
-    // Scope custom CSS by prefixing each rule with the scope selector
-    const scopedCustomCSS = theme.customCSS
-      .split('\n')
-      .map(line => {
-        const trimmed = line.trim();
-        if (trimmed && !trimmed.startsWith('@') && trimmed.includes('{')) {
-          // This is likely a CSS rule, prefix it
-          return `${scopeSelector} ${trimmed}`;
-        }
-        return line;
-      })
-      .join('\n');
-    css += scopedCustomCSS;
-  }
-
-  return css;
+  return generateBusinessThemeCSS(modernTheme, scopeSelector);
 }
 
-function generateScopedCSS(scopeSelector: string, originalCSS: string): string {
-  // Handle CSS that sets variables on :root
-  let processedCSS = originalCSS;
-  
-  // First, extract all :root rules and apply them to our scope
-  const rootRegex = /:root\s*{([^}]+)}/g;
-  const rootMatches = [...originalCSS.matchAll(rootRegex)];
-  
-  if (rootMatches.length > 0) {
-    // Combine all root variables into one rule for our scope
-    let scopedVariables = `${scopeSelector} {\n`;
-    rootMatches.forEach(match => {
-      scopedVariables += match[1];
-    });
-    scopedVariables += '\n}\n\n';
-    
-    // Remove original :root rules
-    processedCSS = processedCSS.replace(rootRegex, '');
-    
-    // Add scoped variables at the beginning
-    processedCSS = scopedVariables + processedCSS;
-  }
-  
-  // Add important styles to ensure our theme overrides the default
-  processedCSS += `\n\n/* Ensure theme isolation */\n`;
-  processedCSS += `${scopeSelector} * {\n`;
-  processedCSS += `  color: inherit;\n`;
-  processedCSS += `  background-color: inherit;\n`;
-  processedCSS += `  border-color: inherit;\n`;
-  processedCSS += `}\n`;
-  
-  // Then prefix all other CSS rules with the scope selector
-  return processedCSS
-    .split('\n')
-    .map(line => {
-      const trimmed = line.trim();
-      if (trimmed && !trimmed.includes(scopeSelector) && !trimmed.startsWith('@') && !trimmed.startsWith('/*') && !trimmed.startsWith('*') && trimmed.includes('{') && !trimmed.includes(':root')) {
-        // This is a CSS rule that needs to be scoped
-        return `${scopeSelector} ${trimmed}`;
-      }
-      return line;
-    })
-    .join('\n');
-}
 
 function mergeThemes(baseTheme: ThemeConfig, overrides: ThemeConfig): ThemeConfig {
   // Deep merge theme objects

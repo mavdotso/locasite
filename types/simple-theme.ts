@@ -218,27 +218,21 @@ export function modernThemeToCSS(theme: ModernTheme, includeBodyStyles = true): 
       --theme-spacing-gap: ${spacings[theme.spacing].gap};
       --theme-border-radius: ${radii[theme.borderRadius]};
       
-      /* Override semantic colors for shadcn/ui components */
-      --background: ${theme.backgroundColor};
-      --foreground: ${theme.textColor};
-      --card: ${theme.backgroundColor};
-      --card-foreground: ${theme.textColor};
-      --popover: ${theme.backgroundColor};
-      --popover-foreground: ${theme.textColor};
-      --primary: ${theme.brandColor};
-      --primary-foreground: #ffffff;
-      --secondary: ${mutedBg};
-      --secondary-foreground: ${theme.textColor};
-      --muted: ${theme.sectionBackgroundColor};
-      --muted-foreground: ${adjustColor(theme.textColor, 0.4)};
-      --accent: ${theme.brandColor};
-      --accent-foreground: #ffffff;
-      --destructive: #dc2626;
-      --destructive-foreground: #ffffff;
-      --border: ${borderColor};
-      --input: ${borderColor};
-      --ring: ${theme.brandColor};
-      --radius: ${radii[theme.borderRadius]};
+      /* Business website theme colors - prefixed to avoid conflicts */
+      --business-background: ${theme.backgroundColor};
+      --business-foreground: ${theme.textColor};
+      --business-card: ${theme.backgroundColor};
+      --business-card-foreground: ${theme.textColor};
+      --business-primary: ${theme.brandColor};
+      --business-primary-foreground: #ffffff;
+      --business-secondary: ${mutedBg};
+      --business-secondary-foreground: ${theme.textColor};
+      --business-muted: ${theme.sectionBackgroundColor};
+      --business-muted-foreground: ${adjustColor(theme.textColor, 0.4)};
+      --business-accent: ${theme.brandColor};
+      --business-accent-foreground: #ffffff;
+      --business-border: ${borderColor};
+      --business-radius: ${radii[theme.borderRadius]};
     }
     
     ${includeBodyStyles ? `/* Apply to body */
@@ -327,17 +321,9 @@ export function modernThemeToCSS(theme: ModernTheme, includeBodyStyles = true): 
       gap: var(--theme-spacing-gap);
     }
     
-    /* Border radius */
-    .rounded-lg,
-    .rounded-md,
-    .rounded,
-    .card,
-    button,
-    input,
-    textarea,
-    select,
-    img {
-      border-radius: var(--theme-border-radius) !important;
+    /* Business website border radius */
+    .business-rounded {
+      border-radius: var(--theme-border-radius);
     }
     
     /* Background sections */

@@ -37,6 +37,7 @@ import { HexColorPicker } from "react-colorful";
 import { ModernTheme } from "@/types/simple-theme";
 import { ThemePickerModal } from "./theme-picker-modal";
 import ThemeIsolatedWrapper from "@/app/components/business/theme-isolated-wrapper";
+import { getBusinessStyles } from "@/app/lib/business-theme-utils";
 
 interface PageContent {
   title: string;
@@ -587,7 +588,7 @@ export default function IntegratedThemeBuilder({
               devicePreview === 'tablet' && "max-w-4xl",
               devicePreview === 'mobile' && "max-w-sm"
             )}>
-              <ThemeIsolatedWrapper businessId={businessId} className="overflow-y-auto" temporaryTheme={theme}>
+              <div className="overflow-y-auto relative">
                 {pageContent.sections.map((section, index) => (
                   <div
                     key={index}
@@ -632,106 +633,179 @@ export default function IntegratedThemeBuilder({
                     )}
 
                     {/* Editable Content */}
-                    <div className={section.hidden ? 'hidden' : ''}>
-                      {section.type === 'hero' && (
-                        <section className="relative bg-gradient-to-r from-foreground to-foreground/90 text-white overflow-hidden min-h-[60vh] flex items-center">
-                          {section.image && (
-                            <div className="absolute inset-0">
-                              <img 
-                                src={section.image} 
-                                alt="" 
-                                className="w-full h-full object-cover opacity-60"
-                              />
-                              <div className="absolute inset-0 bg-foreground/40"></div>
-                            </div>
-                          )}
-                          <div className="relative z-10 container mx-auto px-4 py-32 text-center">
-                            <h1 
-                              className={cn(
-                                "text-4xl md:text-6xl font-bold mb-6 cursor-text transition-all",
-                                "hover:ring-2 hover:ring-blue-400 hover:ring-offset-2 hover:ring-offset-transparent rounded px-2 py-1"
-                              )}
-                              onClick={(e) => makeEditable(e.target as HTMLElement, `sections[${index}].title`)}
-                            >
-                              {section.title || "Click to edit title"}
-                            </h1>
-                            <p 
-                              className={cn(
-                                "text-xl md:text-2xl text-white/90 max-w-2xl mx-auto cursor-text transition-all",
-                                "hover:ring-2 hover:ring-blue-400 hover:ring-offset-2 hover:ring-offset-transparent rounded px-2 py-1"
-                              )}
-                              onClick={(e) => makeEditable(e.target as HTMLElement, `sections[${index}].subtitle`)}
-                            >
-                              {section.subtitle || "Click to edit subtitle"}
-                            </p>
-                          </div>
-                        </section>
-                      )}
-
-                      {section.type === 'about' && (
-                        <section className="py-16 section-alt">
-                          <div className="container mx-auto px-4">
-                            <h2 className="text-3xl font-bold text-center mb-12">About Us</h2>
-                            <div 
-                              className={cn(
-                                "max-w-4xl mx-auto text-lg text-muted-foreground leading-relaxed cursor-text transition-all",
-                                "hover:ring-2 hover:ring-blue-400 rounded p-4"
-                              )}
-                              onClick={(e) => makeEditable(e.target as HTMLElement, `sections[${index}].content`)}
-                            >
-                              {section.content || "Click to edit content..."}
-                            </div>
-                          </div>
-                        </section>
-                      )}
-
-                      {section.type === 'gallery' && (
-                        <section className="py-16 bg-background">
-                          <div className="container mx-auto px-4">
-                            <h2 className="text-3xl font-bold text-center mb-12">Gallery</h2>
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                              {section.images?.map((image, imgIndex) => (
-                                <div
-                                  key={imgIndex}
-                                  className="relative group aspect-square rounded-lg overflow-hidden"
-                                >
-                                  <img
-                                    src={image}
-                                    alt={`Gallery ${imgIndex + 1}`}
-                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                                  />
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-                                    onClick={() => removeGalleryImage(index, imgIndex)}
-                                  >
-                                    <X className="h-3 w-3" />
-                                  </Button>
-                                </div>
-                              ))}
-                              
-                              {/* Add Image Button */}
-                              <button
-                                onClick={() => {
-                                  setUploadingFor({ section: index, type: 'gallery' });
-                                  fileInputRef.current?.click();
+                    <ThemeIsolatedWrapper businessId={businessId} temporaryTheme={theme}>
+                      <div className={section.hidden ? 'hidden' : ''}>
+                        {section.type === 'hero' && (() => {
+                        const styles = getBusinessStyles(theme);
+                        return (
+                          <section style={styles.hero.section}>
+                            {section.image && (
+                              <div style={{ position: 'absolute', inset: 0 }}>
+                                <img 
+                                  src={section.image} 
+                                  alt="" 
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }}
+                                />
+                                <div style={styles.hero.overlay}></div>
+                              </div>
+                            )}
+                            <div style={styles.hero.content}>
+                              <h1 
+                                style={{
+                                  ...styles.hero.title,
+                                  cursor: 'text',
+                                  padding: '0.5rem',
+                                  borderRadius: '0.25rem',
+                                  transition: 'all 0.2s',
                                 }}
-                                className="aspect-square border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2 hover:border-primary hover:bg-muted/50 transition-colors"
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.outline = '2px solid rgba(59, 130, 246, 0.5)';
+                                  e.currentTarget.style.outlineOffset = '2px';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.outline = 'none';
+                                }}
+                                onClick={(e) => makeEditable(e.target as HTMLElement, `sections[${index}].title`)}
                               >
-                                <Plus className="h-8 w-8 text-muted-foreground" />
-                                <span className="text-sm text-muted-foreground">Add Image</span>
-                              </button>
+                                {section.title || "Click to edit title"}
+                              </h1>
+                              <p 
+                                style={{
+                                  ...styles.hero.subtitle,
+                                  cursor: 'text',
+                                  padding: '0.5rem',
+                                  borderRadius: '0.25rem',
+                                  transition: 'all 0.2s',
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.outline = '2px solid rgba(59, 130, 246, 0.5)';
+                                  e.currentTarget.style.outlineOffset = '2px';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.outline = 'none';
+                                }}
+                                onClick={(e) => makeEditable(e.target as HTMLElement, `sections[${index}].subtitle`)}
+                              >
+                                {section.subtitle || "Click to edit subtitle"}
+                              </p>
                             </div>
-                          </div>
-                        </section>
-                      )}
+                          </section>
+                        );
+                      })()}
 
-                      {/* Add other section types here... */}
-                    </div>
+                      {section.type === 'about' && (() => {
+                        const styles = getBusinessStyles(theme);
+                        return (
+                          <section style={styles.about.section}>
+                            <div style={styles.about.container}>
+                              <h2 style={styles.about.title}>About Us</h2>
+                              <div 
+                                style={{
+                                  ...styles.about.content,
+                                  cursor: 'text',
+                                  padding: '1rem',
+                                  borderRadius: '0.5rem',
+                                  transition: 'all 0.2s',
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.outline = '2px solid rgba(59, 130, 246, 0.5)';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.outline = 'none';
+                                }}
+                                onClick={(e) => makeEditable(e.target as HTMLElement, `sections[${index}].content`)}
+                              >
+                                {section.content || "Click to edit content..."}
+                              </div>
+                            </div>
+                          </section>
+                        );
+                      })()}
+
+                      {section.type === 'gallery' && (() => {
+                        const styles = getBusinessStyles(theme);
+                        return (
+                          <section style={styles.gallery.section}>
+                            <div style={styles.gallery.container}>
+                              <h2 style={styles.gallery.title}>Gallery</h2>
+                              <div style={styles.gallery.grid}>
+                                {section.images?.map((image, imgIndex) => (
+                                  <div
+                                    key={imgIndex}
+                                    style={{
+                                      ...styles.gallery.imageWrapper,
+                                      position: 'relative',
+                                    }}
+                                    className="group"
+                                  >
+                                    <img
+                                      src={image}
+                                      alt={`Gallery ${imgIndex + 1}`}
+                                      style={{
+                                        ...styles.gallery.image,
+                                        transition: 'transform 0.3s',
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.currentTarget.style.transform = 'scale(1.1)';
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.currentTarget.style.transform = 'scale(1)';
+                                      }}
+                                    />
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
+                                      onClick={() => removeGalleryImage(index, imgIndex)}
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                ))}
+                                
+                                {/* Add Image Button */}
+                                <button
+                                  onClick={() => {
+                                    setUploadingFor({ section: index, type: 'gallery' });
+                                    fileInputRef.current?.click();
+                                  }}
+                                  style={{
+                                    aspectRatio: '1',
+                                    border: `2px dashed ${theme.textColor}33`,
+                                    borderRadius: styles.gallery.image.borderRadius,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '0.5rem',
+                                    backgroundColor: 'transparent',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s',
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.borderColor = theme.brandColor;
+                                    e.currentTarget.style.backgroundColor = `${theme.sectionBackgroundColor}80`;
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.borderColor = `${theme.textColor}33`;
+                                    e.currentTarget.style.backgroundColor = 'transparent';
+                                  }}
+                                >
+                                  <Plus style={{ width: '2rem', height: '2rem', color: `${theme.textColor}66` }} />
+                                  <span style={{ fontSize: '0.875rem', color: `${theme.textColor}66` }}>Add Image</span>
+                                </button>
+                              </div>
+                            </div>
+                          </section>
+                        );
+                      })()}
+
+                        {/* Add other section types here... */}
+                      </div>
+                    </ThemeIsolatedWrapper>
                   </div>
                 ))}
-              </ThemeIsolatedWrapper>
+              </div>
             </div>
           </div>
         </div>
