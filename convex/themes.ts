@@ -126,6 +126,14 @@ export const getTheme = query({
   },
 });
 
+// Alias for getTheme for consistency with other queries
+export const getById = query({
+  args: { themeId: v.id("themes") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.themeId);
+  },
+});
+
 // Get themes by business
 export const getBusinessThemes = query({
   args: { businessId: v.id("businesses") },

@@ -20,12 +20,10 @@ import {
   Type,
   Palette,
   Upload,
-  Paintbrush
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
 import { Section } from "@/app/types/businesses";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/app/components/ui/sheet";
 
 interface PageContent {
   title: string;

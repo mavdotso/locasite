@@ -344,6 +344,8 @@ export const update = mutation({
                 fontFamily: v.optional(v.string()),
                 logoUrl: v.optional(v.string())
             })),
+            themeOverrides: v.optional(v.any()),
+            lastEditedAt: v.optional(v.number()),
             aiGeneratedContent: v.optional(v.object({
                 hero: v.optional(v.object({
                     title: v.string(),

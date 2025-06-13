@@ -5,7 +5,6 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/app/components/ui/button";
-import { ServiceItem } from '@/app/types/businesses';
 import { Label } from "@/app/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
 import { 
@@ -36,6 +35,7 @@ import { cn } from "@/app/lib/utils";
 import { Section } from "@/app/types/businesses";
 import { HexColorPicker } from "react-colorful";
 import { ModernTheme, modernThemeToCSS } from "@/types/simple-theme";
+import { ThemePickerModal } from "./theme-picker-modal";
 
 interface PageContent {
   title: string;
@@ -134,6 +134,7 @@ export default function IntegratedThemeBuilder({
   const [showAddSection, setShowAddSection] = useState(false);
   const [activeColorPicker, setActiveColorPicker] = useState<string | null>(null);
   const [uploadingFor, setUploadingFor] = useState<{ section: number; type: string } | null>(null);
+  const [showThemePicker, setShowThemePicker] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Theme state
@@ -162,10 +163,42 @@ export default function IntegratedThemeBuilder({
   const storeFile = useMutation(api.storage.storeFile);
   const updateBusiness = useMutation(api.businesses.update);
 
+  // Load theme from business
+  const businessTheme = useQuery(
+    api.themes.getById,
+    business?.themeId ? { themeId: business.themeId } : "skip"
+  );
+  
   // Load existing theme
   useEffect(() => {
     if (!business) return;
     
+    // First check if business has a themeId (new system)
+    if (business.themeId && businessTheme) {
+      // Apply theme from database with any overrides
+      const baseTheme = businessTheme.config;
+      const overrides = business.themeOverrides || {};
+      
+      // Convert from new theme format to ModernTheme format
+      setTheme({
+        brandColor: overrides.colors?.light?.primary || baseTheme.colors?.light?.primary || "#00C9A8",
+        primaryButtonColor: overrides.colors?.light?.primary || baseTheme.colors?.light?.primary || "#035C67",
+        secondaryButtonColor: overrides.colors?.light?.secondary || baseTheme.colors?.light?.secondary || "#DAF1EE",
+        secondaryButtonOpacity: 100,
+        textColor: overrides.colors?.light?.foreground || baseTheme.colors?.light?.foreground || "#1f2937",
+        headingColor: overrides.colors?.light?.foreground || baseTheme.colors?.light?.foreground || "#111827",
+        linkColor: overrides.colors?.light?.primary || baseTheme.colors?.light?.primary || "#00C9A8",
+        backgroundColor: overrides.colors?.light?.background || baseTheme.colors?.light?.background || "#ffffff",
+        sectionBackgroundColor: overrides.colors?.light?.muted || baseTheme.colors?.light?.muted || "#f9fafb",
+        fontFamily: overrides.typography?.fontFamilyBase || baseTheme.typography?.fontFamilyBase || "Inter",
+        fontSize: "normal",
+        borderRadius: "small",
+        spacing: "normal",
+      });
+      return;
+    }
+    
+    // Fallback to legacy theme system
     if (business.theme?.colorScheme) {
       try {
         const saved = JSON.parse(business.theme.colorScheme);
@@ -187,7 +220,7 @@ export default function IntegratedThemeBuilder({
         linkColor: business.theme!.primaryColor!,
       }));
     }
-  }, [business]);
+  }, [business, businessTheme]);
 
   // Apply theme changes in real-time
   const applyThemePreview = useCallback(() => {
@@ -243,20 +276,48 @@ export default function IntegratedThemeBuilder({
     try {
       setIsSaving(true);
       
-      // Save theme
-      await updateBusiness({
-        id: businessId,
-        business: {
-          theme: {
-            primaryColor: theme.brandColor,
-            fontFamily: theme.fontFamily === "system" ? undefined : theme.fontFamily,
-            colorScheme: JSON.stringify({
-              version: "modern-v1",
-              theme,
-            })
+      // Check if business is using new theme system
+      if (business?.themeId) {
+        // Save theme customizations as overrides
+        const themeOverrides = {
+          colors: {
+            light: {
+              primary: theme.brandColor,
+              secondary: theme.secondaryButtonColor,
+              foreground: theme.textColor,
+              background: theme.backgroundColor,
+              muted: theme.sectionBackgroundColor,
+            }
+          },
+          typography: {
+            fontFamilyBase: theme.fontFamily === "system" ? undefined : theme.fontFamily,
+            fontFamilyHeading: theme.fontFamily === "system" ? undefined : theme.fontFamily,
           }
-        }
-      });
+        };
+        
+        await updateBusiness({
+          id: businessId,
+          business: {
+            themeOverrides,
+            lastEditedAt: Date.now(),
+          }
+        });
+      } else {
+        // Fallback to legacy theme system
+        await updateBusiness({
+          id: businessId,
+          business: {
+            theme: {
+              primaryColor: theme.brandColor,
+              fontFamily: theme.fontFamily === "system" ? undefined : theme.fontFamily,
+              colorScheme: JSON.stringify({
+                version: "modern-v1",
+                theme,
+              })
+            }
+          }
+        });
+      }
       
       // Save page content
       if (pageId) {
@@ -800,6 +861,15 @@ export default function IntegratedThemeBuilder({
                       </TabsList>
                       
                       <TabsContent value="themes" className="space-y-4 mt-4">
+                        <Button 
+                          onClick={() => setShowThemePicker(true)}
+                          className="w-full mb-4"
+                          variant="outline"
+                        >
+                          <Palette className="w-4 h-4 mr-2" />
+                          Browse Professional Themes
+                        </Button>
+                        
                         <div className="grid grid-cols-2 gap-3">
                           {[
                             { name: "Ocean", brand: "#00C9A8", primary: "#035C67" },
@@ -1030,6 +1100,23 @@ export default function IntegratedThemeBuilder({
             await handleImageUpload(file, uploadingFor.section, uploadingFor.type);
             setUploadingFor(null);
           }
+        }}
+      />
+      
+      {/* Theme Picker Modal */}
+      <ThemePickerModal
+        isOpen={showThemePicker}
+        onClose={() => setShowThemePicker(false)}
+        businessId={businessId}
+        currentThemeId={business?.themeId}
+        onThemeSelect={async () => {
+          // Theme has been applied through the mutation
+          // The business data will auto-refresh due to Convex reactivity
+          setShowThemePicker(false);
+          toast.success("Theme applied successfully!");
+          
+          // Force reload the page to ensure theme is applied
+          window.location.reload();
         }}
       />
     </div>
