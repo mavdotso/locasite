@@ -36,6 +36,7 @@ import { Section } from "@/app/types/businesses";
 import { HexColorPicker } from "react-colorful";
 import { ModernTheme, modernThemeToCSS } from "@/types/simple-theme";
 import { ThemePickerModal } from "./theme-picker-modal";
+import ThemeIsolatedWrapper from "@/app/components/business/theme-isolated-wrapper";
 
 interface PageContent {
   title: string;
@@ -222,21 +223,17 @@ export default function IntegratedThemeBuilder({
     }
   }, [business, businessTheme]);
 
-  // Apply theme changes in real-time
-  const applyThemePreview = useCallback(() => {
-    const css = modernThemeToCSS(theme);
-    let styleEl = document.getElementById("theme-preview-styles");
-    if (!styleEl) {
-      styleEl = document.createElement("style");
-      styleEl.id = "theme-preview-styles";
-      document.head.appendChild(styleEl);
+  // Create temporary business object for theme preview
+  const tempBusinessForPreview = business ? {
+    ...business,
+    theme: {
+      ...business.theme,
+      colorScheme: JSON.stringify({
+        version: "modern-v1",
+        theme,
+      })
     }
-    styleEl.textContent = css;
-  }, [theme]);
-  
-  useEffect(() => {
-    applyThemePreview();
-  }, [applyThemePreview]);
+  } : null;
 
   const updateContentByPath = (path: string, value: string | boolean | string[] | object) => {
     const parts = path.split('.');
@@ -603,7 +600,7 @@ export default function IntegratedThemeBuilder({
               devicePreview === 'tablet' && "max-w-4xl",
               devicePreview === 'mobile' && "max-w-sm"
             )}>
-              <div className="overflow-y-auto">
+              <ThemeIsolatedWrapper businessId={businessId} className="overflow-y-auto" temporaryTheme={theme}>
                 {pageContent.sections.map((section, index) => (
                   <div
                     key={index}
@@ -747,7 +744,7 @@ export default function IntegratedThemeBuilder({
                     </div>
                   </div>
                 ))}
-              </div>
+              </ThemeIsolatedWrapper>
             </div>
           </div>
         </div>
