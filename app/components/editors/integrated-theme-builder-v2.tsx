@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -34,7 +34,7 @@ import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
 import { Section } from "@/app/types/businesses";
 import { HexColorPicker } from "react-colorful";
-import { ModernTheme, modernThemeToCSS } from "@/types/simple-theme";
+import { ModernTheme } from "@/types/simple-theme";
 import { ThemePickerModal } from "./theme-picker-modal";
 import ThemeIsolatedWrapper from "@/app/components/business/theme-isolated-wrapper";
 
@@ -222,18 +222,6 @@ export default function IntegratedThemeBuilder({
       }));
     }
   }, [business, businessTheme]);
-
-  // Create temporary business object for theme preview
-  const tempBusinessForPreview = business ? {
-    ...business,
-    theme: {
-      ...business.theme,
-      colorScheme: JSON.stringify({
-        version: "modern-v1",
-        theme,
-      })
-    }
-  } : null;
 
   const updateContentByPath = (path: string, value: string | boolean | string[] | object) => {
     const parts = path.split('.');
@@ -577,7 +565,6 @@ export default function IntegratedThemeBuilder({
             size="sm" 
             onClick={handleSave} 
             disabled={isSaving}
-            className="bg-foreground text-background hover:bg-foreground/90"
           >
             {isSaving ? (
               <Loader2 className="h-4 w-4 animate-spin mr-2" />

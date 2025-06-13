@@ -41,7 +41,7 @@ export default function ThemeIsolatedWrapper({ businessId, children, className, 
 
     // If we have a temporary theme (during editing), use that
     if (temporaryTheme) {
-      scopedCSS = generateScopedCSS(scopeSelector, modernThemeToCSS(temporaryTheme));
+      scopedCSS = generateScopedCSS(scopeSelector, modernThemeToCSS(temporaryTheme, false));
     }
     // Handle new theme system with themeId
     else if (business?.themeId && theme) {
@@ -52,7 +52,7 @@ export default function ThemeIsolatedWrapper({ businessId, children, className, 
       scopedCSS = generateScopedModernThemeCSS(scopeSelector, mergedTheme);
     }
     // Handle legacy theme system
-    else if (business.theme) {
+    else if (business && business.theme) {
       let themeToApply: SimpleTheme | ModernTheme | null = null;
       
       // Try to parse saved theme from colorScheme
@@ -85,9 +85,9 @@ export default function ThemeIsolatedWrapper({ businessId, children, className, 
       // Generate scoped CSS
       if (themeToApply) {
         if ('brandColor' in themeToApply) {
-          scopedCSS = generateScopedCSS(scopeSelector, modernThemeToCSS(themeToApply));
+          scopedCSS = generateScopedCSS(scopeSelector, modernThemeToCSS(themeToApply, false));
         } else {
-          scopedCSS = generateScopedCSS(scopeSelector, simpleThemeToCSS(themeToApply));
+          scopedCSS = generateScopedCSS(scopeSelector, simpleThemeToCSS(themeToApply, false));
         }
       }
     }
@@ -106,7 +106,8 @@ export default function ThemeIsolatedWrapper({ businessId, children, className, 
     <div 
       ref={wrapperRef}
       data-theme-scope={businessId}
-      className={className}
+      className={`theme-isolated-wrapper ${className || ''}`}
+      style={{ isolation: 'isolate' }}
     >
       {children}
     </div>
@@ -140,11 +141,14 @@ interface ThemeConfig {
 function generateScopedModernThemeCSS(scopeSelector: string, theme: ThemeConfig): string {
   let css = "";
   
+  // Create a single rule with all CSS variables
+  css += `${scopeSelector} {\n`;
+  
   // Apply color tokens
   if (theme.colors?.light) {
     Object.entries(theme.colors.light).forEach(([key, value]) => {
       if (typeof value === 'string') {
-        css += `${scopeSelector} { --${key}: ${value}; }\n`;
+        css += `  --${key}: ${value};\n`;
       }
     });
   }
@@ -152,17 +156,16 @@ function generateScopedModernThemeCSS(scopeSelector: string, theme: ThemeConfig)
   // Apply typography
   if (theme.typography) {
     if (theme.typography.fontFamilyBase) {
-      css += `${scopeSelector} { --font-family: ${theme.typography.fontFamilyBase}; }\n`;
-      css += `${scopeSelector} * { font-family: var(--font-family); }\n`;
+      css += `  --font-family: ${theme.typography.fontFamilyBase};\n`;
     }
     if (theme.typography.fontSize?.base) {
-      css += `${scopeSelector} { --font-size-base: ${theme.typography.fontSize.base}; }\n`;
+      css += `  --font-size-base: ${theme.typography.fontSize.base};\n`;
     }
     if (theme.typography.fontWeight?.normal) {
-      css += `${scopeSelector} { --font-weight-normal: ${theme.typography.fontWeight.normal}; }\n`;
+      css += `  --font-weight-normal: ${theme.typography.fontWeight.normal};\n`;
     }
     if (theme.typography.lineHeight?.normal) {
-      css += `${scopeSelector} { --line-height-normal: ${theme.typography.lineHeight.normal}; }\n`;
+      css += `  --line-height-normal: ${theme.typography.lineHeight.normal};\n`;
     }
   }
 
@@ -170,7 +173,7 @@ function generateScopedModernThemeCSS(scopeSelector: string, theme: ThemeConfig)
   if (theme.spacing) {
     Object.entries(theme.spacing).forEach(([key, value]) => {
       if (typeof value === 'string') {
-        css += `${scopeSelector} { --spacing-${key}: ${value}; }\n`;
+        css += `  --spacing-${key}: ${value};\n`;
       }
     });
   }
@@ -179,7 +182,7 @@ function generateScopedModernThemeCSS(scopeSelector: string, theme: ThemeConfig)
   if (theme.borderRadius) {
     Object.entries(theme.borderRadius).forEach(([key, value]) => {
       if (typeof value === 'string') {
-        css += `${scopeSelector} { --radius-${key}: ${value}; }\n`;
+        css += `  --radius-${key}: ${value};\n`;
       }
     });
   }
@@ -188,9 +191,16 @@ function generateScopedModernThemeCSS(scopeSelector: string, theme: ThemeConfig)
   if (theme.effects?.shadow) {
     Object.entries(theme.effects.shadow).forEach(([key, value]) => {
       if (typeof value === 'string') {
-        css += `${scopeSelector} { --shadow-${key}: ${value}; }\n`;
+        css += `  --shadow-${key}: ${value};\n`;
       }
     });
+  }
+  
+  css += `}\n\n`;
+  
+  // Apply font-family to all elements
+  if (theme.typography?.fontFamilyBase) {
+    css += `${scopeSelector} * { font-family: var(--font-family); }\n`;
   }
 
   // Apply custom CSS if provided
@@ -214,17 +224,44 @@ function generateScopedModernThemeCSS(scopeSelector: string, theme: ThemeConfig)
 }
 
 function generateScopedCSS(scopeSelector: string, originalCSS: string): string {
-  // Prefix all CSS rules with the scope selector
-  return originalCSS
+  // Handle CSS that sets variables on :root
+  let processedCSS = originalCSS;
+  
+  // First, extract all :root rules and apply them to our scope
+  const rootRegex = /:root\s*{([^}]+)}/g;
+  const rootMatches = [...originalCSS.matchAll(rootRegex)];
+  
+  if (rootMatches.length > 0) {
+    // Combine all root variables into one rule for our scope
+    let scopedVariables = `${scopeSelector} {\n`;
+    rootMatches.forEach(match => {
+      scopedVariables += match[1];
+    });
+    scopedVariables += '\n}\n\n';
+    
+    // Remove original :root rules
+    processedCSS = processedCSS.replace(rootRegex, '');
+    
+    // Add scoped variables at the beginning
+    processedCSS = scopedVariables + processedCSS;
+  }
+  
+  // Add important styles to ensure our theme overrides the default
+  processedCSS += `\n\n/* Ensure theme isolation */\n`;
+  processedCSS += `${scopeSelector} * {\n`;
+  processedCSS += `  color: inherit;\n`;
+  processedCSS += `  background-color: inherit;\n`;
+  processedCSS += `  border-color: inherit;\n`;
+  processedCSS += `}\n`;
+  
+  // Then prefix all other CSS rules with the scope selector
+  return processedCSS
     .split('\n')
     .map(line => {
       const trimmed = line.trim();
-      if (trimmed && !trimmed.startsWith(':root') && !trimmed.startsWith('@') && trimmed.includes('{')) {
-        // This is likely a CSS rule, prefix it
+      if (trimmed && !trimmed.includes(scopeSelector) && !trimmed.startsWith('@') && !trimmed.startsWith('/*') && !trimmed.startsWith('*') && trimmed.includes('{') && !trimmed.includes(':root')) {
+        // This is a CSS rule that needs to be scoped
         return `${scopeSelector} ${trimmed}`;
-      } else if (trimmed.startsWith(':root')) {
-        // Replace :root with our scope selector
-        return trimmed.replace(':root', scopeSelector);
       }
       return line;
     })

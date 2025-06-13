@@ -43,7 +43,7 @@ export interface ModernTheme {
 }
 
 // Convert simple theme to CSS variables
-export function simpleThemeToCSS(theme: SimpleTheme): string {
+export function simpleThemeToCSS(theme: SimpleTheme, includeBodyStyles = true): string {
   const fontSizes = {
     small: { base: '14px', heading: '1.5rem' },
     normal: { base: '16px', heading: '2rem' },
@@ -93,8 +93,9 @@ export function simpleThemeToCSS(theme: SimpleTheme): string {
       --ring: ${theme.primaryColor};
     }
     
-    /* Apply to body for immediate effect */
-    body {
+    ${includeBodyStyles ? `/* Apply to body for immediate effect */
+    body {` : `/* Apply to scoped element */
+    {`}
       background-color: var(--theme-background);
       color: var(--theme-text);
       font-family: var(--theme-font-family);
@@ -158,7 +159,7 @@ export function simpleThemeToCSS(theme: SimpleTheme): string {
 }
 
 // Convert modern theme to CSS variables
-export function modernThemeToCSS(theme: ModernTheme): string {
+export function modernThemeToCSS(theme: ModernTheme, includeBodyStyles = true): string {
   const fontSizes = {
     small: { base: '14px', h1: '2rem', h2: '1.75rem', h3: '1.5rem' },
     normal: { base: '16px', h1: '2.5rem', h2: '2rem', h3: '1.75rem' },
@@ -177,6 +178,23 @@ export function modernThemeToCSS(theme: ModernTheme): string {
     medium: '0.75rem',
     large: '1.5rem'
   };
+  
+  // Helper to create lighter/darker versions
+  const adjustColor = (hex: string, amount: number): string => {
+    const rgb = hexToRgb(hex);
+    if (!rgb) return hex;
+    const factor = amount > 0 ? 255 - Math.max(rgb.r, rgb.g, rgb.b) : Math.min(rgb.r, rgb.g, rgb.b);
+    const adjust = Math.floor(factor * Math.abs(amount));
+    const sign = amount > 0 ? 1 : -1;
+    return `#${[
+      Math.max(0, Math.min(255, rgb.r + sign * adjust)),
+      Math.max(0, Math.min(255, rgb.g + sign * adjust)),
+      Math.max(0, Math.min(255, rgb.b + sign * adjust))
+    ].map(x => x.toString(16).padStart(2, '0')).join('')}`;
+  };
+  
+  const mutedBg = adjustColor(theme.backgroundColor, 0.05);
+  const borderColor = adjustColor(theme.textColor, 0.8);
   
   return `
     :root {
@@ -200,22 +218,32 @@ export function modernThemeToCSS(theme: ModernTheme): string {
       --theme-spacing-gap: ${spacings[theme.spacing].gap};
       --theme-border-radius: ${radii[theme.borderRadius]};
       
-      /* Override Tailwind's semantic colors */
-      --primary: ${theme.brandColor};
-      --primary-foreground: #ffffff;
+      /* Override semantic colors for shadcn/ui components */
       --background: ${theme.backgroundColor};
       --foreground: ${theme.textColor};
       --card: ${theme.backgroundColor};
       --card-foreground: ${theme.textColor};
+      --popover: ${theme.backgroundColor};
+      --popover-foreground: ${theme.textColor};
+      --primary: ${theme.brandColor};
+      --primary-foreground: #ffffff;
+      --secondary: ${mutedBg};
+      --secondary-foreground: ${theme.textColor};
       --muted: ${theme.sectionBackgroundColor};
-      --muted-foreground: ${theme.textColor}80;
-      --border: ${theme.textColor}20;
-      --input: ${theme.textColor}20;
+      --muted-foreground: ${adjustColor(theme.textColor, 0.4)};
+      --accent: ${theme.brandColor};
+      --accent-foreground: #ffffff;
+      --destructive: #dc2626;
+      --destructive-foreground: #ffffff;
+      --border: ${borderColor};
+      --input: ${borderColor};
       --ring: ${theme.brandColor};
+      --radius: ${radii[theme.borderRadius]};
     }
     
-    /* Apply to body */
-    body {
+    ${includeBodyStyles ? `/* Apply to body */
+    body {` : `/* Apply to scoped element */
+    {`}
       background-color: var(--theme-background);
       color: var(--theme-text);
       font-family: var(--theme-font-family);
