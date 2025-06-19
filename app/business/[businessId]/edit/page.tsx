@@ -6,7 +6,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { VisualEditor, PageData } from "@/app/components/visual-editor";
-import AuthGuard from "@/components/auth/auth-guard";
+import AuthGuard from "@/app/components/auth/auth-guard";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -33,8 +33,13 @@ export default function BusinessEditPage({
   const businessId = resolvedParams.businessId as Id<"businesses">;
   const router = useRouter();
 
+  console.log("BusinessEditPage - businessId:", businessId);
+
   // Fetch business and pages
   const business = useQuery(api.businesses.getById, { id: businessId });
+  
+  console.log("Business query result:", business);
+  
   const domain = useQuery(api.domains.getByBusinessId, 
     business ? { businessId: business._id } : "skip"
   );
@@ -43,6 +48,21 @@ export default function BusinessEditPage({
   );
   const updatePage = useMutation(api.pages.updatePage);
   const createDefaultPages = useMutation(api.pages.createDefaultPages);
+
+  // Loading state while fetching business
+  if (business === undefined) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // Business not found
+  if (business === null) {
+    console.error("Business not found for ID:", businessId);
+    return notFound();
+  }
 
   // Get the home page or create initial data
   const homePage = pages?.find(p => p.slug === "home");
@@ -96,10 +116,6 @@ export default function BusinessEditPage({
       toast.error("Failed to save page");
     }
   };
-
-  if (!business) {
-    return notFound();
-  }
 
   if (!domain || !pages) {
     return (

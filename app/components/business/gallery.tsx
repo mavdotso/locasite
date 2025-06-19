@@ -1,16 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { Card, CardContent } from "@/app/components/ui/card";
-import { SectionWrapper } from "@/components/editors/section-wrapper";
-import { SectionEditor } from "@/components/editors/section-editor";
-import { useContext, useState } from "react";
-import { EditModeContext } from "@/components/providers/edit-mode-provider";
+import { useState } from "react";
 import { cn } from "@/app/lib/utils";
-
-interface SectionData {
-    [key: string]: unknown;
-}
+import { Card, CardContent } from "@/app/components/ui/card";
+import { Dialog, DialogContent } from "@/app/components/ui/dialog";
 
 interface BusinessGalleryProps {
     images?: string[];
@@ -18,129 +12,57 @@ interface BusinessGalleryProps {
 }
 
 export default function BusinessGallery({ images, className }: BusinessGalleryProps) {
-    const editMode = useContext(EditModeContext);
-    const { isEditMode } = editMode || {};
-    const [showEditor, setShowEditor] = useState(false);
-    const [sectionData, setSectionData] = useState<SectionData>({
-        images: images || [],
-        title: "Photo Gallery",
-        layout: "grid",
-        columns: 4,
-        spacing: "normal",
-        typography: {},
-        background: {}
-    });
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-    const handleSectionSave = (data: SectionData) => {
-        setSectionData(data);
-    };
-
-    const displayImages = (sectionData.images as string[])?.length > 0 ? (sectionData.images as string[]) : images;
-
-    if (!displayImages || (displayImages.length === 0 && !isEditMode)) {
+    if (!images || images.length === 0) {
         return null;
     }
 
-    const background = sectionData.background as { type?: string; color?: string; image?: string; size?: string; position?: string; repeat?: string } | undefined;
-    const typography = sectionData.typography as { 
-        fontSize?: number; 
-        fontFamily?: string; 
-        fontWeight?: string; 
-        textAlign?: string; 
-        color?: string; 
-        textTransform?: string; 
-    } | undefined;
-    
-    const galleryStyle = {
-        ...(background?.type === "color" && {
-            backgroundColor: background.color
-        }),
-        ...(background?.type === "image" && {
-            backgroundImage: `url(${background.image})`,
-            backgroundSize: background.size || "cover",
-            backgroundPosition: background.position || "center",
-            backgroundRepeat: background.repeat || "no-repeat"
-        })
-    };
-
-    const gridCols = {
-        1: "grid-cols-1",
-        2: "grid-cols-1 sm:grid-cols-2",
-        3: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3",
-        4: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
-        5: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5",
-        6: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6"
-    }[sectionData.columns as number] || "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4";
-
-    const gapSize = {
-        none: "gap-0",
-        small: "gap-2",
-        normal: "gap-4",
-        large: "gap-6",
-        xl: "gap-8"
-    }[sectionData.spacing as string] || "gap-4";
-
     return (
-        <>
-            <SectionWrapper
-                sectionType="gallery"
-                sectionId="gallery-1"
-                onEdit={() => setShowEditor(true)}
-                className={className}
-            >
-                <section 
-                    className={cn("bg-muted py-12")}
-                    style={galleryStyle}
-                >
-                    <div className="mx-auto px-4 container">
-                        <h2 
-                            className="mb-8 font-bold text-3xl text-center"
-                            style={{
-                                fontFamily: typography?.fontFamily,
-                                fontSize: typography?.fontSize ? `${typography.fontSize}px` : undefined,
-                                fontWeight: typography?.fontWeight,
-                                textAlign: typography?.textAlign as React.CSSProperties['textAlign'],
-                                color: typography?.color,
-                                textTransform: typography?.textTransform as React.CSSProperties['textTransform']
-                            }}
+        <div className={cn("py-16", className)}>
+            <div className="container mx-auto px-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {images.map((image, index) => (
+                        <Card 
+                            key={index} 
+                            className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+                            onClick={() => setSelectedImage(image)}
                         >
-                            {sectionData.title as string}
-                        </h2>
-                        
-                        {displayImages && displayImages.length > 0 ? (
-                            <div className={cn("grid", gridCols, gapSize)}>
-                                {displayImages.map((image, index) => (
-                                    <Card key={index} className="overflow-hidden">
-                                        <CardContent className="p-0">
-                                            <div className="aspect-square overflow-hidden">
-                                                <Image
-                                                    src={image}
-                                                    alt={`Gallery image ${index + 1}`}
-                                                    height={500}
-                                                    width={500}
-                                                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                                                />
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
-                            </div>
-                        ) : isEditMode ? (
-                            <div className="text-center py-8 border-2 border-dashed border-muted-foreground/50 rounded-lg">
-                                <p className="text-muted-foreground">Click edit to add gallery images</p>
-                            </div>
-                        ) : null}
-                    </div>
-                </section>
-            </SectionWrapper>
+                            <CardContent className="p-0">
+                                <div className="aspect-square relative">
+                                    <Image
+                                        src={image}
+                                        alt={`Gallery image ${index + 1}`}
+                                        fill
+                                        className="object-cover hover:scale-105 transition-transform duration-300"
+                                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            </div>
 
-            <SectionEditor
-                isOpen={showEditor}
-                onClose={() => setShowEditor(false)}
-                sectionType="gallery"
-                sectionData={sectionData}
-                onSave={handleSectionSave}
-            />
-        </>
+            {/* Image Modal */}
+            <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+                <DialogContent className="max-w-4xl p-0">
+                    {selectedImage && (
+                        <div className="relative aspect-[4/3]">
+                            <Image
+                                src={selectedImage}
+                                alt="Gallery image"
+                                fill
+                                className="object-contain"
+                                sizes="90vw"
+                            />
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
+        </div>
     );
 }
+
+// Alias for compatibility
+export { BusinessGallery as Gallery };
