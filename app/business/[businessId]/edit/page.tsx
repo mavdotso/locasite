@@ -1,37 +1,161 @@
+"use client";
+
+import { use } from "react";
 import { notFound } from "next/navigation";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { preloadQuery } from "convex/nextjs";
-import { UnifiedEditor } from "@/components/editors/unified-editor";
+import { VisualEditor, PageData } from "@/app/components/visual-editor";
 import AuthGuard from "@/components/auth/auth-guard";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-export default async function BusinessEditPage({
+export default function BusinessEditPage({
   params,
 }: {
   params: Promise<{ businessId: string }>;
 }) {
-  try {
-    const { businessId } = await params;
-    const businessIdTyped = businessId as Id<"businesses">;
-    
-    // Preload business data
-    const preloadedBusiness = await preloadQuery(api.businesses.getById, {
-      id: businessIdTyped,
-    });
+  const resolvedParams = use(params);
+  const businessId = resolvedParams.businessId as Id<"businesses">;
+  const router = useRouter();
 
-    if (!preloadedBusiness) {
-      notFound();
+  // Fetch business and pages
+  const business = useQuery(api.businesses.getById, { id: businessId });
+  const pages = useQuery(api.pages.getByBusinessId, { businessId });
+  const updatePage = useMutation(api.pages.updatePage);
+  const createPage = useMutation(api.pages.create);
+
+  // Get the home page or create initial data
+  const homePage = pages?.find(p => p.slug === "home");
+  
+  let initialData: PageData = {
+    title: business?.name || "Welcome",
+    components: []
+  };
+
+  if (homePage?.content) {
+    try {
+      const parsed = JSON.parse(homePage.content);
+      // Convert from section-based format to component-based format
+      if (parsed.sections) {
+        initialData = {
+          title: parsed.title || business?.name || "Welcome",
+          components: parsed.sections.map((section: unknown, index: number) => ({
+            id: `component-${index}`,
+            type: mapSectionTypeToComponent(section.type),
+            props: mapSectionPropsToComponentProps(section)
+          }))
+        };
+      } else if (parsed.components) {
+        initialData = parsed;
+      }
+    } catch (e) {
+      console.error("Failed to parse page content", e);
     }
+  }
 
+  const handleSave = async (data: PageData) => {
+    try {
+      if (homePage) {
+        await updatePage({
+          pageId: homePage._id,
+          content: JSON.stringify(data)
+        });
+      } else {
+        await createPage({
+          businessId,
+          title: data.title || "Home",
+          slug: "home",
+          content: JSON.stringify(data),
+          isPublished: true
+        });
+      }
+      toast.success("Page saved successfully");
+      router.push(`/${business?.domain}`);
+    } catch (error) {
+      console.error("Error saving page:", error);
+      toast.error("Failed to save page");
+    }
+  };
+
+  if (!business) {
+    return notFound();
+  }
+
+  if (!pages) {
     return (
-      <AuthGuard>
-        <UnifiedEditor
-          businessId={businessIdTyped}
-          preloadedBusiness={preloadedBusiness}
-        />
-      </AuthGuard>
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
     );
-  } catch {
-    notFound();
+  }
+
+  return (
+    <AuthGuard>
+      <VisualEditor
+        businessId={businessId}
+        business={business}
+        pageId={homePage?._id || ("temp-id" as Id<"pages">)}
+        initialData={initialData}
+        onSave={handleSave}
+      />
+    </AuthGuard>
+  );
+}
+
+// Helper functions to map between old section format and new component format
+function mapSectionTypeToComponent(sectionType: string): string {
+  const typeMap: Record<string, string> = {
+    hero: "HeroBlock",
+    about: "AboutBlock",
+    gallery: "GalleryBlock",
+    reviews: "ReviewsBlock",
+    contact: "ContactBlock",
+    contactForm: "ContactBlock",
+    info: "InfoBlock",
+    map: "MapBlock",
+    hours: "HoursBlock"
+  };
+  return typeMap[sectionType] || sectionType;
+}
+
+function mapSectionPropsToComponentProps(section: Record<string, unknown>): Record<string, unknown> {
+  const { type, ...props } = section;
+  
+  // Map specific section properties to component props
+  switch (type) {
+    case "hero":
+      return {
+        title: props.title || "",
+        subtitle: props.subtitle || "",
+        backgroundImage: props.image || "",
+        showButton: props.buttonText ? "true" : "false",
+        buttonText: props.buttonText || "Get Started",
+        buttonLink: props.buttonLink || "#contact"
+      };
+    
+    case "about":
+      return {
+        title: "About Us",
+        content: props.content || ""
+      };
+    
+    case "gallery":
+      return {
+        title: "Photo Gallery",
+        images: props.images || []
+      };
+    
+    case "contact":
+    case "contactForm":
+      return {
+        title: props.title || "Get in Touch",
+        subtitle: props.subtitle || "We'd love to hear from you",
+        showForm: type === "contactForm" ? "true" : "false"
+      };
+    
+    default:
+      return props;
   }
 }

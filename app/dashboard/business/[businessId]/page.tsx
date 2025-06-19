@@ -1,12 +1,12 @@
 import { notFound } from "next/navigation";
 import { convex } from "@/app/lib/convex";
 import { api } from "@/convex/_generated/api";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/app/components/ui/button";
 import PageEditor from "@/app/components/editors/page-editor";
 import BusinessEditor from "@/app/components/editors/business-editor";
 import GalleryEditor from "@/app/components/editors/gallery-editor";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import MessageList from "@/app/components/messages/message-list";
 import AuthGuard from "@/app/components/auth/auth-guard";
 import { Id } from "@/convex/_generated/dataModel";
