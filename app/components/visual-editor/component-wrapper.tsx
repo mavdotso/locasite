@@ -5,6 +5,7 @@ import { ComponentData } from "./types";
 import { useDragDrop } from "./drag-drop-provider";
 import { cn } from "@/app/lib/utils";
 import { Button } from "@/app/components/ui/button";
+import { getLayoutClasses } from "./utils/layout";
 import { 
   ChevronUp, 
   ChevronDown, 
@@ -45,8 +46,10 @@ export default function ComponentWrapper({
     });
   };
 
+  const layoutClasses = getLayoutClasses(component.layout);
+
   if (!isEditMode) {
-    return <>{children}</>;
+    return <div className={layoutClasses}>{children}</div>;
   }
 
   return (
@@ -124,7 +127,7 @@ export default function ComponentWrapper({
       </div>
 
       {/* Component Content */}
-      <div className="relative">
+      <div className={cn("relative", layoutClasses)}>
         {children}
       </div>
     </div>

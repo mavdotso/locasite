@@ -13,17 +13,22 @@ import ColorField from "./fields/color-field";
 import SelectField from "./fields/select-field";
 import NumberField from "./fields/number-field";
 import ArrayField from "./fields/array-field";
+import LayoutControls from "./layout-controls";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LayoutOptions } from "./types";
 
 interface FieldEditorProps {
   component: ComponentData | null;
   onUpdate: (props: Record<string, unknown>) => void;
+  onUpdateLayout: (layout: LayoutOptions) => void;
   onClose: () => void;
   businessId: string;
 }
 
 export default function FieldEditor({ 
   component, 
-  onUpdate, 
+  onUpdate,
+  onUpdateLayout, 
   onClose,
   businessId 
 }: FieldEditorProps) {
@@ -63,7 +68,7 @@ export default function FieldEditor({
             Edit {component.type.replace(/Block$/, "")}
           </h3>
           <p className="text-xs text-muted-foreground mt-1">
-            Customize component properties
+            Customize component
           </p>
         </div>
         <Button
@@ -76,9 +81,16 @@ export default function FieldEditor({
         </Button>
       </div>
 
-      <ScrollArea className="flex-1">
-        <div className="p-4 space-y-6">
-          {Object.entries(config.fields).map(([fieldName, field]) => {
+      <Tabs defaultValue="properties" className="flex-1 flex flex-col">
+        <TabsList className="w-full">
+          <TabsTrigger value="properties" className="flex-1">Properties</TabsTrigger>
+          <TabsTrigger value="layout" className="flex-1">Layout</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="properties" className="flex-1 mt-0">
+          <ScrollArea className="h-full">
+            <div className="p-4 space-y-6">
+              {Object.entries(config.fields).map(([fieldName, field]) => {
             const value = component.props[fieldName] ?? field.defaultValue;
 
             switch (field.type) {
@@ -158,8 +170,19 @@ export default function FieldEditor({
                 return null;
             }
           })}
-        </div>
-      </ScrollArea>
+            </div>
+          </ScrollArea>
+        </TabsContent>
+
+        <TabsContent value="layout" className="flex-1 mt-0">
+          <ScrollArea className="h-full">
+            <LayoutControls
+              layout={component.layout || {}}
+              onChange={onUpdateLayout}
+            />
+          </ScrollArea>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

@@ -82,11 +82,23 @@ export interface ComponentConfig {
   category?: string;
 }
 
+// Layout options
+export interface LayoutOptions {
+  direction?: "row" | "column";
+  align?: "start" | "center" | "end" | "stretch";
+  justify?: "start" | "center" | "end" | "between" | "around";
+  gap?: "none" | "small" | "medium" | "large";
+  padding?: "none" | "small" | "medium" | "large";
+  margin?: "none" | "small" | "medium" | "large";
+  fullWidth?: boolean;
+}
+
 // Page data model
 export interface ComponentData {
   id: string;
   type: string;
   props: Record<string, unknown>;
+  layout?: LayoutOptions;
 }
 
 export interface PageData {

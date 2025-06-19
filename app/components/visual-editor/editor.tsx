@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { PageData, ComponentData } from "./types";
+import { PageData, ComponentData, LayoutOptions } from "./types";
 import { DragDropProvider } from "./drag-drop-provider";
 import ComponentLibrary from "./component-library";
 import PreviewPanel from "./preview-panel";
 import FieldEditor from "./field-editor";
+import OutlineView from "./outline-view";
 import { componentConfigs } from "./config/components";
 import { Button } from "@/app/components/ui/button";
-import { Save, Loader2, Undo, Redo, Eye, EyeOff } from "lucide-react";
+import { Save, Loader2, Undo, Redo, Eye, EyeOff, Layers } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
 import { Doc, Id } from "@/convex/_generated/dataModel";
@@ -42,6 +43,7 @@ export default function VisualEditor({
   const [isSaving, setIsSaving] = useState(false);
   const [history, setHistory] = useState<PageData[]>([pageData]);
   const [historyIndex, setHistoryIndex] = useState(0);
+  const [showOutline, setShowOutline] = useState(false);
 
   const updatePage = useMutation(api.pages.updatePage);
 
@@ -97,6 +99,18 @@ export default function VisualEditor({
     };
     setPageData(newData);
   }, [pageData]);
+
+  // Update component layout
+  const handleUpdateComponentLayout = useCallback((id: string, layout: LayoutOptions) => {
+    const newData = {
+      ...pageData,
+      components: pageData.components.map((comp) =>
+        comp.id === id ? { ...comp, layout } : comp
+      )
+    };
+    setPageData(newData);
+    addToHistory(newData);
+  }, [pageData, addToHistory]);
 
   // Remove component
   const handleRemoveComponent = useCallback((id: string) => {
@@ -201,6 +215,17 @@ export default function VisualEditor({
           </div>
 
           <div className="flex items-center gap-2">
+            {isEditMode && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowOutline(!showOutline)}
+              >
+                <Layers className="h-4 w-4 mr-2" />
+                Outline
+              </Button>
+            )}
+
             <Button
               variant="outline"
               size="sm"
@@ -243,6 +268,17 @@ export default function VisualEditor({
             </div>
           )}
 
+          {/* Outline View */}
+          {isEditMode && showOutline && (
+            <div className="w-64 border-r bg-card">
+              <OutlineView
+                pageData={pageData}
+                selectedComponentId={selectedComponentId}
+                onSelectComponent={setSelectedComponentId}
+              />
+            </div>
+          )}
+
           {/* Center - Preview */}
           <div className="flex-1">
             <PreviewPanel
@@ -269,6 +305,9 @@ export default function VisualEditor({
                   component={selectedComponent}
                   onUpdate={(props) => 
                     handleUpdateComponent(selectedComponent.id, props)
+                  }
+                  onUpdateLayout={(layout) =>
+                    handleUpdateComponentLayout(selectedComponent.id, layout)
                   }
                   onClose={() => setSelectedComponentId(null)}
                   businessId={businessId}

@@ -8,8 +8,9 @@ import DropZone from "./drop-zone";
 import ComponentWrapper from "./component-wrapper";
 import { cn } from "@/app/lib/utils";
 import { Button } from "@/app/components/ui/button";
-import { Monitor, Tablet, Smartphone } from "lucide-react";
+import { Monitor, Tablet, Smartphone, Frame } from "lucide-react";
 import { Doc } from "@/convex/_generated/dataModel";
+import IframePreview from "./iframe-preview";
 
 interface PreviewPanelProps {
   pageData: PageData;
@@ -43,6 +44,7 @@ export default function PreviewPanel({
   isEditMode = true
 }: PreviewPanelProps) {
   const [deviceSize, setDeviceSize] = useState<DeviceSize>("desktop");
+  const [useIframe, setUseIframe] = useState(false);
   const { draggedItem } = useDragDrop();
 
   const handleDrop = (index: number) => {
@@ -71,82 +73,114 @@ export default function PreviewPanel({
   return (
     <div className="h-full flex flex-col bg-muted/30">
       {/* Device Size Selector */}
-      <div className="flex items-center justify-center gap-2 p-4 border-b bg-background">
-        {Object.entries(deviceSizes).map(([size, { icon: Icon }]) => (
+      <div className="flex items-center justify-between p-4 border-b bg-background">
+        <div className="flex items-center gap-2">
+          {Object.entries(deviceSizes).map(([size, { icon: Icon }]) => (
+            <Button
+              key={size}
+              variant={deviceSize === size ? "default" : "outline"}
+              size="sm"
+              onClick={() => setDeviceSize(size as DeviceSize)}
+              className="gap-2"
+            >
+              <Icon className="w-4 h-4" />
+              <span className="capitalize">{size}</span>
+            </Button>
+          ))}
+        </div>
+        
+        {!isEditMode && (
           <Button
-            key={size}
-            variant={deviceSize === size ? "default" : "outline"}
+            variant={useIframe ? "default" : "outline"}
             size="sm"
-            onClick={() => setDeviceSize(size as DeviceSize)}
+            onClick={() => setUseIframe(!useIframe)}
             className="gap-2"
           >
-            <Icon className="w-4 h-4" />
-            <span className="capitalize">{size}</span>
+            <Frame className="w-4 h-4" />
+            Iframe Mode
           </Button>
-        ))}
+        )}
       </div>
 
       {/* Preview Area */}
       <div className="flex-1 overflow-auto p-8">
-        <div
-          className={cn(
-            "mx-auto bg-background shadow-xl transition-all duration-300",
-            deviceSize === "tablet" && "max-w-[768px]",
-            deviceSize === "mobile" && "max-w-[375px]"
-          )}
-          style={{ minHeight: "100%" }}
-        >
-          {/* Page Title */}
-          <div className="p-8 border-b">
-            <h1 className="text-3xl font-bold">{pageData.title}</h1>
-          </div>
-
-          {/* Components */}
-          <div className="relative">
-            {/* Initial drop zone */}
-            {isEditMode && (
-              <DropZone
-                id="drop-zone-0"
-                index={0}
-                onDrop={handleDrop}
-                className="h-20"
-                showAlways={pageData.components.length === 0}
-              />
+        {useIframe && !isEditMode ? (
+          <div
+            className={cn(
+              "mx-auto bg-white shadow-xl transition-all duration-300",
+              deviceSize === "tablet" && "max-w-[768px]",
+              deviceSize === "mobile" && "max-w-[375px]"
             )}
-
-            {pageData.components.map((component, index) => (
-              <React.Fragment key={component.id}>
-                <ComponentWrapper
-                  component={component}
-                  isSelected={selectedComponentId === component.id}
-                  isEditMode={isEditMode}
-                  onSelect={() => onSelectComponent(component.id)}
-                  onRemove={() => onRemoveComponent(component.id)}
-                  onMove={(direction) => {
-                    const newIndex = direction === "up" ? index - 1 : index + 1;
-                    if (newIndex >= 0 && newIndex < pageData.components.length) {
-                      onMoveComponent(index, newIndex);
-                    }
-                  }}
-                  canMoveUp={index > 0}
-                  canMoveDown={index < pageData.components.length - 1}
-                >
-                  {renderComponent(component, index)}
-                </ComponentWrapper>
-
-                {/* Drop zone after each component */}
-                {isEditMode && (
-                  <DropZone
-                    id={`drop-zone-${index + 1}`}
-                    index={index + 1}
-                    onDrop={handleDrop}
-                    className="h-20"
-                  />
-                )}
-              </React.Fragment>
-            ))}
+            style={{ height: "calc(100vh - 200px)" }}
+          >
+            <IframePreview
+              pageData={pageData}
+              business={business}
+              width="100%"
+              height="100%"
+            />
           </div>
-        </div>
+        ) : (
+          <div
+            className={cn(
+              "mx-auto bg-background shadow-xl transition-all duration-300",
+              deviceSize === "tablet" && "max-w-[768px]",
+              deviceSize === "mobile" && "max-w-[375px]"
+            )}
+            style={{ minHeight: "100%" }}
+          >
+            {/* Page Title */}
+            <div className="p-8 border-b">
+              <h1 className="text-3xl font-bold">{pageData.title}</h1>
+            </div>
+
+            {/* Components */}
+            <div className="relative">
+              {/* Initial drop zone */}
+              {isEditMode && (
+                <DropZone
+                  id="drop-zone-0"
+                  index={0}
+                  onDrop={handleDrop}
+                  className="h-20"
+                  showAlways={pageData.components.length === 0}
+                />
+              )}
+
+              {pageData.components.map((component, index) => (
+                <React.Fragment key={component.id}>
+                  <ComponentWrapper
+                    component={component}
+                    isSelected={selectedComponentId === component.id}
+                    isEditMode={isEditMode}
+                    onSelect={() => onSelectComponent(component.id)}
+                    onRemove={() => onRemoveComponent(component.id)}
+                    onMove={(direction) => {
+                      const newIndex = direction === "up" ? index - 1 : index + 1;
+                      if (newIndex >= 0 && newIndex < pageData.components.length) {
+                        onMoveComponent(index, newIndex);
+                      }
+                    }}
+                    canMoveUp={index > 0}
+                    canMoveDown={index < pageData.components.length - 1}
+                  >
+                    {renderComponent(component, index)}
+                  </ComponentWrapper>
+
+                  {/* Drop zone after each component */}
+                  {isEditMode && (
+                    <DropZone
+                      id={`drop-zone-${index + 1}`}
+                      index={index + 1}
+                      onDrop={handleDrop}
+                      className="h-20"
+                    />
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
