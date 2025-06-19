@@ -179,20 +179,20 @@ export default function IntegratedThemeBuilder({
     if (business.themeId && businessTheme) {
       // Apply theme from database with any overrides
       const baseTheme = businessTheme.config;
-      const overrides = business.themeOverrides || {};
+      const overrides = business.themeOverrides as typeof businessTheme.config | undefined;
       
       // Convert from new theme format to ModernTheme format
       setTheme({
-        brandColor: overrides.colors?.light?.primary || baseTheme.colors?.light?.primary || "#00C9A8",
-        primaryButtonColor: overrides.colors?.light?.primary || baseTheme.colors?.light?.primary || "#035C67",
-        secondaryButtonColor: overrides.colors?.light?.secondary || baseTheme.colors?.light?.secondary || "#DAF1EE",
+        brandColor: overrides?.colors?.light?.primary || baseTheme.colors?.light?.primary || "#00C9A8",
+        primaryButtonColor: overrides?.colors?.light?.primary || baseTheme.colors?.light?.primary || "#035C67",
+        secondaryButtonColor: overrides?.colors?.light?.secondary || baseTheme.colors?.light?.secondary || "#DAF1EE",
         secondaryButtonOpacity: 100,
-        textColor: overrides.colors?.light?.foreground || baseTheme.colors?.light?.foreground || "#1f2937",
-        headingColor: overrides.colors?.light?.foreground || baseTheme.colors?.light?.foreground || "#111827",
-        linkColor: overrides.colors?.light?.primary || baseTheme.colors?.light?.primary || "#00C9A8",
-        backgroundColor: overrides.colors?.light?.background || baseTheme.colors?.light?.background || "#ffffff",
-        sectionBackgroundColor: overrides.colors?.light?.muted || baseTheme.colors?.light?.muted || "#f9fafb",
-        fontFamily: overrides.typography?.fontFamilyBase || baseTheme.typography?.fontFamilyBase || "Inter",
+        textColor: overrides?.colors?.light?.foreground || baseTheme.colors?.light?.foreground || "#1f2937",
+        headingColor: overrides?.colors?.light?.foreground || baseTheme.colors?.light?.foreground || "#111827",
+        linkColor: overrides?.colors?.light?.primary || baseTheme.colors?.light?.primary || "#00C9A8",
+        backgroundColor: overrides?.colors?.light?.background || baseTheme.colors?.light?.background || "#ffffff",
+        sectionBackgroundColor: overrides?.colors?.light?.muted || baseTheme.colors?.light?.muted || "#f9fafb",
+        fontFamily: overrides?.typography?.fontFamilyBase || baseTheme.typography?.fontFamilyBase || "Inter",
         fontSize: "normal",
         borderRadius: "small",
         spacing: "normal",

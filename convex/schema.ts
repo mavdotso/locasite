@@ -1,7 +1,7 @@
 import { defineSchema, defineTable } from "convex/server";
 import { authTables } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-import { advancedThemeSchemaV, simpleThemeSchemaV } from "./themeSchema";
+import { advancedThemeSchemaV, simpleThemeSchemaV, partialAdvancedThemeSchemaV } from "./themeSchema";
 
 export default defineSchema({
     ...authTables,
@@ -74,7 +74,7 @@ export default defineSchema({
         
         // New advanced theme system
         themeId: v.optional(v.id("themes")), // Reference to themes table
-        themeOverrides: v.optional(v.any()), // Business-specific overrides
+        themeOverrides: v.optional(partialAdvancedThemeSchemaV), // Business-specific overrides
         // Publishing state
         isPublished: v.optional(v.boolean()),
         publishedAt: v.optional(v.number()),
@@ -88,7 +88,7 @@ export default defineSchema({
             hours: v.optional(v.array(v.string())),
             theme: v.optional(simpleThemeSchemaV),
             themeId: v.optional(v.id("themes")),
-            themeOverrides: v.optional(v.any())
+            themeOverrides: v.optional(partialAdvancedThemeSchemaV)
         })),
         lastEditedAt: v.optional(v.number()),
         // AI-generated content for website sections

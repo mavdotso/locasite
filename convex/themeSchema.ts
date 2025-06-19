@@ -352,6 +352,83 @@ export const advancedThemeSchemaV = v.object({
   customCss: v.optional(v.string()),
 });
 
+// Partial theme schema for overrides
+export const partialAdvancedThemeSchemaV = v.object({
+  // All fields are optional for overrides
+  colors: v.optional(v.object({
+    light: v.optional(v.object({
+      primary: v.optional(colorValue),
+      primaryForeground: v.optional(colorValue),
+      secondary: v.optional(colorValue),
+      secondaryForeground: v.optional(colorValue),
+      accent: v.optional(colorValue),
+      accentForeground: v.optional(colorValue),
+      background: v.optional(colorValue),
+      foreground: v.optional(colorValue),
+      card: v.optional(colorValue),
+      cardForeground: v.optional(colorValue),
+      popover: v.optional(colorValue),
+      popoverForeground: v.optional(colorValue),
+      muted: v.optional(colorValue),
+      mutedForeground: v.optional(colorValue),
+      border: v.optional(colorValue),
+      input: v.optional(colorValue),
+      ring: v.optional(colorValue),
+      destructive: v.optional(colorValue),
+      destructiveForeground: v.optional(colorValue),
+      success: v.optional(colorValue),
+      successForeground: v.optional(colorValue),
+      warning: v.optional(colorValue),
+      warningForeground: v.optional(colorValue),
+      info: v.optional(colorValue),
+      infoForeground: v.optional(colorValue),
+    })),
+    dark: v.optional(v.object({
+      primary: v.optional(colorValue),
+      primaryForeground: v.optional(colorValue),
+      secondary: v.optional(colorValue),
+      secondaryForeground: v.optional(colorValue),
+      accent: v.optional(colorValue),
+      accentForeground: v.optional(colorValue),
+      background: v.optional(colorValue),
+      foreground: v.optional(colorValue),
+      card: v.optional(colorValue),
+      cardForeground: v.optional(colorValue),
+      popover: v.optional(colorValue),
+      popoverForeground: v.optional(colorValue),
+      muted: v.optional(colorValue),
+      mutedForeground: v.optional(colorValue),
+      border: v.optional(colorValue),
+      input: v.optional(colorValue),
+      ring: v.optional(colorValue),
+      destructive: v.optional(colorValue),
+      destructiveForeground: v.optional(colorValue),
+      success: v.optional(colorValue),
+      successForeground: v.optional(colorValue),
+      warning: v.optional(colorValue),
+      warningForeground: v.optional(colorValue),
+      info: v.optional(colorValue),
+      infoForeground: v.optional(colorValue),
+    })),
+  })),
+  
+  typography: v.optional(v.object({
+    fontFamilyBase: v.optional(v.string()),
+    fontFamilyHeading: v.optional(v.string()),
+    fontFamilyMonospace: v.optional(v.string()),
+    fontSize: v.optional(v.any()),
+    fontWeight: v.optional(v.any()),
+    lineHeight: v.optional(v.any()),
+    letterSpacing: v.optional(v.any()),
+  })),
+  
+  spacing: v.optional(v.any()),
+  effects: v.optional(v.any()),
+  components: v.optional(v.any()),
+  sections: v.optional(v.any()),
+  customCss: v.optional(v.string()),
+});
+
 // Backward-compatible simple theme schema
 export const simpleThemeSchemaV = v.object({
   colorScheme: v.optional(v.string()),

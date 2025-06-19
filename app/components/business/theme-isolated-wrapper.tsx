@@ -5,6 +5,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { SimpleTheme, ModernTheme } from "@/types/simple-theme";
+import { AdvancedThemeConfig, isAdvancedThemeConfig } from "@/types/theme-config";
 import { generateBusinessThemeCSS } from "./business-theme-styles";
 
 interface ThemeIsolatedWrapperProps {
@@ -46,11 +47,14 @@ export default function ThemeIsolatedWrapper({ businessId, children, className, 
     }
     // Handle new theme system with themeId
     else if (business?.themeId && theme) {
-      const baseConfig = theme.config as unknown as ThemeConfig;
-      const mergedTheme = business.themeOverrides 
-        ? mergeThemes(baseConfig, business.themeOverrides as unknown as ThemeConfig)
-        : baseConfig;
-      scopedCSS = generateScopedModernThemeCSS(scopeSelector, mergedTheme);
+      // Safely cast theme config with validation
+      if (isAdvancedThemeConfig(theme.config)) {
+        const baseConfig = theme.config;
+        const mergedTheme = business.themeOverrides && isAdvancedThemeConfig(business.themeOverrides)
+          ? mergeThemes(baseConfig, business.themeOverrides)
+          : baseConfig;
+        scopedCSS = generateScopedModernThemeCSS(scopeSelector, mergedTheme);
+      }
     }
     // Handle legacy theme system
     else if (business && business.theme) {
@@ -110,7 +114,9 @@ export default function ThemeIsolatedWrapper({ businessId, children, className, 
   );
 }
 
-interface ThemeConfig {
+// Legacy ThemeConfig type for backward compatibility
+// This should be removed once all themes are migrated to AdvancedThemeConfig
+interface LegacyThemeConfig {
   colors?: {
     light?: Record<string, string>;
   };
@@ -134,31 +140,53 @@ interface ThemeConfig {
   customCSS?: string;
 }
 
-function generateScopedModernThemeCSS(scopeSelector: string, theme: ThemeConfig): string {
-  // Convert theme config to ModernTheme format
-  const modernTheme: ModernTheme = {
-    brandColor: theme.colors?.light?.primary || "#00C9A8",
-    primaryButtonColor: theme.colors?.light?.primary || "#035C67",
-    secondaryButtonColor: theme.colors?.light?.secondary || "#DAF1EE",
-    secondaryButtonOpacity: 100,
-    textColor: theme.colors?.light?.foreground || "#1f2937",
-    headingColor: theme.colors?.light?.foreground || "#111827",
-    linkColor: theme.colors?.light?.primary || "#00C9A8",
-    backgroundColor: theme.colors?.light?.background || "#ffffff",
-    sectionBackgroundColor: theme.colors?.light?.muted || "#f9fafb",
-    fontFamily: theme.typography?.fontFamilyBase || "Inter",
-    fontSize: "normal" as const,
-    borderRadius: "small" as const,
-    spacing: "normal" as const,
-  };
-  
-  return generateBusinessThemeCSS(modernTheme, scopeSelector);
+function generateScopedModernThemeCSS(scopeSelector: string, theme: AdvancedThemeConfig | LegacyThemeConfig): string {
+  // Check if this is an AdvancedThemeConfig
+  if (isAdvancedThemeConfig(theme)) {
+    // Convert AdvancedThemeConfig to ModernTheme format
+    const modernTheme: ModernTheme = {
+      brandColor: theme.colors.light.primary,
+      primaryButtonColor: theme.colors.light.primary,
+      secondaryButtonColor: theme.colors.light.secondary,
+      secondaryButtonOpacity: 100,
+      textColor: theme.colors.light.foreground,
+      headingColor: theme.colors.light.foreground,
+      linkColor: theme.colors.light.primary,
+      backgroundColor: theme.colors.light.background,
+      sectionBackgroundColor: theme.colors.light.muted,
+      fontFamily: theme.typography.fontFamilyBase,
+      fontSize: "normal" as const,
+      borderRadius: "small" as const,
+      spacing: "normal" as const,
+    };
+    
+    return generateBusinessThemeCSS(modernTheme, scopeSelector);
+  } else {
+    // Handle LegacyThemeConfig
+    const modernTheme: ModernTheme = {
+      brandColor: theme.colors?.light?.primary || "#00C9A8",
+      primaryButtonColor: theme.colors?.light?.primary || "#035C67",
+      secondaryButtonColor: theme.colors?.light?.secondary || "#DAF1EE",
+      secondaryButtonOpacity: 100,
+      textColor: theme.colors?.light?.foreground || "#1f2937",
+      headingColor: theme.colors?.light?.foreground || "#111827",
+      linkColor: theme.colors?.light?.primary || "#00C9A8",
+      backgroundColor: theme.colors?.light?.background || "#ffffff",
+      sectionBackgroundColor: theme.colors?.light?.muted || "#f9fafb",
+      fontFamily: theme.typography?.fontFamilyBase || "Inter",
+      fontSize: "normal" as const,
+      borderRadius: "small" as const,
+      spacing: "normal" as const,
+    };
+    
+    return generateBusinessThemeCSS(modernTheme, scopeSelector);
+  }
 }
 
 
-function mergeThemes(baseTheme: ThemeConfig, overrides: ThemeConfig): ThemeConfig {
+function mergeThemes<T extends AdvancedThemeConfig | LegacyThemeConfig>(baseTheme: T, overrides: Partial<T>): T {
   // Deep merge theme objects
-  const merged = JSON.parse(JSON.stringify(baseTheme));
+  const merged = JSON.parse(JSON.stringify(baseTheme)) as T;
   
   function deepMerge(target: Record<string, unknown>, source: Record<string, unknown>) {
     for (const key in source) {

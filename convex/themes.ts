@@ -3,7 +3,7 @@ import { mutation, query } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
 import { getUserFromAuth } from "./helpers";
 import { themePresets } from "./themePresets";
-import { advancedThemeSchemaV } from "./themeSchema";
+import { advancedThemeSchemaV, partialAdvancedThemeSchemaV } from "./themeSchema";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
 // Initialize preset themes (run once)
@@ -269,7 +269,7 @@ export const applyThemeToBusiness = mutation({
   args: {
     businessId: v.id("businesses"),
     themeId: v.id("themes"),
-    themeOverrides: v.optional(v.any()),
+    themeOverrides: v.optional(partialAdvancedThemeSchemaV),
   },
   handler: async (ctx, args) => {
     const user = await getUserFromAuth(ctx);
