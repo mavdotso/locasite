@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -28,7 +29,8 @@ import {
   Layers,
   Share2,
   Undo,
-  Redo
+  Redo,
+  Settings2
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
@@ -78,6 +80,7 @@ export default function IntegratedThemeBuilder({
   pageId, 
   initialContent 
 }: IntegratedThemeBuilderProps) {
+  const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [pageContent, setPageContent] = useState<PageContent>(() => {
     try {
@@ -558,6 +561,14 @@ export default function IntegratedThemeBuilder({
         </div>
         
         <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => router.push(`/business/${businessId}/theme`)}
+          >
+            <Settings2 className="h-4 w-4 mr-2" />
+            Advanced Theme Editor
+          </Button>
           <Button variant="outline" size="sm">
             <Share2 className="h-4 w-4 mr-2" />
             Share/Preview

@@ -2,11 +2,6 @@
 
 import { ModernTheme } from "@/types/simple-theme";
 
-interface BusinessThemeStylesProps {
-  theme: ModernTheme;
-  scopeId: string;
-}
-
 export function generateBusinessThemeCSS(theme: ModernTheme, scopeSelector: string): string {
   const fontSizes = {
     small: { base: '14px', h1: '2rem', h2: '1.75rem', h3: '1.5rem' },
