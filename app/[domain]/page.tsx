@@ -198,7 +198,7 @@ export default async function BusinessPage({ params }: PageProps) {
 
         <BusinessPageRenderer 
           business={businessData}
-          pageContent={homePage?.content || JSON.stringify({ sections: [] })}
+          pageContent={page?.content || JSON.stringify({ sections: [] })}
         />
         <BusinessFooter businessName={domain.name} />
       </div>

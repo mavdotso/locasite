@@ -11,6 +11,19 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+interface Section {
+  type: string;
+  hidden?: boolean;
+  title?: string;
+  subtitle?: string;
+  content?: string;
+  image?: string;
+  images?: string[];
+  buttonText?: string;
+  buttonLink?: string;
+  [key: string]: unknown;
+}
+
 export default function BusinessEditPage({
   params,
 }: {
@@ -22,9 +35,14 @@ export default function BusinessEditPage({
 
   // Fetch business and pages
   const business = useQuery(api.businesses.getById, { id: businessId });
-  const pages = useQuery(api.pages.getByBusinessId, { businessId });
+  const domain = useQuery(api.domains.getByBusinessId, 
+    business ? { businessId: business._id } : "skip"
+  );
+  const pages = useQuery(api.pages.listByDomain, 
+    domain ? { domainId: domain._id } : "skip"
+  );
   const updatePage = useMutation(api.pages.updatePage);
-  const createPage = useMutation(api.pages.create);
+  const createDefaultPages = useMutation(api.pages.createDefaultPages);
 
   // Get the home page or create initial data
   const homePage = pages?.find(p => p.slug === "home");
@@ -41,7 +59,7 @@ export default function BusinessEditPage({
       if (parsed.sections) {
         initialData = {
           title: parsed.title || business?.name || "Welcome",
-          components: parsed.sections.map((section: unknown, index: number) => ({
+          components: parsed.sections.map((section: Section, index: number) => ({
             id: `component-${index}`,
             type: mapSectionTypeToComponent(section.type),
             props: mapSectionPropsToComponentProps(section)
@@ -62,17 +80,17 @@ export default function BusinessEditPage({
           pageId: homePage._id,
           content: JSON.stringify(data)
         });
-      } else {
-        await createPage({
-          businessId,
-          title: data.title || "Home",
-          slug: "home",
-          content: JSON.stringify(data),
-          isPublished: true
+      } else if (domain) {
+        // Create default pages first if no home page exists
+        await createDefaultPages({
+          domainId: domain._id,
+          businessId: businessId
         });
+        // Note: After creating default pages, user needs to refresh to see them
+        toast.info("Default pages created. Please refresh to continue editing.");
       }
       toast.success("Page saved successfully");
-      router.push(`/${business?.domain}`);
+      router.push(`/${domain?.name}`);
     } catch (error) {
       console.error("Error saving page:", error);
       toast.error("Failed to save page");
@@ -83,7 +101,7 @@ export default function BusinessEditPage({
     return notFound();
   }
 
-  if (!pages) {
+  if (!domain || !pages) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -120,7 +138,7 @@ function mapSectionTypeToComponent(sectionType: string): string {
   return typeMap[sectionType] || sectionType;
 }
 
-function mapSectionPropsToComponentProps(section: Record<string, unknown>): Record<string, unknown> {
+function mapSectionPropsToComponentProps(section: Section): Record<string, unknown> {
   const { type, ...props } = section;
   
   // Map specific section properties to component props

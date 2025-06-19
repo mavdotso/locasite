@@ -16,6 +16,7 @@ import Contact from "@/app/components/business/contact";
 import About from "@/app/components/business/about";
 import Hours from "@/app/components/business/hours";
 import Map from "@/app/components/business/map";
+import { Doc } from "@/convex/_generated/dataModel";
 
 export const componentConfigs: Record<string, ComponentConfig> = {
   HeroBlock: {
@@ -39,37 +40,21 @@ export const componentConfigs: Record<string, ComponentConfig> = {
         label: "Background Image",
         accept: "image/*"
       },
-      showButton: {
-        type: "select",
-        label: "Show Button",
-        defaultValue: "true",
-        options: [
-          { value: "true", label: "Yes" },
-          { value: "false", label: "No" }
-        ]
-      },
-      buttonText: {
-        type: "text",
-        label: "Button Text",
-        defaultValue: "Get Started",
-        placeholder: "Enter button text"
-      },
-      buttonLink: {
-        type: "text",
-        label: "Button Link",
-        defaultValue: "#contact",
-        placeholder: "#contact or URL"
-      }
     },
-    render: ({ title, subtitle, backgroundImage, showButton, buttonText, buttonLink }) => (
-      <Hero 
-        title={title}
-        subtitle={subtitle}
-        image={backgroundImage}
-        buttonText={showButton === "true" ? buttonText : undefined}
-        buttonLink={showButton === "true" ? buttonLink : undefined}
-      />
-    ),
+    render: (props) => {
+      const { title, subtitle, backgroundImage } = props as {
+        title?: string;
+        subtitle?: string;
+        backgroundImage?: string;
+      };
+      return (
+        <Hero 
+          title={title}
+          subtitle={subtitle}
+          image={backgroundImage}
+        />
+      );
+    },
     icon: ImageIcon,
     category: "Content"
   },
@@ -90,9 +75,15 @@ export const componentConfigs: Record<string, ComponentConfig> = {
         required: true
       }
     },
-    render: ({ title, content }) => (
-      <About content={content} customTitle={title} />
-    ),
+    render: (props) => {
+      const { title, content } = props as { title?: string; content?: string };
+      return (
+        <div className="py-16">
+          {title && <h2 className="text-3xl font-bold text-center mb-8">{title}</h2>}
+          <About content={content} />
+        </div>
+      );
+    },
     icon: Info,
     category: "Content"
   },
@@ -116,12 +107,15 @@ export const componentConfigs: Record<string, ComponentConfig> = {
         maxItems: 12
       }
     },
-    render: ({ title, images }) => (
-      <div className="py-16">
-        {title && <h2 className="text-3xl font-bold text-center mb-8">{title}</h2>}
-        <Gallery images={images} />
-      </div>
-    ),
+    render: (props) => {
+      const { title, images } = props as { title?: string; images?: string[] };
+      return (
+        <div className="py-16">
+          {title && <h2 className="text-3xl font-bold text-center mb-8">{title}</h2>}
+          <Gallery images={images || []} />
+        </div>
+      );
+    },
     icon: ImageIcon,
     category: "Media"
   },
@@ -138,74 +132,39 @@ export const componentConfigs: Record<string, ComponentConfig> = {
         label: "Subtitle",
         defaultValue: "We'd love to hear from you",
         rows: 2
-      },
-      showForm: {
-        type: "select",
-        label: "Show Contact Form",
-        defaultValue: "true",
-        options: [
-          { value: "true", label: "Yes" },
-          { value: "false", label: "No" }
-        ]
       }
     },
-    render: ({ title, subtitle, showForm }, editMode, business) => (
-      <Contact 
-        business={business}
-        showForm={showForm === "true"}
-        title={title}
-        subtitle={subtitle}
-      />
-    ),
+    render: (props, _editMode, business) => {
+      const { title, subtitle } = props as { title?: string; subtitle?: string };
+      const businessData = business as Doc<"businesses"> | undefined;
+      return (
+        <Contact 
+          title={title}
+          subtitle={subtitle}
+          phone={businessData?.phone}
+          email={businessData?.email}
+          address={businessData?.address}
+        />
+      );
+    },
     icon: Phone,
     category: "Contact"
   },
 
   InfoBlock: {
-    fields: {
-      showPhone: {
-        type: "select",
-        label: "Show Phone",
-        defaultValue: "true",
-        options: [
-          { value: "true", label: "Yes" },
-          { value: "false", label: "No" }
-        ]
-      },
-      showEmail: {
-        type: "select",
-        label: "Show Email",
-        defaultValue: "true",
-        options: [
-          { value: "true", label: "Yes" },
-          { value: "false", label: "No" }
-        ]
-      },
-      showAddress: {
-        type: "select",
-        label: "Show Address",
-        defaultValue: "true",
-        options: [
-          { value: "true", label: "Yes" },
-          { value: "false", label: "No" }
-        ]
-      },
-      showHours: {
-        type: "select",
-        label: "Show Hours",
-        defaultValue: "true",
-        options: [
-          { value: "true", label: "Yes" },
-          { value: "false", label: "No" }
-        ]
-      }
+    fields: {},
+    render: (props, _editMode, business) => {
+      const businessData = business as Doc<"businesses"> | undefined;
+      return (
+        <BusinessInfo 
+          address={businessData?.address}
+          phone={businessData?.phone}
+          email={businessData?.email}
+          website={businessData?.website}
+          hours={businessData?.hours}
+        />
+      );
     },
-    render: (props, editMode, business) => (
-      <BusinessInfo 
-        business={business}
-        {...props}
-      />
-    ),
     icon: Info,
     category: "Contact"
   },
@@ -217,15 +176,6 @@ export const componentConfigs: Record<string, ComponentConfig> = {
         label: "Section Title",
         defaultValue: "What Our Customers Say"
       },
-      showRating: {
-        type: "select",
-        label: "Show Average Rating",
-        defaultValue: "true",
-        options: [
-          { value: "true", label: "Yes" },
-          { value: "false", label: "No" }
-        ]
-      },
       limit: {
         type: "number",
         label: "Number of Reviews",
@@ -235,16 +185,22 @@ export const componentConfigs: Record<string, ComponentConfig> = {
         step: 1
       }
     },
-    render: ({ title, showRating, limit }, editMode, business) => (
-      <div className="py-16">
-        {title && <h2 className="text-3xl font-bold text-center mb-8">{title}</h2>}
-        <Reviews 
-          reviews={business?.reviews || []}
-          limit={limit}
-          showRating={showRating === "true"}
-        />
-      </div>
-    ),
+    render: (props, _editMode, business) => {
+      const { title, limit } = props as { title?: string; limit?: number };
+      const businessData = business as Doc<"businesses"> | undefined;
+      return (
+        <div className="py-16">
+          {title && <h2 className="text-3xl font-bold text-center mb-8">{title}</h2>}
+          <Reviews 
+            reviews={businessData?.reviews?.slice(0, limit)?.map(r => ({
+              author_name: r.reviewer,
+              rating: r.rating,
+              text: r.text
+            })) || []}
+          />
+        </div>
+      );
+    },
     icon: Star,
     category: "Social"
   },
@@ -266,17 +222,20 @@ export const componentConfigs: Record<string, ComponentConfig> = {
         showSlider: true
       }
     },
-    render: ({ title, height }, editMode, business) => (
-      <div className="py-16">
-        {title && <h2 className="text-3xl font-bold text-center mb-8">{title}</h2>}
-        <div style={{ height: `${height}px` }}>
-          <Map 
-            address={business?.address || ""}
-            googleMapsUrl={business?.googleMapsUrl}
-          />
+    render: (props, _editMode, business) => {
+      const { title, height } = props as { title?: string; height?: number };
+      const businessData = business as Doc<"businesses"> | undefined;
+      return (
+        <div className="py-16">
+          {title && <h2 className="text-3xl font-bold text-center mb-8">{title}</h2>}
+          <div style={{ height: `${height}px` }}>
+            <Map 
+              address={businessData?.address || ""}
+            />
+          </div>
         </div>
-      </div>
-    ),
+      );
+    },
     icon: MapPin,
     category: "Location"
   },
@@ -288,25 +247,19 @@ export const componentConfigs: Record<string, ComponentConfig> = {
         label: "Section Title",
         defaultValue: "Business Hours"
       },
-      showClosedDays: {
-        type: "select",
-        label: "Show Closed Days",
-        defaultValue: "false",
-        options: [
-          { value: "true", label: "Yes" },
-          { value: "false", label: "No" }
-        ]
-      }
     },
-    render: ({ title, showClosedDays }, editMode, business) => (
-      <div className="py-16">
-        {title && <h2 className="text-3xl font-bold text-center mb-8">{title}</h2>}
-        <Hours 
-          hours={business?.hours}
-          showClosedDays={showClosedDays === "true"}
-        />
-      </div>
-    ),
+    render: (props, _editMode, business) => {
+      const { title } = props as { title?: string };
+      const businessData = business as Doc<"businesses"> | undefined;
+      return (
+        <div className="py-16">
+          {title && <h2 className="text-3xl font-bold text-center mb-8">{title}</h2>}
+          <Hours 
+            hours={businessData?.hours}
+          />
+        </div>
+      );
+    },
     icon: Clock,
     category: "Contact"
   }

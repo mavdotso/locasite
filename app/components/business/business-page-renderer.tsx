@@ -5,6 +5,7 @@ import { Doc } from '@/convex/_generated/dataModel';
 import { componentConfigs } from '@/app/components/visual-editor/config/components';
 import { ComponentData } from '@/app/components/visual-editor/types';
 import BusinessPageContent from './business-page-content';
+import { Section } from '@/app/types/businesses';
 
 interface BusinessPageRendererProps {
   business: Doc<'businesses'>;
@@ -16,7 +17,7 @@ export default function BusinessPageRenderer({
   pageContent 
 }: BusinessPageRendererProps) {
   // Parse the page content
-  let parsedContent: { components?: ComponentData[]; sections?: unknown[] };
+  let parsedContent: { components?: ComponentData[]; sections?: Section[] };
   try {
     parsedContent = JSON.parse(pageContent);
   } catch (e) {

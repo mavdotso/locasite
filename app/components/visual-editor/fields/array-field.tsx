@@ -47,7 +47,7 @@ export default function ArrayField({ field, value, onChange, businessId }: Array
           variant="outline"
           size="sm"
           onClick={addItem}
-          disabled={field.maxItems && items.length >= field.maxItems}
+          disabled={!!field.maxItems && items.length >= field.maxItems}
         >
           <Plus className="h-4 w-4 mr-1" />
           Add
@@ -61,14 +61,14 @@ export default function ArrayField({ field, value, onChange, businessId }: Array
               {field.itemType.type === "image" ? (
                 <ImageField
                   field={field.itemType}
-                  value={item}
+                  value={item as string || ""}
                   onChange={(val) => updateItem(index, val)}
                   businessId={businessId}
                 />
               ) : (
                 <input
                   type="text"
-                  value={item}
+                  value={item as string || ""}
                   onChange={(e) => updateItem(index, e.target.value)}
                   className="w-full px-3 py-2 border rounded-md"
                 />

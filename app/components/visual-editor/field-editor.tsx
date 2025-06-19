@@ -87,7 +87,7 @@ export default function FieldEditor({
                   <TextField
                     key={fieldName}
                     field={field}
-                    value={value}
+                    value={value as string || ""}
                     onChange={(val) => handleFieldChange(fieldName, val)}
                   />
                 );
@@ -97,7 +97,7 @@ export default function FieldEditor({
                   <TextareaField
                     key={fieldName}
                     field={field}
-                    value={value}
+                    value={value as string || ""}
                     onChange={(val) => handleFieldChange(fieldName, val)}
                   />
                 );
@@ -107,7 +107,7 @@ export default function FieldEditor({
                   <ImageField
                     key={fieldName}
                     field={field}
-                    value={value}
+                    value={value as string || ""}
                     onChange={(val) => handleFieldChange(fieldName, val)}
                     businessId={businessId}
                   />
@@ -118,7 +118,7 @@ export default function FieldEditor({
                   <ColorField
                     key={fieldName}
                     field={field}
-                    value={value}
+                    value={value as string || ""}
                     onChange={(val) => handleFieldChange(fieldName, val)}
                   />
                 );
@@ -128,7 +128,7 @@ export default function FieldEditor({
                   <SelectField
                     key={fieldName}
                     field={field}
-                    value={value}
+                    value={value as string || ""}
                     onChange={(val) => handleFieldChange(fieldName, val)}
                   />
                 );
@@ -138,7 +138,7 @@ export default function FieldEditor({
                   <NumberField
                     key={fieldName}
                     field={field}
-                    value={value}
+                    value={value as number || 0}
                     onChange={(val) => handleFieldChange(fieldName, val)}
                   />
                 );
@@ -148,7 +148,7 @@ export default function FieldEditor({
                   <ArrayField
                     key={fieldName}
                     field={field}
-                    value={value}
+                    value={value as unknown[] || []}
                     onChange={(val) => handleFieldChange(fieldName, val)}
                     businessId={businessId}
                   />

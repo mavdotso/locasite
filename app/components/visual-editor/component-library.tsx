@@ -80,7 +80,7 @@ export default function ComponentLibrary() {
                         </h4>
                         {config.fields.title?.defaultValue && (
                           <p className="text-xs text-muted-foreground truncate">
-                            {config.fields.title.defaultValue}
+                            {String(config.fields.title.defaultValue)}
                           </p>
                         )}
                       </div>
