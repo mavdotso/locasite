@@ -18,7 +18,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/app/components/ui/tooltip";
-import { useHoverState } from "./hover-state-provider";
 
 interface ComponentWrapperProps {
   component: ComponentData;
@@ -46,7 +45,6 @@ export default function ComponentWrapper({
   children
 }: ComponentWrapperProps) {
   const { startDrag } = useDragDrop();
-  const { hoveredComponentId, setHoveredComponentId } = useHoverState();
 
   const handleDragStart = (e: React.DragEvent) => {
     e.stopPropagation();
@@ -78,15 +76,13 @@ export default function ComponentWrapper({
         e.stopPropagation();
         onSelect();
       }}
-      onMouseEnter={() => setHoveredComponentId(component.id)}
-      onMouseLeave={() => setHoveredComponentId(null)}
     >
       {/* Component Controls */}
       <div className={cn(
         "absolute -top-10 right-2 z-10",
         "flex items-center gap-1 bg-background border rounded-lg shadow-lg p-1",
         "transition-all duration-200",
-        hoveredComponentId === component.id || isSelected ? "opacity-100 -translate-y-1" : "opacity-0"
+        isSelected ? "opacity-100 -translate-y-1" : "opacity-0"
       )}>
         {/* Drag Handle */}
         <Tooltip>

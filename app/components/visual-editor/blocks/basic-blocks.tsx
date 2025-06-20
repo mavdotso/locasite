@@ -57,7 +57,7 @@ const TextBlockComponent = (props: {
         onStartEdit={() => setIsEditing(true)}
         onEndEdit={() => setIsEditing(false)}
         className={className}
-        placeholder="Enter text..."
+        placeholder="Click to edit this text..."
         multiline={variant === 'paragraph' || variant === 'lead' || variant === 'muted'}
         component={Component}
       />
@@ -65,8 +65,8 @@ const TextBlockComponent = (props: {
   }
   
   return (
-    <Component className={className}>
-      {content || "Enter text..."}
+    <Component className={cn(className, !content && "text-muted-foreground italic")}>
+      {content || "Click to edit this text..."}
     </Component>
   );
 };

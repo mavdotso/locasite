@@ -21,7 +21,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/app/components/ui/tooltip";
-import { HoverStateProvider } from "./hover-state-provider";
 
 interface VisualEditorProps {
   businessId: Id<"businesses">;
@@ -168,7 +167,7 @@ export default function VisualEditor({
 
   // Duplicate component (handles nested components)
   const handleDuplicateComponent = useCallback((id: string) => {
-    const findAndDuplicate = (components: ComponentData[], parentComponents?: ComponentData[]): ComponentData[] => {
+    const findAndDuplicate = (components: ComponentData[]): ComponentData[] => {
       for (let i = 0; i < components.length; i++) {
         const comp = components[i];
         if (comp.id === id) {
@@ -195,7 +194,7 @@ export default function VisualEditor({
         
         // Search in children
         if (comp.children) {
-          const updatedChildren = findAndDuplicate(comp.children, components);
+          const updatedChildren = findAndDuplicate(comp.children);
           if (updatedChildren !== comp.children) {
             // Component was found and duplicated in children
             components[i] = { ...comp, children: updatedChildren };
@@ -350,9 +349,8 @@ export default function VisualEditor({
 
   return (
     <TooltipProvider>
-      <HoverStateProvider>
-        <DragDropProvider>
-          <div className="h-screen flex flex-col bg-background">
+      <DragDropProvider>
+        <div className="h-screen flex flex-col bg-background">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b bg-card">
             <div className="flex items-center gap-4">
@@ -604,9 +602,8 @@ export default function VisualEditor({
             </div>
           )}
         </div>
-        </div>
-      </DragDropProvider>
-    </HoverStateProvider>
+      </div>
+    </DragDropProvider>
   </TooltipProvider>
   );
 }
