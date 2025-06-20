@@ -7,9 +7,11 @@ import {
   ChevronDown,
   Layout
 } from "lucide-react";
+import DropZone from "../drop-zone";
+import { useDragDrop } from "../drag-drop-provider";
 import { cn } from "@/app/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
 import {
   Accordion,
   AccordionContent,
@@ -102,9 +104,19 @@ export const ColumnsBlock: ComponentConfig = {
       label: "Column Gap",
       defaultValue: "medium",
       options: [
+        { value: "none", label: "None" },
         { value: "small", label: "Small" },
         { value: "medium", label: "Medium" },
         { value: "large", label: "Large" }
+      ]
+    },
+    direction: {
+      type: "select",
+      label: "Direction",
+      defaultValue: "row",
+      options: [
+        { value: "row", label: "Row (Horizontal)" },
+        { value: "col", label: "Column (Vertical)" }
       ]
     },
     stackOnMobile: {
@@ -118,55 +130,59 @@ export const ColumnsBlock: ComponentConfig = {
     }
   },
   render: (props, editMode, _business, children, _onUpdate) => {
-    const { columns, gap, stackOnMobile } = props as {
+    const { columns, gap, direction, stackOnMobile } = props as {
       columns?: string;
       gap?: string;
+      direction?: string;
       stackOnMobile?: string;
     };
     
-    const gridClasses = {
-      "2": "grid-cols-2",
-      "3": "grid-cols-3",
-      "4": "grid-cols-4"
-    };
+    const columnCount = parseInt(columns || "2");
+    const isVertical = direction === "col";
     
     const gapClasses = {
+      none: "",
       small: "gap-2",
       medium: "gap-6",
       large: "gap-10"
     };
     
-    const mobileClasses = stackOnMobile === "yes" ? "grid-cols-1" : "";
+    // Build class names based on direction
+    let layoutClasses = "";
+    if (isVertical) {
+      layoutClasses = "flex flex-col";
+    } else {
+      layoutClasses = cn(
+        "grid",
+        stackOnMobile === "yes" ? "grid-cols-1" : "",
+        columnCount === 2 && "md:grid-cols-2",
+        columnCount === 3 && "md:grid-cols-3",
+        columnCount === 4 && "md:grid-cols-4"
+      );
+    }
     
-    // Create placeholder columns in edit mode
-    const columnCount = parseInt(columns || "2");
-    
-    // For columns, we need to structure children differently
-    // Each column should be able to accept multiple children
-    // For now, distribute children among columns
+    // Distribute children among columns
     const childrenArray = React.Children.toArray(children);
-    const columnsContent = Array(columnCount).fill(null).map((_, colIndex) => {
-      const colChildren = childrenArray.filter((_, childIndex) => childIndex % columnCount === colIndex);
-      return colChildren.length > 0 ? colChildren : null;
+    const columnContents: React.ReactNode[][] = Array(columnCount).fill(null).map(() => []);
+    
+    // Distribute children to columns
+    childrenArray.forEach((child, index) => {
+      const columnIndex = index % columnCount;
+      columnContents[columnIndex].push(child);
     });
     
     return (
       <div className={cn(
-        "grid",
-        mobileClasses,
-        `md:${gridClasses[columns as keyof typeof gridClasses] || gridClasses["2"]}`,
+        layoutClasses,
         gapClasses[gap as keyof typeof gapClasses] || gapClasses.medium
       )}>
-        {columnsContent.map((colContent, index) => (
-          <div 
-            key={index}
-            className={cn(
-              "column-drop-zone",
-              editMode && !colContent && "min-h-[100px] border-2 border-dashed border-muted-foreground/30 rounded-lg flex items-center justify-center bg-muted/20"
-            )}
-          >
-            {colContent || (
-              editMode && <p className="text-sm text-muted-foreground">Column {index + 1}</p>
+        {columnContents.map((colChildren, colIndex) => (
+          <div key={colIndex} className="min-h-[100px] column-drop-zone">
+            {colChildren}
+            {editMode && colChildren.length === 0 && (
+              <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">
+                <p className="text-sm text-muted-foreground">Column {colIndex + 1}</p>
+              </div>
             )}
           </div>
         ))}
@@ -177,6 +193,7 @@ export const ColumnsBlock: ComponentConfig = {
   category: "Layout",
   acceptsChildren: true
 };
+
 
 // Card Block - Content card with header
 export const CardBlock: ComponentConfig = {
@@ -269,7 +286,7 @@ export const AccordionBlock: ComponentConfig = {
   },
   render: (props, _editMode, _business, _children, _onUpdate) => {
     const { items, type } = props as {
-      items?: Array<{ title: string; content: string }>;
+      items?: Array<{ title: string; content: string } | string>;
       type?: string;
     };
     
@@ -277,14 +294,18 @@ export const AccordionBlock: ComponentConfig = {
     
     return (
       <Accordion type={type as "single" | "multiple"} className="w-full">
-        {accordionItems.map((item, index) => (
-          <AccordionItem key={index} value={`item-${index}`}>
-            <AccordionTrigger>{item.title}</AccordionTrigger>
-            <AccordionContent>
-              {item.content}
-            </AccordionContent>
-          </AccordionItem>
-        ))}
+        {accordionItems.map((item, index) => {
+          // Handle both object and string formats
+          const itemData = typeof item === 'string' ? { title: item, content: '' } : item;
+          return (
+            <AccordionItem key={index} value={`item-${index}`}>
+              <AccordionTrigger>{itemData.title}</AccordionTrigger>
+              <AccordionContent>
+                {itemData.content || 'Content goes here'}
+              </AccordionContent>
+            </AccordionItem>
+          );
+        })}
       </Accordion>
     );
   },

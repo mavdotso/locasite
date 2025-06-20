@@ -15,9 +15,12 @@ interface NestedDropZoneProps {
   onSelectComponent: (id: string | null) => void;
   onUpdateComponent: (id: string, props: Record<string, unknown>) => void;
   onRemoveComponent: (id: string) => void;
-  onAddComponent: (type: string, index: number, parentId?: string) => void;
+  onAddComponent: (type: string, index: number, parentId?: string, metadata?: Record<string, unknown>) => void;
   onDuplicateComponent?: (id: string) => void;
   isEditMode: boolean;
+  onMove?: (direction: "up" | "down") => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
 }
 
 export default function NestedDropZone({
@@ -29,7 +32,10 @@ export default function NestedDropZone({
   onRemoveComponent,
   onAddComponent,
   onDuplicateComponent,
-  isEditMode
+  isEditMode,
+  onMove,
+  canMoveUp = false,
+  canMoveDown = false
 }: NestedDropZoneProps) {
   const { draggedItem } = useDragDrop();
   const config = componentConfigs[component.type];
@@ -107,13 +113,10 @@ export default function NestedDropZone({
       isEditMode={isEditMode}
       onSelect={() => onSelectComponent(component.id)}
       onRemove={() => onRemoveComponent(component.id)}
-      onMove={(direction) => {
-        // TODO: Implement nested component movement
-        console.log('Move nested component', direction);
-      }}
+      onMove={onMove || (() => {})}
       onDuplicate={onDuplicateComponent ? () => onDuplicateComponent(component.id) : undefined}
-      canMoveUp={false} // TODO: Implement proper check
-      canMoveDown={false} // TODO: Implement proper check
+      canMoveUp={canMoveUp}
+      canMoveDown={canMoveDown}
     >
       {config.render(componentProps, isEditMode, business, children, handleUpdate)}
     </ComponentWrapper>

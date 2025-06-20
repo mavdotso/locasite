@@ -20,7 +20,16 @@ export default function ArrayField({ field, value, onChange, businessId }: Array
   const addItem = () => {
     if (field.maxItems && items.length >= field.maxItems) return;
     
-    const defaultValue = field.itemType.defaultValue || "";
+    // For accordion/tabs items, create proper object structure
+    let defaultValue;
+    if (field.label === "Accordion Items") {
+      defaultValue = { title: "New Section", content: "Content goes here" };
+    } else if (field.label === "Tabs") {
+      defaultValue = { label: "New Tab", content: "Tab content goes here" };
+    } else {
+      defaultValue = field.itemType.defaultValue || "";
+    }
+    
     onChange([...items, defaultValue]);
   };
 
@@ -65,6 +74,40 @@ export default function ArrayField({ field, value, onChange, businessId }: Array
                   onChange={(val) => updateItem(index, val)}
                   businessId={businessId}
                 />
+              ) : field.label === "Accordion Items" ? (
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    value={typeof item === 'object' && item !== null ? (item as any).title || "" : ""}
+                    onChange={(e) => updateItem(index, { ...(typeof item === 'object' ? item : {}), title: e.target.value })}
+                    placeholder="Section title"
+                    className="w-full px-3 py-2 border rounded-md"
+                  />
+                  <textarea
+                    value={typeof item === 'object' && item !== null ? (item as any).content || "" : ""}
+                    onChange={(e) => updateItem(index, { ...(typeof item === 'object' ? item : { title: "" }), content: e.target.value })}
+                    placeholder="Section content"
+                    className="w-full px-3 py-2 border rounded-md"
+                    rows={2}
+                  />
+                </div>
+              ) : field.label === "Tabs" ? (
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    value={typeof item === 'object' && item !== null ? (item as any).label || "" : ""}
+                    onChange={(e) => updateItem(index, { ...(typeof item === 'object' ? item : {}), label: e.target.value })}
+                    placeholder="Tab label"
+                    className="w-full px-3 py-2 border rounded-md"
+                  />
+                  <textarea
+                    value={typeof item === 'object' && item !== null ? (item as any).content || "" : ""}
+                    onChange={(e) => updateItem(index, { ...(typeof item === 'object' ? item : { label: "" }), content: e.target.value })}
+                    placeholder="Tab content"
+                    className="w-full px-3 py-2 border rounded-md"
+                    rows={2}
+                  />
+                </div>
               ) : (
                 <input
                   type="text"

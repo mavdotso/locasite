@@ -11,6 +11,7 @@ import { Button } from "@/app/components/ui/button";
 import { Monitor, Tablet, Smartphone } from "lucide-react";
 import { Doc } from "@/convex/_generated/dataModel";
 import NestedDropZone from "./nested-drop-zone";
+import ColumnsDropZone from "./columns-drop-zone";
 
 interface PreviewPanelProps {
   pageData: PageData;
@@ -20,7 +21,7 @@ interface PreviewPanelProps {
   onUpdateComponent: (id: string, props: Record<string, unknown>) => void;
   onRemoveComponent: (id: string) => void;
   onMoveComponent: (fromIndex: number, toIndex: number) => void;
-  onAddComponent: (type: string, index: number, parentId?: string) => void;
+  onAddComponent: (type: string, index: number, parentId?: string, metadata?: Record<string, unknown>) => void;
   onDuplicateComponent?: (id: string) => void;
   isEditMode?: boolean;
 }
@@ -151,11 +152,12 @@ export default function PreviewPanel({
               {pageData.components.map((component, index) => {
                 const config = componentConfigs[component.type];
                 
-                // Use NestedDropZone for container components
+                // Use ColumnsDropZone for Columns blocks, NestedDropZone for other containers
                 if (config?.acceptsChildren) {
+                  const DropZoneComponent = component.type === "ColumnsBlock" ? ColumnsDropZone : NestedDropZone;
                   return (
                     <React.Fragment key={component.id}>
-                      <NestedDropZone
+                      <DropZoneComponent
                         component={component}
                         business={business}
                         selectedComponentId={selectedComponentId}
@@ -165,6 +167,14 @@ export default function PreviewPanel({
                         onAddComponent={onAddComponent}
                         onDuplicateComponent={onDuplicateComponent}
                         isEditMode={isEditMode}
+                        onMove={(direction) => {
+                          const newIndex = direction === "up" ? index - 1 : index + 1;
+                          if (newIndex >= 0 && newIndex < pageData.components.length) {
+                            onMoveComponent(index, newIndex);
+                          }
+                        }}
+                        canMoveUp={index > 0}
+                        canMoveDown={index < pageData.components.length - 1}
                       />
                       
                       {/* Drop zone after component */}

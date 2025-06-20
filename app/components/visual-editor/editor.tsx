@@ -75,7 +75,7 @@ export default function VisualEditor({
   const generateId = () => `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
   // Add component
-  const handleAddComponent = useCallback((type: string, index: number, parentId?: string) => {
+  const handleAddComponent = useCallback((type: string, index: number, parentId?: string, metadata?: Record<string, unknown>) => {
     const config = componentConfigs[type];
     if (!config) return;
 
@@ -90,7 +90,8 @@ export default function VisualEditor({
       props: defaultProps,
       layout: {}, // Initialize with empty layout
       parentId,
-      children: config.acceptsChildren ? [] : undefined
+      children: config.acceptsChildren ? [] : undefined,
+      ...(metadata ? { metadata } : {})
     };
 
     let newData: PageData;

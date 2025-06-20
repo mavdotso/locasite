@@ -14,7 +14,7 @@ import SelectField from "./fields/select-field";
 import NumberField from "./fields/number-field";
 import ArrayField from "./fields/array-field";
 import LayoutControls from "./layout-controls";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
 import { LayoutOptions } from "./types";
 
 interface FieldEditorProps {

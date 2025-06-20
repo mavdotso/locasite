@@ -113,6 +113,7 @@ export interface ComponentData {
   layout?: LayoutOptions;
   children?: ComponentData[]; // Support nested components
   parentId?: string; // Track parent component
+  metadata?: Record<string, unknown>; // Additional metadata (e.g., column index)
 }
 
 export interface PageData {
