@@ -67,7 +67,6 @@ export default function ColumnsDropZone({
     
     if (draggedItem.type === "new-component" && draggedItem.componentType) {
       // Calculate the actual index considering all columns
-      const childrenInColumn = getChildrenInColumn(columnIndex);
       const actualIndex = calculateActualIndex(columnIndex, dropIndex);
       
       // Add metadata to track which column this component belongs to
@@ -126,7 +125,7 @@ export default function ColumnsDropZone({
         // Empty column - find the right position
         for (let i = 0; i < component.children.length; i++) {
           const childCol = component.children[i].metadata?.columnIndex ?? i % columnCount;
-          if (childCol > columnIndex) {
+          if (typeof childCol === 'number' && childCol > columnIndex) {
             return i;
           }
         }
@@ -163,15 +162,6 @@ export default function ColumnsDropZone({
     );
   }
 
-  // Create update handler for this component
-  const handleUpdate = (newProps: Record<string, unknown>) => {
-    onUpdateComponent(component.id, newProps);
-  };
-
-  const componentProps = {
-    ...component.props,
-    business
-  };
 
   // Custom render for columns with individual drop zones
   const columnsContent = (

@@ -1,36 +1,11 @@
-### Visual Editor Architecture
-- **Editor Component**: Main editing interface with drag & drop
-- **Render Component**: Display-only component for published pages
-- **Config System**: Define available components and their fields
-- **Data Model**: JSON structure representing page content and layout
-
-### Field System Integration
-- Leverage existing theme color system with enhanced visual controls
-- Integrate with Convex storage for image uploads
-- Extend current font management with visual typography controls
-- Add responsive design controls for mobile/tablet/desktop
-
-## Current Strengths to Build Upon
-- Advanced theme system with comprehensive customization
-- Real-time preview with responsive device simulation
-- Scoped CSS system preventing style conflicts
-- Professional theme presets and color palettes
-- Inline editing capabilities for text content
-- Convex backend for real-time data synchronization
-
-## Implementation Summary
-
-### Completed Features:
-1. **Visual Editor Core** - Full drag & drop system with component library
-2. **Field System** - Text, textarea, image, color, select, number, and array fields
-3. **Component Library** - Hero, About, Gallery, Contact, Info, Reviews, Map, Hours blocks
-4. **Real-time Preview** - With device size simulation (desktop/tablet/mobile)
-5. **Integration** - Works with existing Locasite architecture
-6. **Backward Compatibility** - Supports both old section format and new component format
-7. **Flexible Block-Based Architecture** - Users can build custom sections with basic blocks
-8. **Enhanced Text Editing** - Sidebar-only editing with full formatting controls including color
-
-## Phase 6: Post-MVP Enhancements
+## TODOS:
+- [ ] Re-create all the basic (standard) sections in the new visual editor style so that they're all completely editable
+- [ ] Create a "user library" component that stores all images that can be used on pages
+- [ ] Create pre-made page templates for different business types with styles
+- [ ] Messages / reservations implementation (+third party integrations + Zapier, whatsapp, etc)
+- [ ] Payments
+- [ ] Claim business on Google Maps
+- [ ] Logo upload
 
 ### Enhanced Layout Controls
 - [ ] Add margin/padding controls for sections
@@ -69,11 +44,3 @@
 - [ ] SEO metadata editing
 - [ ] Analytics integration
 - [ ] Multi-language support
-
-
-- [ ] Create a "user library" component that stores all images that can be used on pages
-- [ ] Re-create all the basic (standard) sections in the new visual editor style so that they're all completely editable
-- [ ] Create pre-made page templates for different business types with styles
-- [ ] Messages / reservations implementation (+third party integrations + Zapier, whatsapp, etc)
-- [ ] Payments
-- [ ] Claim business on Google Maps

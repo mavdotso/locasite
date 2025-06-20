@@ -177,57 +177,7 @@ interface ComponentCardProps {
   showPreview?: boolean;
 }
 
-function ComponentCard({ type, config, Icon, onDragStart, isDragging, showPreview = true }: ComponentCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
-  
-  // Generate a simple preview of the component
-  const getPreviewContent = () => {
-    switch (type) {
-      case 'HeroBlock':
-        return (
-          <div className="h-full bg-gradient-to-br from-primary/20 to-primary/10 rounded flex items-center justify-center p-4">
-            <div className="text-center">
-              <div className="h-2 w-20 bg-primary/40 rounded mb-2 mx-auto" />
-              <div className="h-1.5 w-16 bg-primary/30 rounded" />
-            </div>
-          </div>
-        );
-      case 'TextBlock':
-        return (
-          <div className="p-3 space-y-2">
-            <div className="h-2 w-16 bg-muted-foreground/30 rounded" />
-            <div className="space-y-1">
-              <div className="h-1 w-full bg-muted-foreground/20 rounded" />
-              <div className="h-1 w-3/4 bg-muted-foreground/20 rounded" />
-            </div>
-          </div>
-        );
-      case 'GalleryBlock':
-        return (
-          <div className="p-3">
-            <div className="grid grid-cols-2 gap-1">
-              <div className="aspect-square bg-muted-foreground/20 rounded" />
-              <div className="aspect-square bg-muted-foreground/20 rounded" />
-              <div className="aspect-square bg-muted-foreground/20 rounded" />
-              <div className="aspect-square bg-muted-foreground/20 rounded" />
-            </div>
-          </div>
-        );
-      case 'ContactBlock':
-        return (
-          <div className="p-3 space-y-2">
-            <div className="h-1.5 w-12 bg-muted-foreground/30 rounded" />
-            <div className="space-y-1">
-              <div className="h-3 w-full bg-muted-foreground/10 rounded" />
-              <div className="h-3 w-full bg-muted-foreground/10 rounded" />
-            </div>
-            <div className="h-4 w-16 bg-primary/30 rounded" />
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
+function ComponentCard({ type, config, Icon, onDragStart, isDragging }: ComponentCardProps) {
 
   return (
     <Tooltip>
@@ -235,8 +185,6 @@ function ComponentCard({ type, config, Icon, onDragStart, isDragging, showPrevie
         <div
           draggable
           onDragStart={onDragStart}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
           className={cn(
             "relative p-4 border rounded-lg cursor-move transition-all",
             "hover:border-primary hover:shadow-sm",

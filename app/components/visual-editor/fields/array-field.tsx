@@ -78,13 +78,13 @@ export default function ArrayField({ field, value, onChange, businessId }: Array
                 <div className="space-y-2">
                   <input
                     type="text"
-                    value={typeof item === 'object' && item !== null ? (item as any).title || "" : ""}
+                    value={typeof item === 'object' && item !== null ? (item as { title?: string; content?: string }).title || "" : ""}
                     onChange={(e) => updateItem(index, { ...(typeof item === 'object' ? item : {}), title: e.target.value })}
                     placeholder="Section title"
                     className="w-full px-3 py-2 border rounded-md"
                   />
                   <textarea
-                    value={typeof item === 'object' && item !== null ? (item as any).content || "" : ""}
+                    value={typeof item === 'object' && item !== null ? (item as { title?: string; content?: string }).content || "" : ""}
                     onChange={(e) => updateItem(index, { ...(typeof item === 'object' ? item : { title: "" }), content: e.target.value })}
                     placeholder="Section content"
                     className="w-full px-3 py-2 border rounded-md"
@@ -95,13 +95,13 @@ export default function ArrayField({ field, value, onChange, businessId }: Array
                 <div className="space-y-2">
                   <input
                     type="text"
-                    value={typeof item === 'object' && item !== null ? (item as any).label || "" : ""}
+                    value={typeof item === 'object' && item !== null ? (item as { label?: string; content?: string }).label || "" : ""}
                     onChange={(e) => updateItem(index, { ...(typeof item === 'object' ? item : {}), label: e.target.value })}
                     placeholder="Tab label"
                     className="w-full px-3 py-2 border rounded-md"
                   />
                   <textarea
-                    value={typeof item === 'object' && item !== null ? (item as any).content || "" : ""}
+                    value={typeof item === 'object' && item !== null ? (item as { label?: string; content?: string }).content || "" : ""}
                     onChange={(e) => updateItem(index, { ...(typeof item === 'object' ? item : { label: "" }), content: e.target.value })}
                     placeholder="Tab content"
                     className="w-full px-3 py-2 border rounded-md"

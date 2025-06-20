@@ -12,7 +12,7 @@ interface InlineEditorProps {
   className?: string;
   placeholder?: string;
   multiline?: boolean;
-  component?: keyof JSX.IntrinsicElements;
+  component?: keyof React.JSX.IntrinsicElements;
 }
 
 export default function InlineEditor({

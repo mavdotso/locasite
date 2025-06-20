@@ -7,8 +7,6 @@ import {
   ChevronDown,
   Layout
 } from "lucide-react";
-import DropZone from "../drop-zone";
-import { useDragDrop } from "../drag-drop-provider";
 import { cn } from "@/app/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
