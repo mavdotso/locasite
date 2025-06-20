@@ -29,7 +29,7 @@ export default function SiteCreationFlow() {
   const [businessData, setBusinessData] = useState<BusinessData | null>(null);
   const [error, setError] = useState('');
   const router = useRouter();
-  const createFromPending = useMutation(api.createFromPending.createBusinessFromPendingData);
+  const createFromPending = useMutation(api.businesses.createBusinessFromPendingData);
 
   const handleUrlSubmit = async () => {
     if (!googleMapsUrl.trim()) {

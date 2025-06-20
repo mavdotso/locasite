@@ -47,7 +47,7 @@ export default function MessagesManagement() {
   const [selectedMessage, setSelectedMessage] = useState<MessageWithBusiness | null>(null);
   const [replyText, setReplyText] = useState('');
 
-  const user = useQuery(api.helpers.getCurrentUser);
+  const user = useQuery(api.auth.currentUser);
   const allMessages = useQuery(api.contactMessages.getAllUserMessages) || [];
 
   const markAsRead = useMutation(api.contactMessages.markAsRead);

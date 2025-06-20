@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from "sonner";
 
 export function AuthHandler() {
-    const createFromPending = useMutation(api.createFromPending.createBusinessFromPendingData);
+    const createFromPending = useMutation(api.businesses.createBusinessFromPendingData);
     const user = useQuery(api.auth.currentUser);
     const router = useRouter();
     

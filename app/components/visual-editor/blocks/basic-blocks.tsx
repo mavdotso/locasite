@@ -6,7 +6,33 @@ import {
   Square, 
   Minus,
   Video,
-  Space
+  Space,
+  Star,
+  Heart,
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  Calendar,
+  User,
+  Users,
+  Briefcase,
+  Building,
+  Home,
+  Shield,
+  Award,
+  CheckCircle,
+  Info,
+  AlertCircle,
+  ArrowRight,
+  ExternalLink,
+  Download,
+  Share2,
+  Globe,
+  Facebook,
+  Twitter,
+  Instagram,
+  Linkedin
 } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { cn } from "@/app/lib/utils";
@@ -465,4 +491,137 @@ export const VideoBlock: ComponentConfig = {
   },
   icon: Video,
   category: "Media"
+};
+
+// Icon Block - Display icons
+export const IconBlock: ComponentConfig = {
+  fields: {
+    icon: {
+      type: "select",
+      label: "Icon",
+      defaultValue: "star",
+      options: [
+        { value: "star", label: "Star" },
+        { value: "heart", label: "Heart" },
+        { value: "phone", label: "Phone" },
+        { value: "mail", label: "Mail" },
+        { value: "mapPin", label: "Map Pin" },
+        { value: "clock", label: "Clock" },
+        { value: "calendar", label: "Calendar" },
+        { value: "user", label: "User" },
+        { value: "users", label: "Users" },
+        { value: "briefcase", label: "Briefcase" },
+        { value: "building", label: "Building" },
+        { value: "home", label: "Home" },
+        { value: "shield", label: "Shield" },
+        { value: "award", label: "Award" },
+        { value: "checkCircle", label: "Check Circle" },
+        { value: "info", label: "Info" },
+        { value: "alertCircle", label: "Alert Circle" },
+        { value: "arrowRight", label: "Arrow Right" },
+        { value: "externalLink", label: "External Link" },
+        { value: "download", label: "Download" },
+        { value: "share", label: "Share" },
+        { value: "globe", label: "Globe" },
+        { value: "facebook", label: "Facebook" },
+        { value: "twitter", label: "Twitter" },
+        { value: "instagram", label: "Instagram" },
+        { value: "linkedin", label: "LinkedIn" }
+      ]
+    },
+    size: {
+      type: "select",
+      label: "Size",
+      defaultValue: "medium",
+      options: [
+        { value: "small", label: "Small (16px)" },
+        { value: "medium", label: "Medium (24px)" },
+        { value: "large", label: "Large (32px)" },
+        { value: "xlarge", label: "Extra Large (48px)" }
+      ]
+    },
+    color: {
+      type: "color",
+      label: "Color",
+      defaultValue: ""
+    },
+    align: {
+      type: "select",
+      label: "Alignment",
+      defaultValue: "left",
+      options: [
+        { value: "left", label: "Left" },
+        { value: "center", label: "Center" },
+        { value: "right", label: "Right" }
+      ]
+    }
+  },
+  render: (props) => {
+    const { icon, size, color, align } = props as { 
+      icon?: string; 
+      size?: string; 
+      color?: string;
+      align?: string;
+    };
+    
+    // Import all icons we might need
+    const icons = {
+      star: Star,
+      heart: Heart,
+      phone: Phone,
+      mail: Mail,
+      mapPin: MapPin,
+      clock: Clock,
+      calendar: Calendar,
+      user: User,
+      users: Users,
+      briefcase: Briefcase,
+      building: Building,
+      home: Home,
+      shield: Shield,
+      award: Award,
+      checkCircle: CheckCircle,
+      info: Info,
+      alertCircle: AlertCircle,
+      arrowRight: ArrowRight,
+      externalLink: ExternalLink,
+      download: Download,
+      share: Share2,
+      globe: Globe,
+      facebook: Facebook,
+      twitter: Twitter,
+      instagram: Instagram,
+      linkedin: Linkedin
+    };
+    
+    const IconComponent = icons[icon as keyof typeof icons] || Star;
+    
+    const sizeClasses = {
+      small: "w-4 h-4",
+      medium: "w-6 h-6",
+      large: "w-8 h-8",
+      xlarge: "w-12 h-12"
+    };
+    
+    const alignClasses = {
+      left: "justify-start",
+      center: "justify-center",
+      right: "justify-end"
+    };
+    
+    return (
+      <div className={cn("flex", alignClasses[align as keyof typeof alignClasses] || alignClasses.left)}>
+        <IconComponent 
+          className={cn(
+            sizeClasses[size as keyof typeof sizeClasses] || sizeClasses.medium,
+            "flex-shrink-0"
+          )}
+          style={{ color: color || undefined }}
+        />
+      </div>
+    );
+  },
+  icon: Star,
+  category: "Basic",
+  inline: true
 };

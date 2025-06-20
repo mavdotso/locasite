@@ -8,24 +8,22 @@
  * @module
  */
 
-import type * as aiContentGenerator from "../aiContentGenerator.js";
 import type * as auth from "../auth.js";
 import type * as businessClaims from "../businessClaims.js";
 import type * as businesses from "../businesses.js";
 import type * as contactMessages from "../contactMessages.js";
-import type * as createFromPending from "../createFromPending.js";
-import type * as debug from "../debug.js";
 import type * as domains from "../domains.js";
-import type * as helpers from "../helpers.js";
 import type * as http from "../http.js";
+import type * as lib_aiContentGenerator from "../lib/aiContentGenerator.js";
+import type * as lib_helpers from "../lib/helpers.js";
+import type * as lib_regenerateAI from "../lib/regenerateAI.js";
+import type * as lib_scrape from "../lib/scrape.js";
+import type * as lib_themePresets from "../lib/themePresets.js";
+import type * as lib_themeSchema from "../lib/themeSchema.js";
+import type * as lib_themeSuggestions from "../lib/themeSuggestions.js";
+import type * as lib_types from "../lib/types.js";
 import type * as pages from "../pages.js";
-import type * as regenerateAI from "../regenerateAI.js";
-import type * as scrape from "../scrape.js";
 import type * as storage from "../storage.js";
-import type * as testAI from "../testAI.js";
-import type * as themePresets from "../themePresets.js";
-import type * as themeSchema from "../lib/themeSchema.js";
-import type * as themeSuggestions from "../themeSuggestions.js";
 import type * as themes from "../themes.js";
 
 import type {
@@ -33,6 +31,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+
 /**
  * A utility for referencing Convex functions in your app's API.
  *
@@ -42,24 +41,22 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
-  aiContentGenerator: typeof aiContentGenerator;
   auth: typeof auth;
   businessClaims: typeof businessClaims;
   businesses: typeof businesses;
   contactMessages: typeof contactMessages;
-  createFromPending: typeof createFromPending;
-  debug: typeof debug;
   domains: typeof domains;
-  helpers: typeof helpers;
   http: typeof http;
+  "lib/aiContentGenerator": typeof lib_aiContentGenerator;
+  "lib/helpers": typeof lib_helpers;
+  "lib/regenerateAI": typeof lib_regenerateAI;
+  "lib/scrape": typeof lib_scrape;
+  "lib/themePresets": typeof lib_themePresets;
+  "lib/themeSchema": typeof lib_themeSchema;
+  "lib/themeSuggestions": typeof lib_themeSuggestions;
+  "lib/types": typeof lib_types;
   pages: typeof pages;
-  regenerateAI: typeof regenerateAI;
-  scrape: typeof scrape;
   storage: typeof storage;
-  testAI: typeof testAI;
-  themePresets: typeof themePresets;
-  themeSchema: typeof themeSchema;
-  themeSuggestions: typeof themeSuggestions;
   themes: typeof themes;
 }>;
 declare const fullApiWithMounts: typeof fullApi;

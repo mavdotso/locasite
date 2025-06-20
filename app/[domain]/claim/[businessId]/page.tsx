@@ -88,7 +88,7 @@ export default async function ClaimBusinessPage({ params }: ClaimPageProps) {
   // Check current user authentication status
   let currentUser = null;
   try {
-    currentUser = await fetchQuery(api.helpers.getCurrentUser, {});
+    currentUser = await fetchQuery(api.auth.currentUser, {});
   } catch {
     // User not authenticated
   }

@@ -488,7 +488,7 @@ const TestimonialsCarouselComponent: React.FC<{
 };
 
 // Hero Section Block
-export const HeroSectionBlock: ComponentConfig = {
+export const HeroBlock: ComponentConfig = {
   fields: {
     title: {
       type: "text",
@@ -604,7 +604,7 @@ export const HeroSectionBlock: ComponentConfig = {
 };
 
 // About Section Block
-export const AboutSectionBlock: ComponentConfig = {
+export const AboutBlock: ComponentConfig = {
   fields: {
     title: {
       type: "text",
@@ -704,7 +704,7 @@ export const AboutSectionBlock: ComponentConfig = {
 };
 
 // Services Section Block
-export const ServicesSectionBlock: ComponentConfig = {
+export const ServicesBlock: ComponentConfig = {
   fields: {
     title: {
       type: "text",
@@ -812,7 +812,7 @@ export const ServicesSectionBlock: ComponentConfig = {
 };
 
 // Gallery Section Block with Lightbox
-export const GallerySectionBlock: ComponentConfig = {
+export const GalleryBlock: ComponentConfig = {
   fields: {
     title: {
       type: "text",
@@ -858,7 +858,7 @@ export const GallerySectionBlock: ComponentConfig = {
 };
 
 // Testimonials Section Block
-export const TestimonialsSectionBlock: ComponentConfig = {
+export const TestimonialsBlock: ComponentConfig = {
   fields: {
     title: {
       type: "text",
@@ -879,25 +879,14 @@ export const TestimonialsSectionBlock: ComponentConfig = {
       type: "array",
       label: "Testimonials",
       defaultValue: [
-        {
-          name: "John Doe",
-          role: "CEO, Company",
-          content: "Amazing service! Highly recommend to everyone.",
-          rating: 5,
-          image: ""
-        },
-        {
-          name: "Jane Smith",
-          role: "Marketing Manager",
-          content: "Professional and reliable. Exceeded our expectations.",
-          rating: 5,
-          image: ""
-        }
+        "John Doe|CEO, Company|Amazing service! Highly recommend to everyone.|5|",
+        "Jane Smith|Marketing Manager|Professional and reliable. Exceeded our expectations.|5|"
       ],
       itemType: {
         type: "text",
         label: "Testimonial",
-        defaultValue: "John Doe|CEO, Company|Amazing service!|5|"
+        defaultValue: "John Doe|CEO, Company|Amazing service!|5|",
+        placeholder: "Name|Role|Content|Rating|ImageURL"
       },
       maxItems: 10
     }
@@ -910,7 +899,7 @@ export const TestimonialsSectionBlock: ComponentConfig = {
 };
 
 // Contact Section Block
-export const ContactSectionBlock: ComponentConfig = {
+export const ContactBlock: ComponentConfig = {
   fields: {
     title: {
       type: "text",
@@ -1079,7 +1068,7 @@ export const ContactSectionBlock: ComponentConfig = {
 };
 
 // Team Section Block
-export const TeamSectionBlock: ComponentConfig = {
+export const TeamBlock: ComponentConfig = {
   fields: {
     title: {
       type: "text",
@@ -1162,7 +1151,7 @@ export const TeamSectionBlock: ComponentConfig = {
 };
 
 // CTA Section Block
-export const CTASectionBlock: ComponentConfig = {
+export const CTABlock: ComponentConfig = {
   fields: {
     title: {
       type: "text",
@@ -1247,7 +1236,7 @@ export const CTASectionBlock: ComponentConfig = {
 };
 
 // Footer Section Block
-export const FooterSectionBlock: ComponentConfig = {
+export const FooterBlock: ComponentConfig = {
   fields: {
     columns: {
       type: "array",

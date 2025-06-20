@@ -469,12 +469,38 @@ export const createDefaultPages = mutation({
                             id: `component-${componentIndex++}`,
                             type: "CardBlock",
                             props: {
-                                title: "Phone",
+                                title: "",
                                 description: "",
                                 variant: "default",
                                 padding: "medium"
                             },
                             children: [
+                                {
+                                    id: `component-${componentIndex++}`,
+                                    type: "IconBlock",
+                                    props: {
+                                        icon: "phone",
+                                        size: "large",
+                                        color: "",
+                                        align: "center"
+                                    }
+                                },
+                                {
+                                    id: `component-${componentIndex++}`,
+                                    type: "SpacerBlock",
+                                    props: {
+                                        size: "small"
+                                    }
+                                },
+                                {
+                                    id: `component-${componentIndex++}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: "Phone",
+                                        variant: "h4",
+                                        align: "center"
+                                    }
+                                },
                                 {
                                     id: `component-${componentIndex++}`,
                                     type: "TextBlock",
@@ -491,12 +517,38 @@ export const createDefaultPages = mutation({
                             id: `component-${componentIndex++}`,
                             type: "CardBlock",
                             props: {
-                                title: "Address",
+                                title: "",
                                 description: "",
                                 variant: "default",
                                 padding: "medium"
                             },
                             children: [
+                                {
+                                    id: `component-${componentIndex++}`,
+                                    type: "IconBlock",
+                                    props: {
+                                        icon: "mapPin",
+                                        size: "large",
+                                        color: "",
+                                        align: "center"
+                                    }
+                                },
+                                {
+                                    id: `component-${componentIndex++}`,
+                                    type: "SpacerBlock",
+                                    props: {
+                                        size: "small"
+                                    }
+                                },
+                                {
+                                    id: `component-${componentIndex++}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: "Address",
+                                        variant: "h4",
+                                        align: "center"
+                                    }
+                                },
                                 {
                                     id: `component-${componentIndex++}`,
                                     type: "TextBlock",
@@ -513,31 +565,60 @@ export const createDefaultPages = mutation({
                             id: `component-${componentIndex++}`,
                             type: "CardBlock",
                             props: {
-                                title: "Hours",
+                                title: "",
                                 description: "",
                                 variant: "default",
                                 padding: "medium"
                             },
-                            children: business.hours && business.hours.length > 0 ? 
-                                business.hours.map((hour: string, index: number) => ({
-                                    id: `component-${componentIndex++}-hour-${index}`,
-                                    type: "TextBlock",
+                            children: [
+                                {
+                                    id: `component-${componentIndex++}`,
+                                    type: "IconBlock",
                                     props: {
-                                        content: hour,
-                                        variant: "small",
+                                        icon: "clock",
+                                        size: "large",
+                                        color: "",
                                         align: "center"
                                     }
-                                })) : [
-                                    {
-                                        id: `component-${componentIndex++}`,
+                                },
+                                {
+                                    id: `component-${componentIndex++}`,
+                                    type: "SpacerBlock",
+                                    props: {
+                                        size: "small"
+                                    }
+                                },
+                                {
+                                    id: `component-${componentIndex++}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: "Hours",
+                                        variant: "h4",
+                                        align: "center"
+                                    }
+                                },
+                                ...(business.hours && business.hours.length > 0 ? 
+                                    business.hours.map((hour: string, index: number) => ({
+                                        id: `component-${componentIndex++}-hour-${index}`,
                                         type: "TextBlock",
                                         props: {
-                                            content: "Contact us for hours",
-                                            variant: "paragraph",
+                                            content: hour,
+                                            variant: "small",
                                             align: "center"
                                         }
-                                    }
-                                ]
+                                    })) : [
+                                        {
+                                            id: `component-${componentIndex++}`,
+                                            type: "TextBlock",
+                                            props: {
+                                                content: "Contact us for hours",
+                                                variant: "paragraph",
+                                                align: "center"
+                                            }
+                                        }
+                                    ]
+                                )
+                            ]
                         }
                     ]
                 }
@@ -907,31 +988,142 @@ export const createDefaultPages = mutation({
                                     id: `component-${contactComponentIndex++}`,
                                     type: "CardBlock",
                                     props: {
-                                        title: "Phone",
-                                        description: business.phone,
+                                        title: "",
+                                        description: "",
                                         variant: "default",
                                         padding: "medium"
-                                    }
+                                    },
+                                    children: [
+                                        {
+                                            id: `component-${contactComponentIndex++}`,
+                                            type: "IconBlock",
+                                            props: {
+                                                icon: "phone",
+                                                size: "medium",
+                                                color: "",
+                                                align: "left"
+                                            }
+                                        },
+                                        {
+                                            id: `component-${contactComponentIndex++}`,
+                                            type: "SpacerBlock",
+                                            props: {
+                                                size: "small"
+                                            }
+                                        },
+                                        {
+                                            id: `component-${contactComponentIndex++}`,
+                                            type: "TextBlock",
+                                            props: {
+                                                content: "Phone",
+                                                variant: "h4",
+                                                align: "left"
+                                            }
+                                        },
+                                        {
+                                            id: `component-${contactComponentIndex++}`,
+                                            type: "TextBlock",
+                                            props: {
+                                                content: business.phone,
+                                                variant: "paragraph",
+                                                align: "left"
+                                            }
+                                        }
+                                    ]
                                 },
                                 business.email && {
                                     id: `component-${contactComponentIndex++}`,
                                     type: "CardBlock",
                                     props: {
-                                        title: "Email",
-                                        description: business.email,
+                                        title: "",
+                                        description: "",
                                         variant: "default",
                                         padding: "medium"
-                                    }
+                                    },
+                                    children: [
+                                        {
+                                            id: `component-${contactComponentIndex++}`,
+                                            type: "IconBlock",
+                                            props: {
+                                                icon: "mail",
+                                                size: "medium",
+                                                color: "",
+                                                align: "left"
+                                            }
+                                        },
+                                        {
+                                            id: `component-${contactComponentIndex++}`,
+                                            type: "SpacerBlock",
+                                            props: {
+                                                size: "small"
+                                            }
+                                        },
+                                        {
+                                            id: `component-${contactComponentIndex++}`,
+                                            type: "TextBlock",
+                                            props: {
+                                                content: "Email",
+                                                variant: "h4",
+                                                align: "left"
+                                            }
+                                        },
+                                        {
+                                            id: `component-${contactComponentIndex++}`,
+                                            type: "TextBlock",
+                                            props: {
+                                                content: business.email,
+                                                variant: "paragraph",
+                                                align: "left"
+                                            }
+                                        }
+                                    ]
                                 },
                                 {
                                     id: `component-${contactComponentIndex++}`,
                                     type: "CardBlock",
                                     props: {
-                                        title: "Address",
-                                        description: business.address,
+                                        title: "",
+                                        description: "",
                                         variant: "default",
                                         padding: "medium"
-                                    }
+                                    },
+                                    children: [
+                                        {
+                                            id: `component-${contactComponentIndex++}`,
+                                            type: "IconBlock",
+                                            props: {
+                                                icon: "mapPin",
+                                                size: "medium",
+                                                color: "",
+                                                align: "left"
+                                            }
+                                        },
+                                        {
+                                            id: `component-${contactComponentIndex++}`,
+                                            type: "SpacerBlock",
+                                            props: {
+                                                size: "small"
+                                            }
+                                        },
+                                        {
+                                            id: `component-${contactComponentIndex++}`,
+                                            type: "TextBlock",
+                                            props: {
+                                                content: "Address",
+                                                variant: "h4",
+                                                align: "left"
+                                            }
+                                        },
+                                        {
+                                            id: `component-${contactComponentIndex++}`,
+                                            type: "TextBlock",
+                                            props: {
+                                                content: business.address,
+                                                variant: "paragraph",
+                                                align: "left"
+                                            }
+                                        }
+                                    ]
                                 }
                             ].filter(Boolean)
                         },
@@ -940,31 +1132,60 @@ export const createDefaultPages = mutation({
                             id: `component-${contactComponentIndex++}`,
                             type: "CardBlock",
                             props: {
-                                title: "Business Hours",
+                                title: "",
                                 description: "",
                                 variant: "default",
                                 padding: "medium"
                             },
-                            children: business.hours && business.hours.length > 0 ?
-                                business.hours.map((hour: string, index: number) => ({
-                                    id: `component-${contactComponentIndex++}-hour-${index}`,
-                                    type: "TextBlock",
+                            children: [
+                                {
+                                    id: `component-${contactComponentIndex++}`,
+                                    type: "IconBlock",
                                     props: {
-                                        content: hour,
-                                        variant: "small",
+                                        icon: "clock",
+                                        size: "medium",
+                                        color: "",
                                         align: "left"
                                     }
-                                })) : [
-                                    {
-                                        id: `component-${contactComponentIndex++}`,
+                                },
+                                {
+                                    id: `component-${contactComponentIndex++}`,
+                                    type: "SpacerBlock",
+                                    props: {
+                                        size: "small"
+                                    }
+                                },
+                                {
+                                    id: `component-${contactComponentIndex++}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: "Business Hours",
+                                        variant: "h4",
+                                        align: "left"
+                                    }
+                                },
+                                ...(business.hours && business.hours.length > 0 ?
+                                    business.hours.map((hour: string, index: number) => ({
+                                        id: `component-${contactComponentIndex++}-hour-${index}`,
                                         type: "TextBlock",
                                         props: {
-                                            content: "Contact us for business hours",
-                                            variant: "paragraph",
+                                            content: hour,
+                                            variant: "small",
                                             align: "left"
                                         }
-                                    }
-                                ]
+                                    })) : [
+                                        {
+                                            id: `component-${contactComponentIndex++}`,
+                                            type: "TextBlock",
+                                            props: {
+                                                content: "Contact us for business hours",
+                                                variant: "paragraph",
+                                                align: "left"
+                                            }
+                                        }
+                                    ]
+                                )
+                            ]
                         }
                     ]
                 }

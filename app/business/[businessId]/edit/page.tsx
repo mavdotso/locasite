@@ -139,17 +139,17 @@ export default function BusinessEditPage({
 // Helper functions to map between old section format and new component format
 function mapSectionTypeToComponent(sectionType: string): string {
   const typeMap: Record<string, string> = {
-    hero: "HeroSectionBlock",
-    about: "AboutSectionBlock",
-    gallery: "GallerySectionBlock",
-    reviews: "TestimonialsSectionBlock",
-    contact: "ContactSectionBlock",
-    contactForm: "ContactSectionBlock",
-    info: "ContactSectionBlock",
-    map: "ContactSectionBlock",
-    hours: "ContactSectionBlock",
-    services: "ServicesSectionBlock",
-    whyChooseUs: "ServicesSectionBlock"
+    hero: "HeroBlock",
+    about: "AboutBlock",
+    gallery: "GalleryBlock",
+    reviews: "TestimonialsBlock",
+    contact: "ContactBlock",
+    contactForm: "ContactBlock",
+    info: "ContactBlock",
+    map: "ContactBlock",
+    hours: "ContactBlock",
+    services: "ServicesBlock",
+    whyChooseUs: "ServicesBlock"
   };
   return typeMap[sectionType] || sectionType;
 }
