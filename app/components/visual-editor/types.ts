@@ -91,6 +91,10 @@ export interface LayoutOptions {
   padding?: "none" | "small" | "medium" | "large";
   margin?: "none" | "small" | "medium" | "large";
   fullWidth?: boolean;
+  background?: {
+    type: "color" | "gradient" | "image";
+    value: string;
+  };
 }
 
 // Page data model

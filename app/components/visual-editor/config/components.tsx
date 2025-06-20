@@ -78,10 +78,7 @@ export const componentConfigs: Record<string, ComponentConfig> = {
     render: (props) => {
       const { title, content } = props as { title?: string; content?: string };
       return (
-        <div className="py-16">
-          {title && <h2 className="text-3xl font-bold text-center mb-8">{title}</h2>}
-          <About content={content} />
-        </div>
+        <About title={title} content={content} />
       );
     },
     icon: Info,

@@ -21,6 +21,7 @@ interface PreviewPanelProps {
   onRemoveComponent: (id: string) => void;
   onMoveComponent: (fromIndex: number, toIndex: number) => void;
   onAddComponent: (type: string, index: number) => void;
+  onDuplicateComponent?: (id: string) => void;
   isEditMode?: boolean;
 }
 
@@ -41,6 +42,7 @@ export default function PreviewPanel({
   onRemoveComponent,
   onMoveComponent,
   onAddComponent,
+  onDuplicateComponent,
   isEditMode = true
 }: PreviewPanelProps) {
   const [deviceSize, setDeviceSize] = useState<DeviceSize>("desktop");
@@ -161,6 +163,7 @@ export default function PreviewPanel({
                         onMoveComponent(index, newIndex);
                       }
                     }}
+                    onDuplicate={onDuplicateComponent ? () => onDuplicateComponent(component.id) : undefined}
                     canMoveUp={index > 0}
                     canMoveDown={index < pageData.components.length - 1}
                   >

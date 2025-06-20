@@ -1,10 +1,11 @@
 import { LayoutOptions } from "../types";
 import { cn } from "@/app/lib/utils";
+import React from "react";
 
 export function getLayoutClasses(layout?: LayoutOptions): string {
   if (!layout) return "";
 
-  const classes: string[] = ["flex"];
+  const classes: string[] = ["flex", "relative"];
 
   // Direction
   if (layout.direction === "row") {
@@ -93,6 +94,28 @@ export function getLayoutClasses(layout?: LayoutOptions): string {
   }
 
   return cn(...classes);
+}
+
+export function getBackgroundStyle(layout?: LayoutOptions): React.CSSProperties {
+  if (!layout?.background) return {};
+
+  const { type, value } = layout.background;
+
+  switch (type) {
+    case "color":
+      return { backgroundColor: value };
+    case "gradient":
+      return { background: value };
+    case "image":
+      return {
+        backgroundImage: `url(${value})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat"
+      };
+    default:
+      return {};
+  }
 }
 
 export const defaultLayout: LayoutOptions = {

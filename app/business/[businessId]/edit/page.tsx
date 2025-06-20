@@ -8,7 +8,6 @@ import { Id } from "@/convex/_generated/dataModel";
 import { VisualEditor, PageData } from "@/app/components/visual-editor";
 import AuthGuard from "@/app/components/auth/auth-guard";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 interface Section {
@@ -31,7 +30,6 @@ export default function BusinessEditPage({
 }) {
   const resolvedParams = use(params);
   const businessId = resolvedParams.businessId as Id<"businesses">;
-  const router = useRouter();
 
   console.log("BusinessEditPage - businessId:", businessId);
 
@@ -109,8 +107,8 @@ export default function BusinessEditPage({
         // Note: After creating default pages, user needs to refresh to see them
         toast.info("Default pages created. Please refresh to continue editing.");
       }
-      toast.success("Page saved successfully");
-      router.push(`/${domain?.name}`);
+      // Remove the toast here as the editor already shows a toast
+      // Remove the redirect - stay on the edit page
     } catch (error) {
       console.error("Error saving page:", error);
       toast.error("Failed to save page");

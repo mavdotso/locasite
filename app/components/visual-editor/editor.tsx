@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { PageData, ComponentData, LayoutOptions } from "./types";
 import { DragDropProvider } from "./drag-drop-provider";
 import ComponentLibrary from "./component-library";
@@ -9,12 +9,18 @@ import FieldEditor from "./field-editor";
 import OutlineView from "./outline-view";
 import { componentConfigs } from "./config/components";
 import { Button } from "@/app/components/ui/button";
-import { Save, Loader2, Undo, Redo, Eye, EyeOff, Layers } from "lucide-react";
+import { Save, Loader2, Undo, Redo, Eye, EyeOff, Layers, HelpCircle, Info, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 
 interface VisualEditorProps {
   businessId: Id<"businesses">;
@@ -44,6 +50,15 @@ export default function VisualEditor({
   const [history, setHistory] = useState<PageData[]>([pageData]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [showOutline, setShowOutline] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [autoSaveEnabled, setAutoSaveEnabled] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('autoSaveEnabled') !== 'false';
+    }
+    return true;
+  });
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const updatePage = useMutation(api.pages.updatePage);
 
@@ -98,6 +113,7 @@ export default function VisualEditor({
       )
     };
     setPageData(newData);
+    setHasUnsavedChanges(true);
   }, [pageData]);
 
   // Update component layout
@@ -110,6 +126,35 @@ export default function VisualEditor({
     };
     setPageData(newData);
     addToHistory(newData);
+    setHasUnsavedChanges(true);
+  }, [pageData, addToHistory]);
+
+  // Duplicate component
+  const handleDuplicateComponent = useCallback((id: string) => {
+    const componentToDuplicate = pageData.components.find(comp => comp.id === id);
+    if (!componentToDuplicate) return;
+    
+    const index = pageData.components.findIndex(comp => comp.id === id);
+    const duplicatedComponent: ComponentData = {
+      ...componentToDuplicate,
+      id: generateId(),
+      props: { ...componentToDuplicate.props }
+    };
+    
+    const newData = {
+      ...pageData,
+      components: [
+        ...pageData.components.slice(0, index + 1),
+        duplicatedComponent,
+        ...pageData.components.slice(index + 1)
+      ]
+    };
+    
+    setPageData(newData);
+    addToHistory(newData);
+    setSelectedComponentId(duplicatedComponent.id);
+    setHasUnsavedChanges(true);
+    toast.success("Component duplicated");
   }, [pageData, addToHistory]);
 
   // Remove component
@@ -138,7 +183,7 @@ export default function VisualEditor({
   }, [pageData, addToHistory]);
 
   // Save
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     try {
       setIsSaving(true);
       
@@ -152,6 +197,8 @@ export default function VisualEditor({
         });
       }
       
+      setLastSaved(new Date());
+      setHasUnsavedChanges(false);
       toast.success("Page saved successfully");
     } catch (error) {
       console.error("Error saving page:", error);
@@ -159,105 +206,273 @@ export default function VisualEditor({
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [pageId, pageData, onSave, updatePage]);
 
   // Undo/Redo
   const canUndo = historyIndex > 0;
   const canRedo = historyIndex < history.length - 1;
 
-  const handleUndo = () => {
+  const handleUndo = useCallback(() => {
     if (canUndo) {
       const newIndex = historyIndex - 1;
       setHistoryIndex(newIndex);
       setPageData(history[newIndex]);
     }
-  };
+  }, [canUndo, historyIndex, history]);
 
-  const handleRedo = () => {
+  const handleRedo = useCallback(() => {
     if (canRedo) {
       const newIndex = historyIndex + 1;
       setHistoryIndex(newIndex);
       setPageData(history[newIndex]);
     }
-  };
+  }, [canRedo, historyIndex, history]);
 
   const selectedComponent = pageData.components.find(
     (comp) => comp.id === selectedComponentId
   );
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Save: Ctrl/Cmd + S
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        handleSave();
+      }
+      // Undo: Ctrl/Cmd + Z
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        handleUndo();
+      }
+      // Redo: Ctrl/Cmd + Shift + Z
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'z') {
+        e.preventDefault();
+        handleRedo();
+      }
+      // Toggle preview: Ctrl/Cmd + P
+      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        e.preventDefault();
+        setIsEditMode(!isEditMode);
+      }
+      // Show help: Ctrl/Cmd + /
+      if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+        e.preventDefault();
+        setShowHelp(!showHelp);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isEditMode, showHelp, handleRedo, handleSave, handleUndo]);
+
+  // Auto-save functionality
+  useEffect(() => {
+    if (!autoSaveEnabled || !hasUnsavedChanges || isSaving) return;
+
+    const autoSaveTimer = setTimeout(() => {
+      handleSave();
+    }, 3000); // Auto-save after 3 seconds of inactivity
+
+    return () => clearTimeout(autoSaveTimer);
+  }, [pageData, autoSaveEnabled, hasUnsavedChanges, isSaving, handleSave]);
+
   return (
-    <DragDropProvider>
-      <div className="h-screen flex flex-col bg-background">
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b bg-card">
-          <div className="flex items-center gap-4">
-            <h1 className="text-lg font-semibold">Visual Editor</h1>
-            <div className="flex items-center gap-1">
-              <Button
+    <TooltipProvider>
+      <DragDropProvider>
+        <div className="h-screen flex flex-col bg-background">
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b bg-card">
+            <div className="flex items-center gap-4">
+              <h1 className="text-lg font-semibold">Visual Editor</h1>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowHelp(!showHelp)}
+                    className="h-8 w-8 p-0"
+                  >
+                    <HelpCircle className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Show keyboard shortcuts and tips</p>
+                </TooltipContent>
+              </Tooltip>
+              <div className="flex items-center gap-1">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
                 variant="ghost"
                 size="sm"
-                onClick={handleUndo}
-                disabled={!canUndo}
-                title="Undo"
-              >
-                <Undo className="h-4 w-4" />
-              </Button>
-              <Button
+                      onClick={handleUndo}
+                      disabled={!canUndo}
+                    >
+                      <Undo className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Undo (Ctrl+Z)</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
                 variant="ghost"
                 size="sm"
-                onClick={handleRedo}
-                disabled={!canRedo}
-                title="Redo"
-              >
-                <Redo className="h-4 w-4" />
-              </Button>
+                      onClick={handleRedo}
+                      disabled={!canRedo}
+                    >
+                      <Redo className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Redo (Ctrl+Shift+Z)</p>
+                  </TooltipContent>
+                </Tooltip>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {isEditMode && (
-              <Button
+            <div className="flex items-center gap-2">
+              {isEditMode && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setShowOutline(!showOutline)}
-              >
-                <Layers className="h-4 w-4 mr-2" />
-                Outline
-              </Button>
-            )}
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsEditMode(!isEditMode)}
-            >
-              {isEditMode ? (
-                <>
-                  <EyeOff className="h-4 w-4 mr-2" />
-                  Preview
-                </>
-              ) : (
-                <>
-                  <Eye className="h-4 w-4 mr-2" />
-                  Edit
-                </>
+                      onClick={() => setShowOutline(!showOutline)}
+                    >
+                      <Layers className="h-4 w-4 mr-2" />
+                      Outline
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Toggle page structure view</p>
+                  </TooltipContent>
+                </Tooltip>
               )}
-            </Button>
 
-            <Button
-              size="sm"
-              onClick={handleSave}
-              disabled={isSaving}
-            >
-              {isSaving ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : (
-                <Save className="h-4 w-4 mr-2" />
-              )}
-              Save
-            </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsEditMode(!isEditMode)}
+                  >
+                    {isEditMode ? (
+                      <>
+                        <EyeOff className="h-4 w-4 mr-2" />
+                        Preview
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="h-4 w-4 mr-2" />
+                        Edit
+                      </>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Toggle between edit and preview mode</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <div className="flex items-center gap-2">
+                {autoSaveEnabled && lastSaved && (
+                  <span className="text-xs text-muted-foreground">
+                    Saved {new Date(lastSaved).toLocaleTimeString()}
+                  </span>
+                )}
+                {hasUnsavedChanges && !isSaving && (
+                  <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+                )}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="sm"
+                      onClick={handleSave}
+                      disabled={isSaving || (!hasUnsavedChanges && !autoSaveEnabled)}
+                    >
+                      {isSaving ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Save className="h-4 w-4 mr-2" />
+                      )}
+                      Save
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Save changes (Ctrl+S)</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
           </div>
         </div>
+
+        {/* Help Overlay */}
+        {showHelp && (
+          <div className="absolute top-16 left-4 z-50 bg-card border rounded-lg shadow-lg p-4 max-w-sm">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold flex items-center gap-2">
+                <HelpCircle className="h-4 w-4" />
+                Keyboard Shortcuts
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowHelp(false)}
+                className="h-6 w-6 p-0"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Save</span>
+                <kbd className="px-2 py-0.5 bg-muted rounded text-xs">Ctrl+S</kbd>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Undo</span>
+                <kbd className="px-2 py-0.5 bg-muted rounded text-xs">Ctrl+Z</kbd>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Redo</span>
+                <kbd className="px-2 py-0.5 bg-muted rounded text-xs">Ctrl+Shift+Z</kbd>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Preview</span>
+                <kbd className="px-2 py-0.5 bg-muted rounded text-xs">Ctrl+P</kbd>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Help</span>
+                <kbd className="px-2 py-0.5 bg-muted rounded text-xs">Ctrl+/</kbd>
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t space-y-2">
+              <p className="text-xs text-muted-foreground">
+                <Info className="h-3 w-3 inline mr-1" />
+                Drag components from the left sidebar to add them to your page.
+              </p>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Auto-save</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const newValue = !autoSaveEnabled;
+                    setAutoSaveEnabled(newValue);
+                    localStorage.setItem('autoSaveEnabled', String(newValue));
+                    toast.success(newValue ? "Auto-save enabled" : "Auto-save disabled");
+                  }}
+                  className="h-5 text-xs px-2"
+                >
+                  {autoSaveEnabled ? "On" : "Off"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Main Content */}
         <div className="flex-1 flex overflow-hidden">
@@ -290,6 +505,7 @@ export default function VisualEditor({
               onRemoveComponent={handleRemoveComponent}
               onMoveComponent={handleMoveComponent}
               onAddComponent={handleAddComponent}
+              onDuplicateComponent={handleDuplicateComponent}
               isEditMode={isEditMode}
             />
           </div>
@@ -318,5 +534,6 @@ export default function VisualEditor({
         </div>
       </div>
     </DragDropProvider>
+  </TooltipProvider>
   );
 }

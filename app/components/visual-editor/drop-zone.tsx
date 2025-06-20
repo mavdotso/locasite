@@ -51,6 +51,7 @@ export default function DropZone({ id, index, onDrop, className, showAlways = fa
       className={cn(
         "relative transition-all duration-200",
         isDragging && "min-h-[80px]",
+        isActive && "animate-in fade-in-0 zoom-in-95",
         className
       )}
       onDragOver={handleDragOver}
@@ -59,17 +60,17 @@ export default function DropZone({ id, index, onDrop, className, showAlways = fa
     >
       <div
         className={cn(
-          "absolute inset-0 border-2 border-dashed rounded-lg transition-all",
+          "absolute inset-0 border-2 border-dashed rounded-lg transition-all duration-200",
           "flex items-center justify-center",
           isActive 
-            ? "border-primary bg-primary/5 scale-[1.02]" 
-            : "border-muted-foreground/20",
+            ? "border-primary bg-primary/10 scale-[1.02] shadow-lg" 
+            : "border-muted-foreground/20 bg-muted/5",
           !isDragging && "opacity-0 hover:opacity-100"
         )}
       >
         <div className={cn(
-          "flex items-center gap-2 text-sm",
-          isActive ? "text-primary" : "text-muted-foreground"
+          "flex items-center gap-2 text-sm transition-all duration-200",
+          isActive ? "text-primary scale-110" : "text-muted-foreground"
         )}>
           <Plus className="w-4 h-4" />
           <span>Drop component here</span>
