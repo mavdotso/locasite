@@ -87,7 +87,8 @@ export default function VisualEditor({
     const newComponent: ComponentData = {
       id: generateId(),
       type,
-      props: defaultProps
+      props: defaultProps,
+      layout: {} // Initialize with empty layout
     };
 
     const newData = {
@@ -138,7 +139,8 @@ export default function VisualEditor({
     const duplicatedComponent: ComponentData = {
       ...componentToDuplicate,
       id: generateId(),
-      props: { ...componentToDuplicate.props }
+      props: { ...componentToDuplicate.props },
+      layout: componentToDuplicate.layout ? { ...componentToDuplicate.layout } : {}
     };
     
     const newData = {

@@ -242,12 +242,29 @@ export default function LayoutControls({ layout, onChange }: LayoutControlsProps
         <div className="mt-6 pt-6 border-t">
           <Label className="text-xs font-semibold mb-3 block">Background</Label>
           
-          <Tabs defaultValue={layout.background?.type || "color"} className="w-full">
+          <Tabs 
+            value={layout.background?.type || "color"} 
+            onValueChange={(value) => {
+              const currentValue = layout.background?.value || "";
+              let newValue = currentValue;
+              
+              // Set default values for each type
+              if (value === "color" && (!currentValue || layout.background?.type !== "color")) {
+                newValue = "#ffffff";
+              } else if (value === "gradient" && (!currentValue || layout.background?.type !== "gradient")) {
+                newValue = "linear-gradient(to bottom, #ffffff, #f0f0f0)";
+              } else if (value === "image" && (!currentValue || layout.background?.type !== "image")) {
+                newValue = "";
+              }
+              
+              handleChange("background", { type: value as "color" | "gradient" | "image", value: newValue });
+            }}
+            className="w-full"
+          >
             <TabsList className="w-full grid grid-cols-3 h-auto p-0.5">
               <TabsTrigger 
                 value="color" 
                 className="text-xs gap-1.5 py-1.5"
-                onClick={() => handleChange("background", { type: "color", value: layout.background?.value || "#ffffff" })}
               >
                 <Palette className="h-3 w-3" />
                 Color
@@ -255,7 +272,6 @@ export default function LayoutControls({ layout, onChange }: LayoutControlsProps
               <TabsTrigger 
                 value="gradient" 
                 className="text-xs gap-1.5 py-1.5"
-                onClick={() => handleChange("background", { type: "gradient", value: layout.background?.value || "linear-gradient(to bottom, #ffffff, #f0f0f0)" })}
               >
                 <Blend className="h-3 w-3" />
                 Gradient
@@ -263,7 +279,6 @@ export default function LayoutControls({ layout, onChange }: LayoutControlsProps
               <TabsTrigger 
                 value="image" 
                 className="text-xs gap-1.5 py-1.5"
-                onClick={() => handleChange("background", { type: "image", value: layout.background?.value || "" })}
               >
                 <Image className="h-3 w-3" />
                 Image
@@ -333,11 +348,10 @@ export default function LayoutControls({ layout, onChange }: LayoutControlsProps
                   className="text-xs"
                 />
                 {layout.background?.type === "image" && layout.background.value && (
-                  <div 
-                    className="h-20 rounded border bg-cover bg-center bg-no-repeat"
-                    style={{ backgroundImage: `url(${layout.background.value})` }}
-                    role="img"
-                    aria-label="Background preview"
+                  <img 
+                    src={layout.background.value}
+                    alt="Background preview"
+                    className="h-20 w-full rounded border object-cover"
                   />
                 )}
                 <p className="text-xs text-muted-foreground">
