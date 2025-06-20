@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React from "react";
 import { ComponentConfig } from "../types";
 import { 
   Type, 
@@ -10,21 +10,26 @@ import {
 } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { cn } from "@/app/lib/utils";
-import InlineEditor from "../components/inline-editor";
 
-// We need to create a wrapper component for inline editing
+// Simple text component without inline editing
 const TextBlockComponent = (props: {
   content?: string;
   variant?: string;
   align?: string;
+  color?: string;
   editMode?: boolean;
   onUpdate?: (newProps: Record<string, unknown>) => void;
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [hasBeenClicked, setHasBeenClicked] = useState(false);
-  const { content, variant, align, editMode, onUpdate } = props;
+  const { content, variant, align, color } = props;
   
-  const textAlign = align === "justify" ? "text-justify" : `text-${align}`;
+  const alignClasses = {
+    left: "text-left",
+    center: "text-center",
+    right: "text-right",
+    justify: "text-justify"
+  };
+  
+  const textAlign = alignClasses[align as keyof typeof alignClasses] || "text-left";
   
   const variantClasses = {
     h1: "text-4xl font-bold",
@@ -42,70 +47,25 @@ const TextBlockComponent = (props: {
     textAlign
   );
   
-  const Component = variant?.startsWith('h') ? variant as keyof JSX.IntrinsicElements : 'p';
+  const style = color ? { color } : undefined;
   
-  const handleClick = (e: React.MouseEvent) => {
-    if (!editMode) return;
-    
-    if (hasBeenClicked) {
-      // Second click - start editing
-      e.stopPropagation();
-      e.preventDefault();
-      setIsEditing(true);
-    } else {
-      // First click - mark as clicked but DON'T stop propagation
-      // This allows the click to bubble up to the ComponentWrapper for selection
-      setHasBeenClicked(true);
-      // Reset after a delay
-      setTimeout(() => setHasBeenClicked(false), 2000);
-    }
-  };
+  const Component = variant?.startsWith('h') ? variant as keyof React.JSX.IntrinsicElements : 'p';
   
-  // In edit mode
-  if (editMode) {
-    if (isEditing) {
-      return (
-        <InlineEditor
-          value={content || ""}
-          onChange={(newContent) => {
-            if (onUpdate) {
-              onUpdate({ content: newContent, variant, align });
-            }
-          }}
-          isEditing={true}
-          onStartEdit={() => {}}
-          onEndEdit={() => {
-            setIsEditing(false);
-            setHasBeenClicked(false);
-          }}
-          className={className}
-          placeholder="Enter your text..."
-          multiline={variant === 'paragraph' || variant === 'lead' || variant === 'muted'}
-          component={Component}
-        />
-      );
-    }
-    
-    // Show clickable text when not editing
-    return (
-      <Component 
-        className={cn(
-          className, 
-          "cursor-text hover:bg-muted/10 rounded px-1 transition-colors",
-          !content && "text-muted-foreground italic"
-        )}
-        onClick={handleClick}
-      >
-        {content || "Click to select, click again to edit..."}
-      </Component>
-    );
+  // For TypeScript, we need to handle the component type properly
+  const textContent = content || "Click to edit this text...";
+  const finalClassName = cn(className, !content && !color && "text-muted-foreground italic");
+  
+  if (Component === 'h1') {
+    return <h1 className={finalClassName} style={style}>{textContent}</h1>;
+  } else if (Component === 'h2') {
+    return <h2 className={finalClassName} style={style}>{textContent}</h2>;
+  } else if (Component === 'h3') {
+    return <h3 className={finalClassName} style={style}>{textContent}</h3>;
+  } else if (Component === 'h4') {
+    return <h4 className={finalClassName} style={style}>{textContent}</h4>;
+  } else {
+    return <p className={finalClassName} style={style}>{textContent}</p>;
   }
-  
-  return (
-    <Component className={cn(className, !content && "text-muted-foreground italic")}>
-      {content || "Click to edit this text..."}
-    </Component>
-  );
 };
 
 // Text Block - Editable text with formatting options
@@ -143,12 +103,27 @@ export const TextBlock: ComponentConfig = {
         { value: "right", label: "Right" },
         { value: "justify", label: "Justify" }
       ]
+    },
+    color: {
+      type: "color",
+      label: "Text Color",
+      defaultValue: "",
+      presets: [
+        "#000000", // Black
+        "#374151", // Gray 700
+        "#6B7280", // Gray 500
+        "#DC2626", // Red 600
+        "#2563EB", // Blue 600
+        "#16A34A", // Green 600
+        "#CA8A04", // Yellow 600
+        "#9333EA", // Purple 600
+      ]
     }
   },
   render: (props, editMode, _business, _children, onUpdate) => {
     return (
       <TextBlockComponent
-        {...props as { content?: string; variant?: string; align?: string }}
+        {...props as { content?: string; variant?: string; align?: string; color?: string }}
         editMode={editMode}
         onUpdate={onUpdate}
       />

@@ -140,25 +140,45 @@ export default function VisualEditor({
     setSelectedComponentId(newComponent.id);
   }, [pageData, addToHistory]);
 
-  // Update component
+  // Update component (handles nested components)
   const handleUpdateComponent = useCallback((id: string, props: Record<string, unknown>) => {
+    const updateInComponents = (components: ComponentData[]): ComponentData[] => {
+      return components.map(comp => {
+        if (comp.id === id) {
+          return { ...comp, props };
+        }
+        if (comp.children) {
+          return { ...comp, children: updateInComponents(comp.children) };
+        }
+        return comp;
+      });
+    };
+    
     const newData = {
       ...pageData,
-      components: pageData.components.map((comp) =>
-        comp.id === id ? { ...comp, props } : comp
-      )
+      components: updateInComponents(pageData.components)
     };
     setPageData(newData);
     setHasUnsavedChanges(true);
   }, [pageData]);
 
-  // Update component layout
+  // Update component layout (handles nested components)
   const handleUpdateComponentLayout = useCallback((id: string, layout: LayoutOptions) => {
+    const updateLayoutInComponents = (components: ComponentData[]): ComponentData[] => {
+      return components.map(comp => {
+        if (comp.id === id) {
+          return { ...comp, layout };
+        }
+        if (comp.children) {
+          return { ...comp, children: updateLayoutInComponents(comp.children) };
+        }
+        return comp;
+      });
+    };
+    
     const newData = {
       ...pageData,
-      components: pageData.components.map((comp) =>
-        comp.id === id ? { ...comp, layout } : comp
-      )
+      components: updateLayoutInComponents(pageData.components)
     };
     setPageData(newData);
     addToHistory(newData);
