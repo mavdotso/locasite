@@ -8,9 +8,8 @@ import DropZone from "./drop-zone";
 import ComponentWrapper from "./component-wrapper";
 import { cn } from "@/app/lib/utils";
 import { Button } from "@/app/components/ui/button";
-import { Monitor, Tablet, Smartphone, Frame } from "lucide-react";
+import { Monitor, Tablet, Smartphone } from "lucide-react";
 import { Doc } from "@/convex/_generated/dataModel";
-import IframePreview from "./iframe-preview";
 import NestedDropZone from "./nested-drop-zone";
 
 interface PreviewPanelProps {
@@ -47,7 +46,6 @@ export default function PreviewPanel({
   isEditMode = true
 }: PreviewPanelProps) {
   const [deviceSize, setDeviceSize] = useState<DeviceSize>("desktop");
-  const [useIframe, setUseIframe] = useState(false);
   const { draggedItem } = useDragDrop();
 
   const handleDrop = (index: number, parentId?: string) => {
@@ -120,40 +118,11 @@ export default function PreviewPanel({
             </Button>
           ))}
         </div>
-        
-        {!isEditMode && (
-          <Button
-            variant={useIframe ? "default" : "outline"}
-            size="sm"
-            onClick={() => setUseIframe(!useIframe)}
-            className="gap-2"
-          >
-            <Frame className="w-4 h-4" />
-            Iframe Mode
-          </Button>
-        )}
       </div>
 
       {/* Preview Area */}
       <div className="flex-1 overflow-auto p-8">
-        {useIframe && !isEditMode ? (
-          <div
-            className={cn(
-              "mx-auto bg-white shadow-xl transition-all duration-300",
-              deviceSize === "tablet" && "max-w-[768px]",
-              deviceSize === "mobile" && "max-w-[375px]"
-            )}
-            style={{ height: "calc(100vh - 200px)" }}
-          >
-            <IframePreview
-              pageData={pageData}
-              business={business}
-              width="100%"
-              height="100%"
-            />
-          </div>
-        ) : (
-          <div
+        <div
             className={cn(
               "mx-auto bg-background shadow-xl transition-all duration-300",
               deviceSize === "tablet" && "max-w-[768px]",
@@ -247,7 +216,6 @@ export default function PreviewPanel({
               })}
             </div>
           </div>
-        )}
       </div>
     </div>
   );

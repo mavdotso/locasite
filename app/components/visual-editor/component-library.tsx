@@ -70,16 +70,14 @@ export default function ComponentLibrary() {
         </div>
       </div>
 
-      <ScrollArea className="flex-1">
+      {/* Main Tabs: Blocks vs Pre-made Sections */}
+      <Tabs defaultValue="blocks" className="flex-1 flex flex-col overflow-hidden">
         {/* No results message */}
         {searchQuery && categories.length === 0 && (
           <div className="p-8 text-center">
             <p className="text-sm text-muted-foreground">No components found for &quot;{searchQuery}&quot;</p>
           </div>
         )}
-
-        {/* Main Tabs: Blocks vs Pre-made Sections */}
-        <Tabs defaultValue="blocks" className="w-full flex flex-col overflow-hidden">
           <TabsList className="w-full justify-start bg-transparent h-auto p-0 rounded-none border-b">
             <TabsTrigger
               value="blocks"
@@ -96,7 +94,8 @@ export default function ComponentLibrary() {
           </TabsList>
 
           {/* Building Blocks Tab */}
-          <TabsContent value="blocks" className="mt-0 overflow-auto">
+          <TabsContent value="blocks" className="mt-0 flex-1 overflow-hidden">
+            <ScrollArea className="h-full">
             {/* Component Categories */}
             <Tabs defaultValue={categories[0] || ""} className="w-full flex flex-col overflow-hidden">
               {categories.length > 1 && (
@@ -114,7 +113,7 @@ export default function ComponentLibrary() {
               )}
 
               {categories.filter(cat => cat !== "Content" && cat !== "Media" && cat !== "Contact" && cat !== "Social" && cat !== "Location").map((category) => (
-                <TabsContent key={category} value={category} className="p-4 mt-0 overflow-auto">
+                <TabsContent key={category} value={category} className="p-4 mt-0">
                   <div className="grid gap-3">
                     {componentsByCategory[category].map(({ type, config }) => {
                       const Icon = config.icon;
@@ -126,6 +125,7 @@ export default function ComponentLibrary() {
                           Icon={Icon}
                           onDragStart={() => handleDragStart(type)}
                           isDragging={isDragging}
+                          showPreview={false}
                         />
                       );
                     })}
@@ -133,31 +133,36 @@ export default function ComponentLibrary() {
                 </TabsContent>
               ))}
             </Tabs>
+            </ScrollArea>
           </TabsContent>
 
           {/* Pre-made Sections Tab */}
-          <TabsContent value="sections" className="p-4 mt-0 overflow-auto">
-            <div className="grid gap-3">
-              {Object.entries(componentsByCategory)
-                .filter(([category]) => ["Content", "Media", "Contact", "Social", "Location"].includes(category))
-                .flatMap(([_, components]) => components)
-                .map(({ type, config }) => {
-                  const Icon = config.icon;
-                  return (
-                    <ComponentCard
-                      key={type}
-                      type={type}
-                      config={config}
-                      Icon={Icon}
-                      onDragStart={() => handleDragStart(type)}
-                      isDragging={isDragging}
-                    />
-                  );
-                })}
-            </div>
+          <TabsContent value="sections" className="mt-0 flex-1 overflow-hidden">
+            <ScrollArea className="h-full">
+              <div className="p-4">
+                <div className="grid gap-3">
+                  {Object.entries(componentsByCategory)
+                    .filter(([category]) => ["Content", "Media", "Contact", "Social", "Location"].includes(category))
+                    .flatMap(([_, components]) => components)
+                    .map(({ type, config }) => {
+                      const Icon = config.icon;
+                      return (
+                        <ComponentCard
+                          key={type}
+                          type={type}
+                          config={config}
+                          Icon={Icon}
+                          onDragStart={() => handleDragStart(type)}
+                          isDragging={isDragging}
+                          showPreview={false}
+                        />
+                      );
+                    })}
+                </div>
+              </div>
+            </ScrollArea>
           </TabsContent>
         </Tabs>
-      </ScrollArea>
     </div>
   );
 }
@@ -169,10 +174,11 @@ interface ComponentCardProps {
   Icon: React.ComponentType<{ className?: string }> | undefined;
   onDragStart: () => void;
   isDragging: boolean;
+  showPreview?: boolean;
 }
 
-function ComponentCard({ type, config, Icon, onDragStart, isDragging }: ComponentCardProps) {
-  const [showPreview, setShowPreview] = useState(false);
+function ComponentCard({ type, config, Icon, onDragStart, isDragging, showPreview = true }: ComponentCardProps) {
+  const [isHovered, setIsHovered] = useState(false);
   
   // Generate a simple preview of the component
   const getPreviewContent = () => {
@@ -229,12 +235,13 @@ function ComponentCard({ type, config, Icon, onDragStart, isDragging }: Componen
         <div
           draggable
           onDragStart={onDragStart}
-          onMouseEnter={() => setShowPreview(true)}
-          onMouseLeave={() => setShowPreview(false)}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
           className={cn(
             "relative p-4 border rounded-lg cursor-move transition-all",
             "hover:border-primary hover:shadow-sm",
             "flex items-center gap-3 group",
+            "w-full overflow-hidden",
             isDragging && "opacity-50"
           )}
         >
@@ -253,14 +260,9 @@ function ComponentCard({ type, config, Icon, onDragStart, isDragging }: Componen
               </p>
             )}
           </div>
-          <Plus className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+          <Plus className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
           
-          {/* Preview on hover */}
-          {showPreview && getPreviewContent() && (
-            <div className="absolute left-full ml-2 top-0 w-40 h-32 bg-card border rounded-lg shadow-lg z-50 overflow-hidden">
-              {getPreviewContent()}
-            </div>
-          )}
+          {/* Preview on hover - removed to prevent overlap */}
         </div>
       </TooltipTrigger>
       <TooltipContent side="right">

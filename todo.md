@@ -109,19 +109,72 @@ const config = {
 4. **Real-time Preview** - With device size simulation (desktop/tablet/mobile)
 5. **Integration** - Works with existing Locasite architecture
 6. **Backward Compatibility** - Supports both old section format and new component format
+7. **Flexible Block-Based Architecture** - Users can build custom sections with basic blocks
+8. **Enhanced Text Editing** - Sidebar-only editing with full formatting controls including color
 
 ### Not Implemented (Out of MVP Scope):
-- Rich text fields with inline editing
+- Rich text fields with inline editing (replaced with sidebar editing)
 - Image cropping functionality
 - Advanced flexbox layout controls
 - Component presets/templates
 - Visual outline view
 - Iframe preview isolation
-- Keyboard shortcuts
+- Keyboard shortcuts (except ESC to cancel drag)
 
 ### Key Achievements:
 - ✅ Clean, type-safe implementation with strict TypeScript
 - ✅ Modular architecture following Puck's patterns
 - ✅ Seamless integration with existing business pages
 - ✅ Production-ready with successful build and lint
-- ✅ End-to-end functionality tested and working 
+- ✅ End-to-end functionality tested and working
+- ✅ Fixed all major UX issues (text typing, menu visibility, nested components)
+
+## Phase 6: Post-MVP Enhancements
+
+### Enhanced Layout Controls
+- [ ] Add margin/padding controls for sections
+- [ ] Implement column width distribution (e.g., 30/70, 25/75 splits)
+- [ ] Add alignment options for content within containers
+- [ ] Add background image positioning controls
+
+### Additional Building Blocks
+- [ ] Icon block with icon picker
+- [ ] Code block for technical content
+- [ ] Embed block for external content (maps, forms, etc.)
+- [ ] List block with customizable bullets/numbers
+- [ ] Quote block with citation
+- [ ] Social media links block
+
+### Advanced Features
+- [ ] Copy/paste functionality for components
+- [ ] Component templates/presets library
+- [ ] Global styles management
+- [ ] Mobile-specific editing mode
+- [ ] Keyboard shortcuts for power users
+- [ ] Multi-select components for bulk operations
+
+### Performance & Polish
+- [ ] Add loading states for image uploads
+- [ ] Implement component search in the library
+- [ ] Add tooltips for all controls
+- [ ] Optimize re-renders for large pages
+- [ ] Lazy load component previews
+- [ ] Add progress indicators for auto-save
+
+### Business Features
+- [ ] Save as template functionality
+- [ ] Version history with rollback
+- [ ] A/B testing support
+- [ ] SEO metadata editing
+- [ ] Analytics integration
+- [ ] Multi-language support
+
+### Recent Improvements (December 2024)
+- ✅ Expanded editor to support custom sections with moveable content blocks
+- ✅ Fixed text typing backwards issue by moving to sidebar-only editing
+- ✅ Changed component menus from hover to click interaction
+- ✅ Fixed invisible menu buttons being clickable
+- ✅ Added text color customization
+- ✅ Fixed nested component management (update, remove, duplicate)
+- ✅ Improved drag & drop stability with ESC key support
+- ✅ Separated building blocks from pre-made sections in UI
