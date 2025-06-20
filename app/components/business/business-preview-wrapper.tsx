@@ -1,12 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Preloaded, usePreloadedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { EditModeProvider } from "@/components/providers/edit-mode-provider";
 import BusinessPageContent from "@/components/business/business-page-content";
-import { Doc } from "@/convex/_generated/dataModel";
 
 interface BusinessPreviewWrapperProps {
   businessId: Id<"businesses">;
@@ -14,29 +11,10 @@ interface BusinessPreviewWrapperProps {
 }
 
 export function BusinessPreviewWrapper({
-  businessId,
+  businessId: _businessId,
   preloadedBusiness,
 }: BusinessPreviewWrapperProps) {
   const business = usePreloadedQuery(preloadedBusiness);
-  const [isEditMode, setIsEditMode] = useState(false);
-
-  // Listen for edit mode messages from parent window
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data.type === "SET_EDIT_MODE") {
-        setIsEditMode(event.data.enabled);
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-    
-    // Tell parent we're ready
-    window.parent.postMessage({ type: "PREVIEW_READY" }, "*");
-
-    return () => {
-      window.removeEventListener("message", handleMessage);
-    };
-  }, []);
 
   if (!business) {
     return <div>Business not found</div>;
@@ -78,11 +56,9 @@ export function BusinessPreviewWrapper({
   };
 
   return (
-    <EditModeProvider businessId={businessId} initialEditMode={isEditMode}>
-      <BusinessPageContent
-        initialBusiness={business as Doc<"businesses">}
-        content={defaultContent}
-      />
-    </EditModeProvider>
+    <BusinessPageContent
+      initialBusiness={business}
+      content={defaultContent}
+    />
   );
 }

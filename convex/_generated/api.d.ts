@@ -23,13 +23,16 @@ import type * as regenerateAI from "../regenerateAI.js";
 import type * as scrape from "../scrape.js";
 import type * as storage from "../storage.js";
 import type * as testAI from "../testAI.js";
+import type * as themePresets from "../themePresets.js";
+import type * as themeSchema from "../themeSchema.js";
+import type * as themeSuggestions from "../themeSuggestions.js";
+import type * as themes from "../themes.js";
 
 import type {
   ApiFromModules,
   FilterApi,
   FunctionReference,
 } from "convex/server";
-
 /**
  * A utility for referencing Convex functions in your app's API.
  *
@@ -54,6 +57,10 @@ declare const fullApi: ApiFromModules<{
   scrape: typeof scrape;
   storage: typeof storage;
   testAI: typeof testAI;
+  themePresets: typeof themePresets;
+  themeSchema: typeof themeSchema;
+  themeSuggestions: typeof themeSuggestions;
+  themes: typeof themes;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 

@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import BusinessHeader from "@/app/components/business/header";
 import BusinessFooter from "@/app/components/business/footer";
-import BusinessPageContent from "@/app/components/business/business-page-content";
+import BusinessPageRenderer from "@/app/components/business/business-page-renderer";
 import { Metadata } from "next";
 import { fetchQuery } from "convex/nextjs";
 
@@ -155,15 +155,12 @@ export default async function BusinessPage({ params }: PageProps) {
     });
 
     const businessData = business[0];
-    let content;
-    try {
-      content = JSON.parse(page.content);
-    } catch (error) {
-      console.error("Error parsing page content:", error);
+    // Content parsing is now handled by BusinessPageRenderer
+    if (!page.content) {
       return (
         <div className="p-8">
           <h1 className="text-2xl font-bold text-red-500">Invalid Content</h1>
-          <p>Page content is not in valid JSON format</p>
+          <p>Page content is missing</p>
         </div>
       );
     }
@@ -199,9 +196,9 @@ export default async function BusinessPage({ params }: PageProps) {
           </div>
         )} 
 
-        <BusinessPageContent 
-          initialBusiness={businessData}
-          content={content}
+        <BusinessPageRenderer 
+          business={businessData}
+          pageContent={page?.content || JSON.stringify({ sections: [] })}
         />
         <BusinessFooter businessName={domain.name} />
       </div>

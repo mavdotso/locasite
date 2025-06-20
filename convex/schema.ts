@@ -1,9 +1,38 @@
 import { defineSchema, defineTable } from "convex/server";
 import { authTables } from "@convex-dev/auth/server";
 import { v } from "convex/values";
+import { advancedThemeSchemaV, simpleThemeSchemaV, partialAdvancedThemeSchemaV } from "./themeSchema";
 
 export default defineSchema({
     ...authTables,
+    
+    // Themes table for storing theme configurations
+    themes: defineTable({
+        // Theme info
+        name: v.string(),
+        description: v.optional(v.string()),
+        isPreset: v.boolean(), // true for built-in themes, false for custom
+        presetId: v.optional(v.string()), // ID of the preset this was based on
+        
+        // Theme configuration
+        config: advancedThemeSchemaV,
+        
+        // Ownership
+        userId: v.optional(v.id("users")), // null for preset themes
+        businessId: v.optional(v.id("businesses")), // if theme is business-specific
+        
+        // Metadata
+        createdAt: v.number(),
+        updatedAt: v.number(),
+        isPublic: v.boolean(), // whether other users can use this theme
+        tags: v.array(v.string()),
+        industry: v.optional(v.string()),
+    })
+        .index("by_user", ["userId"])
+        .index("by_business", ["businessId"])
+        .index("by_preset", ["isPreset"])
+        .index("by_public", ["isPublic"]),
+    
     domains: defineTable({
         name: v.string(),
         subdomain: v.string(),
@@ -39,14 +68,13 @@ export default defineSchema({
         createdAt: v.number(),
         userId: v.optional(v.id("users")),
         domainId: v.optional(v.id("domains")),
-        theme: v.optional(v.object({
-            colorScheme: v.optional(v.string()),
-            primaryColor: v.optional(v.string()),
-            secondaryColor: v.optional(v.string()),
-            accentColor: v.optional(v.string()),
-            fontFamily: v.optional(v.string()),
-            logoUrl: v.optional(v.string())
-        })),
+        
+        // Legacy theme support (for backward compatibility)
+        theme: v.optional(simpleThemeSchemaV),
+        
+        // New advanced theme system
+        themeId: v.optional(v.id("themes")), // Reference to themes table
+        themeOverrides: v.optional(partialAdvancedThemeSchemaV), // Business-specific overrides
         // Publishing state
         isPublished: v.optional(v.boolean()),
         publishedAt: v.optional(v.number()),
@@ -58,14 +86,9 @@ export default defineSchema({
             email: v.optional(v.string()),
             website: v.optional(v.string()),
             hours: v.optional(v.array(v.string())),
-            theme: v.optional(v.object({
-                colorScheme: v.optional(v.string()),
-                primaryColor: v.optional(v.string()),
-                secondaryColor: v.optional(v.string()),
-                accentColor: v.optional(v.string()),
-                fontFamily: v.optional(v.string()),
-                logoUrl: v.optional(v.string())
-            }))
+            theme: v.optional(simpleThemeSchemaV),
+            themeId: v.optional(v.id("themes")),
+            themeOverrides: v.optional(partialAdvancedThemeSchemaV)
         })),
         lastEditedAt: v.optional(v.number()),
         // AI-generated content for website sections
