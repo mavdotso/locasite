@@ -21,6 +21,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/app/components/ui/tooltip";
+import { HoverStateProvider } from "./hover-state-provider";
 
 interface VisualEditorProps {
   businessId: Id<"businesses">;
@@ -165,40 +166,73 @@ export default function VisualEditor({
     setHasUnsavedChanges(true);
   }, [pageData, addToHistory]);
 
-  // Duplicate component
+  // Duplicate component (handles nested components)
   const handleDuplicateComponent = useCallback((id: string) => {
-    const componentToDuplicate = pageData.components.find(comp => comp.id === id);
-    if (!componentToDuplicate) return;
-    
-    const index = pageData.components.findIndex(comp => comp.id === id);
-    const duplicatedComponent: ComponentData = {
-      ...componentToDuplicate,
-      id: generateId(),
-      props: { ...componentToDuplicate.props },
-      layout: componentToDuplicate.layout ? { ...componentToDuplicate.layout } : {}
+    const findAndDuplicate = (components: ComponentData[], parentComponents?: ComponentData[]): ComponentData[] => {
+      for (let i = 0; i < components.length; i++) {
+        const comp = components[i];
+        if (comp.id === id) {
+          // Found the component to duplicate
+          const duplicatedComponent: ComponentData = {
+            ...comp,
+            id: generateId(),
+            props: { ...comp.props },
+            layout: comp.layout ? { ...comp.layout } : {},
+            children: comp.children ? comp.children.map(child => ({
+              ...child,
+              id: generateId(),
+              parentId: generateId()
+            })) : undefined
+          };
+          
+          // Insert after the original
+          return [
+            ...components.slice(0, i + 1),
+            duplicatedComponent,
+            ...components.slice(i + 1)
+          ];
+        }
+        
+        // Search in children
+        if (comp.children) {
+          const updatedChildren = findAndDuplicate(comp.children, components);
+          if (updatedChildren !== comp.children) {
+            // Component was found and duplicated in children
+            components[i] = { ...comp, children: updatedChildren };
+            return [...components];
+          }
+        }
+      }
+      return components;
     };
     
-    const newData = {
-      ...pageData,
-      components: [
-        ...pageData.components.slice(0, index + 1),
-        duplicatedComponent,
-        ...pageData.components.slice(index + 1)
-      ]
-    };
-    
-    setPageData(newData);
-    addToHistory(newData);
-    setSelectedComponentId(duplicatedComponent.id);
-    setHasUnsavedChanges(true);
-    toast.success("Component duplicated");
+    const newComponents = findAndDuplicate(pageData.components);
+    if (newComponents !== pageData.components) {
+      const newData = { ...pageData, components: newComponents };
+      setPageData(newData);
+      addToHistory(newData);
+      setHasUnsavedChanges(true);
+      toast.success("Component duplicated");
+    }
   }, [pageData, addToHistory]);
 
-  // Remove component
+  // Remove component (handles nested components)
   const handleRemoveComponent = useCallback((id: string) => {
+    const removeFromComponents = (components: ComponentData[]): ComponentData[] => {
+      return components.filter(comp => comp.id !== id).map(comp => {
+        if (comp.children) {
+          return {
+            ...comp,
+            children: removeFromComponents(comp.children)
+          };
+        }
+        return comp;
+      });
+    };
+    
     const newData = {
       ...pageData,
-      components: pageData.components.filter((comp) => comp.id !== id)
+      components: removeFromComponents(pageData.components)
     };
     setPageData(newData);
     addToHistory(newData);
@@ -316,8 +350,9 @@ export default function VisualEditor({
 
   return (
     <TooltipProvider>
-      <DragDropProvider>
-        <div className="h-screen flex flex-col bg-background">
+      <HoverStateProvider>
+        <DragDropProvider>
+          <div className="h-screen flex flex-col bg-background">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b bg-card">
             <div className="flex items-center gap-4">
@@ -569,8 +604,9 @@ export default function VisualEditor({
             </div>
           )}
         </div>
-      </div>
-    </DragDropProvider>
+        </div>
+      </DragDropProvider>
+    </HoverStateProvider>
   </TooltipProvider>
   );
 }

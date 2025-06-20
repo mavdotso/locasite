@@ -60,6 +60,7 @@ export default function InlineEditor({
   const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
     const newValue = e.currentTarget.textContent || "";
     setLocalValue(newValue);
+    onChange(newValue); // Update immediately
   };
 
   const handleBlur = () => {
@@ -87,10 +88,12 @@ export default function InlineEditor({
         className={cn(
           className,
           "outline-none ring-2 ring-primary ring-offset-2 rounded px-1",
-          "min-w-[50px] min-h-[1em]"
+          "min-w-[50px] min-h-[1em]",
+          !localValue && "text-muted-foreground italic"
         )}
-        dangerouslySetInnerHTML={{ __html: localValue || placeholder }}
-      />
+      >
+        {localValue || placeholder}
+      </Component>
     );
   }
 

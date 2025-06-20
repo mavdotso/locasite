@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react";
 import { DragItem } from "./types";
 
 interface DragDropContextValue {
@@ -45,6 +45,29 @@ export function DragDropProvider({ children }: DragDropProviderProps) {
   const setDropTarget = useCallback((id: string | null) => {
     setDropTargetId(id);
   }, []);
+  
+  // Add global drag end listener to handle edge cases
+  useEffect(() => {
+    const handleDragEnd = () => {
+      if (isDragging) {
+        endDrag();
+      }
+    };
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isDragging) {
+        endDrag();
+      }
+    };
+    
+    document.addEventListener('dragend', handleDragEnd);
+    document.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      document.removeEventListener('dragend', handleDragEnd);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isDragging, endDrag]);
 
   return (
     <DragDropContext.Provider 

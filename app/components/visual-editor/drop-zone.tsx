@@ -69,11 +69,16 @@ export default function DropZone({ id, index, onDrop, className, showAlways = fa
         )}
       >
         <div className={cn(
-          "flex items-center gap-2 text-sm transition-all duration-200",
+          "flex flex-col items-center gap-1 text-sm transition-all duration-200",
           isActive ? "text-primary scale-110" : "text-muted-foreground"
         )}>
-          <Plus className="w-4 h-4" />
-          <span>Drop component here</span>
+          <div className="flex items-center gap-2">
+            <Plus className="w-4 h-4" />
+            <span>Drop component here</span>
+          </div>
+          {isDragging && !isActive && (
+            <span className="text-xs text-muted-foreground/70">Press ESC to cancel</span>
+          )}
         </div>
       </div>
     </div>
