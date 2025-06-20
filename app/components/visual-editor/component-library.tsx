@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { componentConfigs } from "./config/components";
+import { allComponentConfigs as componentConfigs } from "./config/all-components";
 import { useDragDrop } from "./drag-drop-provider";
 import { cn } from "@/app/lib/utils";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
@@ -76,7 +76,7 @@ export default function ComponentLibrary() {
         <div>
           <h3 className="font-semibold text-sm">Components</h3>
           <p className="text-xs text-muted-foreground mt-1">
-            Drag components to add them to your page
+            Drag components to build your page
           </p>
         </div>
         <div className="relative">
@@ -123,26 +123,70 @@ export default function ComponentLibrary() {
           </div>
         )}
 
-        {/* Component Categories */}
-        <Tabs defaultValue={categories[0] || ""} className="w-full flex flex-col overflow-hidden">
-          {categories.length > 1 && (
-            <TabsList className="w-full justify-start bg-transparent h-auto p-0 rounded-none border-b">
-              {categories.map((category) => (
-                <TabsTrigger
-                  key={category}
-                  value={category}
-                  className="flex-1 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary pb-2"
-                >
-                  {category}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          )}
+        {/* Main Tabs: Blocks vs Pre-made Sections */}
+        <Tabs defaultValue="blocks" className="w-full flex flex-col overflow-hidden">
+          <TabsList className="w-full justify-start bg-transparent h-auto p-0 rounded-none border-b">
+            <TabsTrigger
+              value="blocks"
+              className="flex-1 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary pb-2"
+            >
+              Building Blocks
+            </TabsTrigger>
+            <TabsTrigger
+              value="sections"
+              className="flex-1 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary pb-2"
+            >
+              Pre-made Sections
+            </TabsTrigger>
+          </TabsList>
 
-          {categories.map((category) => (
-            <TabsContent key={category} value={category} className="p-4 mt-0 overflow-auto">
-              <div className="grid gap-3">
-                {componentsByCategory[category].map(({ type, config }) => {
+          {/* Building Blocks Tab */}
+          <TabsContent value="blocks" className="mt-0 overflow-auto">
+            {/* Component Categories */}
+            <Tabs defaultValue={categories[0] || ""} className="w-full flex flex-col overflow-hidden">
+              {categories.length > 1 && (
+                <TabsList className="w-full justify-start bg-transparent h-auto p-0 rounded-none border-b">
+                  {categories.filter(cat => cat !== "Content" && cat !== "Media" && cat !== "Contact" && cat !== "Social" && cat !== "Location").map((category) => (
+                    <TabsTrigger
+                      key={category}
+                      value={category}
+                      className="flex-1 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary pb-2"
+                    >
+                      {category}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              )}
+
+              {categories.filter(cat => cat !== "Content" && cat !== "Media" && cat !== "Contact" && cat !== "Social" && cat !== "Location").map((category) => (
+                <TabsContent key={category} value={category} className="p-4 mt-0 overflow-auto">
+                  <div className="grid gap-3">
+                    {componentsByCategory[category].map(({ type, config }) => {
+                      const Icon = config.icon;
+                      return (
+                        <ComponentCard
+                          key={type}
+                          type={type}
+                          config={config}
+                          Icon={Icon}
+                          onDragStart={() => handleDragStart(type)}
+                          isDragging={isDragging}
+                        />
+                      );
+                    })}
+                  </div>
+                </TabsContent>
+              ))}
+            </Tabs>
+          </TabsContent>
+
+          {/* Pre-made Sections Tab */}
+          <TabsContent value="sections" className="p-4 mt-0 overflow-auto">
+            <div className="grid gap-3">
+              {Object.entries(componentsByCategory)
+                .filter(([category]) => ["Content", "Media", "Contact", "Social", "Location"].includes(category))
+                .flatMap(([_, components]) => components)
+                .map(({ type, config }) => {
                   const Icon = config.icon;
                   return (
                     <ComponentCard
@@ -155,9 +199,8 @@ export default function ComponentLibrary() {
                     />
                   );
                 })}
-              </div>
-            </TabsContent>
-          ))}
+            </div>
+          </TabsContent>
         </Tabs>
       </ScrollArea>
     </div>

@@ -40,7 +40,7 @@ export const componentConfigs: Record<string, ComponentConfig> = {
         accept: "image/*"
       },
     },
-    render: (props) => {
+    render: (props, _editMode, _business, _children, _onUpdate) => {
       const { title, subtitle, backgroundImage } = props as {
         title?: string;
         subtitle?: string;
@@ -74,7 +74,7 @@ export const componentConfigs: Record<string, ComponentConfig> = {
         required: true
       }
     },
-    render: (props) => {
+    render: (props, _editMode, _business, _children, _onUpdate) => {
       const { title, content } = props as { title?: string; content?: string };
       // Extract just the content without the section wrapper
       return (
@@ -123,7 +123,7 @@ export const componentConfigs: Record<string, ComponentConfig> = {
         maxItems: 12
       }
     },
-    render: (props) => {
+    render: (props, _editMode, _business, _children, _onUpdate) => {
       const { title, images } = props as { title?: string; images?: string[] };
       return (
         <div className="py-16">
@@ -150,7 +150,7 @@ export const componentConfigs: Record<string, ComponentConfig> = {
         rows: 2
       }
     },
-    render: (props, _editMode, business) => {
+    render: (props, _editMode, business, _children, _onUpdate) => {
       const { title, subtitle } = props as { title?: string; subtitle?: string };
       const businessData = business as Doc<"businesses"> | undefined;
       // Extract just the content without the section wrapper
@@ -215,7 +215,7 @@ export const componentConfigs: Record<string, ComponentConfig> = {
 
   InfoBlock: {
     fields: {},
-    render: (props, _editMode, business) => {
+    render: (props, _editMode, business, _children, _onUpdate) => {
       const businessData = business as Doc<"businesses"> | undefined;
       return (
         <BusinessInfo 
@@ -247,7 +247,7 @@ export const componentConfigs: Record<string, ComponentConfig> = {
         step: 1
       }
     },
-    render: (props, _editMode, business) => {
+    render: (props, _editMode, business, _children, _onUpdate) => {
       const { title, limit } = props as { title?: string; limit?: number };
       const businessData = business as Doc<"businesses"> | undefined;
       const reviews = businessData?.reviews?.slice(0, limit)?.map(r => ({
@@ -312,7 +312,7 @@ export const componentConfigs: Record<string, ComponentConfig> = {
         showSlider: true
       }
     },
-    render: (props, _editMode, business) => {
+    render: (props, _editMode, business, _children, _onUpdate) => {
       const { title, height } = props as { title?: string; height?: number };
       const businessData = business as Doc<"businesses"> | undefined;
       return (
@@ -338,7 +338,7 @@ export const componentConfigs: Record<string, ComponentConfig> = {
         defaultValue: "Business Hours"
       },
     },
-    render: (props, _editMode, business) => {
+    render: (props, _editMode, business, _children, _onUpdate) => {
       const { title } = props as { title?: string };
       const businessData = business as Doc<"businesses"> | undefined;
       return (

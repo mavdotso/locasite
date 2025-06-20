@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { ComponentData, PageData } from "./types";
-import { componentConfigs } from "./config/components";
+import { allComponentConfigs as componentConfigs } from "./config/all-components";
 import { useDragDrop } from "./drag-drop-provider";
 import DropZone from "./drop-zone";
 import ComponentWrapper from "./component-wrapper";
@@ -11,6 +11,7 @@ import { Button } from "@/app/components/ui/button";
 import { Monitor, Tablet, Smartphone, Frame } from "lucide-react";
 import { Doc } from "@/convex/_generated/dataModel";
 import IframePreview from "./iframe-preview";
+import NestedDropZone from "./nested-drop-zone";
 
 interface PreviewPanelProps {
   pageData: PageData;
@@ -20,7 +21,7 @@ interface PreviewPanelProps {
   onUpdateComponent: (id: string, props: Record<string, unknown>) => void;
   onRemoveComponent: (id: string) => void;
   onMoveComponent: (fromIndex: number, toIndex: number) => void;
-  onAddComponent: (type: string, index: number) => void;
+  onAddComponent: (type: string, index: number, parentId?: string) => void;
   onDuplicateComponent?: (id: string) => void;
   isEditMode?: boolean;
 }
@@ -38,7 +39,7 @@ export default function PreviewPanel({
   business,
   selectedComponentId,
   onSelectComponent,
-  onUpdateComponent: _onUpdateComponent,
+  onUpdateComponent,
   onRemoveComponent,
   onMoveComponent,
   onAddComponent,
@@ -49,17 +50,17 @@ export default function PreviewPanel({
   const [useIframe, setUseIframe] = useState(false);
   const { draggedItem } = useDragDrop();
 
-  const handleDrop = (index: number) => {
+  const handleDrop = (index: number, parentId?: string) => {
     if (!draggedItem) return;
 
     if (draggedItem.type === "new-component" && draggedItem.componentType) {
-      onAddComponent(draggedItem.componentType, index);
+      onAddComponent(draggedItem.componentType, index, parentId);
     } else if (draggedItem.type === "existing-component" && draggedItem.index !== undefined) {
       onMoveComponent(draggedItem.index, index);
     }
   };
 
-  const renderComponent = (component: ComponentData, _index: number) => {
+  const renderComponent = (component: ComponentData, _index: number): React.ReactNode => {
     const config = componentConfigs[component.type];
     if (!config) return null;
 
@@ -69,7 +70,36 @@ export default function PreviewPanel({
       business
     };
 
-    return config.render(componentProps, isEditMode, business);
+    // Render children if component accepts them
+    let children: React.ReactNode = null;
+    if (config.acceptsChildren && component.children && component.children.length > 0) {
+      children = component.children.map((child, childIndex) => (
+        <ComponentWrapper
+          key={child.id}
+          component={child}
+          isSelected={selectedComponentId === child.id}
+          isEditMode={isEditMode}
+          onSelect={() => onSelectComponent(child.id)}
+          onRemove={() => onRemoveComponent(child.id)}
+          onMove={(direction) => {
+            // TODO: Implement nested component movement
+            console.log('Move nested component', direction);
+          }}
+          onDuplicate={onDuplicateComponent ? () => onDuplicateComponent(child.id) : undefined}
+          canMoveUp={childIndex > 0}
+          canMoveDown={childIndex < (component.children?.length || 0) - 1}
+        >
+          {renderComponent(child, childIndex)}
+        </ComponentWrapper>
+      ));
+    }
+
+    // Create update handler for this component
+    const handleUpdate = (newProps: Record<string, unknown>) => {
+      onUpdateComponent(component.id, newProps);
+    };
+
+    return config.render(componentProps, isEditMode, business, children, handleUpdate);
   };
 
   return (
@@ -149,38 +179,72 @@ export default function PreviewPanel({
                 />
               )}
 
-              {pageData.components.map((component, index) => (
-                <React.Fragment key={component.id}>
-                  <ComponentWrapper
-                    component={component}
-                    isSelected={selectedComponentId === component.id}
-                    isEditMode={isEditMode}
-                    onSelect={() => onSelectComponent(component.id)}
-                    onRemove={() => onRemoveComponent(component.id)}
-                    onMove={(direction) => {
-                      const newIndex = direction === "up" ? index - 1 : index + 1;
-                      if (newIndex >= 0 && newIndex < pageData.components.length) {
-                        onMoveComponent(index, newIndex);
-                      }
-                    }}
-                    onDuplicate={onDuplicateComponent ? () => onDuplicateComponent(component.id) : undefined}
-                    canMoveUp={index > 0}
-                    canMoveDown={index < pageData.components.length - 1}
-                  >
-                    {renderComponent(component, index)}
-                  </ComponentWrapper>
+              {pageData.components.map((component, index) => {
+                const config = componentConfigs[component.type];
+                
+                // Use NestedDropZone for container components
+                if (config?.acceptsChildren) {
+                  return (
+                    <React.Fragment key={component.id}>
+                      <NestedDropZone
+                        component={component}
+                        business={business}
+                        selectedComponentId={selectedComponentId}
+                        onSelectComponent={onSelectComponent}
+                        onUpdateComponent={onUpdateComponent}
+                        onRemoveComponent={onRemoveComponent}
+                        onAddComponent={onAddComponent}
+                        onDuplicateComponent={onDuplicateComponent}
+                        isEditMode={isEditMode}
+                      />
+                      
+                      {/* Drop zone after component */}
+                      {isEditMode && (
+                        <DropZone
+                          id={`drop-zone-${index + 1}`}
+                          index={index + 1}
+                          onDrop={handleDrop}
+                          className="h-20"
+                        />
+                      )}
+                    </React.Fragment>
+                  );
+                }
+                
+                // Regular component rendering
+                return (
+                  <React.Fragment key={component.id}>
+                    <ComponentWrapper
+                      component={component}
+                      isSelected={selectedComponentId === component.id}
+                      isEditMode={isEditMode}
+                      onSelect={() => onSelectComponent(component.id)}
+                      onRemove={() => onRemoveComponent(component.id)}
+                      onMove={(direction) => {
+                        const newIndex = direction === "up" ? index - 1 : index + 1;
+                        if (newIndex >= 0 && newIndex < pageData.components.length) {
+                          onMoveComponent(index, newIndex);
+                        }
+                      }}
+                      onDuplicate={onDuplicateComponent ? () => onDuplicateComponent(component.id) : undefined}
+                      canMoveUp={index > 0}
+                      canMoveDown={index < pageData.components.length - 1}
+                    >
+                      {renderComponent(component, index)}
+                    </ComponentWrapper>
 
-                  {/* Drop zone after each component */}
-                  {isEditMode && (
-                    <DropZone
-                      id={`drop-zone-${index + 1}`}
-                      index={index + 1}
-                      onDrop={handleDrop}
-                      className="h-20"
-                    />
-                  )}
-                </React.Fragment>
-              ))}
+                    {/* Drop zone after each component */}
+                    {isEditMode && (
+                      <DropZone
+                        id={`drop-zone-${index + 1}`}
+                        index={index + 1}
+                        onDrop={handleDrop}
+                        className="h-20"
+                      />
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </div>
           </div>
         )}

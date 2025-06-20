@@ -7,7 +7,7 @@ import ComponentLibrary from "./component-library";
 import PreviewPanel from "./preview-panel";
 import FieldEditor from "./field-editor";
 import OutlineView from "./outline-view";
-import { componentConfigs } from "./config/components";
+import { allComponentConfigs as componentConfigs } from "./config/all-components";
 import { Button } from "@/app/components/ui/button";
 import { Save, Loader2, Undo, Redo, Eye, EyeOff, Layers, HelpCircle, Info, X } from "lucide-react";
 import { toast } from "sonner";
@@ -75,7 +75,7 @@ export default function VisualEditor({
   const generateId = () => `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
   // Add component
-  const handleAddComponent = useCallback((type: string, index: number) => {
+  const handleAddComponent = useCallback((type: string, index: number, parentId?: string) => {
     const config = componentConfigs[type];
     if (!config) return;
 
@@ -88,17 +88,52 @@ export default function VisualEditor({
       id: generateId(),
       type,
       props: defaultProps,
-      layout: {} // Initialize with empty layout
+      layout: {}, // Initialize with empty layout
+      parentId,
+      children: config.acceptsChildren ? [] : undefined
     };
 
-    const newData = {
-      ...pageData,
-      components: [
-        ...pageData.components.slice(0, index),
-        newComponent,
-        ...pageData.components.slice(index)
-      ]
-    };
+    let newData: PageData;
+    
+    if (parentId) {
+      // Add to parent's children
+      const updateComponentChildren = (components: ComponentData[]): ComponentData[] => {
+        return components.map(comp => {
+          if (comp.id === parentId) {
+            return {
+              ...comp,
+              children: [
+                ...(comp.children || []).slice(0, index),
+                newComponent,
+                ...(comp.children || []).slice(index)
+              ]
+            };
+          }
+          if (comp.children) {
+            return {
+              ...comp,
+              children: updateComponentChildren(comp.children)
+            };
+          }
+          return comp;
+        });
+      };
+      
+      newData = {
+        ...pageData,
+        components: updateComponentChildren(pageData.components)
+      };
+    } else {
+      // Add to root level
+      newData = {
+        ...pageData,
+        components: [
+          ...pageData.components.slice(0, index),
+          newComponent,
+          ...pageData.components.slice(index)
+        ]
+      };
+    }
 
     setPageData(newData);
     addToHistory(newData);
@@ -506,7 +541,7 @@ export default function VisualEditor({
               onUpdateComponent={handleUpdateComponent}
               onRemoveComponent={handleRemoveComponent}
               onMoveComponent={handleMoveComponent}
-              onAddComponent={handleAddComponent}
+              onAddComponent={(type, index, parentId) => handleAddComponent(type, index, parentId)}
               onDuplicateComponent={handleDuplicateComponent}
               isEditMode={isEditMode}
             />

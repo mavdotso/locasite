@@ -77,9 +77,17 @@ export type Field =
 export interface ComponentConfig {
   fields: Record<string, Field>;
   defaultProps?: Record<string, unknown>;
-  render: (props: Record<string, unknown>, editMode?: boolean, business?: unknown) => React.ReactNode;
+  render: (
+    props: Record<string, unknown>, 
+    editMode?: boolean, 
+    business?: unknown, 
+    children?: React.ReactNode,
+    onUpdate?: (newProps: Record<string, unknown>) => void
+  ) => React.ReactNode;
   icon?: React.ComponentType<{ className?: string }>;
   category?: string;
+  acceptsChildren?: boolean; // Whether this component can contain other components
+  inline?: boolean; // Whether this is an inline element (for text flow)
 }
 
 // Layout options
@@ -103,6 +111,8 @@ export interface ComponentData {
   type: string;
   props: Record<string, unknown>;
   layout?: LayoutOptions;
+  children?: ComponentData[]; // Support nested components
+  parentId?: string; // Track parent component
 }
 
 export interface PageData {

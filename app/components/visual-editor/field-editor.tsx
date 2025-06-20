@@ -2,7 +2,7 @@
 
 import React from "react";
 import { ComponentData } from "./types";
-import { componentConfigs } from "./config/components";
+import { allComponentConfigs as componentConfigs } from "./config/all-components";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
 import { X } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
