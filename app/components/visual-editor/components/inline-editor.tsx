@@ -27,23 +27,20 @@ export default function InlineEditor({
   component: Component = multiline ? "div" : "span"
 }: InlineEditorProps) {
   const [localValue, setLocalValue] = useState(value);
-  const editorRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     setLocalValue(value);
   }, [value]);
 
   useEffect(() => {
-    if (isEditing && editorRef.current) {
-      editorRef.current.focus();
-      // Select all text
-      const range = document.createRange();
-      range.selectNodeContents(editorRef.current);
-      const selection = window.getSelection();
-      selection?.removeAllRanges();
-      selection?.addRange(range);
+    const ref = multiline ? textareaRef : inputRef;
+    if (isEditing && ref.current) {
+      ref.current.focus();
+      ref.current.select();
     }
-  }, [isEditing]);
+  }, [isEditing, multiline]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !multiline) {
@@ -57,10 +54,10 @@ export default function InlineEditor({
     }
   };
 
-  const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
-    const newValue = e.currentTarget.textContent || "";
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
     setLocalValue(newValue);
-    onChange(newValue); // Update immediately
+    onChange(newValue);
   };
 
   const handleBlur = () => {
@@ -77,23 +74,42 @@ export default function InlineEditor({
   };
 
   if (isEditing) {
+    if (multiline) {
+      return (
+        <textarea
+          ref={textareaRef}
+          value={localValue}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+          className={cn(
+            className,
+            "outline-none ring-2 ring-primary ring-offset-2 rounded px-1 py-0.5",
+            "min-w-[50px] w-full resize-none bg-transparent",
+            "font-inherit"
+          )}
+          placeholder={placeholder}
+          rows={3}
+        />
+      );
+    }
+    
     return (
-      <Component
-        ref={editorRef}
-        contentEditable
-        suppressContentEditableWarning
-        onInput={handleInput}
+      <input
+        ref={inputRef}
+        type="text"
+        value={localValue}
+        onChange={handleChange}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         className={cn(
           className,
           "outline-none ring-2 ring-primary ring-offset-2 rounded px-1",
-          "min-w-[50px] min-h-[1em]",
-          !localValue && "text-muted-foreground italic"
+          "min-w-[50px] bg-transparent",
+          "font-inherit"
         )}
-      >
-        {localValue || placeholder}
-      </Component>
+        placeholder={placeholder}
+      />
     );
   }
 

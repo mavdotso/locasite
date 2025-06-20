@@ -7,7 +7,7 @@ import { cn } from "@/app/lib/utils";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/app/components/ui/input";
-import { Search, Plus, Clock } from "lucide-react";
+import { Search, Plus } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -17,13 +17,6 @@ import {
 export default function ComponentLibrary() {
   const { startDrag, isDragging } = useDragDrop();
   const [searchQuery, setSearchQuery] = useState("");
-  const [recentlyUsed, setRecentlyUsed] = useState<string[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('recentlyUsedComponents');
-      return saved ? JSON.parse(saved) : [];
-    }
-    return [];
-  });
 
   // Filter components based on search
   const filteredComponents = useMemo(() => {
@@ -50,24 +43,11 @@ export default function ComponentLibrary() {
 
   const categories = Object.keys(componentsByCategory);
 
-  // Recently used components
-  const recentComponents = recentlyUsed
-    .filter(type => componentConfigs[type])
-    .slice(0, 3)
-    .map(type => ({ type, config: componentConfigs[type] }));
-
   const handleDragStart = (componentType: string) => {
     startDrag({
       type: "new-component",
       componentType
     });
-    
-    // Update recently used
-    const updated = [componentType, ...recentlyUsed.filter(t => t !== componentType)].slice(0, 5);
-    setRecentlyUsed(updated);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('recentlyUsedComponents', JSON.stringify(updated));
-    }
   };
 
   return (
@@ -91,31 +71,6 @@ export default function ComponentLibrary() {
       </div>
 
       <ScrollArea className="flex-1">
-        {/* Recently Used Section */}
-        {recentComponents.length > 0 && !searchQuery && (
-          <div className="p-4 border-b">
-            <h4 className="text-xs font-medium text-muted-foreground mb-3 flex items-center gap-2">
-              <Clock className="h-3 w-3" />
-              Recently Used
-            </h4>
-            <div className="grid gap-2">
-              {recentComponents.map(({ type, config }) => {
-                const Icon = config.icon;
-                return (
-                  <ComponentCard
-                    key={type}
-                    type={type}
-                    config={config}
-                    Icon={Icon}
-                    onDragStart={() => handleDragStart(type)}
-                    isDragging={isDragging}
-                  />
-                );
-              })}
-            </div>
-          </div>
-        )}
-
         {/* No results message */}
         {searchQuery && categories.length === 0 && (
           <div className="p-8 text-center">
