@@ -5,7 +5,7 @@ import { allComponentConfigs as componentConfigs } from "./config/all-components
 import { useDragDrop } from "./drag-drop-provider";
 import { cn } from "@/app/lib/utils";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
 import { Input } from "@/app/components/ui/input";
 import { Search, Plus } from "lucide-react";
 import {
