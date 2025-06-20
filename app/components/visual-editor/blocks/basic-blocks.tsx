@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { ComponentConfig } from "../types";
 import { 
   Type, 
@@ -21,6 +21,7 @@ const TextBlockComponent = (props: {
   onUpdate?: (newProps: Record<string, unknown>) => void;
 }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [hasBeenClicked, setHasBeenClicked] = useState(false);
   const { content, variant, align, editMode, onUpdate } = props;
   
   const textAlign = align === "justify" ? "text-justify" : `text-${align}`;
@@ -43,24 +44,60 @@ const TextBlockComponent = (props: {
   
   const Component = variant?.startsWith('h') ? variant as keyof JSX.IntrinsicElements : 'p';
   
-  // In edit mode, use inline editor
+  const handleClick = (e: React.MouseEvent) => {
+    if (!editMode) return;
+    
+    if (hasBeenClicked) {
+      // Second click - start editing
+      e.stopPropagation();
+      e.preventDefault();
+      setIsEditing(true);
+    } else {
+      // First click - mark as clicked but DON'T stop propagation
+      // This allows the click to bubble up to the ComponentWrapper for selection
+      setHasBeenClicked(true);
+      // Reset after a delay
+      setTimeout(() => setHasBeenClicked(false), 2000);
+    }
+  };
+  
+  // In edit mode
   if (editMode) {
+    if (isEditing) {
+      return (
+        <InlineEditor
+          value={content || ""}
+          onChange={(newContent) => {
+            if (onUpdate) {
+              onUpdate({ content: newContent, variant, align });
+            }
+          }}
+          isEditing={true}
+          onStartEdit={() => {}}
+          onEndEdit={() => {
+            setIsEditing(false);
+            setHasBeenClicked(false);
+          }}
+          className={className}
+          placeholder="Enter your text..."
+          multiline={variant === 'paragraph' || variant === 'lead' || variant === 'muted'}
+          component={Component}
+        />
+      );
+    }
+    
+    // Show clickable text when not editing
     return (
-      <InlineEditor
-        value={content || ""}
-        onChange={(newContent) => {
-          if (onUpdate) {
-            onUpdate({ content: newContent, variant, align });
-          }
-        }}
-        isEditing={isEditing}
-        onStartEdit={() => setIsEditing(true)}
-        onEndEdit={() => setIsEditing(false)}
-        className={className}
-        placeholder="Click to edit this text..."
-        multiline={variant === 'paragraph' || variant === 'lead' || variant === 'muted'}
-        component={Component}
-      />
+      <Component 
+        className={cn(
+          className, 
+          "cursor-text hover:bg-muted/10 rounded px-1 transition-colors",
+          !content && "text-muted-foreground italic"
+        )}
+        onClick={handleClick}
+      >
+        {content || "Click to select, click again to edit..."}
+      </Component>
     );
   }
   

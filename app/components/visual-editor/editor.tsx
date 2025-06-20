@@ -298,9 +298,19 @@ export default function VisualEditor({
     }
   }, [canRedo, historyIndex, history]);
 
-  const selectedComponent = pageData.components.find(
-    (comp) => comp.id === selectedComponentId
-  );
+  // Find selected component (including nested ones)
+  const findComponent = (components: ComponentData[], id: string): ComponentData | null => {
+    for (const comp of components) {
+      if (comp.id === id) return comp;
+      if (comp.children) {
+        const found = findComponent(comp.children, id);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+  
+  const selectedComponent = selectedComponentId ? findComponent(pageData.components, selectedComponentId) : null;
 
   // Keyboard shortcuts
   useEffect(() => {
