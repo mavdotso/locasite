@@ -120,7 +120,8 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
       'rating',
       'reviews',
       'photos',
-      'editorial_summary'
+      'editorial_summary',
+      'types'
     ].join(',');
 
     const detailsResponse = await axios.get(
@@ -146,7 +147,9 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
         `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=${apiKey}`
       ) || [],
       description: place.editorial_summary?.overview || '',
-      placeId: placeId
+      placeId: placeId,
+      // Extract the most relevant business type/category from types array
+      category: place.types?.[0] || undefined
     };
 
     // AI content generation removed - will be a premium feature

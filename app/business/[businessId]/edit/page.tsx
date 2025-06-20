@@ -139,15 +139,17 @@ export default function BusinessEditPage({
 // Helper functions to map between old section format and new component format
 function mapSectionTypeToComponent(sectionType: string): string {
   const typeMap: Record<string, string> = {
-    hero: "HeroBlock",
-    about: "AboutBlock",
-    gallery: "GalleryBlock",
-    reviews: "ReviewsBlock",
-    contact: "ContactBlock",
-    contactForm: "ContactBlock",
-    info: "InfoBlock",
-    map: "MapBlock",
-    hours: "HoursBlock"
+    hero: "HeroSectionBlock",
+    about: "AboutSectionBlock",
+    gallery: "GallerySectionBlock",
+    reviews: "TestimonialsSectionBlock",
+    contact: "ContactSectionBlock",
+    contactForm: "ContactSectionBlock",
+    info: "ContactSectionBlock",
+    map: "ContactSectionBlock",
+    hours: "ContactSectionBlock",
+    services: "ServicesSectionBlock",
+    whyChooseUs: "ServicesSectionBlock"
   };
   return typeMap[sectionType] || sectionType;
 }
@@ -162,29 +164,89 @@ function mapSectionPropsToComponentProps(section: Section): Record<string, unkno
         title: props.title || "",
         subtitle: props.subtitle || "",
         backgroundImage: props.image || "",
-        showButton: props.buttonText ? "true" : "false",
-        buttonText: props.buttonText || "Get Started",
-        buttonLink: props.buttonLink || "#contact"
+        overlayOpacity: 0.5,
+        height: "large",
+        buttons: props.buttonText ? [
+          {
+            text: props.buttonText || "Get Started",
+            link: props.buttonLink || "#contact",
+            variant: "default"
+          }
+        ] : []
       };
     
     case "about":
       return {
         title: "About Us",
-        content: props.content || ""
+        content: props.content || "",
+        image: "",
+        imagePosition: "right",
+        backgroundColor: "default"
       };
     
     case "gallery":
       return {
         title: "Photo Gallery",
-        images: props.images || []
+        layout: "grid",
+        columns: 3,
+        images: (props.images || []).map((img: string) => ({
+          url: img,
+          caption: ""
+        }))
+      };
+    
+    case "reviews":
+      return {
+        title: "What Our Customers Say",
+        layout: "grid",
+        testimonials: ((props as { items?: Array<{ reviewer: string; text: string; rating: number }> }).items || []).map((review) => ({
+          name: review.reviewer || "Customer",
+          role: "",
+          content: review.text || "",
+          rating: review.rating || 5,
+          image: ""
+        }))
       };
     
     case "contact":
     case "contactForm":
+    case "info":
+    case "map":
+    case "hours":
       return {
         title: props.title || "Get in Touch",
         subtitle: props.subtitle || "We'd love to hear from you",
-        showForm: type === "contactForm" ? "true" : "false"
+        showPhone: "yes",
+        showEmail: "yes",
+        showAddress: "yes",
+        showHours: type === "hours" ? "yes" : "no",
+        showMap: type === "map" ? "yes" : "no"
+      };
+    
+    case "services":
+      return {
+        title: props.title || "Our Services",
+        subtitle: "What we offer",
+        layout: "grid3",
+        services: ((props as { items?: Array<{ name?: string; title?: string; description?: string; price?: string }> }).items || []).map((service) => ({
+          icon: "briefcase",
+          title: service.name || service.title || "Service",
+          description: service.description || "",
+          price: service.price || ""
+        }))
+      };
+    
+    case "whyChooseUs":
+      return {
+        title: props.title || "Why Choose Us",
+        subtitle: "",
+        layout: "grid2",
+        services: ((props as { points?: string[] }).points || []).map((point: string) => ({
+          icon: "check",
+          title: point,
+          description: "",
+          price: ""
+        }))
       };
     
     default:

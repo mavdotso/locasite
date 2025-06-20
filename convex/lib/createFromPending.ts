@@ -3,6 +3,8 @@ import { v } from "convex/values";
 import { api } from "../_generated/api";
 import { getUserFromAuth } from './helpers';
 import { Id } from "../_generated/dataModel";
+import { getThemeSuggestions } from './themeSuggestions';
+import { themePresets } from './themePresets';
 
 export const createBusinessFromPendingData = mutation({
   args: {
@@ -20,7 +22,8 @@ export const createBusinessFromPendingData = mutation({
         text: v.string()
       })),
       photos: v.array(v.string()),
-      description: v.optional(v.string())
+      description: v.optional(v.string()),
+      category: v.optional(v.string())
     }),
     aiContent: v.optional(v.union(v.null(), v.object({
       hero: v.optional(v.object({
@@ -80,6 +83,34 @@ export const createBusinessFromPendingData = mutation({
       domainId,
       businessId
     });
+    
+    // Assign a theme based on business category
+    const category = args.businessData.category;
+    const themeSuggestions = getThemeSuggestions(category, 1);
+    const selectedThemeId = themeSuggestions[0] || 'modern-minimal';
+    
+    // Check if theme preset exists
+    const themePreset = themePresets.find(preset => preset.id === selectedThemeId);
+    if (themePreset) {
+      // Create a custom theme based on the preset
+      const themeId = await ctx.db.insert("themes", {
+        name: `${args.businessData.name} Theme`,
+        description: `Theme for ${args.businessData.name}`,
+        isPreset: false,
+        presetId: selectedThemeId,
+        config: themePreset.theme as any, // Type assertion needed due to TypeScript/Convex schema mismatch
+        userId: user._id,
+        businessId,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        isPublic: false,
+        tags: themePreset.tags || [],
+        industry: category || themePreset.industry
+      });
+      
+      // Update business with theme
+      await ctx.db.patch(businessId, { themeId });
+    }
 
     return { businessId, domainId };
   }
