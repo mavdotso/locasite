@@ -82,7 +82,7 @@ export default function ComponentWrapper({
         "absolute -top-10 right-2 z-10",
         "flex items-center gap-1 bg-background border rounded-lg shadow-lg p-1",
         "transition-all duration-200",
-        isSelected ? "opacity-100 -translate-y-1" : "opacity-0"
+        isSelected ? "opacity-100 -translate-y-1 pointer-events-auto" : "opacity-0 pointer-events-none"
       )}>
         {/* Drag Handle */}
         <Tooltip>
