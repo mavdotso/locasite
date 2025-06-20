@@ -125,9 +125,9 @@ export default function SiteCreationFlow() {
     <div className="space-y-6">
       {/* Progress Steps */}
       <div className="flex items-center justify-center space-x-4">
-        <div className={`flex items-center gap-2 ${step >= 1 ? 'text-blue-600' : 'text-muted-foreground/50'}`}>
+        <div className={`flex items-center gap-2 ${step >= 1 ? 'text-primary' : 'text-muted-foreground/50'}`}>
           <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-            step >= 1 ? 'bg-blue-600 text-white' : 'bg-muted'
+            step >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted'
           }`}>
             {step > 1 ? <CheckCircle className="w-5 h-5" /> : '1'}
           </div>
@@ -136,9 +136,9 @@ export default function SiteCreationFlow() {
         
         <ArrowRight className="w-4 h-4 text-muted-foreground/50" />
         
-        <div className={`flex items-center gap-2 ${step >= 2 ? 'text-blue-600' : 'text-muted-foreground/50'}`}>
+        <div className={`flex items-center gap-2 ${step >= 2 ? 'text-primary' : 'text-muted-foreground/50'}`}>
           <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-            step >= 2 ? 'bg-blue-600 text-white' : 'bg-muted'
+            step >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted'
           }`}>
             {step > 2 ? <CheckCircle className="w-5 h-5" /> : '2'}
           </div>
@@ -151,7 +151,7 @@ export default function SiteCreationFlow() {
         <Card>
           <CardHeader className="text-center">
             <CardTitle className="flex items-center justify-center gap-2">
-              <MapPin className="w-6 h-6 text-blue-600" />
+              <MapPin className="w-6 h-6 text-primary" />
               Add Google Maps Business
             </CardTitle>
             <CardDescription>
@@ -182,9 +182,9 @@ export default function SiteCreationFlow() {
               )}
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="font-medium text-blue-900 mb-2">How to find the Google Maps URL:</h3>
-              <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+            <div className="bg-muted border-border rounded-lg p-4">
+              <h3 className="font-medium text-foreground mb-2">How to find the Google Maps URL:</h3>
+              <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
                 <li>Go to Google Maps and search for the business</li>
                 <li>Click on the business listing</li>
                 <li>Copy the URL from your browser&apos;s address bar</li>
@@ -254,7 +254,7 @@ export default function SiteCreationFlow() {
                       href={businessData.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                      className="text-primary hover:text-primary/80 flex items-center gap-1"
                     >
                       {businessData.website}
                       <ExternalLink className="w-3 h-3" />

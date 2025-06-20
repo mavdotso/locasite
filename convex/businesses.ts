@@ -1,7 +1,26 @@
 import { mutation, query, internalMutation, internalQuery } from './_generated/server';
 import { v } from 'convex/values';
 import { Doc, Id } from './_generated/dataModel';
-import { getUserFromAuth } from './helpers';
+import { getUserFromAuth } from './lib/helpers';
+import { partialAdvancedThemeSchemaV } from './lib/themeSchema';
+
+// Interface for business update operations
+interface BusinessUpdateFields {
+    isPublished?: boolean;
+    publishedAt?: number;
+    lastEditedAt?: number;
+    draftContent?: Doc<"businesses">["draftContent"];
+    name?: string;
+    description?: string;
+    phone?: string;
+    email?: string;
+    website?: string;
+    hours?: string[];
+    photos?: string[];
+    theme?: Doc<"businesses">["theme"];
+    themeOverrides?: Doc<"businesses">["themeOverrides"];
+    domainId?: Id<"domains">;
+}
 
 export interface BusinessData {
     name: string;
@@ -344,7 +363,7 @@ export const update = mutation({
                 fontFamily: v.optional(v.string()),
                 logoUrl: v.optional(v.string())
             })),
-            themeOverrides: v.optional(v.any()),
+            themeOverrides: v.optional(partialAdvancedThemeSchemaV),
             lastEditedAt: v.optional(v.number()),
             aiGeneratedContent: v.optional(v.object({
                 hero: v.optional(v.object({
@@ -530,7 +549,7 @@ export const publishDraft = mutation({
         }
         
         // Apply draft content to main fields
-        const updates: Record<string, unknown> = {
+        const updates: BusinessUpdateFields = {
             isPublished: true,
             publishedAt: Date.now(),
             lastEditedAt: Date.now(),

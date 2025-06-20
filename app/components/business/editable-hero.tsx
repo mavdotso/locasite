@@ -131,7 +131,7 @@ export default function EditableHero({
           <div className="mt-8">
             <Button
               variant="outline"
-              className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20"
+              className="bg-background/10 backdrop-blur-sm border-background/20 text-white hover:bg-background/20"
             >
               <Upload className="h-4 w-4 mr-2" />
               Add Background Image

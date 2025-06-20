@@ -62,7 +62,7 @@ export default function BusinessPreview({ business, pageContent, viewport = 'des
   return (
     <div 
       id="preview-container" 
-      className="w-full h-full overflow-auto bg-white"
+      className="w-full h-full overflow-auto bg-background"
       style={{ 
         fontFamily: business.theme?.fontFamily || 'var(--font-sans)',
       }}

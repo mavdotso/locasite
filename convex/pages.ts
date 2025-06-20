@@ -1,6 +1,7 @@
 import { query, mutation, internalMutation } from './_generated/server';
 import { v } from 'convex/values';
-import { getUserFromAuth } from './helpers';
+import { getUserFromAuth } from './lib/helpers';
+import { PageSection } from './lib/types';
 
 // Internal mutation to update a page
 export const internal_updatePage = internalMutation({
@@ -42,8 +43,8 @@ export const createDefaultPages = mutation({
         // Use AI-generated content if available, otherwise fall back to basic content
         const aiContent = business.aiGeneratedContent;
         
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const sections: any[] = [
+        
+        const sections: Array<PageSection | Record<string, unknown>> = [
             {
                 type: "hero",
                 title: aiContent?.hero?.title || business.name,

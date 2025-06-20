@@ -1,7 +1,8 @@
-import { mutation } from "./_generated/server";
+import { mutation } from "../_generated/server";
 import { v } from "convex/values";
-import { api } from "./_generated/api";
+import { api } from "../_generated/api";
 import { getUserFromAuth } from './helpers';
+import { Id } from "../_generated/dataModel";
 
 export const createBusinessFromPendingData = mutation({
   args: {
@@ -52,7 +53,7 @@ export const createBusinessFromPendingData = mutation({
       }))
     })))
   },
-  handler: async (ctx, args): Promise<{ businessId: any; domainId: any }> => {
+  handler: async (ctx, args): Promise<{ businessId: Id<"businesses">; domainId: Id<"domains"> }> => {
     const user = await getUserFromAuth(ctx);
     
     // Create the business as a draft (unpublished)
@@ -67,7 +68,7 @@ export const createBusinessFromPendingData = mutation({
     });
 
     // Automatically generate domain and create pages
-    const { domainId }: any = await ctx.runMutation(api.domains.generateSubdomain, {
+    const { domainId } = await ctx.runMutation(api.domains.generateSubdomain, {
       businessId
     });
 

@@ -69,8 +69,8 @@ export default function AnalyticsDashboard() {
       change: '+12.3%',
       changeType: 'positive' as const,
       icon: Eye,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100'
+      color: 'text-primary',
+      bgColor: 'bg-primary/10'
     },
     {
       title: 'Unique Visitors',
@@ -252,7 +252,7 @@ export default function AnalyticsDashboard() {
                     <p className="font-medium text-foreground">{referrer.source}</p>
                     <div className="w-full bg-muted rounded-full h-2 mt-1">
                       <div 
-                        className="bg-blue-600 h-2 rounded-full" 
+                        className="bg-primary h-2 rounded-full" 
                         style={{ width: `${referrer.percentage}%` }}
                       ></div>
                     </div>
@@ -285,13 +285,13 @@ export default function AnalyticsDashboard() {
       </div>
 
       {/* Note about analytics */}
-      <Card className="bg-blue-50 border-blue-200">
+      <Card className="bg-muted border-border">
         <CardContent className="p-6">
           <div className="flex items-start gap-3">
-            <BarChart3 className="w-5 h-5 text-blue-600 mt-0.5" />
+            <BarChart3 className="w-5 h-5 text-primary mt-0.5" />
             <div>
-              <h3 className="font-medium text-blue-900 mb-1">Analytics Integration</h3>
-              <p className="text-blue-800 text-sm">
+              <h3 className="font-medium text-foreground mb-1">Analytics Integration</h3>
+              <p className="text-muted-foreground text-sm">
                 Currently showing demo data. Connect Google Analytics or another analytics service 
                 to see real visitor data for your websites.
               </p>

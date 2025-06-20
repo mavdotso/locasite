@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation, internalMutation } from "./_generated/server";
-import { getUserFromAuth } from './helpers';
+import { getUserFromAuth } from './lib/helpers';
 
 // Internal mutation to create a domain
 export const internal_createDomain = internalMutation({

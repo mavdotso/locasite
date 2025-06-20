@@ -1,8 +1,9 @@
-import { action } from "./_generated/server";
+import { action } from "../_generated/server";
 import { v } from "convex/values";
 import { openai } from '@ai-sdk/openai';
 import { generateObject, generateText } from 'ai';
 import { z } from 'zod';
+import { PartialBusinessData } from "./types";
 
 export const generateBusinessContent = action({
   args: {
@@ -159,7 +160,7 @@ Do not use generic placeholder text. Create specific, compelling content based o
 });
 
 // Helper function to infer business category
-async function inferBusinessCategory(businessData: any): Promise<string> {
+async function inferBusinessCategory(businessData: Pick<PartialBusinessData, 'name' | 'address' | 'description'>): Promise<string> {
   try {
     const categoryResult = await generateText({
       model: openai('gpt-4o'),

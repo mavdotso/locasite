@@ -1,7 +1,7 @@
 import { mutation, query, internalMutation, internalQuery, action } from './_generated/server';
 import { v } from 'convex/values';
 import { Doc, Id } from './_generated/dataModel';
-import { getUserFromAuth } from './helpers';
+import { getUserFromAuth } from './lib/helpers';
 import { auth } from './auth';
 import { internal } from "./_generated/api";
 

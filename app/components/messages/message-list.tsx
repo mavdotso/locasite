@@ -93,7 +93,7 @@ export default function MessageList({ initialMessages }: MessageListProps) {
                   <span className={cn(
                     "px-2 py-1 text-xs font-medium rounded-full",
                     message.status === "unread" 
-                      ? "bg-blue-100 text-blue-800" 
+                      ? "bg-primary/10 text-primary" 
                       : message.status === "read"
                       ? "bg-muted text-foreground"
                       : "bg-green-100 text-green-800"

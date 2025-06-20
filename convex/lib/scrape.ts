@@ -1,7 +1,7 @@
-import { httpAction } from "./_generated/server";
-import { api } from "./_generated/api";
+import { httpAction } from "../_generated/server";
+import { api } from "../_generated/api";
 import { RateLimiter } from "@convex-dev/rate-limiter";
-import { components } from "./_generated/api";
+import { components } from "../_generated/api";
 import axios from "axios";
 
 const MINUTE = 60 * 1000; // 1 minute in milliseconds

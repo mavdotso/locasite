@@ -1,5 +1,3 @@
-import { ThemePreset } from "./themePresets";
-
 // Google Business category to theme mapping
 export const businessCategoryThemeMap: Record<string, string[]> = {
   // Food & Dining

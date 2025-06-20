@@ -113,7 +113,7 @@ export default function DashboardNav() {
                     className={cn(
                       'relative px-3 py-2 rounded-md text-sm font-medium transition-colors',
                       pathname === item.href
-                        ? 'bg-blue-100 text-blue-700'
+                        ? 'bg-primary/10 text-primary'
                         : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                     )}
                   >
@@ -191,7 +191,7 @@ export default function DashboardNav() {
                     className={cn(
                       'flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium transition-colors',
                       pathname === item.href
-                        ? 'bg-blue-100 text-blue-700'
+                        ? 'bg-primary/10 text-primary'
                         : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                     )}
                     onClick={() => setIsMobileMenuOpen(false)}

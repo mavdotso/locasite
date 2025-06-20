@@ -55,7 +55,7 @@ export default function ClaimsPage() {
         if (googleVerificationStatus === "failed") {
           return "bg-yellow-100 text-yellow-800";
         }
-        return "bg-blue-100 text-blue-800";
+        return "bg-primary/10 text-primary";
       default:
         return "bg-muted text-foreground";
     }

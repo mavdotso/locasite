@@ -1,7 +1,7 @@
 import { defineSchema, defineTable } from "convex/server";
 import { authTables } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-import { advancedThemeSchemaV, simpleThemeSchemaV, partialAdvancedThemeSchemaV } from "./themeSchema";
+import { advancedThemeSchemaV, simpleThemeSchemaV, partialAdvancedThemeSchemaV } from "./lib/themeSchema";
 
 export default defineSchema({
     ...authTables,

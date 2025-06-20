@@ -1,7 +1,7 @@
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { auth } from "./auth";
-import { scrapeGoogleMaps } from "./scrape";
+import { scrapeGoogleMaps } from "./lib/scrape";
 
 const http = httpRouter();
 

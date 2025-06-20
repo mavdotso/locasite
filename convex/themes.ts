@@ -1,9 +1,9 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
-import { getUserFromAuth } from "./helpers";
-import { themePresets } from "./themePresets";
-import { advancedThemeSchemaV, partialAdvancedThemeSchemaV } from "./themeSchema";
+import { getUserFromAuth } from "./lib/helpers";
+import { themePresets } from "./lib/themePresets";
+import { advancedThemeSchemaV, partialAdvancedThemeSchemaV } from "./lib/themeSchema";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
 // Initialize preset themes (run once)

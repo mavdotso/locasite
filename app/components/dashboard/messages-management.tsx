@@ -90,7 +90,7 @@ export default function MessagesManagement() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'unread':
-        return <Badge className="bg-blue-100 text-blue-800">Unread</Badge>;
+        return <Badge className="bg-primary/10 text-primary">Unread</Badge>;
       case 'read':
         return <Badge variant="outline">Read</Badge>;
       case 'responded':
@@ -166,8 +166,8 @@ export default function MessagesManagement() {
               <Card 
                 key={message._id} 
                 className={`cursor-pointer transition-all hover:shadow-md ${
-                  selectedMessage?._id === message._id ? 'ring-2 ring-blue-500' : ''
-                } ${message.status === 'unread' ? 'bg-blue-50 border-blue-200' : ''}`}
+                  selectedMessage?._id === message._id ? 'ring-2 ring-primary' : ''
+                } ${message.status === 'unread' ? 'bg-muted border-border' : ''}`}
                 onClick={() => {
                   setSelectedMessage(message);
                   if (message.status === 'unread') {

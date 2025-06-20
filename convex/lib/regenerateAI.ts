@@ -1,12 +1,14 @@
-import { action } from "./_generated/server";
+import { action } from "../_generated/server";
 import { v } from "convex/values";
-import { api } from "./_generated/api";
+import { api } from "../_generated/api";
+import { Doc } from "../_generated/dataModel";
+import { AIContentResult } from "./types";
 
 export const regenerateAIContentForBusiness = action({
   args: { businessId: v.id("businesses") },
-  handler: async (ctx, args): Promise<{ success: boolean; content: any }> => {
+  handler: async (ctx, args): Promise<{ success: boolean; content: AIContentResult }> => {
     // Get the business
-    const business: any = await ctx.runQuery(api.businesses.getById, { id: args.businessId });
+    const business: Doc<"businesses"> | null = await ctx.runQuery(api.businesses.getById, { id: args.businessId });
     if (!business) {
       throw new Error("Business not found");
     }
@@ -14,7 +16,7 @@ export const regenerateAIContentForBusiness = action({
     // Generate AI content
     try {
       console.log('Regenerating AI content for:', business.name);
-      const aiResult: any = await ctx.runAction(api.aiContentGenerator.generateBusinessContent, {
+      const aiResult = await ctx.runAction(api.aiContentGenerator.generateBusinessContent, {
         businessData: {
           name: business.name,
           address: business.address,

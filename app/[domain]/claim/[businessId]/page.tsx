@@ -135,7 +135,7 @@ export default async function ClaimBusinessPage({ params }: ClaimPageProps) {
           </div>
           
           {!alreadyClaimed && isClaimable && !isAuthenticated && (
-            <Alert className="bg-blue-50 border-blue-200">
+            <Alert className="bg-muted border-border">
               <LogIn className="h-4 w-4" />
               <AlertTitle>Sign In Required</AlertTitle>
               <AlertDescription>
@@ -145,8 +145,8 @@ export default async function ClaimBusinessPage({ params }: ClaimPageProps) {
           )}
 
           {!alreadyClaimed && isClaimable && isAuthenticated && (
-            <div className="p-4 border border-blue-200 bg-blue-50 rounded-lg">
-              <h3 className="font-medium text-blue-900 mb-3 flex items-center gap-2">
+            <div className="p-4 border border-border bg-muted rounded-lg">
+              <h3 className="font-medium text-foreground mb-3 flex items-center gap-2">
                 <Shield className="w-4 h-4" />
                 Verification Methods
               </h3>
