@@ -48,134 +48,500 @@ export const createDefaultPages = mutation({
             id: string;
             type: string;
             props: Record<string, unknown>;
+            children?: Array<{
+                id: string;
+                type: string;
+                props: Record<string, unknown>;
+                children?: any[];
+            }>;
         }> = [];
         
         let componentIndex = 0;
         
-        // Hero Section
+        // Hero Section - using primitive blocks
         components.push({
             id: `component-${componentIndex++}`,
-            type: "HeroSectionBlock",
+            type: "SectionBlock",
             props: {
-                title: aiContent?.hero?.title || business.name,
-                subtitle: aiContent?.hero?.subtitle || business.description || `Welcome to ${business.name}`,
-                backgroundImage: business.photos[0] || "",
-                overlayOpacity: 0.5,
-                height: "large",
-                buttons: [
-                    {
-                        text: aiContent?.callToAction?.primary || "Contact Us",
-                        link: "#contact",
-                        variant: "default"
+                width: "full",
+                verticalPadding: "none"
+            },
+            children: [
+                {
+                    id: `component-${componentIndex++}`,
+                    type: "DividerBlock",
+                    props: {
+                        height: "xlarge",
+                        backgroundImage: business.photos[0] || "",
+                        backgroundColor: "#000000",
+                        overlayOpacity: 0.5
                     },
-                    {
-                        text: aiContent?.callToAction?.secondary || "Learn More",
-                        link: "#about",
-                        variant: "outline"
-                    }
-                ]
-            }
+                    children: [
+                        {
+                            id: `component-${componentIndex++}`,
+                            type: "SectionBlock",
+                            props: {
+                                width: "container",
+                                verticalPadding: "xlarge"
+                            },
+                            children: [
+                                {
+                                    id: `component-${componentIndex++}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: aiContent?.hero?.title || business.name,
+                                        variant: "h1",
+                                        align: "center",
+                                        color: "#ffffff"
+                                    }
+                                },
+                                {
+                                    id: `component-${componentIndex++}`,
+                                    type: "SpacerBlock",
+                                    props: {
+                                        size: "medium"
+                                    }
+                                },
+                                {
+                                    id: `component-${componentIndex++}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: aiContent?.hero?.subtitle || business.description || `Welcome to ${business.name}`,
+                                        variant: "lead",
+                                        align: "center",
+                                        color: "#ffffff"
+                                    }
+                                },
+                                {
+                                    id: `component-${componentIndex++}`,
+                                    type: "SpacerBlock",
+                                    props: {
+                                        size: "large"
+                                    }
+                                },
+                                {
+                                    id: `component-${componentIndex++}`,
+                                    type: "ColumnsBlock",
+                                    props: {
+                                        columns: "2",
+                                        gap: "small",
+                                        stackOnMobile: "yes"
+                                    },
+                                    children: [
+                                        {
+                                            id: `component-${componentIndex++}`,
+                                            type: "ButtonBlock",
+                                            props: {
+                                                text: aiContent?.callToAction?.primary || "Contact Us",
+                                                link: "#contact",
+                                                variant: "default",
+                                                size: "large",
+                                                align: "right"
+                                            }
+                                        },
+                                        {
+                                            id: `component-${componentIndex++}`,
+                                            type: "ButtonBlock",
+                                            props: {
+                                                text: aiContent?.callToAction?.secondary || "Learn More",
+                                                link: "#about",
+                                                variant: "outline",
+                                                size: "large",
+                                                align: "left"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         });
         
-        // About Section
+        // About Section - using primitive blocks
         components.push({
             id: `component-${componentIndex++}`,
-            type: "AboutSectionBlock",
+            type: "SectionBlock",
             props: {
-                title: "About Us",
-                content: aiContent?.about?.content || business.description || `${business.name} is dedicated to providing exceptional service to our customers. We take pride in our work and strive to exceed expectations.`,
-                image: business.photos[1] || "",
-                imagePosition: "right",
-                backgroundColor: "default"
-            }
+                width: "container",
+                verticalPadding: "large"
+            },
+            children: [
+                {
+                    id: `component-${componentIndex++}`,
+                    type: "ColumnsBlock",
+                    props: {
+                        columns: "2",
+                        gap: "large",
+                        stackOnMobile: "yes"
+                    },
+                    children: [
+                        {
+                            id: `component-${componentIndex++}`,
+                            type: "SectionBlock",
+                            props: {
+                                width: "full",
+                                verticalPadding: "none"
+                            },
+                            children: [
+                                {
+                                    id: `component-${componentIndex++}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: "About Us",
+                                        variant: "h2",
+                                        align: "left"
+                                    }
+                                },
+                                {
+                                    id: `component-${componentIndex++}`,
+                                    type: "SpacerBlock",
+                                    props: {
+                                        size: "medium"
+                                    }
+                                },
+                                {
+                                    id: `component-${componentIndex++}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: aiContent?.about?.content || business.description || `${business.name} is dedicated to providing exceptional service to our customers. We take pride in our work and strive to exceed expectations.`,
+                                        variant: "paragraph",
+                                        align: "left"
+                                    }
+                                }
+                            ]
+                        },
+                        business.photos[1] ? {
+                            id: `component-${componentIndex++}`,
+                            type: "ImageBlock",
+                            props: {
+                                src: business.photos[1],
+                                alt: `About ${business.name}`,
+                                aspectRatio: "auto",
+                                objectFit: "cover"
+                            }
+                        } : null
+                    ].filter(Boolean)
+                }
+            ]
         });
         
-        // Services Section (if AI generated)
+        // Services Section (if AI generated) - using primitive blocks
         if (aiContent?.services && aiContent.services.items.length > 0) {
             components.push({
                 id: `component-${componentIndex++}`,
-                type: "ServicesSectionBlock",
+                type: "SectionBlock",
                 props: {
-                    title: aiContent.services.title || "Our Services",
-                    subtitle: "What we offer",
-                    layout: "grid3",
-                    services: aiContent.services.items.map((service: any) => ({
-                        icon: "briefcase",
-                        title: service.name,
-                        description: service.description,
-                        price: service.price || ""
-                    }))
-                }
+                    width: "container",
+                    verticalPadding: "large"
+                },
+                children: [
+                    {
+                        id: `component-${componentIndex++}`,
+                        type: "TextBlock",
+                        props: {
+                            content: aiContent.services.title || "Our Services",
+                            variant: "h2",
+                            align: "center"
+                        }
+                    },
+                    {
+                        id: `component-${componentIndex++}`,
+                        type: "TextBlock",
+                        props: {
+                            content: "What we offer",
+                            variant: "lead",
+                            align: "center"
+                        }
+                    },
+                    {
+                        id: `component-${componentIndex++}`,
+                        type: "SpacerBlock",
+                        props: {
+                            size: "large"
+                        }
+                    },
+                    {
+                        id: `component-${componentIndex++}`,
+                        type: "ColumnsBlock",
+                        props: {
+                            columns: "3",
+                            gap: "medium",
+                            stackOnMobile: "yes"
+                        },
+                        children: aiContent.services.items.map((service: any, index: number) => ({
+                            id: `component-${componentIndex++}-service-${index}`,
+                            type: "CardBlock",
+                            props: {
+                                title: service.title || service.name,
+                                description: "",
+                                variant: "default",
+                                padding: "medium"
+                            },
+                            children: [
+                                {
+                                    id: `component-${componentIndex++}-service-desc-${index}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: service.description,
+                                        variant: "paragraph",
+                                        align: "left"
+                                    }
+                                },
+                                service.price ? {
+                                    id: `component-${componentIndex++}-service-price-${index}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: service.price,
+                                        variant: "muted",
+                                        align: "left"
+                                    }
+                                } : null
+                            ].filter(Boolean)
+                        }))
+                    }
+                ]
             });
         }
         
-        // Gallery Section (if photos available)
+        // Gallery Section (if photos available) - using primitive blocks
         if (business.photos && business.photos.length > 0) {
             components.push({
                 id: `component-${componentIndex++}`,
-                type: "GallerySectionBlock",
+                type: "SectionBlock",
                 props: {
-                    title: "Photo Gallery",
-                    layout: "grid",
-                    columns: 3,
-                    images: business.photos.map((photo: string) => ({
-                        url: photo,
-                        caption: ""
-                    }))
-                }
-            });
-        }
-        
-        // Testimonials/Reviews Section (if reviews available)
-        if (business.reviews && business.reviews.length > 0) {
-            components.push({
-                id: `component-${componentIndex++}`,
-                type: "TestimonialsSectionBlock",
-                props: {
-                    title: "What Our Customers Say",
-                    layout: business.reviews.length > 3 ? "carousel" : "grid",
-                    testimonials: business.reviews.map((review: any) => ({
-                        name: review.reviewer,
-                        role: "",
-                        content: review.text,
-                        rating: review.rating,
-                        image: ""
-                    }))
-                }
-            });
-        }
-        
-        // Contact Section
-        components.push({
-            id: `component-${componentIndex++}`,
-            type: "ContactSectionBlock",
-            props: {
-                title: "Get in Touch",
-                subtitle: aiContent?.callToAction?.urgency || "We'd love to hear from you",
-                showPhone: "yes",
-                showEmail: "yes",
-                showAddress: "yes",
-                showHours: "yes",
-                showMap: "no"
-            }
-        });
-        
-        // CTA Section
-        components.push({
-            id: `component-${componentIndex++}`,
-            type: "CTASectionBlock",
-            props: {
-                title: "Ready to Get Started?",
-                description: aiContent?.callToAction?.urgency || "Contact us today to learn more about our services",
-                backgroundType: "gradient",
-                buttons: [
+                    width: "container",
+                    verticalPadding: "large"
+                },
+                children: [
                     {
-                        text: aiContent?.callToAction?.primary || "Contact Us Now",
-                        link: "#contact",
-                        variant: "secondary"
+                        id: `component-${componentIndex++}`,
+                        type: "TextBlock",
+                        props: {
+                            content: "Photo Gallery",
+                            variant: "h2",
+                            align: "center"
+                        }
+                    },
+                    {
+                        id: `component-${componentIndex++}`,
+                        type: "SpacerBlock",
+                        props: {
+                            size: "large"
+                        }
+                    },
+                    {
+                        id: `component-${componentIndex++}`,
+                        type: "ColumnsBlock",
+                        props: {
+                            columns: "3",
+                            gap: "small",
+                            stackOnMobile: "yes"
+                        },
+                        children: business.photos.map((photo: string, index: number) => ({
+                            id: `component-${componentIndex++}-photo-${index}`,
+                            type: "ImageBlock",
+                            props: {
+                                src: photo,
+                                alt: `${business.name} gallery image ${index + 1}`,
+                                aspectRatio: "square",
+                                objectFit: "cover"
+                            }
+                        }))
                     }
                 ]
-            }
+            });
+        }
+        
+        // Testimonials/Reviews Section (if reviews available) - using primitive blocks
+        if (business.reviews && business.reviews.length > 0) {
+            // Main testimonials section container
+            components.push({
+                id: `component-${componentIndex++}`,
+                type: "SectionBlock",
+                props: {
+                    width: "container",
+                    verticalPadding: "large"
+                },
+                children: [
+                    // Section title
+                    {
+                        id: `component-${componentIndex++}`,
+                        type: "TextBlock",
+                        props: {
+                            content: "What Our Customers Say",
+                            variant: "h2",
+                            align: "center"
+                        }
+                    },
+                    // Spacer
+                    {
+                        id: `component-${componentIndex++}`,
+                        type: "SpacerBlock",
+                        props: {
+                            size: "medium"
+                        }
+                    },
+                    // Reviews in columns
+                    {
+                        id: `component-${componentIndex++}`,
+                        type: "ColumnsBlock",
+                        props: {
+                            columns: business.reviews.length > 2 ? "3" : "2",
+                            gap: "medium",
+                            stackOnMobile: "yes"
+                        },
+                        children: business.reviews.slice(0, 6).map((review: any, index: number) => ({
+                            id: `component-${componentIndex++}-review-${index}`,
+                            type: "CardBlock",
+                            props: {
+                                title: review.reviewer,
+                                description: review.rating,
+                                variant: "default",
+                                padding: "medium"
+                            },
+                            children: [
+                                {
+                                    id: `component-${componentIndex++}-review-text-${index}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: review.text,
+                                        variant: "paragraph",
+                                        align: "left"
+                                    }
+                                }
+                            ]
+                        }))
+                    }
+                ]
+            });
+        }
+        
+        // Contact Section - using primitive blocks
+        components.push({
+            id: `component-${componentIndex++}`,
+            type: "SectionBlock",
+            props: {
+                width: "container",
+                verticalPadding: "large"
+            },
+            children: [
+                // Section title
+                {
+                    id: `component-${componentIndex++}`,
+                    type: "TextBlock",
+                    props: {
+                        content: "Get in Touch",
+                        variant: "h2",
+                        align: "center"
+                    }
+                },
+                {
+                    id: `component-${componentIndex++}`,
+                    type: "TextBlock",
+                    props: {
+                        content: aiContent?.callToAction?.urgency || "We'd love to hear from you",
+                        variant: "lead",
+                        align: "center"
+                    }
+                },
+                // Spacer
+                {
+                    id: `component-${componentIndex++}`,
+                    type: "SpacerBlock",
+                    props: {
+                        size: "large"
+                    }
+                },
+                // Contact info in columns
+                {
+                    id: `component-${componentIndex++}`,
+                    type: "ColumnsBlock",
+                    props: {
+                        columns: "3",
+                        gap: "medium",
+                        stackOnMobile: "yes"
+                    },
+                    children: [
+                        // Phone card
+                        {
+                            id: `component-${componentIndex++}`,
+                            type: "CardBlock",
+                            props: {
+                                title: "Phone",
+                                description: "",
+                                variant: "default",
+                                padding: "medium"
+                            },
+                            children: [
+                                {
+                                    id: `component-${componentIndex++}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: business.phone || "Contact us for phone number",
+                                        variant: "paragraph",
+                                        align: "center"
+                                    }
+                                }
+                            ]
+                        },
+                        // Address card
+                        {
+                            id: `component-${componentIndex++}`,
+                            type: "CardBlock",
+                            props: {
+                                title: "Address",
+                                description: "",
+                                variant: "default",
+                                padding: "medium"
+                            },
+                            children: [
+                                {
+                                    id: `component-${componentIndex++}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: business.address || "Visit us at our location",
+                                        variant: "paragraph",
+                                        align: "center"
+                                    }
+                                }
+                            ]
+                        },
+                        // Hours card
+                        {
+                            id: `component-${componentIndex++}`,
+                            type: "CardBlock",
+                            props: {
+                                title: "Hours",
+                                description: "",
+                                variant: "default",
+                                padding: "medium"
+                            },
+                            children: business.hours && business.hours.length > 0 ? 
+                                business.hours.map((hour: string, index: number) => ({
+                                    id: `component-${componentIndex++}-hour-${index}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: hour,
+                                        variant: "small",
+                                        align: "center"
+                                    }
+                                })) : [
+                                    {
+                                        id: `component-${componentIndex++}`,
+                                        type: "TextBlock",
+                                        props: {
+                                            content: "Contact us for hours",
+                                            variant: "paragraph",
+                                            align: "center"
+                                        }
+                                    }
+                                ]
+                        }
+                    ]
+                }
+            ]
         });
         
         const homePageContent = JSON.stringify({
@@ -197,53 +563,202 @@ export const createDefaultPages = mutation({
             id: string;
             type: string;
             props: Record<string, unknown>;
+            children?: Array<{
+                id: string;
+                type: string;
+                props: Record<string, unknown>;
+                children?: any[];
+            }>;
         }> = [];
         
         let aboutComponentIndex = 0;
         
-        // Hero section for about page
+        // Hero section for about page - using primitive blocks
         aboutComponents.push({
             id: `component-${aboutComponentIndex++}`,
-            type: "HeroSectionBlock",
+            type: "SectionBlock",
             props: {
-                title: `About ${business.name}`,
-                subtitle: "Learn more about our story",
-                backgroundImage: business.photos[0] || "",
-                overlayOpacity: 0.7,
-                height: "medium",
-                buttons: []
-            }
+                width: "full",
+                verticalPadding: "none"
+            },
+            children: [
+                {
+                    id: `component-${aboutComponentIndex++}`,
+                    type: "DividerBlock",
+                    props: {
+                        height: "large",
+                        backgroundImage: business.photos[0] || "",
+                        backgroundColor: "#000000",
+                        overlayOpacity: 0.7
+                    },
+                    children: [
+                        {
+                            id: `component-${aboutComponentIndex++}`,
+                            type: "SectionBlock",
+                            props: {
+                                width: "container",
+                                verticalPadding: "large"
+                            },
+                            children: [
+                                {
+                                    id: `component-${aboutComponentIndex++}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: `About ${business.name}`,
+                                        variant: "h1",
+                                        align: "center",
+                                        color: "#ffffff"
+                                    }
+                                },
+                                {
+                                    id: `component-${aboutComponentIndex++}`,
+                                    type: "SpacerBlock",
+                                    props: {
+                                        size: "small"
+                                    }
+                                },
+                                {
+                                    id: `component-${aboutComponentIndex++}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: "Learn more about our story",
+                                        variant: "lead",
+                                        align: "center",
+                                        color: "#ffffff"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         });
         
-        // Detailed about section
+        // Detailed about section - using primitive blocks
         aboutComponents.push({
             id: `component-${aboutComponentIndex++}`,
-            type: "AboutSectionBlock",
+            type: "SectionBlock",
             props: {
-                title: "Our Story",
-                content: aiContent?.about?.content || business.description || `${business.name} has been serving our community with dedication and excellence. We believe in quality, integrity, and customer satisfaction.`,
-                image: business.photos[2] || business.photos[1] || "",
-                imagePosition: "left",
-                backgroundColor: "muted"
-            }
+                width: "container",
+                verticalPadding: "large"
+            },
+            children: [
+                {
+                    id: `component-${aboutComponentIndex++}`,
+                    type: "ColumnsBlock",
+                    props: {
+                        columns: "2",
+                        gap: "large",
+                        stackOnMobile: "yes"
+                    },
+                    children: [
+                        business.photos[2] || business.photos[1] ? {
+                            id: `component-${aboutComponentIndex++}`,
+                            type: "ImageBlock",
+                            props: {
+                                src: business.photos[2] || business.photos[1],
+                                alt: `${business.name} story image`,
+                                aspectRatio: "auto",
+                                objectFit: "cover"
+                            }
+                        } : null,
+                        {
+                            id: `component-${aboutComponentIndex++}`,
+                            type: "SectionBlock",
+                            props: {
+                                width: "full",
+                                verticalPadding: "none"
+                            },
+                            children: [
+                                {
+                                    id: `component-${aboutComponentIndex++}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: "Our Story",
+                                        variant: "h2",
+                                        align: "left"
+                                    }
+                                },
+                                {
+                                    id: `component-${aboutComponentIndex++}`,
+                                    type: "SpacerBlock",
+                                    props: {
+                                        size: "medium"
+                                    }
+                                },
+                                {
+                                    id: `component-${aboutComponentIndex++}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: aiContent?.about?.content || business.description || `${business.name} has been serving our community with dedication and excellence. We believe in quality, integrity, and customer satisfaction.`,
+                                        variant: "paragraph",
+                                        align: "left"
+                                    }
+                                }
+                            ]
+                        }
+                    ].filter(Boolean)
+                }
+            ]
         });
         
-        // Team section (placeholder for future)
+        // Why Choose Us section - using primitive blocks
         if (aiContent?.whyChooseUs) {
             aboutComponents.push({
                 id: `component-${aboutComponentIndex++}`,
-                type: "ServicesSectionBlock",
+                type: "SectionBlock",
                 props: {
-                    title: aiContent.whyChooseUs.title || "Why Choose Us",
-                    subtitle: "",
-                    layout: "grid2",
-                    services: aiContent.whyChooseUs.points.map((point: string, index: number) => ({
-                        icon: ["shield", "award", "heart", "star"][index % 4],
-                        title: point,
-                        description: "",
-                        price: ""
-                    }))
-                }
+                    width: "container",
+                    verticalPadding: "large"
+                },
+                children: [
+                    {
+                        id: `component-${aboutComponentIndex++}`,
+                        type: "TextBlock",
+                        props: {
+                            content: aiContent.whyChooseUs.title || "Why Choose Us",
+                            variant: "h2",
+                            align: "center"
+                        }
+                    },
+                    {
+                        id: `component-${aboutComponentIndex++}`,
+                        type: "SpacerBlock",
+                        props: {
+                            size: "large"
+                        }
+                    },
+                    {
+                        id: `component-${aboutComponentIndex++}`,
+                        type: "ColumnsBlock",
+                        props: {
+                            columns: "2",
+                            gap: "medium",
+                            stackOnMobile: "yes"
+                        },
+                        children: aiContent.whyChooseUs.points.map((point: string, index: number) => ({
+                            id: `component-${aboutComponentIndex++}-point-${index}`,
+                            type: "CardBlock",
+                            props: {
+                                title: "",
+                                description: "",
+                                variant: "default",
+                                padding: "medium"
+                            },
+                            children: [
+                                {
+                                    id: `component-${aboutComponentIndex++}-point-text-${index}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: point,
+                                        variant: "paragraph",
+                                        align: "center"
+                                    }
+                                }
+                            ]
+                        }))
+                    }
+                ]
             });
         }
         
@@ -265,60 +780,285 @@ export const createDefaultPages = mutation({
             id: string;
             type: string;
             props: Record<string, unknown>;
+            children?: Array<{
+                id: string;
+                type: string;
+                props: Record<string, unknown>;
+                children?: any[];
+            }>;
         }> = [];
         
         let contactComponentIndex = 0;
         
-        // Hero section for contact page
+        // Hero section for contact page - using primitive blocks
         contactComponents.push({
             id: `component-${contactComponentIndex++}`,
-            type: "HeroSectionBlock",
+            type: "SectionBlock",
             props: {
-                title: "Contact Us",
-                subtitle: "Get in touch with our team",
-                backgroundImage: business.photos[business.photos.length - 1] || "",
-                overlayOpacity: 0.8,
-                height: "small",
-                buttons: []
-            }
-        });
-        
-        // Main contact section with all info
-        contactComponents.push({
-            id: `component-${contactComponentIndex++}`,
-            type: "ContactSectionBlock",
-            props: {
-                title: "We're Here to Help",
-                subtitle: "Reach out to us through any of the following methods",
-                showPhone: "yes",
-                showEmail: "yes",
-                showAddress: "yes",
-                showHours: "yes",
-                showMap: "yes"
-            }
-        });
-        
-        // CTA section
-        contactComponents.push({
-            id: `component-${contactComponentIndex++}`,
-            type: "CTASectionBlock",
-            props: {
-                title: "Visit Us Today",
-                description: "We look forward to serving you",
-                backgroundType: "solid",
-                buttons: [
-                    {
-                        text: "Get Directions",
-                        link: `https://maps.google.com/?q=${encodeURIComponent(business.address)}`,
-                        variant: "default"
+                width: "full",
+                verticalPadding: "none"
+            },
+            children: [
+                {
+                    id: `component-${contactComponentIndex++}`,
+                    type: "DividerBlock",
+                    props: {
+                        height: "medium",
+                        backgroundImage: business.photos[business.photos.length - 1] || "",
+                        backgroundColor: "#000000",
+                        overlayOpacity: 0.8
                     },
-                    {
-                        text: `Call ${business.phone || 'Us'}`,
-                        link: `tel:${business.phone || ''}`,
-                        variant: "outline"
+                    children: [
+                        {
+                            id: `component-${contactComponentIndex++}`,
+                            type: "SectionBlock",
+                            props: {
+                                width: "container",
+                                verticalPadding: "medium"
+                            },
+                            children: [
+                                {
+                                    id: `component-${contactComponentIndex++}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: "Contact Us",
+                                        variant: "h1",
+                                        align: "center",
+                                        color: "#ffffff"
+                                    }
+                                },
+                                {
+                                    id: `component-${contactComponentIndex++}`,
+                                    type: "SpacerBlock",
+                                    props: {
+                                        size: "small"
+                                    }
+                                },
+                                {
+                                    id: `component-${contactComponentIndex++}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: "Get in touch with our team",
+                                        variant: "lead",
+                                        align: "center",
+                                        color: "#ffffff"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        });
+        
+        // Main contact section with all info - using primitive blocks
+        contactComponents.push({
+            id: `component-${contactComponentIndex++}`,
+            type: "SectionBlock",
+            props: {
+                width: "container",
+                verticalPadding: "large"
+            },
+            children: [
+                {
+                    id: `component-${contactComponentIndex++}`,
+                    type: "TextBlock",
+                    props: {
+                        content: "We're Here to Help",
+                        variant: "h2",
+                        align: "center"
                     }
-                ]
-            }
+                },
+                {
+                    id: `component-${contactComponentIndex++}`,
+                    type: "TextBlock",
+                    props: {
+                        content: "Reach out to us through any of the following methods",
+                        variant: "lead",
+                        align: "center"
+                    }
+                },
+                {
+                    id: `component-${contactComponentIndex++}`,
+                    type: "SpacerBlock",
+                    props: {
+                        size: "large"
+                    }
+                },
+                {
+                    id: `component-${contactComponentIndex++}`,
+                    type: "ColumnsBlock",
+                    props: {
+                        columns: "2",
+                        gap: "large",
+                        stackOnMobile: "yes"
+                    },
+                    children: [
+                        // Contact info column
+                        {
+                            id: `component-${contactComponentIndex++}`,
+                            type: "SectionBlock",
+                            props: {
+                                width: "full",
+                                verticalPadding: "none"
+                            },
+                            children: [
+                                business.phone && {
+                                    id: `component-${contactComponentIndex++}`,
+                                    type: "CardBlock",
+                                    props: {
+                                        title: "Phone",
+                                        description: business.phone,
+                                        variant: "default",
+                                        padding: "medium"
+                                    }
+                                },
+                                business.email && {
+                                    id: `component-${contactComponentIndex++}`,
+                                    type: "CardBlock",
+                                    props: {
+                                        title: "Email",
+                                        description: business.email,
+                                        variant: "default",
+                                        padding: "medium"
+                                    }
+                                },
+                                {
+                                    id: `component-${contactComponentIndex++}`,
+                                    type: "CardBlock",
+                                    props: {
+                                        title: "Address",
+                                        description: business.address,
+                                        variant: "default",
+                                        padding: "medium"
+                                    }
+                                }
+                            ].filter(Boolean)
+                        },
+                        // Hours column
+                        {
+                            id: `component-${contactComponentIndex++}`,
+                            type: "CardBlock",
+                            props: {
+                                title: "Business Hours",
+                                description: "",
+                                variant: "default",
+                                padding: "medium"
+                            },
+                            children: business.hours && business.hours.length > 0 ?
+                                business.hours.map((hour: string, index: number) => ({
+                                    id: `component-${contactComponentIndex++}-hour-${index}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: hour,
+                                        variant: "small",
+                                        align: "left"
+                                    }
+                                })) : [
+                                    {
+                                        id: `component-${contactComponentIndex++}`,
+                                        type: "TextBlock",
+                                        props: {
+                                            content: "Contact us for business hours",
+                                            variant: "paragraph",
+                                            align: "left"
+                                        }
+                                    }
+                                ]
+                        }
+                    ]
+                }
+            ]
+        });
+        
+        // CTA section - using primitive blocks
+        contactComponents.push({
+            id: `component-${contactComponentIndex++}`,
+            type: "SectionBlock",
+            props: {
+                width: "full",
+                verticalPadding: "large"
+            },
+            children: [
+                {
+                    id: `component-${contactComponentIndex++}`,
+                    type: "DividerBlock",
+                    props: {
+                        height: "medium",
+                        backgroundColor: "#f3f4f6"
+                    },
+                    children: [
+                        {
+                            id: `component-${contactComponentIndex++}`,
+                            type: "SectionBlock",
+                            props: {
+                                width: "container",
+                                verticalPadding: "medium"
+                            },
+                            children: [
+                                {
+                                    id: `component-${contactComponentIndex++}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: "Visit Us Today",
+                                        variant: "h3",
+                                        align: "center"
+                                    }
+                                },
+                                {
+                                    id: `component-${contactComponentIndex++}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: "We look forward to serving you",
+                                        variant: "paragraph",
+                                        align: "center"
+                                    }
+                                },
+                                {
+                                    id: `component-${contactComponentIndex++}`,
+                                    type: "SpacerBlock",
+                                    props: {
+                                        size: "medium"
+                                    }
+                                },
+                                {
+                                    id: `component-${contactComponentIndex++}`,
+                                    type: "ColumnsBlock",
+                                    props: {
+                                        columns: "2",
+                                        gap: "small",
+                                        stackOnMobile: "yes"
+                                    },
+                                    children: [
+                                        {
+                                            id: `component-${contactComponentIndex++}`,
+                                            type: "ButtonBlock",
+                                            props: {
+                                                text: "Get Directions",
+                                                link: `https://maps.google.com/?q=${encodeURIComponent(business.address)}`,
+                                                variant: "default",
+                                                size: "medium",
+                                                align: "right"
+                                            }
+                                        },
+                                        {
+                                            id: `component-${contactComponentIndex++}`,
+                                            type: "ButtonBlock",
+                                            props: {
+                                                text: `Call ${business.phone || 'Us'}`,
+                                                link: `tel:${business.phone || ''}`,
+                                                variant: "outline",
+                                                size: "medium",
+                                                align: "left"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         });
         
         const contactPageContent = JSON.stringify({
