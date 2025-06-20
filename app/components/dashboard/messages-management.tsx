@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
+import { Id, Doc } from '@/convex/_generated/dataModel';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
@@ -25,21 +25,12 @@ import { toast } from 'sonner';
 
 type MessageStatus = 'all' | 'unread' | 'read' | 'responded';
 
-interface MessageWithBusiness {
-  _id: Id<"contactMessages">;
-  businessId: Id<"businesses">;
-  name: string;
-  email: string;
-  phone?: string;
-  message: string;
-  status: 'unread' | 'read' | 'responded';
-  createdAt: number;
-  updatedAt?: number;
+type MessageWithBusiness = Doc<"contactMessages"> & {
   business?: {
     name: string;
     _id: Id<"businesses">;
   };
-}
+};
 
 export default function MessagesManagement() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,7 +45,7 @@ export default function MessagesManagement() {
   const markAsResponded = useMutation(api.contactMessages.markAsResponded);
 
   // Filter messages based on search and status
-  const filteredMessages = allMessages.filter(message => {
+  const filteredMessages = allMessages.filter((message: MessageWithBusiness) => {
     const matchesSearch = message.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          message.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          message.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -102,9 +93,9 @@ export default function MessagesManagement() {
 
   const statusCounts = {
     all: filteredMessages.length,
-    unread: filteredMessages.filter(m => m.status === 'unread').length,
-    read: filteredMessages.filter(m => m.status === 'read').length,
-    responded: filteredMessages.filter(m => m.status === 'responded').length,
+    unread: filteredMessages.filter((m: MessageWithBusiness) => m.status === 'unread').length,
+    read: filteredMessages.filter((m: MessageWithBusiness) => m.status === 'read').length,
+    responded: filteredMessages.filter((m: MessageWithBusiness) => m.status === 'responded').length,
   };
 
   if (!user) {
@@ -162,7 +153,7 @@ export default function MessagesManagement() {
         {/* Messages List */}
         {filteredMessages.length > 0 ? (
           <div className="space-y-4">
-            {filteredMessages.map((message) => (
+            {filteredMessages.map((message: MessageWithBusiness) => (
               <Card 
                 key={message._id} 
                 className={`cursor-pointer transition-all hover:shadow-md ${

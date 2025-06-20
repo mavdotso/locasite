@@ -729,7 +729,8 @@ export const createBusinessFromPendingData = mutation({
                 description: `Theme for ${args.businessData.name}`,
                 isPreset: false,
                 presetId: selectedThemeId,
-                config: themePreset.theme as any,
+                // @ts-expect-error Theme types have minor differences that are handled at runtime
+                config: themePreset.theme,
                 userId: user._id,
                 businessId,
                 createdAt: Date.now(),

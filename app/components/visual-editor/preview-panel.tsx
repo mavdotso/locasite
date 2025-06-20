@@ -72,25 +72,70 @@ export default function PreviewPanel({
     // Render children if component accepts them
     let children: React.ReactNode = null;
     if (config.acceptsChildren && component.children && component.children.length > 0) {
-      children = component.children.map((child, childIndex) => (
-        <ComponentWrapper
-          key={child.id}
-          component={child}
-          isSelected={selectedComponentId === child.id}
-          isEditMode={isEditMode}
-          onSelect={() => onSelectComponent(child.id)}
-          onRemove={() => onRemoveComponent(child.id)}
-          onMove={(direction) => {
-            // TODO: Implement nested component movement
-            console.log('Move nested component', direction);
-          }}
-          onDuplicate={onDuplicateComponent ? () => onDuplicateComponent(child.id) : undefined}
-          canMoveUp={childIndex > 0}
-          canMoveDown={childIndex < (component.children?.length || 0) - 1}
-        >
-          {renderComponent(child, childIndex)}
-        </ComponentWrapper>
-      ));
+      // Special handling for ColumnsBlock to distribute children
+      if (component.type === 'ColumnsBlock') {
+        const columnCount = parseInt(component.props.columns as string || "2");
+        const columnContents: React.ReactNode[][] = Array(columnCount).fill(null).map(() => []);
+        
+        // Distribute children to columns based on metadata
+        component.children.forEach((child, index) => {
+          const columnIndex = child.metadata?.columnIndex !== undefined 
+            ? child.metadata.columnIndex as number
+            : index % columnCount;
+          
+          
+          // Ensure columnIndex is within bounds
+          const safeColumnIndex = Math.min(Math.max(0, columnIndex), columnCount - 1);
+          
+          const childNode = (
+            <ComponentWrapper
+              key={child.id}
+              component={child}
+              isSelected={selectedComponentId === child.id}
+              isEditMode={isEditMode}
+              onSelect={() => onSelectComponent(child.id)}
+              onRemove={() => onRemoveComponent(child.id)}
+              onMove={(_direction) => {
+                // TODO: Implement nested component movement
+              }}
+              onDuplicate={onDuplicateComponent ? () => onDuplicateComponent(child.id) : undefined}
+              canMoveUp={index > 0}
+              canMoveDown={index < (component.children?.length || 0) - 1}
+            >
+              {renderComponent(child, index)}
+            </ComponentWrapper>
+          );
+          
+          columnContents[safeColumnIndex].push(childNode);
+        });
+        
+        // Create pre-distributed children for ColumnsBlock
+        children = columnContents.map((colChildren, colIndex) => (
+          <div key={colIndex} className="column-content">
+            {colChildren}
+          </div>
+        ));
+      } else {
+        // For other container components, render children normally
+        children = component.children.map((child, childIndex) => (
+          <ComponentWrapper
+            key={child.id}
+            component={child}
+            isSelected={selectedComponentId === child.id}
+            isEditMode={isEditMode}
+            onSelect={() => onSelectComponent(child.id)}
+            onRemove={() => onRemoveComponent(child.id)}
+            onMove={(_direction) => {
+              // TODO: Implement nested component movement
+            }}
+            onDuplicate={onDuplicateComponent ? () => onDuplicateComponent(child.id) : undefined}
+            canMoveUp={childIndex > 0}
+            canMoveDown={childIndex < (component.children?.length || 0) - 1}
+          >
+            {renderComponent(child, childIndex)}
+          </ComponentWrapper>
+        ));
+      }
     }
 
     // Create update handler for this component

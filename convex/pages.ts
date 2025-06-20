@@ -2,6 +2,7 @@ import { query, mutation, internalMutation } from './_generated/server';
 import { v } from 'convex/values';
 import { getUserFromAuth } from './lib/helpers';
 import { PageSection } from './lib/types';
+import { api } from './_generated/api';
 
 // Internal mutation to update a page
 export const internal_updatePage = internalMutation({
@@ -48,10 +49,12 @@ export const createDefaultPages = mutation({
             id: string;
             type: string;
             props: Record<string, unknown>;
+            metadata?: Record<string, unknown>;
             children?: Array<{
                 id: string;
                 type: string;
                 props: Record<string, unknown>;
+                metadata?: Record<string, unknown>;
                 children?: any[];
             }>;
         }> = [];
@@ -137,7 +140,8 @@ export const createDefaultPages = mutation({
                                                 variant: "default",
                                                 size: "large",
                                                 align: "right"
-                                            }
+                                            },
+                                            metadata: { columnIndex: 0 }
                                         },
                                         {
                                             id: `component-${componentIndex++}`,
@@ -148,7 +152,8 @@ export const createDefaultPages = mutation({
                                                 variant: "outline",
                                                 size: "large",
                                                 align: "left"
-                                            }
+                                            },
+                                            metadata: { columnIndex: 1 }
                                         }
                                     ]
                                 }
@@ -184,6 +189,7 @@ export const createDefaultPages = mutation({
                                 width: "full",
                                 verticalPadding: "none"
                             },
+                            metadata: { columnIndex: 0 },
                             children: [
                                 {
                                     id: `component-${componentIndex++}`,
@@ -220,7 +226,8 @@ export const createDefaultPages = mutation({
                                 alt: `About ${business.name}`,
                                 aspectRatio: "auto",
                                 objectFit: "cover"
-                            }
+                            },
+                            metadata: { columnIndex: 1 }
                         } : null
                     ].filter(Boolean)
                 }
@@ -279,6 +286,7 @@ export const createDefaultPages = mutation({
                                 variant: "default",
                                 padding: "medium"
                             },
+                            metadata: { columnIndex: index % 3 },
                             children: [
                                 {
                                     id: `component-${componentIndex++}-service-desc-${index}`,
@@ -347,7 +355,8 @@ export const createDefaultPages = mutation({
                                 alt: `${business.name} gallery image ${index + 1}`,
                                 aspectRatio: "square",
                                 objectFit: "cover"
-                            }
+                            },
+                            metadata: { columnIndex: index % 3 }
                         }))
                     }
                 ]
@@ -401,6 +410,7 @@ export const createDefaultPages = mutation({
                                 variant: "default",
                                 padding: "medium"
                             },
+                            metadata: { columnIndex: index % (business.reviews.length > 2 ? 3 : 2) },
                             children: [
                                 {
                                     id: `component-${componentIndex++}-review-text-${index}`,
@@ -510,7 +520,8 @@ export const createDefaultPages = mutation({
                                         align: "center"
                                     }
                                 }
-                            ]
+                            ],
+                            metadata: { columnIndex: 0 }
                         },
                         // Address card
                         {
@@ -522,6 +533,7 @@ export const createDefaultPages = mutation({
                                 variant: "default",
                                 padding: "medium"
                             },
+                            metadata: { columnIndex: 1 },
                             children: [
                                 {
                                     id: `component-${componentIndex++}`,
@@ -570,6 +582,7 @@ export const createDefaultPages = mutation({
                                 variant: "default",
                                 padding: "medium"
                             },
+                            metadata: { columnIndex: 2 },
                             children: [
                                 {
                                     id: `component-${componentIndex++}`,
@@ -644,10 +657,12 @@ export const createDefaultPages = mutation({
             id: string;
             type: string;
             props: Record<string, unknown>;
+            metadata?: Record<string, unknown>;
             children?: Array<{
                 id: string;
                 type: string;
                 props: Record<string, unknown>;
+                metadata?: Record<string, unknown>;
                 children?: any[];
             }>;
         }> = [];
@@ -741,7 +756,8 @@ export const createDefaultPages = mutation({
                                 alt: `${business.name} story image`,
                                 aspectRatio: "auto",
                                 objectFit: "cover"
-                            }
+                            },
+                            metadata: { columnIndex: 0 }
                         } : null,
                         {
                             id: `component-${aboutComponentIndex++}`,
@@ -750,6 +766,7 @@ export const createDefaultPages = mutation({
                                 width: "full",
                                 verticalPadding: "none"
                             },
+                            metadata: { columnIndex: 1 },
                             children: [
                                 {
                                     id: `component-${aboutComponentIndex++}`,
@@ -826,6 +843,7 @@ export const createDefaultPages = mutation({
                                 variant: "default",
                                 padding: "medium"
                             },
+                            metadata: { columnIndex: index % 2 },
                             children: [
                                 {
                                     id: `component-${aboutComponentIndex++}-point-text-${index}`,
@@ -861,10 +879,12 @@ export const createDefaultPages = mutation({
             id: string;
             type: string;
             props: Record<string, unknown>;
+            metadata?: Record<string, unknown>;
             children?: Array<{
                 id: string;
                 type: string;
                 props: Record<string, unknown>;
+                metadata?: Record<string, unknown>;
                 children?: any[];
             }>;
         }> = [];
@@ -983,6 +1003,7 @@ export const createDefaultPages = mutation({
                                 width: "full",
                                 verticalPadding: "none"
                             },
+                            metadata: { columnIndex: 0 },
                             children: [
                                 business.phone && {
                                     id: `component-${contactComponentIndex++}`,
@@ -1137,6 +1158,7 @@ export const createDefaultPages = mutation({
                                 variant: "default",
                                 padding: "medium"
                             },
+                            metadata: { columnIndex: 1 },
                             children: [
                                 {
                                     id: `component-${contactComponentIndex++}`,
@@ -1260,7 +1282,8 @@ export const createDefaultPages = mutation({
                                                 variant: "default",
                                                 size: "medium",
                                                 align: "right"
-                                            }
+                                            },
+                                            metadata: { columnIndex: 0 }
                                         },
                                         {
                                             id: `component-${contactComponentIndex++}`,
@@ -1271,7 +1294,8 @@ export const createDefaultPages = mutation({
                                                 variant: "outline",
                                                 size: "medium",
                                                 align: "left"
-                                            }
+                                            },
+                                            metadata: { columnIndex: 1 }
                                         }
                                     ]
                                 }
@@ -1302,6 +1326,89 @@ export const createDefaultPages = mutation({
         };
     },
 });
+
+// Regenerate default pages with proper component structure
+// Temporarily disabled due to circular dependency issue
+/*
+export const regenerateDefaultPages = mutation({
+    args: {
+        businessId: v.id("businesses"),
+    },
+    handler: async (ctx, args) => {
+        const user = await getUserFromAuth(ctx);
+        
+        // Get the business
+        const business = await ctx.db.get(args.businessId);
+        if (!business) {
+            throw new Error("Business not found");
+        }
+        
+        // Verify ownership
+        if (business.userId !== user._id) {
+            throw new Error("Not authorized to regenerate pages for this business");
+        }
+        
+        // Get the domain directly by ID
+        if (!business.domainId) {
+            throw new Error("Business has no domain");
+        }
+        
+        const domain = await ctx.db.get(business.domainId);
+        if (!domain) {
+            throw new Error("Domain not found for business");
+        }
+        
+        // Delete existing pages
+        const existingPages = await ctx.db
+            .query("pages")
+            .withIndex("by_domain_slug", q => q.eq("domainId", domain._id))
+            .collect();
+            
+        for (const page of existingPages) {
+            await ctx.db.delete(page._id);
+        }
+        
+        // Create new pages with proper structure
+        // Call createDefaultPages directly instead of through api
+        const homePageData = generateHomePage(business);
+        const aboutPageData = generateAboutPage(business);
+        const contactPageData = generateContactPage(business);
+        
+        // Create home page
+        const homePageId = await ctx.db.insert("pages", {
+            domainId: domain._id,
+            slug: "home",
+            title: homePageData.title,
+            content: JSON.stringify(homePageData),
+            updatedAt: Date.now(),
+        });
+        
+        // Create about page
+        const aboutPageId = await ctx.db.insert("pages", {
+            domainId: domain._id,
+            slug: "about",
+            title: aboutPageData.title,
+            content: JSON.stringify(aboutPageData),
+            updatedAt: Date.now(),
+        });
+        
+        // Create contact page
+        const contactPageId = await ctx.db.insert("pages", {
+            domainId: domain._id,
+            slug: "contact",
+            title: contactPageData.title,
+            content: JSON.stringify(contactPageData),
+            updatedAt: Date.now(),
+        });
+        
+        return {
+            homePageId,
+            aboutPageId,
+            contactPageId,
+        };
+    },
+});
+*/
 
 export const listByDomain = query({
     args: {

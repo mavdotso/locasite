@@ -138,6 +138,7 @@ export const ColumnsBlock: ComponentConfig = {
     const columnCount = parseInt(columns || "2");
     const isVertical = direction === "col";
     
+    
     const gapClasses = {
       none: "",
       small: "gap-2",
@@ -159,14 +160,50 @@ export const ColumnsBlock: ComponentConfig = {
       );
     }
     
-    // Distribute children among columns
     const childrenArray = React.Children.toArray(children);
+    
+    // Check if we have pre-distributed columns by looking for column-content divs
+    const isPreDistributed = childrenArray.length > 0 && 
+      childrenArray.every(child => {
+        const el = child as React.ReactElement<{ className?: string }>;
+        return el?.props?.className === 'column-content';
+      });
+    
+    if (isPreDistributed) {
+      // Children are already distributed into columns by PreviewPanel or BusinessPageRenderer
+      return (
+        <div className={cn(
+          layoutClasses,
+          gapClasses[gap as keyof typeof gapClasses] || gapClasses.medium
+        )}>
+          {childrenArray.map((colContent, colIndex) => (
+            <div key={colIndex} className="min-h-[100px] column-drop-zone">
+              {(colContent as React.ReactElement<{ children?: React.ReactNode }>).props.children}
+              {editMode && !(colContent as React.ReactElement<{ children?: React.ReactNode }>).props.children && (
+                <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">
+                  <p className="text-sm text-muted-foreground">Column {colIndex + 1}</p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    }
+    
+    // This path should not be reached if BusinessPageRenderer is working correctly
+    // It's only used for direct children without pre-distribution
     const columnContents: React.ReactNode[][] = Array(columnCount).fill(null).map(() => []);
     
     // Distribute children to columns
     childrenArray.forEach((child, index) => {
-      const columnIndex = index % columnCount;
-      columnContents[columnIndex].push(child);
+      // For vertical layout, all children go in one column
+      if (isVertical) {
+        columnContents[0].push(child);
+      } else {
+        // Default distribution by index
+        const columnIndex = index % columnCount;
+        columnContents[columnIndex].push(child);
+      }
     });
     
     return (
@@ -175,7 +212,7 @@ export const ColumnsBlock: ComponentConfig = {
         gapClasses[gap as keyof typeof gapClasses] || gapClasses.medium
       )}>
         {columnContents.map((colChildren, colIndex) => (
-          <div key={colIndex} className="min-h-[100px] column-drop-zone">
+          <div key={colIndex} className="min-h-[100px]">
             {colChildren}
             {editMode && colChildren.length === 0 && (
               <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">

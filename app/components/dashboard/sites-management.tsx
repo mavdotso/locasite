@@ -40,7 +40,7 @@ export default function SitesManagement() {
   const deleteBusiness = useMutation(api.businesses.remove);
 
   // Filter businesses based on search and status
-  const filteredBusinesses = userBusinesses?.filter(business => {
+  const filteredBusinesses = userBusinesses?.filter((business: Doc<"businesses">) => {
     const matchesSearch = business.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          business.address.toLowerCase().includes(searchQuery.toLowerCase());
     
@@ -85,9 +85,9 @@ export default function SitesManagement() {
 
   const statusCounts = {
     all: filteredBusinesses.length,
-    published: filteredBusinesses.filter(b => b.isPublished).length,
-    draft: filteredBusinesses.filter(b => !b.isPublished && b.userId).length,
-    pending: filteredBusinesses.filter(b => !b.userId).length,
+    published: filteredBusinesses.filter((b: Doc<"businesses">) => b.isPublished).length,
+    draft: filteredBusinesses.filter((b: Doc<"businesses">) => !b.isPublished && b.userId).length,
+    pending: filteredBusinesses.filter((b: Doc<"businesses">) => !b.userId).length,
   };
 
   if (!user) {
@@ -151,7 +151,7 @@ export default function SitesManagement() {
       {/* Sites Grid */}
       {filteredBusinesses.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredBusinesses.map((business) => (
+          {filteredBusinesses.map((business: Doc<"businesses">) => (
             <Card key={business._id} className="group hover:shadow-lg transition-all duration-200">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">

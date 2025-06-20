@@ -9,6 +9,7 @@ import { VisualEditor, PageData } from "@/app/components/visual-editor";
 import AuthGuard from "@/app/components/auth/auth-guard";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface Section {
   type: string;
@@ -31,12 +32,8 @@ export default function BusinessEditPage({
   const resolvedParams = use(params);
   const businessId = resolvedParams.businessId as Id<"businesses">;
 
-  console.log("BusinessEditPage - businessId:", businessId);
-
   // Fetch business and pages
   const business = useQuery(api.businesses.getById, { id: businessId });
-  
-  console.log("Business query result:", business);
   
   const domain = useQuery(api.domains.getByBusinessId, 
     business ? { businessId: business._id } : "skip"
@@ -46,6 +43,7 @@ export default function BusinessEditPage({
   );
   const updatePage = useMutation(api.pages.updatePage);
   const createDefaultPages = useMutation(api.pages.createDefaultPages);
+  // const regeneratePages = useMutation(api.pages.regenerateDefaultPages);
 
   // Loading state while fetching business
   if (business === undefined) {
@@ -63,7 +61,7 @@ export default function BusinessEditPage({
   }
 
   // Get the home page or create initial data
-  const homePage = pages?.find(p => p.slug === "home");
+  const homePage = pages?.find((p: Doc<"pages">) => p.slug === "home");
   
   let initialData: PageData = {
     title: business?.name || "Welcome",
@@ -73,6 +71,7 @@ export default function BusinessEditPage({
   if (homePage?.content) {
     try {
       const parsed = JSON.parse(homePage.content);
+      
       // Convert from section-based format to component-based format
       if (parsed.sections) {
         initialData = {
@@ -123,15 +122,45 @@ export default function BusinessEditPage({
     );
   }
 
+  // Add a handler to regenerate pages
+  const handleRegeneratePages = async () => {
+    try {
+      // await regeneratePages({ businessId });
+      toast.info("Page regeneration is temporarily disabled.");
+      // toast.success("Pages regenerated with proper structure. The page will reload.");
+      // Reload the page to get the new content
+      // setTimeout(() => window.location.reload(), 1000);
+    } catch (error) {
+      console.error("Error regenerating pages:", error);
+      toast.error("Failed to regenerate pages");
+    }
+  };
+
   return (
     <AuthGuard>
-      <VisualEditor
-        businessId={businessId}
-        business={business}
-        pageId={homePage?._id || ("temp-id" as Id<"pages">)}
-        initialData={initialData}
-        onSave={handleSave}
-      />
+      <div className="relative">
+        {/* Add regenerate button if content is in old format */}
+        {homePage?.content && !homePage.content.includes('"metadata"') && (
+          <div className="absolute top-4 right-4 z-50 bg-yellow-100 border border-yellow-400 rounded-lg p-4">
+            <p className="text-sm text-yellow-800 mb-2">
+              This page is using an old format. Regenerate to fix column layouts.
+            </p>
+            <button
+              onClick={handleRegeneratePages}
+              className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 text-sm font-medium"
+            >
+              Regenerate Page Structure
+            </button>
+          </div>
+        )}
+        <VisualEditor
+          businessId={businessId}
+          business={business}
+          pageId={homePage?._id || ("temp-id" as Id<"pages">)}
+          initialData={initialData}
+          onSave={handleSave}
+        />
+      </div>
     </AuthGuard>
   );
 }

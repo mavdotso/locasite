@@ -67,31 +67,65 @@ export default function NestedDropZone({
           />
         )}
         
-        {childComponents.map((child, childIndex) => (
-          <React.Fragment key={child.id}>
-            <NestedDropZone
-              component={child}
-              business={business}
-              selectedComponentId={selectedComponentId}
-              onSelectComponent={onSelectComponent}
-              onUpdateComponent={onUpdateComponent}
-              onRemoveComponent={onRemoveComponent}
-              onAddComponent={onAddComponent}
-              onDuplicateComponent={onDuplicateComponent}
-              isEditMode={isEditMode}
-            />
-            
-            {/* Drop zone after each child */}
-            {isEditMode && (
-              <DropZone
-                id={`drop-zone-${component.id}-${childIndex + 1}`}
-                index={childIndex + 1}
-                onDrop={handleDropInChild}
-                className="h-16"
+        {childComponents.map((child, childIndex) => {
+          // Use ColumnsDropZone for ColumnsBlock children
+          if (child.type === 'ColumnsBlock') {
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const ColumnsDropZone = require('./columns-drop-zone').default;
+            return (
+              <React.Fragment key={child.id}>
+                <ColumnsDropZone
+                  component={child}
+                  business={business}
+                  selectedComponentId={selectedComponentId}
+                  onSelectComponent={onSelectComponent}
+                  onUpdateComponent={onUpdateComponent}
+                  onRemoveComponent={onRemoveComponent}
+                  onAddComponent={onAddComponent}
+                  onDuplicateComponent={onDuplicateComponent}
+                  isEditMode={isEditMode}
+                />
+                
+                {/* Drop zone after each child */}
+                {isEditMode && (
+                  <DropZone
+                    id={`drop-zone-${component.id}-${childIndex + 1}`}
+                    index={childIndex + 1}
+                    onDrop={handleDropInChild}
+                    className="h-16"
+                  />
+                )}
+              </React.Fragment>
+            );
+          }
+          
+          // Regular nested component
+          return (
+            <React.Fragment key={child.id}>
+              <NestedDropZone
+                component={child}
+                business={business}
+                selectedComponentId={selectedComponentId}
+                onSelectComponent={onSelectComponent}
+                onUpdateComponent={onUpdateComponent}
+                onRemoveComponent={onRemoveComponent}
+                onAddComponent={onAddComponent}
+                onDuplicateComponent={onDuplicateComponent}
+                isEditMode={isEditMode}
               />
-            )}
-          </React.Fragment>
-        ))}
+              
+              {/* Drop zone after each child */}
+              {isEditMode && (
+                <DropZone
+                  id={`drop-zone-${component.id}-${childIndex + 1}`}
+                  index={childIndex + 1}
+                  onDrop={handleDropInChild}
+                  className="h-16"
+                />
+              )}
+            </React.Fragment>
+          );
+        })}
       </>
     );
   }

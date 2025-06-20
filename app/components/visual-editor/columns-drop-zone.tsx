@@ -81,24 +81,6 @@ export default function ColumnsDropZone({
 
   // Get column count from props
   const columnCount = parseInt((component.props.columns as string) || "2");
-  const gap = component.props.gap as string || "medium";
-  const direction = component.props.direction as string || "row";
-  const stackOnMobile = component.props.stackOnMobile as string || "yes";
-  
-  // Group children by column index (from metadata or by distribution)
-  const getChildrenInColumn = (columnIndex: number): ComponentData[] => {
-    if (!component.children) return [];
-    
-    return component.children.filter((child, index) => {
-      // Check if child has column metadata
-      const childColumnIndex = child.metadata?.columnIndex;
-      if (childColumnIndex !== undefined) {
-        return childColumnIndex === columnIndex;
-      }
-      // Otherwise distribute by index
-      return index % columnCount === columnIndex;
-    });
-  };
 
   // Calculate the actual index in the full children array
   const calculateActualIndex = (columnIndex: number, dropIndex: number): number => {
@@ -140,89 +122,110 @@ export default function ColumnsDropZone({
     }
   };
 
-  // Build layout classes
-  const isVertical = direction === "col";
-  const gapClasses = {
-    none: "",
-    small: "gap-2",
-    medium: "gap-6",
-    large: "gap-10"
-  };
-  
-  let layoutClasses = "";
-  if (isVertical) {
-    layoutClasses = "flex flex-col";
-  } else {
-    layoutClasses = cn(
-      "grid",
-      stackOnMobile === "yes" ? "grid-cols-1" : "",
-      columnCount === 2 && "md:grid-cols-2",
-      columnCount === 3 && "md:grid-cols-3",
-      columnCount === 4 && "md:grid-cols-4"
-    );
-  }
 
-
-  // Custom render for columns with individual drop zones
-  const columnsContent = (
-    <div className={cn(
-      layoutClasses,
-      gapClasses[gap as keyof typeof gapClasses] || gapClasses.medium
-    )}>
-      {Array.from({ length: columnCount }).map((_, columnIndex) => {
-        const columnChildren = getChildrenInColumn(columnIndex);
+  // Build the columns structure directly instead of using renderComponent
+  // because ColumnsBlock's render expects raw children, not pre-distributed
+  const columnsContent = (() => {
+    const columnCount = parseInt(component.props.columns as string || "2");
+    const columnContents: React.ReactNode[][] = Array(columnCount).fill(null).map(() => []);
+    
+    // Distribute children to columns based on metadata
+    if (component.children) {
+      component.children.forEach((child, index) => {
+        const columnIndex = child.metadata?.columnIndex !== undefined 
+          ? child.metadata.columnIndex as number
+          : index % columnCount;
         
-        return (
-          <div key={columnIndex} className="min-h-[100px] relative">
+        
+        // Ensure columnIndex is within bounds
+        const safeColumnIndex = Math.min(Math.max(0, columnIndex), columnCount - 1);
+        
+        const childNode = (
+          <React.Fragment key={child.id}>
+            <NestedDropZone
+              component={child}
+              business={business}
+              selectedComponentId={selectedComponentId}
+              onSelectComponent={onSelectComponent}
+              onUpdateComponent={onUpdateComponent}
+              onRemoveComponent={onRemoveComponent}
+              onAddComponent={onAddComponent}
+              onDuplicateComponent={onDuplicateComponent}
+              isEditMode={isEditMode}
+            />
+            
+            {/* Drop zone after each child */}
+            {isEditMode && (
+              <DropZone
+                id={`drop-zone-${component.id}-col-${safeColumnIndex}-${columnContents[safeColumnIndex].length + 1}`}
+                index={columnContents[safeColumnIndex].length + 1}
+                onDrop={(index) => handleDropInColumn(safeColumnIndex, index)}
+                className="h-16"
+              />
+            )}
+          </React.Fragment>
+        );
+        
+        columnContents[safeColumnIndex].push(childNode);
+      });
+    }
+    
+    
+    // Create the columns layout directly
+    const gap = component.props.gap as string || "medium";
+    const stackOnMobile = component.props.stackOnMobile as string || "yes";
+    const direction = component.props.direction as string || "row";
+    const isVertical = direction === "col";
+    
+    let layoutClasses = "";
+    if (isVertical) {
+      layoutClasses = "flex flex-col";
+    } else {
+      layoutClasses = cn(
+        "grid",
+        stackOnMobile === "yes" ? "grid-cols-1" : "",
+        columnCount === 2 && "md:grid-cols-2",
+        columnCount === 3 && "md:grid-cols-3",
+        columnCount === 4 && "md:grid-cols-4"
+      );
+    }
+    
+    const gapClasses = {
+      none: "",
+      small: "gap-2",
+      medium: "gap-6",
+      large: "gap-10"
+    };
+    
+    return (
+      <div className={cn(
+        layoutClasses,
+        gapClasses[gap as keyof typeof gapClasses] || gapClasses.medium
+      )}>
+        {columnContents.map((colChildren, colIndex) => (
+          <div key={colIndex} className="min-h-[100px] column-drop-zone">
             {/* Initial drop zone for this column */}
             {isEditMode && (
               <DropZone
-                id={`drop-zone-${component.id}-col-${columnIndex}-0`}
+                id={`drop-zone-${component.id}-col-${colIndex}-0`}
                 index={0}
-                onDrop={(index) => handleDropInColumn(columnIndex, index)}
+                onDrop={(index) => handleDropInColumn(colIndex, index)}
                 className="h-16"
-                showAlways={columnChildren.length === 0}
+                showAlways={colChildren.length === 0}
               />
             )}
-            
-            {/* Render children in this column */}
-            {columnChildren.map((child, childIndex) => (
-              <React.Fragment key={child.id}>
-                <NestedDropZone
-                  component={child}
-                  business={business}
-                  selectedComponentId={selectedComponentId}
-                  onSelectComponent={onSelectComponent}
-                  onUpdateComponent={onUpdateComponent}
-                  onRemoveComponent={onRemoveComponent}
-                  onAddComponent={onAddComponent}
-                  onDuplicateComponent={onDuplicateComponent}
-                  isEditMode={isEditMode}
-                />
-                
-                {/* Drop zone after each child */}
-                {isEditMode && (
-                  <DropZone
-                    id={`drop-zone-${component.id}-col-${columnIndex}-${childIndex + 1}`}
-                    index={childIndex + 1}
-                    onDrop={(index) => handleDropInColumn(columnIndex, index)}
-                    className="h-16"
-                  />
-                )}
-              </React.Fragment>
-            ))}
-            
+            {colChildren}
             {/* Show placeholder if column is empty */}
-            {isEditMode && columnChildren.length === 0 && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <p className="text-sm text-muted-foreground">Column {columnIndex + 1}</p>
+            {isEditMode && colChildren.length === 0 && (
+              <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">
+                <p className="text-sm text-muted-foreground">Column {colIndex + 1}</p>
               </div>
             )}
           </div>
-        );
-      })}
-    </div>
-  );
+        ))}
+      </div>
+    );
+  })();
 
   return (
     <ComponentWrapper
