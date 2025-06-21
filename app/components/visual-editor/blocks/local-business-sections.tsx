@@ -333,7 +333,7 @@ export const LocationDirectionsSection: ComponentConfig = {
       maxItems: 5
     }
   },
-  render: (props, _editMode, business) => {
+  render: (props, editMode, business) => {
     const { title, showMap, showDirections, parkingInfo, landmarks = [] } = props as {
       title?: string;
       showMap?: string;
@@ -371,14 +371,23 @@ export const LocationDirectionsSection: ComponentConfig = {
                           {businessData?.address || "Address not available"}
                         </p>
                         {showDirections === "yes" && businessData?.address && (
-                          <Button size="sm" className="mt-2" asChild>
-                            <a 
-                              href={`https://maps.google.com/?q=${encodeURIComponent(businessData.address)}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              Get Directions
-                            </a>
+                          <Button 
+                            size="sm" 
+                            className="mt-2" 
+                            asChild={!editMode}
+                            onClick={editMode ? (e) => { e.preventDefault(); e.stopPropagation(); } : undefined}
+                          >
+                            {!editMode ? (
+                              <a 
+                                href={`https://maps.google.com/?q=${encodeURIComponent(businessData.address)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                Get Directions
+                              </a>
+                            ) : (
+                              <span>Get Directions</span>
+                            )}
                           </Button>
                         )}
                       </div>
@@ -944,7 +953,7 @@ export const GoogleReviewsSection: ComponentConfig = {
       placeholder: "https://g.page/your-business"
     }
   },
-  render: (props) => {
+  render: (props, editMode) => {
     const { title, showRating, rating, totalReviews, reviews = [], googleBusinessUrl } = props as {
       title?: string;
       showRating?: string;
@@ -1052,11 +1061,21 @@ export const GoogleReviewsSection: ComponentConfig = {
           
           {googleBusinessUrl && (
             <div className="text-center mt-8">
-              <Button asChild>
-                <a href={googleBusinessUrl} target="_blank" rel="noopener noreferrer">
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  Read All Reviews on Google
-                </a>
+              <Button 
+                asChild={!editMode}
+                onClick={editMode ? (e) => { e.preventDefault(); e.stopPropagation(); } : undefined}
+              >
+                {!editMode ? (
+                  <a href={googleBusinessUrl} target="_blank" rel="noopener noreferrer">
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Read All Reviews on Google
+                  </a>
+                ) : (
+                  <>
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Read All Reviews on Google
+                  </>
+                )}
               </Button>
             </div>
           )}

@@ -52,7 +52,7 @@ export const HeaderBlock: ComponentConfig = {
                     props: {
                       size: "medium",
                       align: "left",
-                      makeClickable: "yes"
+                      link: "/"
                     }
                   }
                 ]

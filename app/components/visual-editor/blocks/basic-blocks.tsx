@@ -266,6 +266,27 @@ export const ImageBlock: ComponentConfig = {
 // Logo Block - Business logo with customizable size
 export const LogoBlock: ComponentConfig = {
   fields: {
+    logoImage: {
+      type: "image",
+      label: "Logo Image",
+      defaultValue: "",
+      placeholder: "Upload logo (PNG, JPG, SVG)"
+    },
+    useBusinessName: {
+      type: "select",
+      label: "Use Business Name as Fallback",
+      defaultValue: "yes",
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" }
+      ]
+    },
+    customText: {
+      type: "text",
+      label: "Custom Text (if no logo)",
+      defaultValue: "",
+      placeholder: "Your Business Name"
+    },
     size: {
       type: "select",
       label: "Size",
@@ -287,21 +308,21 @@ export const LogoBlock: ComponentConfig = {
         { value: "right", label: "Right" }
       ]
     },
-    makeClickable: {
-      type: "select",
-      label: "Link to Home",
-      defaultValue: "yes",
-      options: [
-        { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
+    link: {
+      type: "text",
+      label: "Link URL",
+      defaultValue: "/",
+      placeholder: "/ or https://example.com"
     }
   },
-  render: (props, _editMode, business) => {
-    const { size, align, makeClickable } = props as {
+  render: (props, editMode, business) => {
+    const { logoImage, useBusinessName, customText, size, align, link } = props as {
+      logoImage?: string;
+      useBusinessName?: string;
+      customText?: string;
       size?: string;
       align?: string;
-      makeClickable?: string;
+      link?: string;
     };
     const businessData = business as Doc<"businesses"> | undefined;
     
@@ -311,25 +332,61 @@ export const LogoBlock: ComponentConfig = {
       right: "justify-end"
     };
     
-    // Since businesses don't have logos from Google data, always show text
-    const logoContent = (
-      <div className={cn(
-        "font-bold text-foreground",
-        size === "small" && "text-lg",
-        size === "medium" && "text-xl",
-        size === "large" && "text-2xl",
-        size === "xlarge" && "text-3xl"
-      )}>
-        {businessData?.name || "Business Name"}
-      </div>
-    );
+    const sizeClasses = {
+      small: "h-8",
+      medium: "h-12",
+      large: "h-16",
+      xlarge: "h-20"
+    };
+    
+    const textSizeClasses = {
+      small: "text-lg",
+      medium: "text-xl",
+      large: "text-2xl",
+      xlarge: "text-3xl"
+    };
+    
+    // Determine what to show
+    let logoContent;
+    if (logoImage) {
+      // Show uploaded logo image
+      logoContent = (
+        <img 
+          src={logoImage} 
+          alt={businessData?.name || customText || "Logo"} 
+          className={cn("w-auto", sizeClasses[size as keyof typeof sizeClasses] || sizeClasses.medium)}
+        />
+      );
+    } else {
+      // Show text fallback
+      const displayText = customText || (useBusinessName === "yes" ? businessData?.name : "") || "Business Name";
+      logoContent = (
+        <div className={cn(
+          "font-bold text-foreground",
+          textSizeClasses[size as keyof typeof textSizeClasses] || textSizeClasses.medium
+        )}>
+          {displayText}
+        </div>
+      );
+    }
+    
+    const handleClick = (e: React.MouseEvent) => {
+      if (editMode) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
     
     return (
       <div className={cn("flex", alignClasses[align as keyof typeof alignClasses] || alignClasses.left)}>
-        {makeClickable === "yes" ? (
-          <Link href="/" className="inline-block">
+        {link && !editMode ? (
+          <Link href={link} className="inline-block">
             {logoContent}
           </Link>
+        ) : link && editMode ? (
+          <div className="inline-block cursor-pointer" onClick={handleClick}>
+            {logoContent}
+          </div>
         ) : (
           logoContent
         )}
@@ -398,7 +455,7 @@ export const ButtonBlock: ComponentConfig = {
       ]
     }
   },
-  render: (props) => {
+  render: (props, editMode) => {
     const { text, link, variant, size, fullWidth, align } = props as {
       text?: string;
       link?: string;
@@ -408,14 +465,22 @@ export const ButtonBlock: ComponentConfig = {
       align?: string;
     };
     
+    const handleClick = (e: React.MouseEvent) => {
+      if (editMode) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    
     const button = (
       <Button 
         variant={variant || "default"} 
         size={size || "default"}
         className={fullWidth === "full" ? "w-full" : ""}
-        asChild={!!link && link !== "#"}
+        asChild={!!link && link !== "#" && !editMode}
+        onClick={editMode ? handleClick : undefined}
       >
-        {link && link !== "#" ? (
+        {link && link !== "#" && !editMode ? (
           <a href={link} target={link.startsWith("http") ? "_blank" : undefined}>
             {text || "Button"}
           </a>
@@ -1195,7 +1260,7 @@ export const SocialLinksBlock: ComponentConfig = {
       ]
     }
   },
-  render: (props) => {
+  render: (props, editMode) => {
     const { platforms = [], style, size, gap } = props as {
       platforms?: Array<{ platform: string; url: string } | string>;
       style?: string;
@@ -1256,6 +1321,13 @@ export const SocialLinksBlock: ComponentConfig = {
       return p;
     });
     
+    const handleClick = (e: React.MouseEvent) => {
+      if (editMode) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    
     return (
       <div className={cn("flex flex-wrap items-center", gapClasses[gap as keyof typeof gapClasses] || gapClasses.medium)}>
         {platformData.map((social, index) => {
@@ -1268,13 +1340,40 @@ export const SocialLinksBlock: ComponentConfig = {
                 key={index}
                 variant="outline"
                 size={size as "sm" | "default" | "lg" || "default"}
-                asChild
+                asChild={!editMode}
+                onClick={editMode ? handleClick : undefined}
               >
-                <a href={social.url} target="_blank" rel="noopener noreferrer">
-                  <Icon className="mr-2 h-4 w-4" />
-                  <span className="capitalize">{social.platform}</span>
-                </a>
+                {!editMode ? (
+                  <a href={social.url} target="_blank" rel="noopener noreferrer">
+                    <Icon className="mr-2 h-4 w-4" />
+                    <span className="capitalize">{social.platform}</span>
+                  </a>
+                ) : (
+                  <>
+                    <Icon className="mr-2 h-4 w-4" />
+                    <span className="capitalize">{social.platform}</span>
+                  </>
+                )}
               </Button>
+            );
+          }
+          
+          if (editMode) {
+            return (
+              <div
+                key={index}
+                onClick={handleClick}
+                className={cn(
+                  "flex items-center justify-center rounded-full transition-colors cursor-pointer",
+                  sizeClasses[size as keyof typeof sizeClasses] || sizeClasses.medium,
+                  style === 'colored' 
+                    ? "text-white hover:opacity-80" 
+                    : "bg-muted hover:bg-muted-foreground/20"
+                )}
+                style={style === 'colored' ? { backgroundColor: color } : undefined}
+              >
+                <Icon className={iconSizeClasses[size as keyof typeof iconSizeClasses] || iconSizeClasses.medium} />
+              </div>
             );
           }
           
