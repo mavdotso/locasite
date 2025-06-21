@@ -8,11 +8,129 @@ import {
   Users,
   Target,
   Columns3,
-  Briefcase
+  Briefcase,
+  Layout
 } from "lucide-react";
 import { Doc } from "@/convex/_generated/dataModel";
 
 // No longer needed - removed unused components and types
+
+// Header Section Block - Navigation header with logo
+export const HeaderBlock: ComponentConfig = {
+  fields: {},
+  render: (_props, _editMode, _business) => null,
+  isTemplate: true,
+  template: (business?: unknown) => {
+    const businessData = business as Doc<"businesses"> | undefined;
+    
+    return [
+      {
+        type: "SectionBlock",
+        props: {
+          width: "full",
+          verticalPadding: "small",
+          backgroundColor: "default",
+          borderBottom: "yes"
+        },
+        children: [
+          {
+            type: "ColumnsBlock",
+            props: {
+              columns: "2",
+              gap: "medium",
+              stackOnMobile: "no",
+              verticalAlign: "middle"
+            },
+            children: [
+              // First Column - Logo
+              {
+                type: "ColumnContentBlock",
+                props: {},
+                children: [
+                  {
+                    type: "LogoBlock",
+                    props: {
+                      size: "medium",
+                      align: "left",
+                      makeClickable: "yes"
+                    }
+                  }
+                ]
+              },
+              // Second Column - Navigation/Contact
+              {
+                type: "ColumnContentBlock",
+                props: {},
+                children: [
+                  {
+                    type: "ColumnsBlock",
+                    props: {
+                      columns: "3",
+                      gap: "small",
+                      stackOnMobile: "yes"
+                    },
+                    children: [
+                      {
+                        type: "ColumnContentBlock",
+                        props: {},
+                        children: [
+                          {
+                            type: "ButtonBlock",
+                            props: {
+                              text: businessData?.phone || "Call Us",
+                              link: `tel:${businessData?.phone || ""}`,
+                              variant: "ghost",
+                              size: "sm",
+                              align: "right"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        type: "ColumnContentBlock",
+                        props: {},
+                        children: [
+                          {
+                            type: "ButtonBlock",
+                            props: {
+                              text: "Hours",
+                              link: "#hours",
+                              variant: "ghost",
+                              size: "sm",
+                              align: "center"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        type: "ColumnContentBlock",
+                        props: {},
+                        children: [
+                          {
+                            type: "ButtonBlock",
+                            props: {
+                              text: "Contact",
+                              link: "#contact",
+                              variant: "default",
+                              size: "sm",
+                              align: "right"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ];
+  },
+  icon: Layout,
+  category: "Section"
+};
 
 // Hero Section Block - Returns a group of basic blocks
 export const HeroBlock: ComponentConfig = {
@@ -116,66 +234,80 @@ export const AboutBlock: ComponentConfig = {
               stackOnMobile: "yes"
             },
             children: [
+              // First Column - Content
               {
-                type: "TextBlock",
-                props: {
-                  content: "About Us",
-                  variant: "h2",
-                  align: "left"
-                }
+                type: "ColumnContentBlock",
+                props: {},
+                children: [
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "About Us",
+                      variant: "h2",
+                      align: "left"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: businessData?.description || "We are a local business dedicated to providing exceptional service to our community. With years of experience and a passion for what we do, we strive to exceed our customers' expectations every day.",
+                      variant: "paragraph",
+                      align: "left"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 24 }
+                  },
+                  {
+                    type: "ListBlock",
+                    props: {
+                      items: [
+                        "Experienced and professional team",
+                        "Quality service guaranteed",
+                        "Competitive pricing",
+                        "Customer satisfaction is our priority"
+                      ],
+                      style: "check",
+                      spacing: "normal"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 24 }
+                  },
+                  {
+                    type: "ButtonBlock",
+                    props: {
+                      text: "Learn More",
+                      link: "#contact",
+                      variant: "default",
+                      size: "default"
+                    }
+                  }
+                ]
               },
+              // Second Column - Image
               {
-                type: "SpacerBlock",
-                props: { height: 16 }
-              },
-              {
-                type: "TextBlock",
-                props: {
-                  content: businessData?.description || "We are a local business dedicated to providing exceptional service to our community. With years of experience and a passion for what we do, we strive to exceed our customers' expectations every day.",
-                  variant: "paragraph",
-                  align: "left"
-                }
-              },
-              {
-                type: "SpacerBlock",
-                props: { height: 24 }
-              },
-              {
-                type: "ListBlock",
-                props: {
-                  items: [
-                    "Experienced and professional team",
-                    "Quality service guaranteed",
-                    "Competitive pricing",
-                    "Customer satisfaction is our priority"
-                  ],
-                  style: "check",
-                  spacing: "normal"
-                }
-              },
-              {
-                type: "SpacerBlock",
-                props: { height: 24 }
-              },
-              {
-                type: "ButtonBlock",
-                props: {
-                  text: "Learn More",
-                  link: "#contact",
-                  variant: "default",
-                  size: "default"
-                }
+                type: "ColumnContentBlock",
+                props: {},
+                children: [
+                  {
+                    type: "ImageBlock",
+                    props: {
+                      src: businessData?.photos?.[0] || "https://images.unsplash.com/photo-1556761175-4b46a572b786",
+                      alt: "About our business",
+                      rounded: "lg",
+                      width: "full"
+                    }
+                  }
+                ]
               }
             ]
-          },
-          {
-            type: "ImageBlock",
-            props: {
-              src: businessData?.photos?.[0] || "https://images.unsplash.com/photo-1556761175-4b46a572b786",
-              alt: "About our business",
-              rounded: "lg",
-              width: "full"
-            }
           }
         ]
       }

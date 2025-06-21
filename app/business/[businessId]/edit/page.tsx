@@ -43,7 +43,6 @@ export default function BusinessEditPage({
   );
   const updatePage = useMutation(api.pages.updatePage);
   const createDefaultPages = useMutation(api.pages.createDefaultPages);
-  // const regeneratePages = useMutation(api.pages.regenerateDefaultPages);
 
   // Loading state while fetching business
   if (business === undefined) {
@@ -122,45 +121,16 @@ export default function BusinessEditPage({
     );
   }
 
-  // Add a handler to regenerate pages
-  const handleRegeneratePages = async () => {
-    try {
-      // await regeneratePages({ businessId });
-      toast.info("Page regeneration is temporarily disabled.");
-      // toast.success("Pages regenerated with proper structure. The page will reload.");
-      // Reload the page to get the new content
-      // setTimeout(() => window.location.reload(), 1000);
-    } catch (error) {
-      console.error("Error regenerating pages:", error);
-      toast.error("Failed to regenerate pages");
-    }
-  };
 
   return (
     <AuthGuard>
-      <div className="relative">
-        {/* Add regenerate button if content is in old format */}
-        {homePage?.content && !homePage.content.includes('"metadata"') && (
-          <div className="absolute top-4 right-4 z-50 bg-yellow-100 border border-yellow-400 rounded-lg p-4">
-            <p className="text-sm text-yellow-800 mb-2">
-              This page is using an old format. Regenerate to fix column layouts.
-            </p>
-            <button
-              onClick={handleRegeneratePages}
-              className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 text-sm font-medium"
-            >
-              Regenerate Page Structure
-            </button>
-          </div>
-        )}
-        <VisualEditor
-          businessId={businessId}
-          business={business}
-          pageId={homePage?._id || ("temp-id" as Id<"pages">)}
-          initialData={initialData}
-          onSave={handleSave}
-        />
-      </div>
+      <VisualEditor
+        businessId={businessId}
+        business={business}
+        pageId={homePage?._id || ("temp-id" as Id<"pages">)}
+        initialData={initialData}
+        onSave={handleSave}
+      />
     </AuthGuard>
   );
 }

@@ -1,5 +1,6 @@
 import { ComponentConfig } from "../types";
 import { 
+  HeaderBlock,
   HeroBlock,
   AboutBlock,
   ServicesBlock,
@@ -71,6 +72,7 @@ export const componentConfigs: Record<string, ComponentConfig> = {
   AccordionBlock,
   
   // Business Sections
+  HeaderBlock,
   HeroBlock,
   AboutBlock,
   ServicesBlock,

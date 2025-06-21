@@ -42,6 +42,7 @@ import {
 import { Button } from "@/app/components/ui/button";
 import { cn } from "@/app/lib/utils";
 import { Doc } from "@/convex/_generated/dataModel";
+import Link from "next/link";
 
 // Simple text component without inline editing
 const TextBlockComponent = (props: {
@@ -259,6 +260,83 @@ export const ImageBlock: ComponentConfig = {
     );
   },
   icon: ImageIcon,
+  category: "Basic"
+};
+
+// Logo Block - Business logo with customizable size
+export const LogoBlock: ComponentConfig = {
+  fields: {
+    size: {
+      type: "select",
+      label: "Size",
+      defaultValue: "medium",
+      options: [
+        { value: "small", label: "Small" },
+        { value: "medium", label: "Medium" },
+        { value: "large", label: "Large" },
+        { value: "xlarge", label: "Extra Large" }
+      ]
+    },
+    align: {
+      type: "select",
+      label: "Alignment",
+      defaultValue: "left",
+      options: [
+        { value: "left", label: "Left" },
+        { value: "center", label: "Center" },
+        { value: "right", label: "Right" }
+      ]
+    },
+    makeClickable: {
+      type: "select",
+      label: "Link to Home",
+      defaultValue: "yes",
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" }
+      ]
+    }
+  },
+  render: (props, _editMode, business) => {
+    const { size, align, makeClickable } = props as {
+      size?: string;
+      align?: string;
+      makeClickable?: string;
+    };
+    const businessData = business as Doc<"businesses"> | undefined;
+    
+    const alignClasses = {
+      left: "justify-start",
+      center: "justify-center",
+      right: "justify-end"
+    };
+    
+    // Since businesses don't have logos from Google data, always show text
+    const logoContent = (
+      <div className={cn(
+        "font-bold text-foreground",
+        size === "small" && "text-lg",
+        size === "medium" && "text-xl",
+        size === "large" && "text-2xl",
+        size === "xlarge" && "text-3xl"
+      )}>
+        {businessData?.name || "Business Name"}
+      </div>
+    );
+    
+    return (
+      <div className={cn("flex", alignClasses[align as keyof typeof alignClasses] || alignClasses.left)}>
+        {makeClickable === "yes" ? (
+          <Link href="/" className="inline-block">
+            {logoContent}
+          </Link>
+        ) : (
+          logoContent
+        )}
+      </div>
+    );
+  },
+  icon: Building,
   category: "Basic"
 };
 

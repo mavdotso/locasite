@@ -2,7 +2,8 @@ import { ComponentConfig } from "../types";
 import { componentConfigs as businessComponents } from "./components";
 import { 
   TextBlock, 
-  ImageBlock, 
+  ImageBlock,
+  LogoBlock,
   ButtonBlock, 
   SpacerBlock, 
   DividerBlock,
@@ -22,7 +23,8 @@ import {
   ColumnsBlock,
   CardBlock,
   AccordionBlock,
-  TabsBlock
+  TabsBlock,
+  ColumnContentBlock
 } from "../blocks/container-blocks";
 
 // Combine all components
@@ -30,11 +32,13 @@ export const allComponentConfigs: Record<string, ComponentConfig> = {
   // Layout Components (shown first)
   SectionBlock,
   ColumnsBlock,
+  ColumnContentBlock,
   CardBlock,
   
   // Basic Content Blocks
   TextBlock,
   ImageBlock,
+  LogoBlock,
   ButtonBlock,
   SpacerBlock,
   DividerBlock,

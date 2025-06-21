@@ -485,3 +485,15 @@ export const TabsBlock: ComponentConfig = {
   category: "Basic",
   acceptsChildren: true
 };
+
+// Column Content Block - Used as a child of ColumnsBlock to wrap content in each column
+export const ColumnContentBlock: ComponentConfig = {
+  fields: {},
+  render: (_props, _editMode, _business, children) => {
+    // This is a wrapper component that just renders its children
+    return <>{children}</>;
+  },
+  icon: Layout,
+  category: "Basic",
+  acceptsChildren: true
+};
