@@ -189,7 +189,7 @@ export default function PreviewPanel({
                   id="drop-zone-0"
                   index={0}
                   onDrop={handleDrop}
-                  className="h-20"
+                  className="h-20 mb-4"
                   showAlways={pageData.components.length === 0}
                 />
               )}
@@ -228,7 +228,7 @@ export default function PreviewPanel({
                           id={`drop-zone-${index + 1}`}
                           index={index + 1}
                           onDrop={handleDrop}
-                          className="h-20"
+                          className="h-20 my-4"
                         />
                       )}
                     </React.Fragment>
@@ -263,7 +263,7 @@ export default function PreviewPanel({
                         id={`drop-zone-${index + 1}`}
                         index={index + 1}
                         onDrop={handleDrop}
-                        className="h-20"
+                        className="h-20 my-4"
                       />
                     )}
                   </React.Fragment>

@@ -62,7 +62,7 @@ export default function NestedDropZone({
             id={`drop-zone-${component.id}-0`}
             index={0}
             onDrop={handleDropInChild}
-            className="h-16"
+            className="h-16 mb-3"
             showAlways={childComponents.length === 0}
           />
         )}
@@ -92,7 +92,7 @@ export default function NestedDropZone({
                     id={`drop-zone-${component.id}-${childIndex + 1}`}
                     index={childIndex + 1}
                     onDrop={handleDropInChild}
-                    className="h-16"
+                    className="h-16 my-3"
                   />
                 )}
               </React.Fragment>
@@ -120,7 +120,7 @@ export default function NestedDropZone({
                   id={`drop-zone-${component.id}-${childIndex + 1}`}
                   index={childIndex + 1}
                   onDrop={handleDropInChild}
-                  className="h-16"
+                  className="h-16 my-3"
                 />
               )}
             </React.Fragment>
