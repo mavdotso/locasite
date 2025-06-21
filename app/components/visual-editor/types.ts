@@ -88,6 +88,15 @@ export interface ComponentConfig {
   category?: string;
   acceptsChildren?: boolean; // Whether this component can contain other components
   inline?: boolean; // Whether this is an inline element (for text flow)
+  isTemplate?: boolean; // Whether this is a template that returns multiple blocks
+  template?: (business?: unknown) => ComponentTemplate[]; // Template definition
+}
+
+// Template block structure
+export interface ComponentTemplate {
+  type: string;
+  props: Record<string, unknown>;
+  children?: ComponentTemplate[];
 }
 
 // Layout options

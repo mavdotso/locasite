@@ -490,172 +490,77 @@ const TestimonialsCarouselComponent: React.FC<{
   );
 };
 
-// Hero Section Block
+// Hero Section Block - Returns a group of basic blocks
 export const HeroBlock: ComponentConfig = {
-  fields: {
-    title: {
-      type: "text",
-      label: "Title",
-      defaultValue: "Welcome to Our Business",
-      placeholder: "Enter hero title",
-      required: true
-    },
-    subtitle: {
-      type: "textarea",
-      label: "Subtitle",
-      defaultValue: "Discover what makes us special",
-      placeholder: "Enter hero subtitle",
-      rows: 2
-    },
-    backgroundImage: {
-      type: "image",
-      label: "Background Image",
-      accept: "image/*"
-    },
-    overlayOpacity: {
-      type: "number",
-      label: "Overlay Opacity",
-      defaultValue: 0.5,
-      min: 0,
-      max: 1,
-      step: 0.1,
-      showSlider: true
-    },
-    height: {
-      type: "select",
-      label: "Section Height",
-      defaultValue: "large",
-      options: [
-        { value: "small", label: "Small (300px)" },
-        { value: "medium", label: "Medium (400px)" },
-        { value: "large", label: "Large (500px)" },
-        { value: "xlarge", label: "Extra Large (600px)" },
-        { value: "screen", label: "Full Screen" }
-      ]
-    },
-    buttons: {
-      type: "array",
-      label: "Call to Action Buttons",
-      defaultValue: [
-        { text: "Get Started", link: "#contact", variant: "default" }
-      ],
-      itemType: {
-        type: "text",
-        label: "Button",
-        defaultValue: "Get Started|#contact|default"
-      },
-      maxItems: 3
-    },
-    showBusinessInfo: {
-      type: "select",
-      label: "Show Business Info",
-      defaultValue: "no",
-      options: [
-        { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
-    },
-    showReviewStars: {
-      type: "select",
-      label: "Show Review Stars",
-      defaultValue: "no",
-      options: [
-        { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
-    }
+  fields: {},
+  render: (_props, _editMode, _business) => {
+    // This is a template that returns multiple blocks to be added
+    // The visual editor should handle this specially
+    return null;
   },
-  render: (props: Record<string, unknown>, _editMode, business) => {
-    const { title, subtitle, backgroundImage, overlayOpacity = 0.5, height = "large", buttons = [], showBusinessInfo, showReviewStars } = props as {
-      title?: string;
-      subtitle?: string;
-      backgroundImage?: string;
-      overlayOpacity?: number;
-      height?: string;
-      buttons?: ButtonConfig[];
-      showBusinessInfo?: string;
-      showReviewStars?: string;
-    };
+  // Special property to indicate this is a template
+  isTemplate: true,
+  // Define the blocks that should be added when this template is selected
+  template: (business?: unknown) => {
     const businessData = business as Doc<"businesses"> | undefined;
+    // Get first image from business gallery if available
+    const backgroundImage = businessData?.photos?.[0] || "https://images.unsplash.com/photo-1497366216548-37526070297c";
     
-    const heightClasses = {
-      small: "h-[300px]",
-      medium: "h-[400px]",
-      large: "h-[500px]",
-      xlarge: "h-[600px]",
-      screen: "h-screen"
-    };
-    
-    return (
-      <div className={cn("relative flex items-center justify-center", heightClasses[height as keyof typeof heightClasses])}>
-        {backgroundImage && (
-          <>
-            <div 
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-              style={{ backgroundImage: `url(${backgroundImage})` }}
-            />
-            <div 
-              className="absolute inset-0 bg-background"
-              style={{ opacity: overlayOpacity }}
-            />
-          </>
-        )}
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">{title}</h1>
-          {subtitle && (
-            <p className="text-lg md:text-xl text-muted-foreground mb-8">{subtitle}</p>
-          )}
-          {showBusinessInfo === "yes" && businessData && (
-            <div className="flex flex-wrap gap-4 justify-center mb-6 text-sm">
-              {businessData.phone && (
-                <a href={`tel:${businessData.phone}`} className="flex items-center gap-2 hover:text-primary">
-                  <Phone className="w-4 h-4" />
-                  {businessData.phone}
-                </a>
-              )}
-              {businessData.hours && (
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  <span>
-                    {(() => {
-                      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-                      const today = days[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
-                      const currentHours = businessData.hours[today as keyof typeof businessData.hours];
-                      return currentHours && currentHours !== 'Closed' ? 'Open Now' : 'Closed';
-                    })()}
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
-          {showReviewStars === "yes" && (
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <div className="flex">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                ))}
-              </div>
-              <span className="font-medium">5.0</span>
-              <span className="text-muted-foreground">(127 reviews)</span>
-            </div>
-          )}
-          {buttons.length > 0 && (
-            <div className="flex flex-wrap gap-4 justify-center">
-              {buttons.map((button, index) => (
-                <Button
-                  key={index}
-                  variant={button.variant || "default"}
-                  size="lg"
-                  asChild
-                >
-                  <a href={button.link || "#"}>{button.text}</a>
-                </Button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    );
+    return [
+      {
+        type: "SectionBlock",
+        props: {
+          backgroundImage,
+          backgroundImageStyle: "cover",
+          overlayOpacity: 0.5,
+          width: "full",
+          verticalPadding: "xlarge"
+        },
+        children: [
+          {
+            type: "SpacerBlock",
+            props: { height: 60 }
+          },
+          {
+            type: "TextBlock",
+            props: {
+              content: businessData?.name || "Welcome to Our Business",
+              variant: "h1",
+              align: "center"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 16 }
+          },
+          {
+            type: "TextBlock",
+            props: {
+              content: businessData?.description || "Your trusted local business partner",
+              variant: "lead",
+              align: "center"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 32 }
+          },
+          {
+            type: "ButtonBlock",
+            props: {
+              text: "Get Started",
+              link: "#contact",
+              variant: "default",
+              size: "lg"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 60 }
+          }
+        ]
+      }
+    ];
   },
   icon: Sparkles,
   category: "Section"

@@ -17,7 +17,7 @@ import {
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
 
-// Section Block - Main container for other blocks
+// Section Block - Main container for other blocks with background options
 export const SectionBlock: ComponentConfig = {
   fields: {
     width: {
@@ -41,12 +41,61 @@ export const SectionBlock: ComponentConfig = {
         { value: "large", label: "Large" },
         { value: "xlarge", label: "Extra Large" }
       ]
+    },
+    backgroundColor: {
+      type: "select",
+      label: "Background Color",
+      defaultValue: "default",
+      options: [
+        { value: "default", label: "Default" },
+        { value: "muted", label: "Muted" },
+        { value: "card", label: "Card" },
+        { value: "primary", label: "Primary" },
+        { value: "secondary", label: "Secondary" },
+        { value: "accent", label: "Accent" },
+        { value: "transparent", label: "Transparent" }
+      ]
+    },
+    backgroundImage: {
+      type: "image",
+      label: "Background Image",
+      accept: "image/*"
+    },
+    backgroundImageStyle: {
+      type: "select",
+      label: "Background Style",
+      defaultValue: "cover",
+      options: [
+        { value: "cover", label: "Cover" },
+        { value: "contain", label: "Contain" },
+        { value: "fixed", label: "Fixed" }
+      ]
+    },
+    overlayOpacity: {
+      type: "number",
+      label: "Overlay Opacity",
+      defaultValue: 0,
+      min: 0,
+      max: 0.9,
+      step: 0.1,
+      showSlider: true
     }
   },
   render: (props, editMode, _business, children, _onUpdate) => {
-    const { width, verticalPadding } = props as {
+    const { 
+      width, 
+      verticalPadding, 
+      backgroundColor, 
+      backgroundImage, 
+      backgroundImageStyle,
+      overlayOpacity 
+    } = props as {
       width?: string;
       verticalPadding?: string;
+      backgroundColor?: string;
+      backgroundImage?: string;
+      backgroundImageStyle?: string;
+      overlayOpacity?: number;
     };
     
     const widthClasses = {
@@ -63,19 +112,52 @@ export const SectionBlock: ComponentConfig = {
       xlarge: "py-32"
     };
     
+    const bgColorClasses = {
+      default: "",
+      muted: "bg-muted",
+      card: "bg-card",
+      primary: "bg-primary text-primary-foreground",
+      secondary: "bg-secondary text-secondary-foreground",
+      accent: "bg-accent text-accent-foreground",
+      transparent: "bg-transparent"
+    };
+    
+    const bgImageStyles = backgroundImage ? {
+      backgroundImage: `url(${backgroundImage})`,
+      backgroundSize: backgroundImageStyle === "contain" ? "contain" : "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+      backgroundAttachment: backgroundImageStyle === "fixed" ? "fixed" : "scroll"
+    } : {};
+    
     return (
-      <section className={cn(
-        widthClasses[width as keyof typeof widthClasses] || widthClasses.container,
-        paddingClasses[verticalPadding as keyof typeof paddingClasses] || paddingClasses.medium,
-        editMode && "min-h-[100px] relative"
-      )}>
-        {children || (
-          editMode && (
-            <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">
-              <p className="text-sm text-muted-foreground">Drop content blocks here</p>
-            </div>
-          )
+      <section 
+        className={cn(
+          "relative",
+          bgColorClasses[backgroundColor as keyof typeof bgColorClasses] || "",
+          editMode && "min-h-[100px]"
         )}
+        style={bgImageStyles}
+      >
+        {backgroundImage && overlayOpacity !== undefined && overlayOpacity > 0 && (
+          <div 
+            className="absolute inset-0 bg-background" 
+            style={{ opacity: overlayOpacity }}
+          />
+        )}
+        <div className={cn(
+          "relative",
+          widthClasses[width as keyof typeof widthClasses] || widthClasses.container,
+          paddingClasses[verticalPadding as keyof typeof paddingClasses] || paddingClasses.medium
+        )}>
+          {children || (
+            editMode && (
+              <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">
+                <p className="text-sm text-muted-foreground">Drop content blocks here</p>
+              </div>
+            )
+          )}
+        </div>
       </section>
     );
   },

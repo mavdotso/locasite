@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from "react";
-import { PageData, ComponentData, LayoutOptions } from "./types";
+import { PageData, ComponentData, LayoutOptions, ComponentTemplate } from "./types";
 import { DragDropProvider } from "./drag-drop-provider";
 import ComponentLibrary from "./component-library";
 import PreviewPanel from "./preview-panel";
@@ -79,6 +79,58 @@ export default function VisualEditor({
     const config = componentConfigs[type];
     if (!config) return;
 
+    // Check if this is a template component
+    if (config.isTemplate && config.template) {
+      // Get the template blocks
+      const templateBlocks = config.template(business);
+      
+      // Convert template blocks to ComponentData
+      const convertTemplate = (template: ComponentTemplate, parentId?: string): ComponentData => {
+        const componentConfig = componentConfigs[template.type];
+        const componentId = generateId();
+        const component: ComponentData = {
+          id: componentId,
+          type: template.type,
+          props: template.props,
+          layout: {},
+          parentId,
+          children: componentConfig?.acceptsChildren && template.children 
+            ? template.children.map(child => convertTemplate(child, componentId))
+            : undefined
+        };
+        return component;
+      };
+      
+      // Convert all template blocks
+      const newComponents = templateBlocks.map(template => convertTemplate(template));
+      
+      let newData: PageData;
+      
+      if (parentId) {
+        // Templates can't be added to containers - they always go at root level
+        toast.error("Template sections must be added at the root level");
+        return;
+      } else {
+        // Add all template components to root level
+        newData = {
+          ...pageData,
+          components: [
+            ...pageData.components.slice(0, index),
+            ...newComponents,
+            ...pageData.components.slice(index)
+          ]
+        };
+      }
+      
+      setPageData(newData);
+      addToHistory(newData);
+      if (newComponents.length > 0) {
+        setSelectedComponentId(newComponents[0].id);
+      }
+      return;
+    }
+
+    // Regular component addition
     const defaultProps: Record<string, unknown> = {};
     Object.entries(config.fields).forEach(([key, field]) => {
       defaultProps[key] = field.defaultValue ?? "";
@@ -139,7 +191,7 @@ export default function VisualEditor({
     setPageData(newData);
     addToHistory(newData);
     setSelectedComponentId(newComponent.id);
-  }, [pageData, addToHistory]);
+  }, [pageData, addToHistory, business]);
 
   // Update component (handles nested components)
   const handleUpdateComponent = useCallback((id: string, props: Record<string, unknown>) => {
