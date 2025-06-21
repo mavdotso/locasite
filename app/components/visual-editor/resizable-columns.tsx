@@ -32,6 +32,8 @@ export default function ResizableColumns({
   
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState<number | null>(null);
+  const [dragStartX, setDragStartX] = useState<number>(0);
+  const [dragStartWidths, setDragStartWidths] = useState<number[]>([]);
   const [containerWidth, setContainerWidth] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -50,8 +52,14 @@ export default function ResizableColumns({
   }, []);
 
   const handleMouseDown = (index: number) => (e: React.MouseEvent) => {
-    if (!isEditMode) return;
+    if (!isEditMode || !containerRef.current) return;
     e.preventDefault();
+    
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    
+    setDragStartX(x);
+    setDragStartWidths([...columnWidths]);
     setIsDragging(index);
   };
 
@@ -62,27 +70,28 @@ export default function ResizableColumns({
       if (!containerRef.current) return;
       
       const rect = containerRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const percentage = (x / containerWidth) * 100;
+      const currentX = e.clientX - rect.left;
+      const deltaX = currentX - dragStartX;
+      const deltaPercentage = (deltaX / containerWidth) * 100;
 
-      setColumnWidths(widths => {
-        const newWidths = [...widths];
-        const leftIndex = isDragging;
-        const rightIndex = isDragging + 1;
+      const newWidths = [...dragStartWidths];
+      const leftIndex = isDragging;
+      const rightIndex = isDragging + 1;
 
-        if (rightIndex >= columnCount) return widths;
+      if (rightIndex >= columnCount) return;
 
-        const totalWidth = newWidths[leftIndex] + newWidths[rightIndex];
-        const minWidth = 10; // Minimum 10% width
+      const originalLeftWidth = dragStartWidths[leftIndex];
+      const originalRightWidth = dragStartWidths[rightIndex];
+      const totalWidth = originalLeftWidth + originalRightWidth;
+      const minWidth = 10; // Minimum 10% width
 
-        let newLeftWidth = percentage - widths.slice(0, leftIndex).reduce((a, b) => a + b, 0);
-        newLeftWidth = Math.max(minWidth, Math.min(newLeftWidth, totalWidth - minWidth));
-        
-        newWidths[leftIndex] = newLeftWidth;
-        newWidths[rightIndex] = totalWidth - newLeftWidth;
+      let newLeftWidth = originalLeftWidth + deltaPercentage;
+      newLeftWidth = Math.max(minWidth, Math.min(newLeftWidth, totalWidth - minWidth));
+      
+      newWidths[leftIndex] = newLeftWidth;
+      newWidths[rightIndex] = totalWidth - newLeftWidth;
 
-        return newWidths;
-      });
+      setColumnWidths(newWidths);
     };
 
     const handleMouseUp = () => {
@@ -99,7 +108,7 @@ export default function ResizableColumns({
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, containerWidth, columnCount, columnWidths, onColumnWidthsChange]);
+  }, [isDragging, dragStartX, dragStartWidths, containerWidth, columnCount, onColumnWidthsChange]);
 
   const gapClasses = {
     none: "",
@@ -138,7 +147,7 @@ export default function ResizableColumns({
         <div key={index} className="relative min-h-[100px] min-w-0 overflow-hidden">
           {child}
           
-          {/* Resize handle - spans entire gap between columns */}
+          {/* Resize handle - spans entire gap between columns with minimum width */}
           {isEditMode && index < columnCount - 1 && (
             <div
               className={cn(
@@ -146,18 +155,26 @@ export default function ResizableColumns({
                 "hover:bg-primary/10 transition-colors"
               )}
               style={{
-                right: `-${currentGap}px`,
-                width: `${currentGap}px`
+                right: `-${Math.max(currentGap / 2 + 12, 20)}px`,
+                width: `${Math.max(24, currentGap + 24)}px`
               }}
               onMouseDown={handleMouseDown(index)}
             >
               <div 
                 className={cn(
                   "absolute inset-y-0 left-1/2 -translate-x-1/2 w-1 transition-all",
-                  "bg-transparent group-hover:bg-primary/50",
-                  isDragging === index && "bg-primary"
+                  "bg-border/50 group-hover:bg-primary group-hover:w-2",
+                  isDragging === index && "bg-primary w-2"
                 )}
               />
+              {/* Drag handle dots indicator */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex flex-col gap-1">
+                  <div className="w-1 h-1 bg-primary rounded-full" />
+                  <div className="w-1 h-1 bg-primary rounded-full" />
+                  <div className="w-1 h-1 bg-primary rounded-full" />
+                </div>
+              </div>
             </div>
           )}
         </div>
