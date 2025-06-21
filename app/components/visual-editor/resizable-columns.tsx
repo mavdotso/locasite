@@ -151,24 +151,32 @@ export default function ResizableColumns({
           {isEditMode && index < columnCount - 1 && (
             <div
               className={cn(
-                "absolute top-0 bottom-0 cursor-col-resize z-20 group",
-                "hover:bg-primary/10 transition-colors"
+                "absolute top-0 bottom-0 cursor-col-resize z-20 group"
               )}
               style={{
                 right: `-${Math.max(currentGap / 2 + 12, 20)}px`,
-                width: `${Math.max(24, currentGap + 24)}px`
+                width: `${Math.max(24, currentGap + 24)}px`,
+                marginLeft: '-12px',
+                marginRight: '-12px',
+                paddingLeft: '12px',
+                paddingRight: '12px'
               }}
               onMouseDown={handleMouseDown(index)}
             >
+              {/* Background hover effect on both sides */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-primary/10" />
+              
+              {/* Center resize line */}
               <div 
                 className={cn(
-                  "absolute inset-y-0 left-1/2 -translate-x-1/2 w-1 transition-all",
+                  "absolute inset-y-0 left-1/2 -translate-x-1/2 w-1 transition-all z-10",
                   "bg-border/50 group-hover:bg-primary group-hover:w-2",
                   isDragging === index && "bg-primary w-2"
                 )}
               />
+              
               {/* Drag handle dots indicator */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                 <div className="flex flex-col gap-1">
                   <div className="w-1 h-1 bg-primary rounded-full" />
                   <div className="w-1 h-1 bg-primary rounded-full" />
