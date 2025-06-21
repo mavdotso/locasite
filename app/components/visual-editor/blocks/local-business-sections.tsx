@@ -6,11 +6,11 @@ import {
   Calendar,
   Tag,
   HelpCircle,
-  Shield,
   Map,
   Menu,
-  CreditCard,
-  Car
+  Car,
+  Star,
+  MessageSquare
 } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
@@ -22,6 +22,15 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
+import Image from "next/image";
+
+// Type definitions for parsed data
+interface ReviewData {
+  author: string;
+  rating: number;
+  text: string;
+  date: string;
+}
 
 // Operating Hours Section - Full schedule with holidays
 export const OperatingHoursSection: ComponentConfig = {
@@ -865,230 +874,196 @@ export const FAQSection: ComponentConfig = {
   category: "Section"
 };
 
-// Service Area Section
-export const ServiceAreaSection: ComponentConfig = {
+// Google Reviews Section
+export const GoogleReviewsSection: ComponentConfig = {
   fields: {
     title: {
       type: "text",
       label: "Section Title",
-      defaultValue: "Service Area"
+      defaultValue: "What Our Customers Say"
     },
-    description: {
-      type: "textarea",
-      label: "Description",
-      defaultValue: "We proudly serve the following areas:",
-      rows: 2
-    },
-    areas: {
-      type: "array",
-      label: "Service Areas",
-      defaultValue: [
-        "Downtown",
-        "North Side",
-        "South Side",
-        "East District",
-        "West End"
-      ],
-      itemType: {
-        type: "text",
-        label: "Area"
-      },
-      maxItems: 20
-    },
-    showMap: {
+    showRating: {
       type: "select",
-      label: "Show Map",
-      defaultValue: "no",
+      label: "Show Overall Rating",
+      defaultValue: "yes",
       options: [
         { value: "yes", label: "Yes" },
         { value: "no", label: "No" }
       ]
     },
-    radius: {
+    rating: {
+      type: "number",
+      label: "Average Rating",
+      defaultValue: 4.8,
+      min: 0,
+      max: 5,
+      step: 0.1,
+      showSlider: true
+    },
+    totalReviews: {
+      type: "number",
+      label: "Total Reviews",
+      defaultValue: 127,
+      min: 0,
+      max: 9999
+    },
+    reviews: {
+      type: "array",
+      label: "Featured Reviews",
+      defaultValue: [
+        {
+          author: "John D.",
+          rating: 5,
+          text: "Excellent service! Highly recommend to everyone.",
+          date: "2 weeks ago"
+        },
+        {
+          author: "Sarah M.",
+          rating: 5,
+          text: "Professional and friendly staff. Will definitely come back!",
+          date: "1 month ago"
+        },
+        {
+          author: "Mike R.",
+          rating: 4,
+          text: "Great experience overall. Very satisfied with the results.",
+          date: "1 month ago"
+        }
+      ],
+      itemType: {
+        type: "text",
+        label: "Review",
+        defaultValue: "John D.|5|Great service!|2 weeks ago"
+      },
+      maxItems: 10
+    },
+    googleBusinessUrl: {
       type: "text",
-      label: "Service Radius",
-      defaultValue: "Within 10 miles",
-      placeholder: "e.g., Within 10 miles"
+      label: "Google Business Profile URL",
+      defaultValue: "",
+      placeholder: "https://g.page/your-business"
     }
   },
-  render: (props, _editMode, business) => {
-    const { title, description, areas = [], showMap, radius } = props as {
+  render: (props) => {
+    const { title, showRating, rating, totalReviews, reviews = [], googleBusinessUrl } = props as {
       title?: string;
-      description?: string;
-      areas?: string[];
-      showMap?: string;
-      radius?: string;
+      showRating?: string;
+      rating?: number;
+      totalReviews?: number;
+      reviews?: Array<string | Record<string, unknown>>;
+      googleBusinessUrl?: string;
     };
-    const businessData = business as Doc<"businesses"> | undefined;
+    
+    // Parse reviews
+    const reviewData: ReviewData[] = reviews.map(review => {
+      if (typeof review === 'string') {
+        const [author, reviewRating, text, date] = review.split('|');
+        return { 
+          author: author || '', 
+          rating: parseInt(reviewRating || '5'), 
+          text: text || '', 
+          date: date || '' 
+        };
+      }
+      // Handle object case
+      const obj = review as Record<string, unknown>;
+      return {
+        author: String(obj.author || ''),
+        rating: Number(obj.rating || 5),
+        text: String(obj.text || ''),
+        date: String(obj.date || '')
+      };
+    });
+    
+    const renderStars = (starRating: number) => {
+      return (
+        <div className="flex">
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              className={cn(
+                "w-4 h-4",
+                i < starRating 
+                  ? "text-yellow-400 fill-yellow-400" 
+                  : "text-muted-foreground/30"
+              )}
+            />
+          ))}
+        </div>
+      );
+    };
     
     return (
       <div className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">{title}</h2>
-            {description && <p className="text-lg text-muted-foreground">{description}</p>}
-          </div>
-          
-          <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-            {showMap === "yes" && businessData?.address && (
-              <div className="rounded-lg overflow-hidden shadow-lg">
-                <iframe
-                  src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(businessData.address)}`}
-                  className="w-full h-96"
-                  allowFullScreen
-                />
-              </div>
-            )}
             
-            <div className={showMap === "no" ? "max-w-3xl mx-auto" : ""}>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Map className="w-5 h-5" />
-                    Areas We Serve
-                  </CardTitle>
-                  {radius && (
-                    <p className="text-sm text-muted-foreground">{radius}</p>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {areas.map((area, index) => (
-                      <div
-                        key={index}
-                        className="bg-muted rounded-lg px-4 py-2 text-center font-medium"
-                      >
-                        {area}
-                      </div>
+            {showRating === 'yes' && (
+              <div className="flex flex-col items-center gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={cn(
+                          "w-8 h-8",
+                          i < Math.floor(rating || 0) 
+                            ? "text-yellow-400 fill-yellow-400" 
+                            : "text-muted-foreground/30"
+                        )}
+                      />
                     ))}
                   </div>
+                  <span className="text-3xl font-bold">{rating}</span>
+                </div>
+                <p className="text-muted-foreground">
+                  Based on {totalReviews} Google Reviews
+                </p>
+                <div className="flex items-center gap-2 text-sm">
+                  <Image
+                    src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_74x24dp.png"
+                    alt="Google"
+                    width={74}
+                    height={24}
+                  />
+                  <span className="font-medium">Reviews</span>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto mt-8">
+            {reviewData.map((review, index) => (
+              <Card key={index} className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="font-semibold">{review.author}</p>
+                      <p className="text-sm text-muted-foreground">{review.date}</p>
+                    </div>
+                    {renderStars(review.rating)}
+                  </div>
+                  <p className="text-muted-foreground">{review.text}</p>
                 </CardContent>
               </Card>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  },
-  icon: Map,
-  category: "Section"
-};
-
-// Insurance/Payment Accepted Section
-export const InsurancePaymentSection: ComponentConfig = {
-  fields: {
-    title: {
-      type: "text",
-      label: "Section Title",
-      defaultValue: "Insurance & Payment"
-    },
-    insuranceProviders: {
-      type: "array",
-      label: "Insurance Providers",
-      defaultValue: [
-        "Blue Cross Blue Shield",
-        "Aetna",
-        "United Healthcare",
-        "Medicare"
-      ],
-      itemType: {
-        type: "text",
-        label: "Provider"
-      },
-      maxItems: 20
-    },
-    paymentMethods: {
-      type: "array",
-      label: "Payment Methods",
-      defaultValue: [
-        "Cash",
-        "Credit Cards",
-        "Debit Cards",
-        "HSA/FSA Cards"
-      ],
-      itemType: {
-        type: "text",
-        label: "Method"
-      },
-      maxItems: 10
-    },
-    additionalInfo: {
-      type: "textarea",
-      label: "Additional Information",
-      defaultValue: "We also offer payment plans for qualifying patients.",
-      rows: 2
-    }
-  },
-  render: (props) => {
-    const { title, insuranceProviders = [], paymentMethods = [], additionalInfo } = props as {
-      title?: string;
-      insuranceProviders?: string[];
-      paymentMethods?: string[];
-      additionalInfo?: string;
-    };
-    
-    return (
-      <div className="py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">{title}</h2>
-          
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="w-5 h-5" />
-                  Insurance Accepted
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {insuranceProviders.map((provider, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2"
-                    >
-                      <div className="w-2 h-2 bg-primary rounded-full" />
-                      <span className="text-sm font-medium">{provider}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="w-5 h-5" />
-                  Payment Methods
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {paymentMethods.map((method, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2"
-                    >
-                      <div className="w-2 h-2 bg-primary rounded-full" />
-                      <span className="text-sm font-medium">{method}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            ))}
           </div>
           
-          {additionalInfo && (
-            <div className="mt-8 text-center max-w-3xl mx-auto">
-              <p className="text-muted-foreground bg-muted/50 rounded-lg p-4">
-                {additionalInfo}
-              </p>
+          {googleBusinessUrl && (
+            <div className="text-center mt-8">
+              <Button asChild>
+                <a href={googleBusinessUrl} target="_blank" rel="noopener noreferrer">
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Read All Reviews on Google
+                </a>
+              </Button>
             </div>
           )}
         </div>
       </div>
     );
   },
-  icon: Shield,
+  icon: Star,
   category: "Section"
 };

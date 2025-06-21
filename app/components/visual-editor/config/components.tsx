@@ -38,11 +38,9 @@ import {
   LocationDirectionsSection,
   MenuPriceListSection,
   SpecialOffersSection,
-  FAQSection
-} from "../blocks/local-business-sections";
-import {
+  FAQSection,
   GoogleReviewsSection
-} from "../blocks/trust-sections";
+} from "../blocks/local-business-sections";
 
 export const componentConfigs: Record<string, ComponentConfig> = {
   // Basic Blocks
