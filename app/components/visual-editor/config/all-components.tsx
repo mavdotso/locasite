@@ -6,7 +6,15 @@ import {
   ButtonBlock, 
   SpacerBlock, 
   DividerBlock,
-  VideoBlock
+  VideoBlock,
+  IconBlock,
+  BadgeBlock,
+  ReviewStarsBlock,
+  BusinessHoursBlock,
+  SocialLinksBlock,
+  PaymentMethodsBlock,
+  ListBlock,
+  AlertBlock
 } from "../blocks/basic-blocks";
 import {
   SectionBlock,
@@ -30,6 +38,16 @@ export const allComponentConfigs: Record<string, ComponentConfig> = {
   SpacerBlock,
   DividerBlock,
   VideoBlock,
+  IconBlock,
+  ListBlock,
+  AlertBlock,
+  
+  // Business-Specific Blocks
+  BadgeBlock,
+  ReviewStarsBlock,
+  BusinessHoursBlock,
+  SocialLinksBlock,
+  PaymentMethodsBlock,
   
   // Interactive Components
   AccordionBlock,

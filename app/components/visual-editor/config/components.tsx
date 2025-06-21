@@ -17,7 +17,14 @@ import {
   DividerBlock,
   VideoBlock,
   SpacerBlock,
-  IconBlock
+  IconBlock,
+  BadgeBlock,
+  ReviewStarsBlock,
+  BusinessHoursBlock,
+  SocialLinksBlock,
+  PaymentMethodsBlock,
+  ListBlock,
+  AlertBlock
 } from "../blocks/basic-blocks";
 import {
   SectionBlock,
@@ -26,6 +33,27 @@ import {
   TabsBlock,
   AccordionBlock
 } from "../blocks/container-blocks";
+import {
+  OperatingHoursSection,
+  LocationDirectionsSection,
+  MenuPriceListSection,
+  SpecialOffersSection,
+  FAQSection,
+  ServiceAreaSection,
+  InsurancePaymentSection
+} from "../blocks/local-business-sections";
+import {
+  AwardsCertificationsSection,
+  CommunityInvolvementSection,
+  GoogleReviewsSection,
+  MembershipBadgesSection,
+  CustomerSuccessSection
+} from "../blocks/trust-sections";
+import {
+  QuickActionsBar,
+  MobileCallBar,
+  BackToTopButton
+} from "../blocks/quick-actions";
 
 export const componentConfigs: Record<string, ComponentConfig> = {
   // Basic Blocks
@@ -36,6 +64,15 @@ export const componentConfigs: Record<string, ComponentConfig> = {
   VideoBlock,
   SpacerBlock,
   IconBlock,
+  ListBlock,
+  AlertBlock,
+  
+  // Business-Specific Blocks
+  BadgeBlock,
+  ReviewStarsBlock,
+  BusinessHoursBlock,
+  SocialLinksBlock,
+  PaymentMethodsBlock,
   
   // Container Blocks
   SectionBlock,
@@ -44,7 +81,7 @@ export const componentConfigs: Record<string, ComponentConfig> = {
   TabsBlock,
   AccordionBlock,
   
-  // Business Blocks
+  // Business Sections
   HeroBlock,
   AboutBlock,
   ServicesBlock,
@@ -53,5 +90,26 @@ export const componentConfigs: Record<string, ComponentConfig> = {
   ContactBlock,
   TeamBlock,
   CTABlock,
-  FooterBlock
+  FooterBlock,
+  
+  // Local Business Sections
+  OperatingHoursSection,
+  LocationDirectionsSection,
+  MenuPriceListSection,
+  SpecialOffersSection,
+  FAQSection,
+  ServiceAreaSection,
+  InsurancePaymentSection,
+  
+  // Trust & Social Proof
+  AwardsCertificationsSection,
+  CommunityInvolvementSection,
+  GoogleReviewsSection,
+  MembershipBadgesSection,
+  CustomerSuccessSection,
+  
+  // Mobile & Quick Actions
+  QuickActionsBar,
+  MobileCallBar,
+  BackToTopButton
 };

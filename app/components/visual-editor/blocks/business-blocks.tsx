@@ -15,6 +15,8 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  Clock,
+  Calendar,
   Lightbulb,
   Heart,
   Zap,
@@ -27,7 +29,8 @@ import {
   Headphones,
   Lock,
   CheckCircle,
-  Gift
+  Gift,
+  MessageCircle
 } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
@@ -542,17 +545,38 @@ export const HeroBlock: ComponentConfig = {
         defaultValue: "Get Started|#contact|default"
       },
       maxItems: 3
+    },
+    showBusinessInfo: {
+      type: "select",
+      label: "Show Business Info",
+      defaultValue: "no",
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" }
+      ]
+    },
+    showReviewStars: {
+      type: "select",
+      label: "Show Review Stars",
+      defaultValue: "no",
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" }
+      ]
     }
   },
-  render: (props: Record<string, unknown>) => {
-    const { title, subtitle, backgroundImage, overlayOpacity = 0.5, height = "large", buttons = [] } = props as {
+  render: (props: Record<string, unknown>, _editMode, business) => {
+    const { title, subtitle, backgroundImage, overlayOpacity = 0.5, height = "large", buttons = [], showBusinessInfo, showReviewStars } = props as {
       title?: string;
       subtitle?: string;
       backgroundImage?: string;
       overlayOpacity?: number;
       height?: string;
-      buttons?: ButtonConfig[]
+      buttons?: ButtonConfig[];
+      showBusinessInfo?: string;
+      showReviewStars?: string;
     };
+    const businessData = business as Doc<"businesses"> | undefined;
     
     const heightClasses = {
       small: "h-[300px]",
@@ -580,6 +604,40 @@ export const HeroBlock: ComponentConfig = {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">{title}</h1>
           {subtitle && (
             <p className="text-lg md:text-xl text-muted-foreground mb-8">{subtitle}</p>
+          )}
+          {showBusinessInfo === "yes" && businessData && (
+            <div className="flex flex-wrap gap-4 justify-center mb-6 text-sm">
+              {businessData.phone && (
+                <a href={`tel:${businessData.phone}`} className="flex items-center gap-2 hover:text-primary">
+                  <Phone className="w-4 h-4" />
+                  {businessData.phone}
+                </a>
+              )}
+              {businessData.hours && (
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  <span>
+                    {(() => {
+                      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                      const today = days[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
+                      const currentHours = businessData.hours[today as keyof typeof businessData.hours];
+                      return currentHours && currentHours !== 'Closed' ? 'Open Now' : 'Closed';
+                    })()}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+          {showReviewStars === "yes" && (
+            <div className="flex items-center justify-center gap-2 mb-6">
+              <div className="flex">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                ))}
+              </div>
+              <span className="font-medium">5.0</span>
+              <span className="text-muted-foreground">(127 reviews)</span>
+            </div>
           )}
           {buttons.length > 0 && (
             <div className="flex flex-wrap gap-4 justify-center">
@@ -758,14 +816,34 @@ export const ServicesBlock: ComponentConfig = {
         defaultValue: "lightbulb|Service Title|Description of this service|$99"
       },
       maxItems: 12
+    },
+    showBookingLinks: {
+      type: "select",
+      label: "Show Booking Links",
+      defaultValue: "no",
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" }
+      ]
+    },
+    showDuration: {
+      type: "select",
+      label: "Show Service Duration",
+      defaultValue: "no",
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" }
+      ]
     }
   },
   render: (props: Record<string, unknown>) => {
-    const { title, subtitle, layout = "grid3", services = [] } = props as {
+    const { title, subtitle, layout = "grid3", services = [], showBookingLinks, showDuration } = props as {
       title?: string;
       subtitle?: string;
       layout?: string;
-      services?: ServiceConfig[]
+      services?: ServiceConfig[];
+      showBookingLinks?: string;
+      showDuration?: string;
     };
     
     const layoutClasses = {
@@ -798,6 +876,19 @@ export const ServicesBlock: ComponentConfig = {
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground">{service.description}</p>
+                    {showDuration === "yes" && (
+                      <p className="text-sm text-muted-foreground mt-2">
+                        <Clock className="w-4 h-4 inline mr-1" />
+                        30-60 minutes
+                      </p>
+                    )}
+                    {showBookingLinks === "yes" && (
+                      <Button size="sm" className="mt-4 w-full" asChild>
+                        <a href="#contact">
+                          Book Now
+                        </a>
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               );
@@ -955,10 +1046,39 @@ export const ContactBlock: ComponentConfig = {
         { value: "yes", label: "Yes" },
         { value: "no", label: "No" }
       ]
+    },
+    showWhatsApp: {
+      type: "select",
+      label: "Show WhatsApp",
+      defaultValue: "no",
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" }
+      ]
+    },
+    showBookingButton: {
+      type: "select",
+      label: "Show Booking Button",
+      defaultValue: "no",
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" }
+      ]
+    },
+    bookingButtonText: {
+      type: "text",
+      label: "Booking Button Text",
+      defaultValue: "Book Appointment"
+    },
+    bookingButtonLink: {
+      type: "text",
+      label: "Booking Link",
+      defaultValue: "#",
+      placeholder: "https://calendly.com/yourbusiness"
     }
   },
   render: (props: Record<string, unknown>, _editMode, business) => {
-    const { title, subtitle, showPhone, showEmail, showAddress, showHours, showMap } = props as {
+    const { title, subtitle, showPhone, showEmail, showAddress, showHours, showMap, showWhatsApp, showBookingButton, bookingButtonText, bookingButtonLink } = props as {
       title?: string;
       subtitle?: string;
       showPhone?: string;
@@ -966,6 +1086,10 @@ export const ContactBlock: ComponentConfig = {
       showAddress?: string;
       showHours?: string;
       showMap?: string;
+      showWhatsApp?: string;
+      showBookingButton?: string;
+      bookingButtonText?: string;
+      bookingButtonLink?: string;
     };
     const businessData = business as Doc<"businesses"> | undefined;
     
@@ -995,6 +1119,16 @@ export const ContactBlock: ComponentConfig = {
         label: "Address",
         value: businessData.address,
         href: `https://maps.google.com/?q=${encodeURIComponent(businessData.address)}`
+      });
+    }
+    
+    if (showWhatsApp === "yes" && businessData?.phone) {
+      const whatsappNumber = businessData.phone.replace(/[^0-9]/g, '');
+      contactMethods.push({
+        icon: MessageCircle,
+        label: "WhatsApp",
+        value: "Message us on WhatsApp",
+        href: `https://wa.me/${whatsappNumber}`
       });
     }
     
@@ -1048,6 +1182,17 @@ export const ContactBlock: ComponentConfig = {
                 </div>
               )}
             </div>
+            
+            {showBookingButton === "yes" && (
+              <div className="mt-8 text-center">
+                <Button size="lg" asChild>
+                  <a href={bookingButtonLink || "#"} target="_blank" rel="noopener noreferrer">
+                    <Calendar className="w-5 h-5 mr-2" />
+                    {bookingButtonText || "Book Appointment"}
+                  </a>
+                </Button>
+              </div>
+            )}
             
             {showMap === "yes" && businessData?.address && (
               <div className="mt-8">
