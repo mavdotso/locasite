@@ -308,6 +308,7 @@ export default function VisualEditor({
     };
     setPageData(newData);
     addToHistory(newData);
+    setHasUnsavedChanges(true);
     
     if (selectedComponentId === id) {
       setSelectedComponentId(null);

@@ -30,6 +30,7 @@ interface ComponentWrapperProps {
   canMoveUp: boolean;
   canMoveDown: boolean;
   children: React.ReactNode;
+  isNested?: boolean;
 }
 
 export default function ComponentWrapper({
@@ -42,7 +43,8 @@ export default function ComponentWrapper({
   onDuplicate,
   canMoveUp,
   canMoveDown,
-  children
+  children,
+  isNested = false
 }: ComponentWrapperProps) {
   const { startDrag } = useDragDrop();
 
@@ -100,46 +102,50 @@ export default function ComponentWrapper({
           </TooltipContent>
         </Tooltip>
 
-        {/* Move Buttons */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={(e) => {
-                e.stopPropagation();
-                onMove("up");
-              }}
-              disabled={!canMoveUp}
-              className="h-8 w-8 p-0 transition-all hover:bg-primary/10"
-            >
-              <ChevronUp className="w-4 h-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Move up</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={(e) => {
-                e.stopPropagation();
-                onMove("down");
-              }}
-              disabled={!canMoveDown}
-              className="h-8 w-8 p-0 transition-all hover:bg-primary/10"
-            >
-              <ChevronDown className="w-4 h-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Move down</p>
-          </TooltipContent>
-        </Tooltip>
+        {/* Move Buttons - only show for top-level components */}
+        {!isNested && (
+          <>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMove("up");
+                  }}
+                  disabled={!canMoveUp}
+                  className="h-8 w-8 p-0 transition-all hover:bg-primary/10"
+                >
+                  <ChevronUp className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Move up</p>
+              </TooltipContent>
+            </Tooltip>
+            
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMove("down");
+                  }}
+                  disabled={!canMoveDown}
+                  className="h-8 w-8 p-0 transition-all hover:bg-primary/10"
+                >
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Move down</p>
+              </TooltipContent>
+            </Tooltip>
+          </>
+        )}
 
         {/* Duplicate Button */}
         {onDuplicate && (

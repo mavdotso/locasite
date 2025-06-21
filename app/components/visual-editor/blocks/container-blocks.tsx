@@ -16,6 +16,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
+import ResizableColumns from "../resizable-columns";
 
 // Section Block - Main container for other blocks with background options
 export const SectionBlock: ComponentConfig = {
@@ -179,6 +180,12 @@ export const ColumnsBlock: ComponentConfig = {
         { value: "4", label: "4 Columns" }
       ]
     },
+    columnWidths: {
+      type: "array",
+      label: "Column Widths",
+      defaultValue: [],
+      hidden: true // Hidden from UI, managed by resize handles
+    },
     gap: {
       type: "select",
       label: "Column Gap",
@@ -209,38 +216,23 @@ export const ColumnsBlock: ComponentConfig = {
       ]
     }
   },
-  render: (props, editMode, _business, children, _onUpdate) => {
-    const { columns, gap, direction, stackOnMobile } = props as {
+  render: (props, editMode, _business, children, onUpdate) => {
+    const { columns, gap, direction, stackOnMobile, columnWidths } = props as {
       columns?: string;
       gap?: string;
       direction?: string;
       stackOnMobile?: string;
+      columnWidths?: number[];
     };
     
     const columnCount = parseInt(columns || "2");
     const isVertical = direction === "col";
     
-    
-    const gapClasses = {
-      none: "",
-      small: "gap-2",
-      medium: "gap-6",
-      large: "gap-10"
+    const handleColumnWidthsChange = (widths: number[]) => {
+      if (onUpdate) {
+        onUpdate({ columnWidths: widths });
+      }
     };
-    
-    // Build class names based on direction
-    let layoutClasses = "";
-    if (isVertical) {
-      layoutClasses = "flex flex-col";
-    } else {
-      layoutClasses = cn(
-        "grid",
-        stackOnMobile === "yes" ? "grid-cols-1" : "",
-        columnCount === 2 && "md:grid-cols-2",
-        columnCount === 3 && "md:grid-cols-3",
-        columnCount === 4 && "md:grid-cols-4"
-      );
-    }
     
     const childrenArray = React.Children.toArray(children);
     
@@ -253,13 +245,25 @@ export const ColumnsBlock: ComponentConfig = {
     
     if (isPreDistributed) {
       // Children are already distributed into columns by PreviewPanel or BusinessPageRenderer
+      if (isVertical) {
+        return (
+          <div className="flex flex-col gap-6">
+            {childrenArray}
+          </div>
+        );
+      }
+      
       return (
-        <div className={cn(
-          layoutClasses,
-          gapClasses[gap as keyof typeof gapClasses] || gapClasses.medium
-        )}>
+        <ResizableColumns
+          columnCount={columnCount}
+          gap={gap || "medium"}
+          stackOnMobile={stackOnMobile || "yes"}
+          initialWidths={columnWidths}
+          onColumnWidthsChange={handleColumnWidthsChange}
+          isEditMode={editMode}
+        >
           {childrenArray.map((colContent, colIndex) => (
-            <div key={colIndex} className="min-h-[100px] column-drop-zone">
+            <div key={colIndex} className="column-drop-zone">
               {(colContent as React.ReactElement<{ children?: React.ReactNode }>).props.children}
               {editMode && !(colContent as React.ReactElement<{ children?: React.ReactNode }>).props.children && (
                 <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">
@@ -268,7 +272,7 @@ export const ColumnsBlock: ComponentConfig = {
               )}
             </div>
           ))}
-        </div>
+        </ResizableColumns>
       );
     }
     
@@ -288,13 +292,36 @@ export const ColumnsBlock: ComponentConfig = {
       }
     });
     
+    // For vertical layout, use flex
+    if (isVertical) {
+      return (
+        <div className="flex flex-col gap-6">
+          {columnContents.map((colChildren, colIndex) => (
+            <div key={colIndex}>
+              {colChildren}
+              {editMode && colChildren.length === 0 && (
+                <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">
+                  <p className="text-sm text-muted-foreground">Column {colIndex + 1}</p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    }
+    
+    // For horizontal layout, use ResizableColumns
     return (
-      <div className={cn(
-        layoutClasses,
-        gapClasses[gap as keyof typeof gapClasses] || gapClasses.medium
-      )}>
+      <ResizableColumns
+        columnCount={columnCount}
+        gap={gap || "medium"}
+        stackOnMobile={stackOnMobile || "yes"}
+        initialWidths={columnWidths}
+        onColumnWidthsChange={handleColumnWidthsChange}
+        isEditMode={editMode}
+      >
         {columnContents.map((colChildren, colIndex) => (
-          <div key={colIndex} className="min-h-[100px]">
+          <div key={colIndex}>
             {colChildren}
             {editMode && colChildren.length === 0 && (
               <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">
@@ -303,7 +330,7 @@ export const ColumnsBlock: ComponentConfig = {
             )}
           </div>
         ))}
-      </div>
+      </ResizableColumns>
     );
   },
   icon: Columns,

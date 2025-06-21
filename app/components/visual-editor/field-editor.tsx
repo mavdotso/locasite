@@ -90,7 +90,9 @@ export default function FieldEditor({
         <TabsContent value="properties" className="flex-1 mt-0">
           <ScrollArea className="h-full">
             <div className="p-4 space-y-6">
-              {Object.entries(config.fields).map(([fieldName, field]) => {
+              {Object.entries(config.fields)
+                .filter(([_, field]) => !field.hidden)
+                .map(([fieldName, field]) => {
             const value = component.props[fieldName] ?? field.defaultValue;
 
             switch (field.type) {

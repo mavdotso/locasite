@@ -16,6 +16,7 @@ export interface BaseField {
   defaultValue?: unknown;
   required?: boolean;
   placeholder?: string;
+  hidden?: boolean;
 }
 
 export interface TextField extends BaseField {

@@ -8,7 +8,7 @@ import DropZone from "./drop-zone";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useDragDrop } from "./drag-drop-provider";
 import NestedDropZone from "./nested-drop-zone";
-import { cn } from "@/app/lib/utils";
+import ResizableColumns from "./resizable-columns";
 
 interface ColumnsDropZoneProps {
   component: ComponentData;
@@ -160,7 +160,6 @@ export default function ColumnsDropZone({
                 id={`drop-zone-${component.id}-col-${safeColumnIndex}-${columnContents[safeColumnIndex].length + 1}`}
                 index={columnContents[safeColumnIndex].length + 1}
                 onDrop={(index) => handleDropInColumn(safeColumnIndex, index)}
-                className="h-16"
               />
             )}
           </React.Fragment>
@@ -175,42 +174,59 @@ export default function ColumnsDropZone({
     const gap = component.props.gap as string || "medium";
     const stackOnMobile = component.props.stackOnMobile as string || "yes";
     const direction = component.props.direction as string || "row";
+    const columnWidths = component.props.columnWidths as number[] | undefined;
     const isVertical = direction === "col";
     
-    let layoutClasses = "";
+    const handleColumnWidthsChange = (widths: number[]) => {
+      onUpdateComponent(component.id, { columnWidths: widths });
+    };
+    
+    // For vertical layout
     if (isVertical) {
-      layoutClasses = "flex flex-col";
-    } else {
-      layoutClasses = cn(
-        "grid",
-        stackOnMobile === "yes" ? "grid-cols-1" : "",
-        columnCount === 2 && "md:grid-cols-2",
-        columnCount === 3 && "md:grid-cols-3",
-        columnCount === 4 && "md:grid-cols-4"
+      return (
+        <div className="flex flex-col gap-6">
+          {columnContents.map((colChildren, colIndex) => (
+            <div key={colIndex} className="column-drop-zone">
+              {/* Initial drop zone for this column */}
+              {isEditMode && (
+                <DropZone
+                  id={`drop-zone-${component.id}-col-${colIndex}-0`}
+                  index={0}
+                  onDrop={(index) => handleDropInColumn(colIndex, index)}
+                  showAlways={colChildren.length === 0}
+                />
+              )}
+              {colChildren}
+              {/* Show placeholder if column is empty */}
+              {isEditMode && colChildren.length === 0 && (
+                <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">
+                  <p className="text-sm text-muted-foreground">Column {colIndex + 1}</p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       );
     }
     
-    const gapClasses = {
-      none: "",
-      small: "gap-2",
-      medium: "gap-6",
-      large: "gap-10"
-    };
-    
+    // For horizontal layout, use ResizableColumns
     return (
-      <div className={cn(
-        layoutClasses,
-        gapClasses[gap as keyof typeof gapClasses] || gapClasses.medium
-      )}>
+      <ResizableColumns
+        columnCount={columnCount}
+        gap={gap}
+        stackOnMobile={stackOnMobile}
+        initialWidths={columnWidths}
+        onColumnWidthsChange={handleColumnWidthsChange}
+        isEditMode={isEditMode}
+      >
         {columnContents.map((colChildren, colIndex) => (
-          <div key={colIndex} className="min-h-[100px] column-drop-zone">
+          <div key={colIndex} className="column-drop-zone">
             {/* Initial drop zone for this column */}
             {isEditMode && (
               <DropZone
                 id={`drop-zone-${component.id}-col-${colIndex}-0`}
                 index={0}
                 onDrop={(index) => handleDropInColumn(colIndex, index)}
-                className="h-16"
                 showAlways={colChildren.length === 0}
               />
             )}
@@ -223,7 +239,7 @@ export default function ColumnsDropZone({
             )}
           </div>
         ))}
-      </div>
+      </ResizableColumns>
     );
   })();
 

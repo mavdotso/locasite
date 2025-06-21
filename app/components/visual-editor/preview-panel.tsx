@@ -54,8 +54,14 @@ export default function PreviewPanel({
 
     if (draggedItem.type === "new-component" && draggedItem.componentType) {
       onAddComponent(draggedItem.componentType, index, parentId);
-    } else if (draggedItem.type === "existing-component" && draggedItem.index !== undefined) {
-      onMoveComponent(draggedItem.index, index);
+    } else if (draggedItem.type === "existing-component" && draggedItem.component) {
+      // Find the current index of the dragged component
+      const currentIndex = pageData.components.findIndex(c => c.id === draggedItem.component?.id);
+      if (currentIndex !== -1 && currentIndex !== index) {
+        // Adjust target index if dragging to a position after the current position
+        const targetIndex = currentIndex < index ? index - 1 : index;
+        onMoveComponent(currentIndex, targetIndex);
+      }
     }
   };
 
@@ -101,6 +107,7 @@ export default function PreviewPanel({
               onDuplicate={onDuplicateComponent ? () => onDuplicateComponent(child.id) : undefined}
               canMoveUp={index > 0}
               canMoveDown={index < (component.children?.length || 0) - 1}
+              isNested={true}
             >
               {renderComponent(child, index)}
             </ComponentWrapper>
@@ -131,6 +138,7 @@ export default function PreviewPanel({
             onDuplicate={onDuplicateComponent ? () => onDuplicateComponent(child.id) : undefined}
             canMoveUp={childIndex > 0}
             canMoveDown={childIndex < (component.children?.length || 0) - 1}
+            isNested={true}
           >
             {renderComponent(child, childIndex)}
           </ComponentWrapper>
@@ -189,7 +197,6 @@ export default function PreviewPanel({
                   id="drop-zone-0"
                   index={0}
                   onDrop={handleDrop}
-                  className="h-20 mb-4"
                   showAlways={pageData.components.length === 0}
                 />
               )}
@@ -228,7 +235,6 @@ export default function PreviewPanel({
                           id={`drop-zone-${index + 1}`}
                           index={index + 1}
                           onDrop={handleDrop}
-                          className="h-20 my-4"
                         />
                       )}
                     </React.Fragment>
@@ -263,7 +269,6 @@ export default function PreviewPanel({
                         id={`drop-zone-${index + 1}`}
                         index={index + 1}
                         onDrop={handleDrop}
-                        className="h-20 my-4"
                       />
                     )}
                   </React.Fragment>

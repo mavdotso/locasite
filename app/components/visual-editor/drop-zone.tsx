@@ -3,7 +3,6 @@
 import React from "react";
 import { useDragDrop } from "./drag-drop-provider";
 import { cn } from "@/app/lib/utils";
-import { Plus } from "lucide-react";
 import { allComponentConfigs as componentConfigs } from "./config/all-components";
 
 interface DropZoneProps {
@@ -62,8 +61,7 @@ export default function DropZone({ id, index, onDrop, className, showAlways = fa
     <div
       className={cn(
         "relative transition-all duration-200",
-        isDragging && "min-h-[80px] py-2",
-        isActive && "animate-in fade-in-0 zoom-in-95",
+        isDragging ? "h-1" : "h-0",
         className
       )}
       onDragOver={handleDragOver}
@@ -72,26 +70,17 @@ export default function DropZone({ id, index, onDrop, className, showAlways = fa
     >
       <div
         className={cn(
-          "absolute inset-0 border-2 border-dashed rounded-lg transition-all duration-200",
-          "flex items-center justify-center",
+          "absolute inset-x-0 top-1/2 -translate-y-1/2 h-1 rounded-full transition-all duration-200",
           isActive 
-            ? "border-primary bg-primary/10 scale-[1.02] shadow-lg" 
-            : "border-muted-foreground/20 bg-muted/5",
-          !isDragging && "opacity-0 hover:opacity-100"
+            ? "bg-primary h-2 shadow-lg shadow-primary/50" 
+            : isDragging ? "bg-muted-foreground/20" : "bg-transparent"
         )}
       >
-        <div className={cn(
-          "flex flex-col items-center gap-1 text-sm transition-all duration-200",
-          isActive ? "text-primary scale-110" : "text-muted-foreground"
-        )}>
-          <div className="flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            <span>Drop component here</span>
+        {isActive && (
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-3 py-1 bg-primary text-primary-foreground text-xs rounded-full whitespace-nowrap shadow-lg">
+            Drop here
           </div>
-          {isDragging && !isActive && (
-            <span className="text-xs text-muted-foreground/70">Press ESC to cancel</span>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );
