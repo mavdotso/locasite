@@ -13,12 +13,17 @@ import {
 } from "lucide-react";
 import { Doc } from "@/convex/_generated/dataModel";
 
-// No longer needed - removed unused components and types
-
 // Header Section Block - Navigation header with logo
 export const HeaderBlock: ComponentConfig = {
   fields: {},
-  render: (_props, _editMode, _business) => null,
+  render: (_props, _editMode, _business) => {
+    return (
+      <div className="p-8 text-center bg-muted rounded-lg">
+        <p className="text-muted-foreground">Header Section Template</p>
+        <p className="text-sm text-muted-foreground mt-2">This is a template - drag and drop to expand</p>
+      </div>
+    );
+  },
   isTemplate: true,
   template: (business?: unknown) => {
     const businessData = business as Doc<"businesses"> | undefined;
@@ -27,98 +32,64 @@ export const HeaderBlock: ComponentConfig = {
       {
         type: "SectionBlock",
         props: {
-          width: "full",
+          width: "container",
           verticalPadding: "small",
-          backgroundColor: "default",
-          borderBottom: "yes"
+          backgroundColor: "default"
         },
         children: [
           {
             type: "ColumnsBlock",
             props: {
               columns: "2",
-              gap: "medium",
-              stackOnMobile: "no",
-              verticalAlign: "middle"
+              gap: "large",
+              stackOnMobile: "yes"
             },
             children: [
-              // First Column - Logo
+              // Logo
               {
-                type: "ColumnContentBlock",
-                props: {},
-                children: [
-                  {
-                    type: "LogoBlock",
-                    props: {
-                      size: "medium",
-                      align: "left",
-                      link: "/"
-                    }
-                  }
-                ]
+                type: "LogoBlock",
+                props: {
+                  size: "large",
+                  align: "left",
+                  link: "/",
+                  logoText: businessData?.name || "Business Name"
+                }
               },
-              // Second Column - Navigation/Contact
+              // Buttons
               {
-                type: "ColumnContentBlock",
-                props: {},
+                type: "ColumnsBlock",
+                props: {
+                  columns: "3",
+                  gap: "small",
+                  stackOnMobile: "no"
+                },
                 children: [
                   {
-                    type: "ColumnsBlock",
+                    type: "ButtonBlock",
                     props: {
-                      columns: "3",
-                      gap: "small",
-                      stackOnMobile: "yes"
-                    },
-                    children: [
-                      {
-                        type: "ColumnContentBlock",
-                        props: {},
-                        children: [
-                          {
-                            type: "ButtonBlock",
-                            props: {
-                              text: businessData?.phone || "Call Us",
-                              link: `tel:${businessData?.phone || ""}`,
-                              variant: "ghost",
-                              size: "sm",
-                              align: "right"
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        type: "ColumnContentBlock",
-                        props: {},
-                        children: [
-                          {
-                            type: "ButtonBlock",
-                            props: {
-                              text: "Hours",
-                              link: "#hours",
-                              variant: "ghost",
-                              size: "sm",
-                              align: "center"
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        type: "ColumnContentBlock",
-                        props: {},
-                        children: [
-                          {
-                            type: "ButtonBlock",
-                            props: {
-                              text: "Contact",
-                              link: "#contact",
-                              variant: "default",
-                              size: "sm",
-                              align: "right"
-                            }
-                          }
-                        ]
-                      }
-                    ]
+                      text: businessData?.phone || "(555) 123-4567",
+                      link: `tel:${businessData?.phone || ""}`,
+                      variant: "ghost",
+                      size: "sm"
+                    }
+                  },
+                  {
+                    type: "ButtonBlock",
+                    props: {
+                      text: "Hours",
+                      link: "#hours",
+                      variant: "ghost",
+                      size: "sm"
+                    }
+                  },
+                  {
+                    type: "ButtonBlock",
+                    props: {
+                      text: "Contact",
+                      link: "#contact",
+                      variant: "default",
+                      size: "sm"
+                    }
                   }
                 ]
               }
@@ -132,20 +103,20 @@ export const HeaderBlock: ComponentConfig = {
   category: "Section"
 };
 
-// Hero Section Block - Returns a group of basic blocks
+// Hero Section Block
 export const HeroBlock: ComponentConfig = {
   fields: {},
   render: (_props, _editMode, _business) => {
-    // This is a template that returns multiple blocks to be added
-    // The visual editor should handle this specially
-    return null;
+    return (
+      <div className="p-12 text-center bg-primary/10 rounded-lg">
+        <h2 className="text-2xl font-bold">Hero Section Template</h2>
+        <p className="text-muted-foreground mt-2">This is a template - drag and drop to expand into full hero section</p>
+      </div>
+    );
   },
-  // Special property to indicate this is a template
   isTemplate: true,
-  // Define the blocks that should be added when this template is selected
   template: (business?: unknown) => {
     const businessData = business as Doc<"businesses"> | undefined;
-    // Get first image from business gallery if available
     const backgroundImage = businessData?.photos?.[0] || "https://images.unsplash.com/photo-1497366216548-37526070297c";
     
     return [
@@ -154,7 +125,7 @@ export const HeroBlock: ComponentConfig = {
         props: {
           backgroundImage,
           backgroundImageStyle: "cover",
-          overlayOpacity: 0.5,
+          overlayOpacity: 0.6,
           width: "full",
           verticalPadding: "xlarge"
         },
@@ -168,34 +139,58 @@ export const HeroBlock: ComponentConfig = {
             props: {
               content: businessData?.name || "Welcome to Our Business",
               variant: "h1",
-              align: "center"
+              align: "center",
+              color: "#FFFFFF"
             }
           },
           {
             type: "SpacerBlock",
-            props: { height: 16 }
+            props: { height: 24 }
           },
           {
             type: "TextBlock",
             props: {
-              content: businessData?.description || "Your trusted local business partner",
+              content: businessData?.description || "Providing exceptional service to our community for over 20 years",
               variant: "lead",
-              align: "center"
+              align: "center",
+              color: "#F3F4F6"
             }
           },
           {
             type: "SpacerBlock",
-            props: { height: 32 }
+            props: { height: 48 }
           },
           {
-            type: "ButtonBlock",
+            type: "ColumnsBlock",
             props: {
-              text: "Get Started",
-              link: "#contact",
-              variant: "default",
-              size: "lg",
-              align: "center"
-            }
+              columns: "2",
+              gap: "medium",
+              stackOnMobile: "yes"
+            },
+            children: [
+              {
+                type: "ButtonBlock",
+                props: {
+                  text: "Get Free Quote",
+                  link: "#contact",
+                  variant: "default",
+                  size: "lg",
+                  align: "right",
+                  fullWidth: "mobile"
+                }
+              },
+              {
+                type: "ButtonBlock",
+                props: {
+                  text: "View Our Work",
+                  link: "#gallery",
+                  variant: "outline",
+                  size: "lg",
+                  align: "left",
+                  fullWidth: "mobile"
+                }
+              }
+            ]
           },
           {
             type: "SpacerBlock",
@@ -209,10 +204,17 @@ export const HeroBlock: ComponentConfig = {
   category: "Section"
 };
 
-// About Section Block - Template
+// About Section Block
 export const AboutBlock: ComponentConfig = {
   fields: {},
-  render: (_props, _editMode, _business) => null,
+  render: (_props, _editMode, _business) => {
+    return (
+      <div className="p-8 text-center bg-muted rounded-lg">
+        <p className="text-muted-foreground">About Section Template</p>
+        <p className="text-sm text-muted-foreground mt-2">This is a template - drag and drop to expand</p>
+      </div>
+    );
+  },
   isTemplate: true,
   template: (business?: unknown) => {
     const businessData = business as Doc<"businesses"> | undefined;
@@ -223,7 +225,7 @@ export const AboutBlock: ComponentConfig = {
         props: {
           width: "container",
           verticalPadding: "large",
-          backgroundColor: "muted"
+          backgroundColor: "default"
         },
         children: [
           {
@@ -234,17 +236,18 @@ export const AboutBlock: ComponentConfig = {
               stackOnMobile: "yes"
             },
             children: [
-              // First Column - Content
+              // Content Column
               {
                 type: "ColumnContentBlock",
                 props: {},
                 children: [
                   {
-                    type: "TextBlock",
+                    type: "BadgeBlock",
                     props: {
-                      content: "About Us",
-                      variant: "h2",
-                      align: "left"
+                      type: "custom",
+                      text: "ABOUT US",
+                      color: "primary",
+                      size: "small"
                     }
                   },
                   {
@@ -254,8 +257,8 @@ export const AboutBlock: ComponentConfig = {
                   {
                     type: "TextBlock",
                     props: {
-                      content: businessData?.description || "We are a local business dedicated to providing exceptional service to our community. With years of experience and a passion for what we do, we strive to exceed our customers' expectations every day.",
-                      variant: "paragraph",
+                      content: "Building Trust Through Excellence",
+                      variant: "h2",
                       align: "left"
                     }
                   },
@@ -264,13 +267,25 @@ export const AboutBlock: ComponentConfig = {
                     props: { height: 24 }
                   },
                   {
+                    type: "TextBlock",
+                    props: {
+                      content: businessData?.description || "We are a premier local business with over 20 years of experience serving our community. Our commitment to quality, integrity, and customer satisfaction has made us the trusted choice for thousands of families and businesses.",
+                      variant: "paragraph",
+                      align: "left"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 32 }
+                  },
+                  {
                     type: "ListBlock",
                     props: {
                       items: [
-                        "Experienced and professional team",
-                        "Quality service guaranteed",
-                        "Competitive pricing",
-                        "Customer satisfaction is our priority"
+                        "Licensed & Certified Professionals",
+                        "24/7 Emergency Service Available", 
+                        "100% Satisfaction Guarantee",
+                        "Competitive & Transparent Pricing"
                       ],
                       style: "check",
                       spacing: "normal"
@@ -278,20 +293,20 @@ export const AboutBlock: ComponentConfig = {
                   },
                   {
                     type: "SpacerBlock",
-                    props: { height: 24 }
+                    props: { height: 32 }
                   },
                   {
                     type: "ButtonBlock",
                     props: {
                       text: "Learn More",
-                      link: "#contact",
+                      link: "#services",
                       variant: "default",
                       size: "default"
                     }
                   }
                 ]
               },
-              // Second Column - Image
+              // Image Column
               {
                 type: "ColumnContentBlock",
                 props: {},
@@ -299,7 +314,7 @@ export const AboutBlock: ComponentConfig = {
                   {
                     type: "ImageBlock",
                     props: {
-                      src: businessData?.photos?.[0] || "https://images.unsplash.com/photo-1556761175-4b46a572b786",
+                      src: businessData?.photos?.[1] || "https://images.unsplash.com/photo-1556761175-4b46a572b786",
                       alt: "About our business",
                       rounded: "lg",
                       width: "full"
@@ -317,10 +332,17 @@ export const AboutBlock: ComponentConfig = {
   category: "Section"
 };
 
-// Services Section Block - Template
+// Services Section Block
 export const ServicesBlock: ComponentConfig = {
   fields: {},
-  render: (_props, _editMode, _business) => null,
+  render: (_props, _editMode, _business) => {
+    return (
+      <div className="p-8 text-center bg-muted rounded-lg">
+        <p className="text-muted-foreground">Services Section Template</p>
+        <p className="text-sm text-muted-foreground mt-2">This is a template - drag and drop to expand</p>
+      </div>
+    );
+  },
   isTemplate: true,
   template: (_business?: unknown) => {
     return [
@@ -329,7 +351,7 @@ export const ServicesBlock: ComponentConfig = {
         props: {
           width: "container",
           verticalPadding: "large",
-          backgroundColor: "default"
+          backgroundColor: "muted"
         },
         children: [
           {
@@ -347,7 +369,7 @@ export const ServicesBlock: ComponentConfig = {
           {
             type: "TextBlock",
             props: {
-              content: "What we offer",
+              content: "Choose the perfect solution for your needs",
               variant: "lead",
               align: "center"
             }
@@ -368,6 +390,7 @@ export const ServicesBlock: ComponentConfig = {
               {
                 type: "CardBlock",
                 props: {
+                  title: "Professional Service",
                   variant: "default"
                 },
                 children: [
@@ -387,34 +410,35 @@ export const ServicesBlock: ComponentConfig = {
                   {
                     type: "TextBlock",
                     props: {
-                      content: "Professional Service",
-                      variant: "h4",
+                      content: "Starting at",
+                      variant: "small",
                       align: "center"
                     }
-                  },
-                  {
-                    type: "SpacerBlock",
-                    props: { height: 8 }
                   },
                   {
                     type: "TextBlock",
                     props: {
                       content: "$99",
-                      variant: "h3",
+                      variant: "h2",
                       align: "center",
                       color: "#3B82F6"
                     }
                   },
                   {
                     type: "SpacerBlock",
-                    props: { height: 16 }
+                    props: { height: 24 }
                   },
                   {
-                    type: "TextBlock",
+                    type: "ListBlock",
                     props: {
-                      content: "Our core service offering with professional expertise and quality results guaranteed.",
-                      variant: "muted",
-                      align: "center"
+                      items: [
+                        "Professional consultation",
+                        "Quality materials",
+                        "Expert installation",
+                        "30-day warranty"
+                      ],
+                      style: "check",
+                      spacing: "compact"
                     }
                   },
                   {
@@ -424,10 +448,10 @@ export const ServicesBlock: ComponentConfig = {
                   {
                     type: "ButtonBlock",
                     props: {
-                      text: "Book Now",
+                      text: "Get Started",
                       link: "#contact",
                       variant: "outline",
-                      size: "sm",
+                      size: "default",
                       fullWidth: "full"
                     }
                   }
@@ -437,9 +461,24 @@ export const ServicesBlock: ComponentConfig = {
               {
                 type: "CardBlock",
                 props: {
+                  title: "Premium Service",
                   variant: "default"
                 },
                 children: [
+                  {
+                    type: "BadgeBlock",
+                    props: {
+                      type: "custom",
+                      text: "MOST POPULAR",
+                      color: "warning",
+                      size: "small",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
                   {
                     type: "IconBlock",
                     props: {
@@ -456,34 +495,35 @@ export const ServicesBlock: ComponentConfig = {
                   {
                     type: "TextBlock",
                     props: {
-                      content: "Premium Service",
-                      variant: "h4",
+                      content: "Starting at",
+                      variant: "small",
                       align: "center"
                     }
-                  },
-                  {
-                    type: "SpacerBlock",
-                    props: { height: 8 }
                   },
                   {
                     type: "TextBlock",
                     props: {
                       content: "$149",
-                      variant: "h3",
+                      variant: "h2",
                       align: "center",
                       color: "#EAB308"
                     }
                   },
                   {
                     type: "SpacerBlock",
-                    props: { height: 16 }
+                    props: { height: 24 }
                   },
                   {
-                    type: "TextBlock",
+                    type: "ListBlock",
                     props: {
-                      content: "Enhanced service package with additional features and priority support included.",
-                      variant: "muted",
-                      align: "center"
+                      items: [
+                        "Everything in Professional",
+                        "Priority scheduling",
+                        "Premium materials",
+                        "1-year warranty"
+                      ],
+                      style: "check",
+                      spacing: "compact"
                     }
                   },
                   {
@@ -493,10 +533,10 @@ export const ServicesBlock: ComponentConfig = {
                   {
                     type: "ButtonBlock",
                     props: {
-                      text: "Book Now",
+                      text: "Get Started",
                       link: "#contact",
                       variant: "default",
-                      size: "sm",
+                      size: "default",
                       fullWidth: "full"
                     }
                   }
@@ -506,6 +546,7 @@ export const ServicesBlock: ComponentConfig = {
               {
                 type: "CardBlock",
                 props: {
+                  title: "Complete Care",
                   variant: "default"
                 },
                 children: [
@@ -525,34 +566,35 @@ export const ServicesBlock: ComponentConfig = {
                   {
                     type: "TextBlock",
                     props: {
-                      content: "Complete Care",
-                      variant: "h4",
+                      content: "Starting at",
+                      variant: "small",
                       align: "center"
                     }
-                  },
-                  {
-                    type: "SpacerBlock",
-                    props: { height: 8 }
                   },
                   {
                     type: "TextBlock",
                     props: {
                       content: "$199",
-                      variant: "h3",
+                      variant: "h2",
                       align: "center",
                       color: "#10B981"
                     }
                   },
                   {
                     type: "SpacerBlock",
-                    props: { height: 16 }
+                    props: { height: 24 }
                   },
                   {
-                    type: "TextBlock",
+                    type: "ListBlock",
                     props: {
-                      content: "Comprehensive service solution with ongoing support and maintenance included.",
-                      variant: "muted",
-                      align: "center"
+                      items: [
+                        "Everything in Premium",
+                        "Annual maintenance",
+                        "Emergency service",
+                        "Lifetime warranty"
+                      ],
+                      style: "check",
+                      spacing: "compact"
                     }
                   },
                   {
@@ -562,10 +604,10 @@ export const ServicesBlock: ComponentConfig = {
                   {
                     type: "ButtonBlock",
                     props: {
-                      text: "Book Now",
+                      text: "Get Started",
                       link: "#contact",
                       variant: "outline",
-                      size: "sm",
+                      size: "default",
                       fullWidth: "full"
                     }
                   }
@@ -581,14 +623,28 @@ export const ServicesBlock: ComponentConfig = {
   category: "Section"
 };
 
-// Gallery Section Block - Template
+// Gallery Section Block
 export const GalleryBlock: ComponentConfig = {
   fields: {},
-  render: (_props, _editMode, _business) => null,
+  render: (_props, _editMode, _business) => {
+    return (
+      <div className="p-8 text-center bg-muted rounded-lg">
+        <p className="text-muted-foreground">Gallery Section Template</p>
+        <p className="text-sm text-muted-foreground mt-2">This is a template - drag and drop to expand</p>
+      </div>
+    );
+  },
   isTemplate: true,
   template: (business?: unknown) => {
     const businessData = business as Doc<"businesses"> | undefined;
-    const galleryImages = businessData?.photos || [];
+    const galleryImages = businessData?.photos || [
+      "https://images.unsplash.com/photo-1497366216548-37526070297c",
+      "https://images.unsplash.com/photo-1497366811353-6870744d04b2",
+      "https://images.unsplash.com/photo-1497366754035-f200968a6e72",
+      "https://images.unsplash.com/photo-1497366412874-3415097a27e7",
+      "https://images.unsplash.com/photo-1497366672149-e5e4b4d34eb3",
+      "https://images.unsplash.com/photo-1497366858526-0766cadbe8fa"
+    ];
     
     return [
       {
@@ -602,8 +658,20 @@ export const GalleryBlock: ComponentConfig = {
           {
             type: "TextBlock",
             props: {
-              content: "Photo Gallery",
+              content: "Our Work",
               variant: "h2",
+              align: "center"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 16 }
+          },
+          {
+            type: "TextBlock",
+            props: {
+              content: "Browse through our portfolio of completed projects",
+              variant: "lead",
               align: "center"
             }
           },
@@ -614,14 +682,7 @@ export const GalleryBlock: ComponentConfig = {
           {
             type: "GalleryGridBlock",
             props: {
-              images: galleryImages.length > 0 ? galleryImages : [
-                "https://images.unsplash.com/photo-1497366216548-37526070297c",
-                "https://images.unsplash.com/photo-1497366811353-6870744d04b2",
-                "https://images.unsplash.com/photo-1497366754035-f200968a6e72",
-                "https://images.unsplash.com/photo-1497366412874-3415097a27e7",
-                "https://images.unsplash.com/photo-1497366672149-e5e4b4d34eb3",
-                "https://images.unsplash.com/photo-1497366858526-0766cadbe8fa"
-              ],
+              images: galleryImages,
               columns: "3",
               gap: "medium",
               aspectRatio: "square"
@@ -635,10 +696,843 @@ export const GalleryBlock: ComponentConfig = {
   category: "Section"
 };
 
-// Testimonials Section Block - Template
+// Contact Section Block
+export const ContactBlock: ComponentConfig = {
+  fields: {},
+  render: (_props, _editMode, _business) => {
+    return (
+      <div className="p-8 text-center bg-muted rounded-lg">
+        <p className="text-muted-foreground">Contact Section Template</p>
+        <p className="text-sm text-muted-foreground mt-2">This is a template - drag and drop to expand</p>
+      </div>
+    );
+  },
+  isTemplate: true,
+  template: (business?: unknown) => {
+    const businessData = business as Doc<"businesses"> | undefined;
+    
+    return [
+      {
+        type: "SectionBlock",
+        props: {
+          width: "container",
+          verticalPadding: "large",
+          backgroundColor: "muted"
+        },
+        children: [
+          {
+            type: "TextBlock",
+            props: {
+              content: "Get in Touch",
+              variant: "h2",
+              align: "center"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 16 }
+          },
+          {
+            type: "TextBlock",
+            props: {
+              content: "We're here to help and answer any question you might have",
+              variant: "lead",
+              align: "center"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 48 }
+          },
+          {
+            type: "ColumnsBlock",
+            props: {
+              columns: "3",
+              gap: "large",
+              stackOnMobile: "yes"
+            },
+            children: [
+              // Address Card
+              {
+                type: "CardBlock",
+                props: {
+                  variant: "default"
+                },
+                children: [
+                  {
+                    type: "IconBlock",
+                    props: {
+                      icon: "mapPin",
+                      size: "large",
+                      color: "#3B82F6",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Visit Us",
+                      variant: "h4",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 8 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: businessData?.address || "123 Main Street, Your City, ST 12345",
+                      variant: "paragraph",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "ButtonBlock",
+                    props: {
+                      text: "Get Directions",
+                      link: businessData?.address ? `https://maps.google.com/?q=${encodeURIComponent(businessData.address)}` : "#",
+                      variant: "outline",
+                      size: "sm",
+                      align: "center"
+                    }
+                  }
+                ]
+              },
+              // Phone Card
+              {
+                type: "CardBlock",
+                props: {
+                  variant: "default"
+                },
+                children: [
+                  {
+                    type: "IconBlock",
+                    props: {
+                      icon: "phone",
+                      size: "large",
+                      color: "#10B981",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Call Us",
+                      variant: "h4",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 8 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: businessData?.phone || "(555) 123-4567",
+                      variant: "h3",
+                      align: "center",
+                      color: "#10B981"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "ButtonBlock",
+                    props: {
+                      text: "Call Now",
+                      link: `tel:${businessData?.phone || "5551234567"}`,
+                      variant: "default",
+                      size: "sm",
+                      align: "center"
+                    }
+                  }
+                ]
+              },
+              // Hours Card
+              {
+                type: "CardBlock",
+                props: {
+                  variant: "default"
+                },
+                children: [
+                  {
+                    type: "IconBlock",
+                    props: {
+                      icon: "clock",
+                      size: "large",
+                      color: "#8B5CF6",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Business Hours",
+                      variant: "h4",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "BusinessHoursBlock",
+                    props: {
+                      layout: "compact",
+                      showToday: "yes",
+                      showStatus: "yes"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 48 }
+          },
+          {
+            type: "ContactFormBlock",
+            props: {
+              submitText: "Send Message",
+              showPhone: "yes"
+            }
+          }
+        ]
+      }
+    ];
+  },
+  icon: Phone,
+  category: "Section"
+};
+
+// Team Section Block
+export const TeamBlock: ComponentConfig = {
+  fields: {},
+  render: (_props, _editMode, _business) => {
+    return (
+      <div className="p-8 text-center bg-muted rounded-lg">
+        <p className="text-muted-foreground">Team Section Template</p>
+        <p className="text-sm text-muted-foreground mt-2">This is a template - drag and drop to expand</p>
+      </div>
+    );
+  },
+  isTemplate: true,
+  template: (_business?: unknown) => {
+    return [
+      {
+        type: "SectionBlock",
+        props: {
+          width: "container",
+          verticalPadding: "large",
+          backgroundColor: "default"
+        },
+        children: [
+          {
+            type: "TextBlock",
+            props: {
+              content: "Meet Our Team",
+              variant: "h2",
+              align: "center"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 16 }
+          },
+          {
+            type: "TextBlock",
+            props: {
+              content: "Dedicated professionals committed to delivering excellence",
+              variant: "lead",
+              align: "center"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 48 }
+          },
+          {
+            type: "ColumnsBlock",
+            props: {
+              columns: "4",
+              gap: "medium",
+              stackOnMobile: "yes"
+            },
+            children: [
+              // Team Member 1
+              {
+                type: "CardBlock",
+                props: {
+                  variant: "default"
+                },
+                children: [
+                  {
+                    type: "ImageBlock",
+                    props: {
+                      src: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
+                      alt: "John Smith",
+                      rounded: "full",
+                      width: "narrow"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "John Smith",
+                      variant: "h4",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "CEO & Founder",
+                      variant: "small",
+                      align: "center",
+                      color: "#3B82F6"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 12 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "20+ years of industry experience leading teams to deliver exceptional results.",
+                      variant: "small",
+                      align: "center"
+                    }
+                  }
+                ]
+              },
+              // Team Member 2
+              {
+                type: "CardBlock",
+                props: {
+                  variant: "default"
+                },
+                children: [
+                  {
+                    type: "ImageBlock",
+                    props: {
+                      src: "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
+                      alt: "Sarah Johnson",
+                      rounded: "full",
+                      width: "narrow"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Sarah Johnson",
+                      variant: "h4",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Operations Manager",
+                      variant: "small",
+                      align: "center",
+                      color: "#3B82F6"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 12 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Streamlining operations and ensuring every customer receives exceptional service.",
+                      variant: "small",
+                      align: "center"
+                    }
+                  }
+                ]
+              },
+              // Team Member 3
+              {
+                type: "CardBlock",
+                props: {
+                  variant: "default"
+                },
+                children: [
+                  {
+                    type: "ImageBlock",
+                    props: {
+                      src: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
+                      alt: "Michael Chen",
+                      rounded: "full",
+                      width: "narrow"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Michael Chen",
+                      variant: "h4",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Lead Technician",
+                      variant: "small",
+                      align: "center",
+                      color: "#3B82F6"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 12 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Expert technician with 10+ years experience solving complex challenges.",
+                      variant: "small",
+                      align: "center"
+                    }
+                  }
+                ]
+              },
+              // Team Member 4
+              {
+                type: "CardBlock",
+                props: {
+                  variant: "default"
+                },
+                children: [
+                  {
+                    type: "ImageBlock",
+                    props: {
+                      src: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
+                      alt: "Emily Davis",
+                      rounded: "full",
+                      width: "narrow"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Emily Davis",
+                      variant: "h4",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Customer Success",
+                      variant: "small",
+                      align: "center",
+                      color: "#3B82F6"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 12 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Passionate about building lasting relationships and exceeding expectations.",
+                      variant: "small",
+                      align: "center"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ];
+  },
+  icon: Users,
+  category: "Section"
+};
+
+// CTA Section Block
+export const CTABlock: ComponentConfig = {
+  fields: {},
+  render: (_props, _editMode, _business) => {
+    return (
+      <div className="p-8 text-center bg-primary/10 rounded-lg">
+        <p className="text-muted-foreground">CTA Section Template</p>
+        <p className="text-sm text-muted-foreground mt-2">This is a template - drag and drop to expand</p>
+      </div>
+    );
+  },
+  isTemplate: true,
+  template: (_business?: unknown) => {
+    return [
+      {
+        type: "SectionBlock",
+        props: {
+          width: "full",
+          verticalPadding: "large",
+          backgroundColor: "primary",
+          backgroundImage: "https://images.unsplash.com/photo-1497366216548-37526070297c",
+          backgroundImageStyle: "cover",
+          overlayOpacity: 0.8
+        },
+        children: [
+          {
+            type: "BadgeBlock",
+            props: {
+              type: "custom",
+              text: "LIMITED TIME OFFER",
+              color: "warning",
+              size: "medium",
+              align: "center"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 24 }
+          },
+          {
+            type: "TextBlock",
+            props: {
+              content: "Ready to Transform Your Space?",
+              variant: "h1",
+              align: "center",
+              color: "#FFFFFF"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 24 }
+          },
+          {
+            type: "TextBlock",
+            props: {
+              content: "Join thousands of satisfied customers. Get a free consultation and 20% off your first service.",
+              variant: "lead",
+              align: "center",
+              color: "#E5E7EB"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 48 }
+          },
+          {
+            type: "ColumnsBlock",
+            props: {
+              columns: "2",
+              gap: "medium",
+              stackOnMobile: "yes"
+            },
+            children: [
+              {
+                type: "ButtonBlock",
+                props: {
+                  text: "Get Free Quote",
+                  link: "#contact",
+                  variant: "secondary",
+                  size: "lg",
+                  align: "right",
+                  fullWidth: "mobile"
+                }
+              },
+              {
+                type: "ButtonBlock",
+                props: {
+                  text: "Call Now",
+                  link: "tel:5551234567",
+                  variant: "outline",
+                  size: "lg",
+                  align: "left",
+                  fullWidth: "mobile"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ];
+  },
+  icon: Target,
+  category: "Section"
+};
+
+// Footer Section Block
+export const FooterBlock: ComponentConfig = {
+  fields: {},
+  render: (_props, _editMode, _business) => {
+    return (
+      <div className="p-8 text-center bg-muted rounded-lg">
+        <p className="text-muted-foreground">Footer Section Template</p>
+        <p className="text-sm text-muted-foreground mt-2">This is a template - drag and drop to expand</p>
+      </div>
+    );
+  },
+  isTemplate: true,
+  template: (business?: unknown) => {
+    const businessData = business as Doc<"businesses"> | undefined;
+    
+    return [
+      {
+        type: "SectionBlock",
+        props: {
+          width: "container",
+          verticalPadding: "large",
+          backgroundColor: "muted"
+        },
+        children: [
+          {
+            type: "ColumnsBlock",
+            props: {
+              columns: "4",
+              gap: "large",
+              stackOnMobile: "yes"
+            },
+            children: [
+              // Business Info Column
+              {
+                type: "ColumnContentBlock",
+                props: {},
+                children: [
+                  {
+                    type: "LogoBlock",
+                    props: {
+                      size: "medium",
+                      align: "left",
+                      logoText: businessData?.name || "Your Business"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Your trusted local partner for quality service.",
+                      variant: "small",
+                      align: "left"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 24 }
+                  },
+                  {
+                    type: "SocialLinksBlock",
+                    props: {
+                      platforms: [
+                        { platform: "facebook", url: "https://facebook.com" },
+                        { platform: "instagram", url: "https://instagram.com" },
+                        { platform: "twitter", url: "https://twitter.com" }
+                      ],
+                      style: "icons",
+                      size: "small",
+                      gap: "small"
+                    }
+                  }
+                ]
+              },
+              // Quick Links Column
+              {
+                type: "ColumnContentBlock",
+                props: {},
+                children: [
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Quick Links",
+                      variant: "h4",
+                      align: "left"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "ListBlock",
+                    props: {
+                      items: ["About Us", "Services", "Gallery", "Contact"],
+                      style: "none",
+                      spacing: "normal"
+                    }
+                  }
+                ]
+              },
+              // Services Column
+              {
+                type: "ColumnContentBlock",
+                props: {},
+                children: [
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Our Services",
+                      variant: "h4",
+                      align: "left"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "ListBlock",
+                    props: {
+                      items: ["Professional Service", "Premium Service", "Complete Care", "Consultation"],
+                      style: "none",
+                      spacing: "normal"
+                    }
+                  }
+                ]
+              },
+              // Contact Column
+              {
+                type: "ColumnContentBlock",
+                props: {},
+                children: [
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Get in Touch",
+                      variant: "h4",
+                      align: "left"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  ...(businessData?.phone ? [
+                    {
+                      type: "TextBlock",
+                      props: {
+                        content: businessData.phone,
+                        variant: "small",
+                        align: "left"
+                      }
+                    },
+                    {
+                      type: "SpacerBlock",
+                      props: { height: 8 }
+                    }
+                  ] : []),
+                  ...(businessData?.email ? [
+                    {
+                      type: "TextBlock",
+                      props: {
+                        content: businessData.email,
+                        variant: "small",
+                        align: "left"
+                      }
+                    },
+                    {
+                      type: "SpacerBlock",
+                      props: { height: 8 }
+                    }
+                  ] : []),
+                  ...(businessData?.address ? [
+                    {
+                      type: "TextBlock",
+                      props: {
+                        content: businessData.address,
+                        variant: "small",
+                        align: "left"
+                      }
+                    }
+                  ] : [])
+                ]
+              }
+            ]
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 48 }
+          },
+          {
+            type: "DividerBlock",
+            props: {
+              style: "solid",
+              width: "full",
+              opacity: 20
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 24 }
+          },
+          {
+            type: "TextBlock",
+            props: {
+              content: `© ${new Date().getFullYear()} ${businessData?.name || "Your Business"}. All rights reserved.`,
+              variant: "small",
+              align: "center"
+            }
+          }
+        ]
+      }
+    ];
+  },
+  icon: Columns3,
+  category: "Section"
+};
+
+// Testimonials Section Block
 export const TestimonialsBlock: ComponentConfig = {
   fields: {},
-  render: (_props, _editMode, _business) => null,
+  render: (_props, _editMode, _business) => {
+    return (
+      <div className="p-8 text-center bg-muted rounded-lg">
+        <p className="text-muted-foreground">Testimonials Section Template</p>
+        <p className="text-sm text-muted-foreground mt-2">This is a template - drag and drop to expand</p>
+      </div>
+    );
+  },
   isTemplate: true,
   template: (_business?: unknown) => {
     return [
@@ -726,8 +1620,7 @@ export const TestimonialsBlock: ComponentConfig = {
                     props: {
                       content: "Local Business Owner",
                       variant: "small",
-                      align: "left",
-                      color: "#6B7280"
+                      align: "left"
                     }
                   }
                 ]
@@ -788,8 +1681,7 @@ export const TestimonialsBlock: ComponentConfig = {
                     props: {
                       content: "Happy Customer",
                       variant: "small",
-                      align: "left",
-                      color: "#6B7280"
+                      align: "left"
                     }
                   }
                 ]
@@ -850,8 +1742,7 @@ export const TestimonialsBlock: ComponentConfig = {
                     props: {
                       content: "Satisfied Client",
                       variant: "small",
-                      align: "left",
-                      color: "#6B7280"
+                      align: "left"
                     }
                   }
                 ]
@@ -863,780 +1754,5 @@ export const TestimonialsBlock: ComponentConfig = {
     ];
   },
   icon: Star,
-  category: "Section"
-};
-
-// Contact Section Block - Template
-export const ContactBlock: ComponentConfig = {
-  fields: {},
-  render: (_props, _editMode, _business) => null,
-  isTemplate: true,
-  template: (business?: unknown) => {
-    const businessData = business as Doc<"businesses"> | undefined;
-    
-    return [
-      {
-        type: "SectionBlock",
-        props: {
-          width: "container",
-          verticalPadding: "large",
-          backgroundColor: "default"
-        },
-        children: [
-          {
-            type: "TextBlock",
-            props: {
-              content: "Get in Touch",
-              variant: "h2",
-              align: "center"
-            }
-          },
-          {
-            type: "SpacerBlock",
-            props: { height: 16 }
-          },
-          {
-            type: "TextBlock",
-            props: {
-              content: "We'd love to hear from you",
-              variant: "lead",
-              align: "center"
-            }
-          },
-          {
-            type: "SpacerBlock",
-            props: { height: 48 }
-          },
-          {
-            type: "ColumnsBlock",
-            props: {
-              columns: "2",
-              gap: "large",
-              stackOnMobile: "yes"
-            },
-            children: [
-              // Contact Information Column
-              {
-                type: "TextBlock",
-                props: {
-                  content: "Contact Information",
-                  variant: "h3",
-                  align: "left"
-                }
-              },
-              {
-                type: "SpacerBlock",
-                props: { height: 24 }
-              },
-              // Phone
-              ...(businessData?.phone ? [
-                {
-                  type: "ColumnsBlock",
-                  props: {
-                    columns: "2",
-                    gap: "small",
-                    stackOnMobile: "no"
-                  },
-                  children: [
-                    {
-                      type: "IconBlock",
-                      props: {
-                        icon: "phone",
-                        size: "medium",
-                        color: "#3B82F6"
-                      }
-                    },
-                    {
-                      type: "TextBlock",
-                      props: {
-                        content: businessData.phone,
-                        variant: "paragraph",
-                        align: "left"
-                      }
-                    }
-                  ]
-                },
-                {
-                  type: "SpacerBlock",
-                  props: { height: 16 }
-                }
-              ] : []),
-              // Email
-              ...(businessData?.email ? [
-                {
-                  type: "ColumnsBlock",
-                  props: {
-                    columns: "2",
-                    gap: "small",
-                    stackOnMobile: "no"
-                  },
-                  children: [
-                    {
-                      type: "IconBlock",
-                      props: {
-                        icon: "mail",
-                        size: "medium",
-                        color: "#3B82F6"
-                      }
-                    },
-                    {
-                      type: "TextBlock",
-                      props: {
-                        content: businessData.email,
-                        variant: "paragraph",
-                        align: "left"
-                      }
-                    }
-                  ]
-                },
-                {
-                  type: "SpacerBlock",
-                  props: { height: 16 }
-                }
-              ] : []),
-              // Address
-              ...(businessData?.address ? [
-                {
-                  type: "ColumnsBlock",
-                  props: {
-                    columns: "2",
-                    gap: "small",
-                    stackOnMobile: "no"
-                  },
-                  children: [
-                    {
-                      type: "IconBlock",
-                      props: {
-                        icon: "mapPin",
-                        size: "medium",
-                        color: "#3B82F6"
-                      }
-                    },
-                    {
-                      type: "TextBlock",
-                      props: {
-                        content: businessData.address,
-                        variant: "paragraph",
-                        align: "left"
-                      }
-                    }
-                  ]
-                },
-                {
-                  type: "SpacerBlock",
-                  props: { height: 32 }
-                }
-              ] : []),
-              {
-                type: "ButtonBlock",
-                props: {
-                  text: "Get Directions",
-                  link: businessData?.address ? `https://maps.google.com/?q=${encodeURIComponent(businessData.address)}` : "#",
-                  variant: "outline",
-                  size: "default"
-                }
-              }
-            ]
-          },
-          // Business Hours Column
-          {
-            type: "CardBlock",
-            props: {
-              title: "Business Hours",
-              variant: "default"
-            },
-            children: [
-              {
-                type: "BusinessHoursBlock",
-                props: {
-                  layout: "list",
-                  showToday: "yes",
-                  showStatus: "yes"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        type: "SpacerBlock",
-        props: { height: 48 }
-      },
-      // CTA Button
-      {
-        type: "ButtonBlock",
-        props: {
-          text: "Book Appointment",
-          link: "#booking",
-          variant: "default",
-          size: "lg",
-          align: "center"
-        }
-      }
-    ]
-  },
-  icon: Phone,
-  category: "Section"
-};
-
-// Team Section Block - Template
-export const TeamBlock: ComponentConfig = {
-  fields: {},
-  render: (_props, _editMode, _business) => null,
-  isTemplate: true,
-  template: (_business?: unknown) => {
-    return [
-      {
-        type: "SectionBlock",
-        props: {
-          width: "container",
-          verticalPadding: "large",
-          backgroundColor: "muted"
-        },
-        children: [
-          {
-            type: "TextBlock",
-            props: {
-              content: "Meet Our Team",
-              variant: "h2",
-              align: "center"
-            }
-          },
-          {
-            type: "SpacerBlock",
-            props: { height: 16 }
-          },
-          {
-            type: "TextBlock",
-            props: {
-              content: "The people behind our success",
-              variant: "lead",
-              align: "center"
-            }
-          },
-          {
-            type: "SpacerBlock",
-            props: { height: 48 }
-          },
-          {
-            type: "ColumnsBlock",
-            props: {
-              columns: "4",
-              gap: "medium",
-              stackOnMobile: "yes"
-            },
-            children: [
-              // Team Member 1
-              {
-                type: "CardBlock",
-                props: {
-                  variant: "default"
-                },
-                children: [
-                  {
-                    type: "ImageBlock",
-                    props: {
-                      src: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
-                      alt: "Team member",
-                      rounded: "full",
-                      width: "narrow"
-                    }
-                  },
-                  {
-                    type: "SpacerBlock",
-                    props: { height: 16 }
-                  },
-                  {
-                    type: "TextBlock",
-                    props: {
-                      content: "John Smith",
-                      variant: "h4",
-                      align: "center"
-                    }
-                  },
-                  {
-                    type: "TextBlock",
-                    props: {
-                      content: "CEO & Founder",
-                      variant: "small",
-                      align: "center",
-                      color: "#3B82F6"
-                    }
-                  },
-                  {
-                    type: "SpacerBlock",
-                    props: { height: 12 }
-                  },
-                  {
-                    type: "TextBlock",
-                    props: {
-                      content: "Leading our company with vision and dedication to excellence.",
-                      variant: "small",
-                      align: "center"
-                    }
-                  }
-                ]
-              },
-              // Team Member 2
-              {
-                type: "CardBlock",
-                props: {
-                  variant: "default"
-                },
-                children: [
-                  {
-                    type: "ImageBlock",
-                    props: {
-                      src: "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
-                      alt: "Team member",
-                      rounded: "full",
-                      width: "narrow"
-                    }
-                  },
-                  {
-                    type: "SpacerBlock",
-                    props: { height: 16 }
-                  },
-                  {
-                    type: "TextBlock",
-                    props: {
-                      content: "Sarah Johnson",
-                      variant: "h4",
-                      align: "center"
-                    }
-                  },
-                  {
-                    type: "TextBlock",
-                    props: {
-                      content: "Operations Manager",
-                      variant: "small",
-                      align: "center",
-                      color: "#3B82F6"
-                    }
-                  },
-                  {
-                    type: "SpacerBlock",
-                    props: { height: 12 }
-                  },
-                  {
-                    type: "TextBlock",
-                    props: {
-                      content: "Ensuring smooth operations and exceptional customer service.",
-                      variant: "small",
-                      align: "center"
-                    }
-                  }
-                ]
-              },
-              // Team Member 3
-              {
-                type: "CardBlock",
-                props: {
-                  variant: "default"
-                },
-                children: [
-                  {
-                    type: "ImageBlock",
-                    props: {
-                      src: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
-                      alt: "Team member",
-                      rounded: "full",
-                      width: "narrow"
-                    }
-                  },
-                  {
-                    type: "SpacerBlock",
-                    props: { height: 16 }
-                  },
-                  {
-                    type: "TextBlock",
-                    props: {
-                      content: "Michael Chen",
-                      variant: "h4",
-                      align: "center"
-                    }
-                  },
-                  {
-                    type: "TextBlock",
-                    props: {
-                      content: "Lead Technician",
-                      variant: "small",
-                      align: "center",
-                      color: "#3B82F6"
-                    }
-                  },
-                  {
-                    type: "SpacerBlock",
-                    props: { height: 12 }
-                  },
-                  {
-                    type: "TextBlock",
-                    props: {
-                      content: "Expert technician with over 10 years of experience.",
-                      variant: "small",
-                      align: "center"
-                    }
-                  }
-                ]
-              },
-              // Team Member 4
-              {
-                type: "CardBlock",
-                props: {
-                  variant: "default"
-                },
-                children: [
-                  {
-                    type: "ImageBlock",
-                    props: {
-                      src: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
-                      alt: "Team member",
-                      rounded: "full",
-                      width: "narrow"
-                    }
-                  },
-                  {
-                    type: "SpacerBlock",
-                    props: { height: 16 }
-                  },
-                  {
-                    type: "TextBlock",
-                    props: {
-                      content: "Emily Davis",
-                      variant: "h4",
-                      align: "center"
-                    }
-                  },
-                  {
-                    type: "TextBlock",
-                    props: {
-                      content: "Customer Success",
-                      variant: "small",
-                      align: "center",
-                      color: "#3B82F6"
-                    }
-                  },
-                  {
-                    type: "SpacerBlock",
-                    props: { height: 12 }
-                  },
-                  {
-                    type: "TextBlock",
-                    props: {
-                      content: "Dedicated to ensuring customer satisfaction and success.",
-                      variant: "small",
-                      align: "center"
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ];
-  },
-  icon: Users,
-  category: "Section"
-};
-
-// CTA Section Block - Template
-export const CTABlock: ComponentConfig = {
-  fields: {},
-  render: (_props, _editMode, _business) => null,
-  isTemplate: true,
-  template: (_business?: unknown) => {
-    return [
-      {
-        type: "SectionBlock",
-        props: {
-          width: "container",
-          verticalPadding: "xlarge",
-          backgroundColor: "primary",
-          backgroundImage: "https://images.unsplash.com/photo-1497366216548-37526070297c",
-          backgroundImageStyle: "cover",
-          overlayOpacity: 0.8
-        },
-        children: [
-          {
-            type: "TextBlock",
-            props: {
-              content: "Ready to Get Started?",
-              variant: "h1",
-              align: "center"
-            }
-          },
-          {
-            type: "SpacerBlock",
-            props: { height: 24 }
-          },
-          {
-            type: "TextBlock",
-            props: {
-              content: "Join hundreds of satisfied customers who trust us with their needs. Let us help you achieve your goals.",
-              variant: "lead",
-              align: "center"
-            }
-          },
-          {
-            type: "SpacerBlock",
-            props: { height: 40 }
-          },
-          {
-            type: "ColumnsBlock",
-            props: {
-              columns: "2",
-              gap: "small",
-              stackOnMobile: "yes"
-            },
-            children: [
-              {
-                type: "ButtonBlock",
-                props: {
-                  text: "Get Started",
-                  link: "#contact",
-                  variant: "secondary",
-                  size: "lg",
-                  align: "right"
-                }
-              },
-              {
-                type: "ButtonBlock",
-                props: {
-                  text: "Learn More",
-                  link: "#about",
-                  variant: "outline",
-                  size: "lg",
-                  align: "left"
-                }
-              }
-            ]
-          }
-        ]
-      }
-    ];
-  },
-  icon: Target,
-  category: "Section"
-};
-
-// Footer Section Block - Template
-export const FooterBlock: ComponentConfig = {
-  fields: {},
-  render: (_props, _editMode, _business) => null,
-  isTemplate: true,
-  template: (business?: unknown) => {
-    const businessData = business as Doc<"businesses"> | undefined;
-    
-    return [
-      {
-        type: "SectionBlock",
-        props: {
-          width: "container",
-          verticalPadding: "large",
-          backgroundColor: "muted"
-        },
-        children: [
-          {
-            type: "ColumnsBlock",
-            props: {
-              columns: "4",
-              gap: "large",
-              stackOnMobile: "yes"
-            },
-            children: [
-              // Business Info Column
-              {
-                type: "TextBlock",
-                props: {
-                  content: businessData?.name || "Your Business",
-                  variant: "h3",
-                  align: "left"
-                }
-              },
-              {
-                type: "SpacerBlock",
-                props: { height: 16 }
-              },
-              ...(businessData?.address ? [
-                {
-                  type: "TextBlock",
-                  props: {
-                    content: businessData.address,
-                    variant: "small",
-                    align: "left"
-                  }
-                },
-                {
-                  type: "SpacerBlock",
-                  props: { height: 8 }
-                }
-              ] : []),
-              ...(businessData?.phone ? [
-                {
-                  type: "TextBlock",
-                  props: {
-                    content: businessData.phone,
-                    variant: "small",
-                    align: "left"
-                  }
-                },
-                {
-                  type: "SpacerBlock",
-                  props: { height: 8 }
-                }
-              ] : []),
-              ...(businessData?.email ? [
-                {
-                  type: "TextBlock",
-                  props: {
-                    content: businessData.email,
-                    variant: "small",
-                    align: "left"
-                  }
-                }
-              ] : []),
-              // Quick Links Column
-              {
-                type: "TextBlock",
-                props: {
-                  content: "Quick Links",
-                  variant: "h4",
-                  align: "left"
-                }
-              },
-              {
-                type: "SpacerBlock",
-                props: { height: 16 }
-              },
-              {
-                type: "ListBlock",
-                props: {
-                  items: [
-                    "About Us",
-                    "Services",
-                    "Gallery",
-                    "Contact"
-                  ],
-                  style: "bullet",
-                  spacing: "compact"
-                }
-              },
-              // Services Column
-              {
-                type: "TextBlock",
-                props: {
-                  content: "Services",
-                  variant: "h4",
-                  align: "left"
-                }
-              },
-              {
-                type: "SpacerBlock",
-                props: { height: 16 }
-              },
-              {
-                type: "ListBlock",
-                props: {
-                  items: [
-                    "Professional Service",
-                    "Premium Service",
-                    "Complete Care",
-                    "Consultation"
-                  ],
-                  style: "bullet",
-                  spacing: "compact"
-                }
-              },
-              // Connect Column
-              {
-                type: "TextBlock",
-                props: {
-                  content: "Connect With Us",
-                  variant: "h4",
-                  align: "left"
-                }
-              },
-              {
-                type: "SpacerBlock",
-                props: { height: 16 }
-              },
-              {
-                type: "SocialLinksBlock",
-                props: {
-                  platforms: [
-                    { platform: "facebook", url: "https://facebook.com" },
-                    { platform: "instagram", url: "https://instagram.com" },
-                    { platform: "twitter", url: "https://twitter.com" },
-                    { platform: "linkedin", url: "https://linkedin.com" }
-                  ],
-                  style: "icons",
-                  size: "small",
-                  gap: "small"
-                }
-              },
-              {
-                type: "SpacerBlock",
-                props: { height: 24 }
-              },
-              {
-                type: "BadgeBlock",
-                props: {
-                  type: "verified",
-                  text: "Licensed & Insured",
-                  icon: "shield",
-                  size: "small",
-                  color: "success"
-                }
-              }
-            ]
-          },
-          {
-            type: "SpacerBlock",
-            props: { height: 48 }
-          },
-          {
-            type: "DividerBlock",
-            props: {
-              style: "solid",
-              width: "full",
-              opacity: 20
-            }
-          },
-          {
-            type: "SpacerBlock",
-            props: { height: 24 }
-          },
-          {
-            type: "ColumnsBlock",
-            props: {
-              columns: "2",
-              gap: "medium",
-              stackOnMobile: "yes"
-            },
-            children: [
-              {
-                type: "TextBlock",
-                props: {
-                  content: `© ${new Date().getFullYear()} ${businessData?.name || "Your Business"}. All rights reserved.`,
-                  variant: "small",
-                  align: "left"
-                }
-              },
-              {
-                type: "PaymentMethodsBlock",
-                props: {
-                  methods: ["visa", "mastercard", "amex", "paypal"],
-                  size: "small",
-                  showLabel: "no"
-                }
-              }
-            ]
-          }
-        ]
-      }
-    ];
-  },
-  icon: Columns3,
   category: "Section"
 };
