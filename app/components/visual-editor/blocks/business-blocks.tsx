@@ -1,4 +1,3 @@
-import React from "react";
 import { ComponentConfig } from "../types";
 import { 
   Sparkles,
@@ -9,486 +8,11 @@ import {
   Users,
   Target,
   Columns3,
-  Briefcase,
-  Mail,
-  MapPin,
-  ChevronLeft,
-  ChevronRight,
-  X,
-  Clock,
-  Calendar,
-  Lightbulb,
-  Heart,
-  Zap,
-  Shield,
-  Rocket,
-  Globe,
-  Award,
-  TrendingUp,
-  Package,
-  Headphones,
-  Lock,
-  CheckCircle,
-  Gift,
-  MessageCircle
+  Briefcase
 } from "lucide-react";
-import { Button } from "@/app/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { cn } from "@/app/lib/utils";
 import { Doc } from "@/convex/_generated/dataModel";
-import Image from "next/image";
 
-// Icon mapping for services/features
-const iconMap = {
-  lightbulb: Lightbulb,
-  heart: Heart,
-  zap: Zap,
-  shield: Shield,
-  rocket: Rocket,
-  globe: Globe,
-  award: Award,
-  trending: TrendingUp,
-  package: Package,
-  headphones: Headphones,
-  lock: Lock,
-  check: CheckCircle,
-  gift: Gift,
-  briefcase: Briefcase,
-  star: Star,
-  users: Users,
-  target: Target
-};
-
-// Types
-interface ButtonConfig {
-  text: string;
-  link: string;
-  variant?: "default" | "secondary" | "outline" | "ghost";
-}
-
-interface ServiceConfig {
-  icon: string;
-  title: string;
-  description: string;
-  price?: string;
-}
-
-interface ImageConfig {
-  url: string;
-  caption?: string;
-}
-
-interface TestimonialConfig {
-  name: string;
-  role?: string;
-  content: string;
-  rating: number;
-  image?: string;
-}
-
-interface TeamMemberConfig {
-  name: string;
-  role: string;
-  bio?: string;
-  image?: string;
-}
-
-interface FooterColumnConfig {
-  title: string;
-  links?: Array<{ text: string; url: string }>;
-}
-
-// Gallery Component with Lightbox
-const GalleryComponent: React.FC<{
-  title?: string;
-  layout?: string;
-  columns?: number;
-  images?: ImageConfig[] | string[];
-}> = ({ title, layout = "grid", columns = 3, images = [] }) => {
-  // Convert string array to ImageConfig array if needed
-  const imageConfigs: ImageConfig[] = images.map(img => {
-    if (typeof img === "string") {
-      return { url: img, caption: "" };
-    }
-    return img as ImageConfig;
-  });
-  
-  const [lightboxOpen, setLightboxOpen] = React.useState(false);
-  const [currentImage, setCurrentImage] = React.useState(0);
-  
-  const openLightbox = (index: number) => {
-    setCurrentImage(index);
-    setLightboxOpen(true);
-  };
-  
-  const closeLightbox = () => {
-    setLightboxOpen(false);
-  };
-  
-  const goToPrevious = () => {
-    setCurrentImage((prev) => (prev - 1 + images.length) % images.length);
-  };
-  
-  const goToNext = () => {
-    setCurrentImage((prev) => (prev + 1) % images.length);
-  };
-  
-  if (images.length === 0) {
-    return (
-      <div className="py-16">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-muted-foreground">No images in gallery</p>
-        </div>
-      </div>
-    );
-  }
-  
-  const gridColsClasses = {
-    2: "grid-cols-2",
-    3: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
-    4: "grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
-    5: "grid-cols-2 md:grid-cols-3 lg:grid-cols-5",
-    6: "grid-cols-2 md:grid-cols-3 lg:grid-cols-6"
-  };
-  
-  return (
-    <div className="py-16">
-      <div className="container mx-auto px-4">
-        {title && <h2 className="text-3xl font-bold text-center mb-8">{title}</h2>}
-        
-        {layout === "carousel" ? (
-          <div className="relative max-w-4xl mx-auto">
-            <div className="relative aspect-[16/9] overflow-hidden rounded-lg">
-              <Image
-                src={imageConfigs[currentImage]?.url || ""}
-                alt={imageConfigs[currentImage]?.caption || `Image ${currentImage + 1}`}
-                fill
-                className="object-cover cursor-pointer"
-                onClick={() => openLightbox(currentImage)}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
-            </div>
-            <button
-              onClick={goToPrevious}
-              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background/80 hover:bg-background"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            <button
-              onClick={goToNext}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background/80 hover:bg-background"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
-            {imageConfigs[currentImage]?.caption && (
-              <p className="text-center mt-4 text-muted-foreground">
-                {imageConfigs[currentImage].caption}
-              </p>
-            )}
-          </div>
-        ) : (
-          <div className={cn(
-            "grid gap-4",
-            gridColsClasses[columns as keyof typeof gridColsClasses] || gridColsClasses[3]
-          )}>
-            {imageConfigs.map((image, index) => (
-              <div
-                key={index}
-                className={cn(
-                  "relative overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition-opacity",
-                  layout === "masonry" && index % 3 === 0 && "row-span-2"
-                )}
-                onClick={() => openLightbox(index)}
-              >
-                <div className="relative aspect-square">
-                  <Image
-                    src={image.url}
-                    alt={image.caption || `Image ${index + 1}`}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </div>
-                {image.caption && (
-                  <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
-                    <p className="text-white text-sm">{image.caption}</p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-        
-        {/* Lightbox */}
-        {lightboxOpen && (
-          <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
-            <button
-              onClick={closeLightbox}
-              className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white"
-            >
-              <X className="w-6 h-6" />
-            </button>
-            <button
-              onClick={goToPrevious}
-              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            <button
-              onClick={goToNext}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
-            <div className="max-w-4xl max-h-[90vh] relative">
-              <Image
-                src={imageConfigs[currentImage]?.url || ""}
-                alt={imageConfigs[currentImage]?.caption || `Image ${currentImage + 1}`}
-                width={1200}
-                height={800}
-                className="max-w-full max-h-full object-contain"
-              />
-              {imageConfigs[currentImage]?.caption && (
-                <p className="text-white text-center mt-4">
-                  {imageConfigs[currentImage].caption}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Testimonials Carousel Component
-const TestimonialsCarouselComponent: React.FC<{
-  title?: string;
-  layout?: string;
-  testimonials?: TestimonialConfig[] | string[];
-}> = ({ title, layout = "grid", testimonials = [] }) => {
-  // Parse testimonials from string format: "name|role|content|rating|image"
-  const testimonialConfigs: TestimonialConfig[] = testimonials.map(t => {
-    if (typeof t === "string") {
-      const parts = t.split("|");
-      return {
-        name: parts[0] || "Customer",
-        role: parts[1] || "",
-        content: parts[2] || "Great service!",
-        rating: parseInt(parts[3] || "5"),
-        image: parts[4] || ""
-      };
-    }
-    return t as TestimonialConfig;
-  });
-  const [currentTestimonial, setCurrentTestimonial] = React.useState(0);
-  
-  if (testimonialConfigs.length === 0) {
-    return (
-      <div className="py-16">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-muted-foreground">No testimonials to display</p>
-        </div>
-      </div>
-    );
-  }
-  
-  const renderStars = (rating: number) => {
-    return (
-      <div className="flex">
-        {[...Array(5)].map((_, i) => (
-          <Star
-            key={i}
-            className={cn(
-              "w-5 h-5",
-              i < rating 
-                ? "text-yellow-400 fill-yellow-400" 
-                : "text-muted-foreground/30"
-            )}
-          />
-        ))}
-      </div>
-    );
-  };
-  
-  if (layout === "carousel") {
-    return (
-      <div className="py-16 bg-muted/50">
-        <div className="container mx-auto px-4">
-          {title && <h2 className="text-3xl font-bold text-center mb-12">{title}</h2>}
-          <div className="max-w-3xl mx-auto">
-            <Card className="relative">
-              <CardContent className="pt-8 pb-12 px-8">
-                <div className="text-center">
-                  {testimonialConfigs[currentTestimonial].image && (
-                    <div className="relative w-20 h-20 mx-auto mb-4">
-                      <Image
-                        src={testimonialConfigs[currentTestimonial].image}
-                        alt={testimonialConfigs[currentTestimonial].name}
-                        fill
-                        className="rounded-full object-cover"
-                      />
-                    </div>
-                  )}
-                  <div className="mb-4 flex justify-center">
-                    {renderStars(testimonialConfigs[currentTestimonial].rating)}
-                  </div>
-                  <blockquote className="text-lg mb-6 italic">
-                    &ldquo;{testimonialConfigs[currentTestimonial].content}&rdquo;
-                  </blockquote>
-                  <div>
-                    <p className="font-semibold">{testimonialConfigs[currentTestimonial].name}</p>
-                    {testimonialConfigs[currentTestimonial].role && (
-                      <p className="text-sm text-muted-foreground">
-                        {testimonialConfigs[currentTestimonial].role}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-              {testimonialConfigs.length > 1 && (
-                <>
-                  <button
-                    onClick={() => setCurrentTestimonial((prev) => (prev - 1 + testimonialConfigs.length) % testimonialConfigs.length)}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background hover:bg-muted"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => setCurrentTestimonial((prev) => (prev + 1) % testimonialConfigs.length)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background hover:bg-muted"
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-                </>
-              )}
-            </Card>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
-  if (layout === "featured") {
-    const featured = testimonialConfigs[0];
-    const others = testimonialConfigs.slice(1);
-    
-    return (
-      <div className="py-16">
-        <div className="container mx-auto px-4">
-          {title && <h2 className="text-3xl font-bold text-center mb-12">{title}</h2>}
-          <div className="max-w-4xl mx-auto mb-8">
-            <Card className="bg-primary/5 border-primary/20">
-              <CardContent className="p-8">
-                <div className="flex flex-col md:flex-row gap-6 items-center">
-                  {featured.image && (
-                    <div className="relative w-24 h-24 flex-shrink-0">
-                      <Image
-                        src={featured.image}
-                        alt={featured.name}
-                        fill
-                        className="rounded-full object-cover"
-                      />
-                    </div>
-                  )}
-                  <div className="flex-1 text-center md:text-left">
-                    <div className="mb-3">
-                      {renderStars(featured.rating)}
-                    </div>
-                    <blockquote className="text-lg mb-4 italic">
-                      &ldquo;{featured.content}&rdquo;
-                    </blockquote>
-                    <div>
-                      <p className="font-semibold">{featured.name}</p>
-                      {featured.role && (
-                        <p className="text-sm text-muted-foreground">{featured.role}</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          {others.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {others.map((testimonial, index) => (
-                <Card key={index}>
-                  <CardContent className="p-6">
-                    <div className="mb-3">
-                      {renderStars(testimonial.rating)}
-                    </div>
-                    <blockquote className="mb-4 italic">
-                      &ldquo;{testimonial.content}&rdquo;
-                    </blockquote>
-                    <div className="flex items-center gap-3">
-                      {testimonial.image && (
-                        <div className="relative w-10 h-10 flex-shrink-0">
-                          <Image
-                            src={testimonial.image}
-                            alt={testimonial.name}
-                            fill
-                            className="rounded-full object-cover"
-                          />
-                        </div>
-                      )}
-                      <div>
-                        <p className="font-semibold text-sm">{testimonial.name}</p>
-                        {testimonial.role && (
-                          <p className="text-xs text-muted-foreground">{testimonial.role}</p>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-  
-  // Grid layout (default)
-  return (
-    <div className="py-16">
-      <div className="container mx-auto px-4">
-        {title && <h2 className="text-3xl font-bold text-center mb-12">{title}</h2>}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {testimonialConfigs.map((testimonial, index) => (
-            <Card key={index} className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  {testimonial.image && (
-                    <div className="relative w-12 h-12 flex-shrink-0">
-                      <Image
-                        src={testimonial.image}
-                        alt={testimonial.name}
-                        fill
-                        className="rounded-full object-cover"
-                      />
-                    </div>
-                  )}
-                  <div>
-                    <p className="font-semibold">{testimonial.name}</p>
-                    {testimonial.role && (
-                      <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="mb-3">
-                  {renderStars(testimonial.rating)}
-                </div>
-                <blockquote className="italic text-muted-foreground">
-                  &ldquo;{testimonial.content}&rdquo;
-                </blockquote>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
+// No longer needed - removed unused components and types
 
 // Hero Section Block - Returns a group of basic blocks
 export const HeroBlock: ComponentConfig = {
@@ -567,835 +91,1419 @@ export const HeroBlock: ComponentConfig = {
   category: "Section"
 };
 
-// About Section Block
+// About Section Block - Template
 export const AboutBlock: ComponentConfig = {
-  fields: {
-    title: {
-      type: "text",
-      label: "Section Title",
-      defaultValue: "About Us",
-      required: true
-    },
-    content: {
-      type: "textarea",
-      label: "Content",
-      defaultValue: "Tell your story here. Share what makes your business unique and why customers choose you.",
-      rows: 6,
-      required: true
-    },
-    image: {
-      type: "image",
-      label: "Section Image",
-      accept: "image/*"
-    },
-    imagePosition: {
-      type: "select",
-      label: "Image Position",
-      defaultValue: "right",
-      options: [
-        { value: "left", label: "Left" },
-        { value: "right", label: "Right" },
-        { value: "top", label: "Top" },
-        { value: "bottom", label: "Bottom" }
-      ]
-    },
-    backgroundColor: {
-      type: "select",
-      label: "Background Color",
-      defaultValue: "default",
-      options: [
-        { value: "default", label: "Default" },
-        { value: "muted", label: "Muted" },
-        { value: "card", label: "Card" },
-        { value: "accent", label: "Accent" }
-      ]
-    }
-  },
-  render: (props: Record<string, unknown>) => {
-    const { title, content, image, imagePosition = "right", backgroundColor = "default" } = props as {
-      title?: string;
-      content?: string;
-      image?: string;
-      imagePosition?: string;
-      backgroundColor?: string;
-    };
+  fields: {},
+  render: (_props, _editMode, _business) => null,
+  isTemplate: true,
+  template: (business?: unknown) => {
+    const businessData = business as Doc<"businesses"> | undefined;
     
-    const bgClasses = {
-      default: "",
-      muted: "bg-muted",
-      card: "bg-card",
-      accent: "bg-accent/10"
-    };
-    
-    const layoutClasses = {
-      left: "md:flex-row-reverse",
-      right: "md:flex-row",
-      top: "flex-col",
-      bottom: "flex-col-reverse"
-    };
-    
-    return (
-      <div className={cn("py-16", bgClasses[backgroundColor as keyof typeof bgClasses])}>
-        <div className="container mx-auto px-4">
-          <div className={cn(
-            "flex flex-col gap-8 items-center",
-            layoutClasses[imagePosition as keyof typeof layoutClasses]
-          )}>
-            {image && (
-              <div className="flex-1 max-w-lg relative aspect-[4/3]">
-                <Image
-                  src={image} 
-                  alt={title || "About section"}
-                  fill
-                  className="rounded-lg shadow-lg object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
-              </div>
-            )}
-            <div className="flex-1 max-w-2xl">
-              <h2 className="text-3xl font-bold mb-4">{title}</h2>
-              <div className="prose prose-lg max-w-none">
-                <p className="whitespace-pre-wrap">{content}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return [
+      {
+        type: "SectionBlock",
+        props: {
+          width: "container",
+          verticalPadding: "large",
+          backgroundColor: "muted"
+        },
+        children: [
+          {
+            type: "ColumnsBlock",
+            props: {
+              columns: "2",
+              gap: "large",
+              stackOnMobile: "yes"
+            },
+            children: [
+              {
+                type: "TextBlock",
+                props: {
+                  content: "About Us",
+                  variant: "h2",
+                  align: "left"
+                }
+              },
+              {
+                type: "SpacerBlock",
+                props: { height: 16 }
+              },
+              {
+                type: "TextBlock",
+                props: {
+                  content: businessData?.description || "We are a local business dedicated to providing exceptional service to our community. With years of experience and a passion for what we do, we strive to exceed our customers' expectations every day.",
+                  variant: "paragraph",
+                  align: "left"
+                }
+              },
+              {
+                type: "SpacerBlock",
+                props: { height: 24 }
+              },
+              {
+                type: "ListBlock",
+                props: {
+                  items: [
+                    "Experienced and professional team",
+                    "Quality service guaranteed",
+                    "Competitive pricing",
+                    "Customer satisfaction is our priority"
+                  ],
+                  style: "check",
+                  spacing: "normal"
+                }
+              },
+              {
+                type: "SpacerBlock",
+                props: { height: 24 }
+              },
+              {
+                type: "ButtonBlock",
+                props: {
+                  text: "Learn More",
+                  link: "#contact",
+                  variant: "default",
+                  size: "default"
+                }
+              }
+            ]
+          },
+          {
+            type: "ImageBlock",
+            props: {
+              src: businessData?.photos?.[0] || "https://images.unsplash.com/photo-1556761175-4b46a572b786",
+              alt: "About our business",
+              rounded: "lg",
+              width: "full"
+            }
+          }
+        ]
+      }
+    ];
   },
   icon: Info,
   category: "Section"
 };
 
-// Services Section Block
+// Services Section Block - Template
 export const ServicesBlock: ComponentConfig = {
-  fields: {
-    title: {
-      type: "text",
-      label: "Section Title",
-      defaultValue: "Our Services",
-      required: true
-    },
-    subtitle: {
-      type: "text",
-      label: "Section Subtitle",
-      defaultValue: "What we offer",
-      placeholder: "Optional subtitle"
-    },
-    layout: {
-      type: "select",
-      label: "Layout",
-      defaultValue: "grid3",
-      options: [
-        { value: "grid2", label: "2 Column Grid" },
-        { value: "grid3", label: "3 Column Grid" },
-        { value: "grid4", label: "4 Column Grid" },
-        { value: "list", label: "List View" }
-      ]
-    },
-    services: {
-      type: "array",
-      label: "Services",
-      defaultValue: [
-        {
-          icon: "lightbulb",
-          title: "Service One",
-          description: "Description of your first service",
-          price: "$99"
+  fields: {},
+  render: (_props, _editMode, _business) => null,
+  isTemplate: true,
+  template: (_business?: unknown) => {
+    return [
+      {
+        type: "SectionBlock",
+        props: {
+          width: "container",
+          verticalPadding: "large",
+          backgroundColor: "default"
         },
-        {
-          icon: "heart",
-          title: "Service Two", 
-          description: "Description of your second service",
-          price: "$149"
-        },
-        {
-          icon: "zap",
-          title: "Service Three",
-          description: "Description of your third service",
-          price: "$199"
-        }
-      ],
-      itemType: {
-        type: "text",
-        label: "Service",
-        defaultValue: "lightbulb|Service Title|Description of this service|$99"
-      },
-      maxItems: 12
-    },
-    showBookingLinks: {
-      type: "select",
-      label: "Show Booking Links",
-      defaultValue: "no",
-      options: [
-        { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
-    },
-    showDuration: {
-      type: "select",
-      label: "Show Service Duration",
-      defaultValue: "no",
-      options: [
-        { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
-    }
-  },
-  render: (props: Record<string, unknown>) => {
-    const { title, subtitle, layout = "grid3", services = [], showBookingLinks, showDuration } = props as {
-      title?: string;
-      subtitle?: string;
-      layout?: string;
-      services?: ServiceConfig[];
-      showBookingLinks?: string;
-      showDuration?: string;
-    };
-    
-    const layoutClasses = {
-      grid2: "grid-cols-1 md:grid-cols-2",
-      grid3: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
-      grid4: "grid-cols-1 md:grid-cols-2 lg:grid-cols-4",
-      list: "grid-cols-1"
-    };
-    
-    return (
-      <div className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">{title}</h2>
-            {subtitle && <p className="text-lg text-muted-foreground">{subtitle}</p>}
-          </div>
-          <div className={cn("grid gap-6", layoutClasses[layout as keyof typeof layoutClasses])}>
-            {services.map((service, index) => {
-              const Icon = iconMap[service.icon as keyof typeof iconMap] || Briefcase;
-              return (
-                <Card key={index} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                      <Icon className="w-6 h-6 text-primary" />
-                    </div>
-                    <CardTitle>{service.title}</CardTitle>
-                    {service.price && (
-                      <p className="text-lg font-semibold text-primary">{service.price}</p>
-                    )}
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">{service.description}</p>
-                    {showDuration === "yes" && (
-                      <p className="text-sm text-muted-foreground mt-2">
-                        <Clock className="w-4 h-4 inline mr-1" />
-                        30-60 minutes
-                      </p>
-                    )}
-                    {showBookingLinks === "yes" && (
-                      <Button size="sm" className="mt-4 w-full" asChild>
-                        <a href="#contact">
-                          Book Now
-                        </a>
-                      </Button>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    );
+        children: [
+          {
+            type: "TextBlock",
+            props: {
+              content: "Our Services",
+              variant: "h2",
+              align: "center"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 16 }
+          },
+          {
+            type: "TextBlock",
+            props: {
+              content: "What we offer",
+              variant: "lead",
+              align: "center"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 48 }
+          },
+          {
+            type: "ColumnsBlock",
+            props: {
+              columns: "3",
+              gap: "medium",
+              stackOnMobile: "yes"
+            },
+            children: [
+              // Service 1
+              {
+                type: "CardBlock",
+                props: {
+                  variant: "default"
+                },
+                children: [
+                  {
+                    type: "IconBlock",
+                    props: {
+                      icon: "briefcase",
+                      size: "large",
+                      color: "#3B82F6",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Professional Service",
+                      variant: "h4",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 8 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "$99",
+                      variant: "h3",
+                      align: "center",
+                      color: "#3B82F6"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Our core service offering with professional expertise and quality results guaranteed.",
+                      variant: "muted",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 24 }
+                  },
+                  {
+                    type: "ButtonBlock",
+                    props: {
+                      text: "Book Now",
+                      link: "#contact",
+                      variant: "outline",
+                      size: "sm",
+                      fullWidth: "full"
+                    }
+                  }
+                ]
+              },
+              // Service 2
+              {
+                type: "CardBlock",
+                props: {
+                  variant: "default"
+                },
+                children: [
+                  {
+                    type: "IconBlock",
+                    props: {
+                      icon: "star",
+                      size: "large",
+                      color: "#EAB308",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Premium Service",
+                      variant: "h4",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 8 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "$149",
+                      variant: "h3",
+                      align: "center",
+                      color: "#EAB308"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Enhanced service package with additional features and priority support included.",
+                      variant: "muted",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 24 }
+                  },
+                  {
+                    type: "ButtonBlock",
+                    props: {
+                      text: "Book Now",
+                      link: "#contact",
+                      variant: "default",
+                      size: "sm",
+                      fullWidth: "full"
+                    }
+                  }
+                ]
+              },
+              // Service 3
+              {
+                type: "CardBlock",
+                props: {
+                  variant: "default"
+                },
+                children: [
+                  {
+                    type: "IconBlock",
+                    props: {
+                      icon: "shield",
+                      size: "large",
+                      color: "#10B981",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Complete Care",
+                      variant: "h4",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 8 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "$199",
+                      variant: "h3",
+                      align: "center",
+                      color: "#10B981"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Comprehensive service solution with ongoing support and maintenance included.",
+                      variant: "muted",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 24 }
+                  },
+                  {
+                    type: "ButtonBlock",
+                    props: {
+                      text: "Book Now",
+                      link: "#contact",
+                      variant: "outline",
+                      size: "sm",
+                      fullWidth: "full"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ];
   },
   icon: Briefcase,
   category: "Section"
 };
 
-// Gallery Section Block with Lightbox
+// Gallery Section Block - Template
 export const GalleryBlock: ComponentConfig = {
-  fields: {
-    title: {
-      type: "text",
-      label: "Gallery Title",
-      defaultValue: "Photo Gallery"
-    },
-    layout: {
-      type: "select",
-      label: "Layout",
-      defaultValue: "grid",
-      options: [
-        { value: "grid", label: "Grid" },
-        { value: "masonry", label: "Masonry" },
-        { value: "carousel", label: "Carousel" }
-      ]
-    },
-    columns: {
-      type: "number",
-      label: "Columns (Grid/Masonry)",
-      defaultValue: 3,
-      min: 2,
-      max: 6,
-      step: 1,
-      showSlider: true
-    },
-    images: {
-      type: "array",
-      label: "Images",
-      defaultValue: [],
-      itemType: {
-        type: "image",
-        label: "Image",
-        accept: "image/*"
-      },
-      maxItems: 20
-    }
-  },
-  render: (props: Record<string, unknown>) => {
-    return <GalleryComponent {...props as { title?: string; layout?: string; columns?: number; images?: ImageConfig[] }} />;
+  fields: {},
+  render: (_props, _editMode, _business) => null,
+  isTemplate: true,
+  template: (business?: unknown) => {
+    const businessData = business as Doc<"businesses"> | undefined;
+    const galleryImages = businessData?.photos || [];
+    
+    return [
+      {
+        type: "SectionBlock",
+        props: {
+          width: "container",
+          verticalPadding: "large",
+          backgroundColor: "default"
+        },
+        children: [
+          {
+            type: "TextBlock",
+            props: {
+              content: "Photo Gallery",
+              variant: "h2",
+              align: "center"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 48 }
+          },
+          {
+            type: "GalleryGridBlock",
+            props: {
+              images: galleryImages.length > 0 ? galleryImages : [
+                "https://images.unsplash.com/photo-1497366216548-37526070297c",
+                "https://images.unsplash.com/photo-1497366811353-6870744d04b2",
+                "https://images.unsplash.com/photo-1497366754035-f200968a6e72",
+                "https://images.unsplash.com/photo-1497366412874-3415097a27e7",
+                "https://images.unsplash.com/photo-1497366672149-e5e4b4d34eb3",
+                "https://images.unsplash.com/photo-1497366858526-0766cadbe8fa"
+              ],
+              columns: "3",
+              gap: "medium",
+              aspectRatio: "square"
+            }
+          }
+        ]
+      }
+    ];
   },
   icon: ImageIcon,
   category: "Section"
 };
 
-// Testimonials Section Block
+// Testimonials Section Block - Template
 export const TestimonialsBlock: ComponentConfig = {
-  fields: {
-    title: {
-      type: "text",
-      label: "Section Title",
-      defaultValue: "What Our Customers Say"
-    },
-    layout: {
-      type: "select",
-      label: "Layout",
-      defaultValue: "grid",
-      options: [
-        { value: "grid", label: "Grid" },
-        { value: "carousel", label: "Carousel" },
-        { value: "featured", label: "Featured" }
-      ]
-    },
-    testimonials: {
-      type: "array",
-      label: "Testimonials",
-      defaultValue: [
-        "John Doe|CEO, Company|Amazing service! Highly recommend to everyone.|5|",
-        "Jane Smith|Marketing Manager|Professional and reliable. Exceeded our expectations.|5|"
-      ],
-      itemType: {
-        type: "text",
-        label: "Testimonial",
-        defaultValue: "John Doe|CEO, Company|Amazing service!|5|",
-        placeholder: "Name|Role|Content|Rating|ImageURL"
-      },
-      maxItems: 10
-    }
-  },
-  render: (props: Record<string, unknown>) => {
-    return <TestimonialsCarouselComponent {...props as { title?: string; layout?: string; testimonials?: TestimonialConfig[] }} />;
+  fields: {},
+  render: (_props, _editMode, _business) => null,
+  isTemplate: true,
+  template: (_business?: unknown) => {
+    return [
+      {
+        type: "SectionBlock",
+        props: {
+          width: "container",
+          verticalPadding: "large",
+          backgroundColor: "muted"
+        },
+        children: [
+          {
+            type: "TextBlock",
+            props: {
+              content: "What Our Customers Say",
+              variant: "h2",
+              align: "center"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 48 }
+          },
+          {
+            type: "ColumnsBlock",
+            props: {
+              columns: "3",
+              gap: "medium",
+              stackOnMobile: "yes"
+            },
+            children: [
+              // Testimonial 1
+              {
+                type: "CardBlock",
+                props: {
+                  variant: "default"
+                },
+                children: [
+                  {
+                    type: "ReviewStarsBlock",
+                    props: {
+                      rating: 5,
+                      size: "medium",
+                      showNumber: "no"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "\"Amazing service! The team was professional, punctual, and exceeded all our expectations. Highly recommend to anyone looking for quality work.\"",
+                      variant: "paragraph",
+                      align: "left"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 24 }
+                  },
+                  {
+                    type: "DividerBlock",
+                    props: {
+                      style: "solid",
+                      width: "full",
+                      opacity: 20
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "John Smith",
+                      variant: "h4",
+                      align: "left"
+                    }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Local Business Owner",
+                      variant: "small",
+                      align: "left",
+                      color: "#6B7280"
+                    }
+                  }
+                ]
+              },
+              // Testimonial 2
+              {
+                type: "CardBlock",
+                props: {
+                  variant: "default"
+                },
+                children: [
+                  {
+                    type: "ReviewStarsBlock",
+                    props: {
+                      rating: 5,
+                      size: "medium",
+                      showNumber: "no"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "\"Outstanding experience from start to finish. They really care about their customers and it shows in their work. Will definitely use again!\"",
+                      variant: "paragraph",
+                      align: "left"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 24 }
+                  },
+                  {
+                    type: "DividerBlock",
+                    props: {
+                      style: "solid",
+                      width: "full",
+                      opacity: 20
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Sarah Johnson",
+                      variant: "h4",
+                      align: "left"
+                    }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Happy Customer",
+                      variant: "small",
+                      align: "left",
+                      color: "#6B7280"
+                    }
+                  }
+                ]
+              },
+              // Testimonial 3
+              {
+                type: "CardBlock",
+                props: {
+                  variant: "default"
+                },
+                children: [
+                  {
+                    type: "ReviewStarsBlock",
+                    props: {
+                      rating: 5,
+                      size: "medium",
+                      showNumber: "no"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "\"Professional, reliable, and affordable. They went above and beyond to ensure we were satisfied. Can't ask for better service!\"",
+                      variant: "paragraph",
+                      align: "left"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 24 }
+                  },
+                  {
+                    type: "DividerBlock",
+                    props: {
+                      style: "solid",
+                      width: "full",
+                      opacity: 20
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Michael Davis",
+                      variant: "h4",
+                      align: "left"
+                    }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Satisfied Client",
+                      variant: "small",
+                      align: "left",
+                      color: "#6B7280"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ];
   },
   icon: Star,
   category: "Section"
 };
 
-// Contact Section Block
+// Contact Section Block - Template
 export const ContactBlock: ComponentConfig = {
-  fields: {
-    title: {
-      type: "text",
-      label: "Section Title",
-      defaultValue: "Get in Touch"
-    },
-    subtitle: {
-      type: "text",
-      label: "Subtitle",
-      defaultValue: "We'd love to hear from you"
-    },
-    showPhone: {
-      type: "select",
-      label: "Show Phone",
-      defaultValue: "yes",
-      options: [
-        { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
-    },
-    showEmail: {
-      type: "select",
-      label: "Show Email",
-      defaultValue: "yes",
-      options: [
-        { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
-    },
-    showAddress: {
-      type: "select",
-      label: "Show Address",
-      defaultValue: "yes",
-      options: [
-        { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
-    },
-    showHours: {
-      type: "select",
-      label: "Show Business Hours",
-      defaultValue: "yes",
-      options: [
-        { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
-    },
-    showMap: {
-      type: "select",
-      label: "Show Map",
-      defaultValue: "no",
-      options: [
-        { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
-    },
-    showWhatsApp: {
-      type: "select",
-      label: "Show WhatsApp",
-      defaultValue: "no",
-      options: [
-        { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
-    },
-    showBookingButton: {
-      type: "select",
-      label: "Show Booking Button",
-      defaultValue: "no",
-      options: [
-        { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
-    },
-    bookingButtonText: {
-      type: "text",
-      label: "Booking Button Text",
-      defaultValue: "Book Appointment"
-    },
-    bookingButtonLink: {
-      type: "text",
-      label: "Booking Link",
-      defaultValue: "#",
-      placeholder: "https://calendly.com/yourbusiness"
-    }
-  },
-  render: (props: Record<string, unknown>, _editMode, business) => {
-    const { title, subtitle, showPhone, showEmail, showAddress, showHours, showMap, showWhatsApp, showBookingButton, bookingButtonText, bookingButtonLink } = props as {
-      title?: string;
-      subtitle?: string;
-      showPhone?: string;
-      showEmail?: string;
-      showAddress?: string;
-      showHours?: string;
-      showMap?: string;
-      showWhatsApp?: string;
-      showBookingButton?: string;
-      bookingButtonText?: string;
-      bookingButtonLink?: string;
-    };
+  fields: {},
+  render: (_props, _editMode, _business) => null,
+  isTemplate: true,
+  template: (business?: unknown) => {
     const businessData = business as Doc<"businesses"> | undefined;
     
-    const contactMethods = [];
-    
-    if (showPhone === "yes" && businessData?.phone) {
-      contactMethods.push({
-        icon: Phone,
-        label: "Phone",
-        value: businessData.phone,
-        href: `tel:${businessData.phone}`
-      });
-    }
-    
-    if (showEmail === "yes" && businessData?.email) {
-      contactMethods.push({
-        icon: Mail,
-        label: "Email",
-        value: businessData.email,
-        href: `mailto:${businessData.email}`
-      });
-    }
-    
-    if (showAddress === "yes" && businessData?.address) {
-      contactMethods.push({
-        icon: MapPin,
-        label: "Address",
-        value: businessData.address,
-        href: `https://maps.google.com/?q=${encodeURIComponent(businessData.address)}`
-      });
-    }
-    
-    if (showWhatsApp === "yes" && businessData?.phone) {
-      const whatsappNumber = businessData.phone.replace(/[^0-9]/g, '');
-      contactMethods.push({
-        icon: MessageCircle,
-        label: "WhatsApp",
-        value: "Message us on WhatsApp",
-        href: `https://wa.me/${whatsappNumber}`
-      });
-    }
-    
-    return (
-      <div className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">{title}</h2>
-            {subtitle && <p className="text-lg text-muted-foreground">{subtitle}</p>}
-          </div>
-          
-          <div className="max-w-4xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-xl font-semibold mb-6">Contact Information</h3>
-                <div className="space-y-4">
-                  {contactMethods.map((method, index) => {
-                    const Icon = method.icon;
-                    return (
-                      <div key={index} className="flex items-start gap-4">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                          <Icon className="w-5 h-5 text-primary" />
-                        </div>
-                        <div>
-                          <p className="font-medium">{method.label}</p>
-                          {method.href ? (
-                            <a href={method.href} className="text-primary hover:underline">
-                              {method.value}
-                            </a>
-                          ) : (
-                            <p className="text-muted-foreground">{method.value}</p>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-              
-              {showHours === "yes" && businessData?.hours && (
-                <div>
-                  <h3 className="text-xl font-semibold mb-6">Business Hours</h3>
-                  <div className="space-y-2">
-                    {Object.entries(businessData.hours).map(([day, hours]) => (
-                      <div key={day} className="flex justify-between">
-                        <span className="font-medium capitalize">{day}</span>
-                        <span className="text-muted-foreground">{hours || "Closed"}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            {showBookingButton === "yes" && (
-              <div className="mt-8 text-center">
-                <Button size="lg" asChild>
-                  <a href={bookingButtonLink || "#"} target="_blank" rel="noopener noreferrer">
-                    <Calendar className="w-5 h-5 mr-2" />
-                    {bookingButtonText || "Book Appointment"}
-                  </a>
-                </Button>
-              </div>
-            )}
-            
-            {showMap === "yes" && businessData?.address && (
-              <div className="mt-8">
-                <iframe
-                  src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(businessData.address)}`}
-                  className="w-full h-96 rounded-lg border"
-                  allowFullScreen
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
+    return [
+      {
+        type: "SectionBlock",
+        props: {
+          width: "container",
+          verticalPadding: "large",
+          backgroundColor: "default"
+        },
+        children: [
+          {
+            type: "TextBlock",
+            props: {
+              content: "Get in Touch",
+              variant: "h2",
+              align: "center"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 16 }
+          },
+          {
+            type: "TextBlock",
+            props: {
+              content: "We'd love to hear from you",
+              variant: "lead",
+              align: "center"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 48 }
+          },
+          {
+            type: "ColumnsBlock",
+            props: {
+              columns: "2",
+              gap: "large",
+              stackOnMobile: "yes"
+            },
+            children: [
+              // Contact Information Column
+              {
+                type: "TextBlock",
+                props: {
+                  content: "Contact Information",
+                  variant: "h3",
+                  align: "left"
+                }
+              },
+              {
+                type: "SpacerBlock",
+                props: { height: 24 }
+              },
+              // Phone
+              ...(businessData?.phone ? [
+                {
+                  type: "ColumnsBlock",
+                  props: {
+                    columns: "2",
+                    gap: "small",
+                    stackOnMobile: "no"
+                  },
+                  children: [
+                    {
+                      type: "IconBlock",
+                      props: {
+                        icon: "phone",
+                        size: "medium",
+                        color: "#3B82F6"
+                      }
+                    },
+                    {
+                      type: "TextBlock",
+                      props: {
+                        content: businessData.phone,
+                        variant: "paragraph",
+                        align: "left"
+                      }
+                    }
+                  ]
+                },
+                {
+                  type: "SpacerBlock",
+                  props: { height: 16 }
+                }
+              ] : []),
+              // Email
+              ...(businessData?.email ? [
+                {
+                  type: "ColumnsBlock",
+                  props: {
+                    columns: "2",
+                    gap: "small",
+                    stackOnMobile: "no"
+                  },
+                  children: [
+                    {
+                      type: "IconBlock",
+                      props: {
+                        icon: "mail",
+                        size: "medium",
+                        color: "#3B82F6"
+                      }
+                    },
+                    {
+                      type: "TextBlock",
+                      props: {
+                        content: businessData.email,
+                        variant: "paragraph",
+                        align: "left"
+                      }
+                    }
+                  ]
+                },
+                {
+                  type: "SpacerBlock",
+                  props: { height: 16 }
+                }
+              ] : []),
+              // Address
+              ...(businessData?.address ? [
+                {
+                  type: "ColumnsBlock",
+                  props: {
+                    columns: "2",
+                    gap: "small",
+                    stackOnMobile: "no"
+                  },
+                  children: [
+                    {
+                      type: "IconBlock",
+                      props: {
+                        icon: "mapPin",
+                        size: "medium",
+                        color: "#3B82F6"
+                      }
+                    },
+                    {
+                      type: "TextBlock",
+                      props: {
+                        content: businessData.address,
+                        variant: "paragraph",
+                        align: "left"
+                      }
+                    }
+                  ]
+                },
+                {
+                  type: "SpacerBlock",
+                  props: { height: 32 }
+                }
+              ] : []),
+              {
+                type: "ButtonBlock",
+                props: {
+                  text: "Get Directions",
+                  link: businessData?.address ? `https://maps.google.com/?q=${encodeURIComponent(businessData.address)}` : "#",
+                  variant: "outline",
+                  size: "default"
+                }
+              }
+            ]
+          },
+          // Business Hours Column
+          {
+            type: "CardBlock",
+            props: {
+              title: "Business Hours",
+              variant: "default"
+            },
+            children: [
+              {
+                type: "BusinessHoursBlock",
+                props: {
+                  layout: "list",
+                  showToday: "yes",
+                  showStatus: "yes"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        type: "SpacerBlock",
+        props: { height: 48 }
+      },
+      // CTA Button
+      {
+        type: "ButtonBlock",
+        props: {
+          text: "Book Appointment",
+          link: "#booking",
+          variant: "default",
+          size: "lg",
+          align: "center"
+        }
+      }
+    ]
   },
   icon: Phone,
   category: "Section"
 };
 
-// Team Section Block
+// Team Section Block - Template
 export const TeamBlock: ComponentConfig = {
-  fields: {
-    title: {
-      type: "text",
-      label: "Section Title",
-      defaultValue: "Meet Our Team"
-    },
-    subtitle: {
-      type: "text",
-      label: "Subtitle",
-      defaultValue: "The people behind our success"
-    },
-    members: {
-      type: "array",
-      label: "Team Members",
-      defaultValue: [
-        {
-          name: "John Doe",
-          role: "CEO & Founder",
-          bio: "Leading our company with vision and passion.",
-          image: "",
-          socials: {}
-        }
-      ],
-      itemType: {
-        type: "text",
-        label: "Team Member",
-        defaultValue: "John Doe|CEO & Founder|Leading our company with vision.|"
-      },
-      maxItems: 12
-    }
-  },
-  render: (props: Record<string, unknown>) => {
-    const { title, subtitle, members = [] } = props as {
-      title?: string;
-      subtitle?: string;
-      members?: TeamMemberConfig[]
-    };
-    
-    return (
-      <div className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">{title}</h2>
-            {subtitle && <p className="text-lg text-muted-foreground">{subtitle}</p>}
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {members.map((member, index) => (
-              <Card key={index} className="text-center hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  {member.image ? (
-                    <div className="relative w-32 h-32 mx-auto mb-4">
-                      <Image
-                        src={member.image}
-                        alt={member.name}
-                        fill
-                        className="rounded-full object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-32 h-32 rounded-full mx-auto mb-4 bg-primary/10 flex items-center justify-center">
-                      <Users className="w-12 h-12 text-primary" />
-                    </div>
-                  )}
-                  <h3 className="font-semibold text-lg">{member.name}</h3>
-                  <p className="text-sm text-primary mb-3">{member.role}</p>
-                  {member.bio && (
-                    <p className="text-sm text-muted-foreground">{member.bio}</p>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+  fields: {},
+  render: (_props, _editMode, _business) => null,
+  isTemplate: true,
+  template: (_business?: unknown) => {
+    return [
+      {
+        type: "SectionBlock",
+        props: {
+          width: "container",
+          verticalPadding: "large",
+          backgroundColor: "muted"
+        },
+        children: [
+          {
+            type: "TextBlock",
+            props: {
+              content: "Meet Our Team",
+              variant: "h2",
+              align: "center"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 16 }
+          },
+          {
+            type: "TextBlock",
+            props: {
+              content: "The people behind our success",
+              variant: "lead",
+              align: "center"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 48 }
+          },
+          {
+            type: "ColumnsBlock",
+            props: {
+              columns: "4",
+              gap: "medium",
+              stackOnMobile: "yes"
+            },
+            children: [
+              // Team Member 1
+              {
+                type: "CardBlock",
+                props: {
+                  variant: "default"
+                },
+                children: [
+                  {
+                    type: "ImageBlock",
+                    props: {
+                      src: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
+                      alt: "Team member",
+                      rounded: "full",
+                      width: "narrow"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "John Smith",
+                      variant: "h4",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "CEO & Founder",
+                      variant: "small",
+                      align: "center",
+                      color: "#3B82F6"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 12 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Leading our company with vision and dedication to excellence.",
+                      variant: "small",
+                      align: "center"
+                    }
+                  }
+                ]
+              },
+              // Team Member 2
+              {
+                type: "CardBlock",
+                props: {
+                  variant: "default"
+                },
+                children: [
+                  {
+                    type: "ImageBlock",
+                    props: {
+                      src: "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
+                      alt: "Team member",
+                      rounded: "full",
+                      width: "narrow"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Sarah Johnson",
+                      variant: "h4",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Operations Manager",
+                      variant: "small",
+                      align: "center",
+                      color: "#3B82F6"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 12 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Ensuring smooth operations and exceptional customer service.",
+                      variant: "small",
+                      align: "center"
+                    }
+                  }
+                ]
+              },
+              // Team Member 3
+              {
+                type: "CardBlock",
+                props: {
+                  variant: "default"
+                },
+                children: [
+                  {
+                    type: "ImageBlock",
+                    props: {
+                      src: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
+                      alt: "Team member",
+                      rounded: "full",
+                      width: "narrow"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Michael Chen",
+                      variant: "h4",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Lead Technician",
+                      variant: "small",
+                      align: "center",
+                      color: "#3B82F6"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 12 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Expert technician with over 10 years of experience.",
+                      variant: "small",
+                      align: "center"
+                    }
+                  }
+                ]
+              },
+              // Team Member 4
+              {
+                type: "CardBlock",
+                props: {
+                  variant: "default"
+                },
+                children: [
+                  {
+                    type: "ImageBlock",
+                    props: {
+                      src: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
+                      alt: "Team member",
+                      rounded: "full",
+                      width: "narrow"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 16 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Emily Davis",
+                      variant: "h4",
+                      align: "center"
+                    }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Customer Success",
+                      variant: "small",
+                      align: "center",
+                      color: "#3B82F6"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: { height: 12 }
+                  },
+                  {
+                    type: "TextBlock",
+                    props: {
+                      content: "Dedicated to ensuring customer satisfaction and success.",
+                      variant: "small",
+                      align: "center"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ];
   },
   icon: Users,
   category: "Section"
 };
 
-// CTA Section Block
+// CTA Section Block - Template
 export const CTABlock: ComponentConfig = {
-  fields: {
-    title: {
-      type: "text",
-      label: "Title",
-      defaultValue: "Ready to Get Started?",
-      required: true
-    },
-    description: {
-      type: "textarea",
-      label: "Description",
-      defaultValue: "Join thousands of satisfied customers and transform your business today.",
-      rows: 2
-    },
-    backgroundType: {
-      type: "select",
-      label: "Background Type",
-      defaultValue: "gradient",
-      options: [
-        { value: "gradient", label: "Gradient" },
-        { value: "solid", label: "Solid Color" },
-        { value: "pattern", label: "Pattern" }
-      ]
-    },
-    buttons: {
-      type: "array",
-      label: "Call to Action Buttons",
-      defaultValue: [
-        { text: "Get Started", link: "#contact", variant: "secondary" },
-        { text: "Learn More", link: "#about", variant: "outline" }
-      ],
-      itemType: {
-        type: "text",
-        label: "Button",
-        defaultValue: "Get Started|#contact|secondary"
-      },
-      maxItems: 3
-    }
-  },
-  render: (props: Record<string, unknown>) => {
-    const { title, description, backgroundType = "gradient", buttons = [] } = props as {
-      title?: string;
-      description?: string;
-      backgroundType?: string;
-      buttons?: ButtonConfig[]
-    };
-    
-    const backgroundClasses = {
-      gradient: "bg-gradient-to-r from-primary/20 to-primary/10",
-      solid: "bg-primary/10",
-      pattern: "bg-muted"
-    };
-    
-    return (
-      <div className={cn("py-20", backgroundClasses[backgroundType as keyof typeof backgroundClasses])}>
-        <div className="container mx-auto px-4 text-center">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">{title}</h2>
-            {description && (
-              <p className="text-lg text-muted-foreground mb-8">{description}</p>
-            )}
-            {buttons.length > 0 && (
-              <div className="flex flex-wrap gap-4 justify-center">
-                {buttons.map((button, index) => (
-                  <Button
-                    key={index}
-                    variant={button.variant || "secondary"}
-                    size="lg"
-                    asChild
-                  >
-                    <a href={button.link || "#"}>{button.text}</a>
-                  </Button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
+  fields: {},
+  render: (_props, _editMode, _business) => null,
+  isTemplate: true,
+  template: (_business?: unknown) => {
+    return [
+      {
+        type: "SectionBlock",
+        props: {
+          width: "container",
+          verticalPadding: "xlarge",
+          backgroundColor: "primary",
+          backgroundImage: "https://images.unsplash.com/photo-1497366216548-37526070297c",
+          backgroundImageStyle: "cover",
+          overlayOpacity: 0.8
+        },
+        children: [
+          {
+            type: "TextBlock",
+            props: {
+              content: "Ready to Get Started?",
+              variant: "h1",
+              align: "center"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 24 }
+          },
+          {
+            type: "TextBlock",
+            props: {
+              content: "Join hundreds of satisfied customers who trust us with their needs. Let us help you achieve your goals.",
+              variant: "lead",
+              align: "center"
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 40 }
+          },
+          {
+            type: "ColumnsBlock",
+            props: {
+              columns: "2",
+              gap: "small",
+              stackOnMobile: "yes"
+            },
+            children: [
+              {
+                type: "ButtonBlock",
+                props: {
+                  text: "Get Started",
+                  link: "#contact",
+                  variant: "secondary",
+                  size: "lg",
+                  align: "right"
+                }
+              },
+              {
+                type: "ButtonBlock",
+                props: {
+                  text: "Learn More",
+                  link: "#about",
+                  variant: "outline",
+                  size: "lg",
+                  align: "left"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ];
   },
   icon: Target,
   category: "Section"
 };
 
-// Footer Section Block
+// Footer Section Block - Template
 export const FooterBlock: ComponentConfig = {
-  fields: {
-    columns: {
-      type: "array",
-      label: "Footer Columns",
-      defaultValue: [
-        {
-          title: "Company",
-          links: [
-            { text: "About Us", url: "#about" },
-            { text: "Services", url: "#services" },
-            { text: "Contact", url: "#contact" }
-          ]
-        },
-        {
-          title: "Support",
-          links: [
-            { text: "FAQ", url: "#faq" },
-            { text: "Help Center", url: "#help" },
-            { text: "Terms", url: "#terms" }
-          ]
-        }
-      ],
-      itemType: {
-        type: "text",
-        label: "Column",
-        defaultValue: "Company|About Us#about,Services#services,Contact#contact"
-      },
-      maxItems: 4
-    },
-    copyright: {
-      type: "text",
-      label: "Copyright Text",
-      defaultValue: "© 2024 Your Business. All rights reserved."
-    },
-    showSocial: {
-      type: "select",
-      label: "Show Social Links",
-      defaultValue: "yes",
-      options: [
-        { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
-    }
-  },
-  render: (props: Record<string, unknown>, _editMode, business) => {
-    const { columns = [], copyright, showSocial } = props as {
-      columns?: FooterColumnConfig[];
-      copyright?: string;
-      showSocial?: string;
-    };
+  fields: {},
+  render: (_props, _editMode, _business) => null,
+  isTemplate: true,
+  template: (business?: unknown) => {
     const businessData = business as Doc<"businesses"> | undefined;
     
-    return (
-      <footer className="py-12 bg-muted/50 border-t">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-            {/* Business Info Column */}
-            <div>
-              <h3 className="font-semibold text-lg mb-4">{businessData?.name || "Business Name"}</h3>
-              {businessData?.address && (
-                <p className="text-sm text-muted-foreground mb-2">{businessData.address}</p>
-              )}
-              {businessData?.phone && (
-                <p className="text-sm text-muted-foreground mb-2">
-                  <a href={`tel:${businessData.phone}`} className="hover:text-primary">
-                    {businessData.phone}
-                  </a>
-                </p>
-              )}
-              {businessData?.email && (
-                <p className="text-sm text-muted-foreground">
-                  <a href={`mailto:${businessData.email}`} className="hover:text-primary">
-                    {businessData.email}
-                  </a>
-                </p>
-              )}
-            </div>
-            
-            {/* Custom Columns */}
-            {columns.map((column, index) => (
-              <div key={index}>
-                <h3 className="font-semibold mb-4">{column.title}</h3>
-                <ul className="space-y-2">
-                  {column.links?.map((link, linkIndex) => (
-                    <li key={linkIndex}>
-                      <a href={link.url} className="text-sm text-muted-foreground hover:text-primary">
-                        {link.text}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-          
-          <div className="pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-muted-foreground text-center md:text-left">
-              {copyright}
-            </p>
-            {showSocial === "yes" && (
-              <div className="flex gap-4">
-                {/* Add social media icons here if business has social links */}
-              </div>
-            )}
-          </div>
-        </div>
-      </footer>
-    );
+    return [
+      {
+        type: "SectionBlock",
+        props: {
+          width: "container",
+          verticalPadding: "large",
+          backgroundColor: "muted"
+        },
+        children: [
+          {
+            type: "ColumnsBlock",
+            props: {
+              columns: "4",
+              gap: "large",
+              stackOnMobile: "yes"
+            },
+            children: [
+              // Business Info Column
+              {
+                type: "TextBlock",
+                props: {
+                  content: businessData?.name || "Your Business",
+                  variant: "h3",
+                  align: "left"
+                }
+              },
+              {
+                type: "SpacerBlock",
+                props: { height: 16 }
+              },
+              ...(businessData?.address ? [
+                {
+                  type: "TextBlock",
+                  props: {
+                    content: businessData.address,
+                    variant: "small",
+                    align: "left"
+                  }
+                },
+                {
+                  type: "SpacerBlock",
+                  props: { height: 8 }
+                }
+              ] : []),
+              ...(businessData?.phone ? [
+                {
+                  type: "TextBlock",
+                  props: {
+                    content: businessData.phone,
+                    variant: "small",
+                    align: "left"
+                  }
+                },
+                {
+                  type: "SpacerBlock",
+                  props: { height: 8 }
+                }
+              ] : []),
+              ...(businessData?.email ? [
+                {
+                  type: "TextBlock",
+                  props: {
+                    content: businessData.email,
+                    variant: "small",
+                    align: "left"
+                  }
+                }
+              ] : []),
+              // Quick Links Column
+              {
+                type: "TextBlock",
+                props: {
+                  content: "Quick Links",
+                  variant: "h4",
+                  align: "left"
+                }
+              },
+              {
+                type: "SpacerBlock",
+                props: { height: 16 }
+              },
+              {
+                type: "ListBlock",
+                props: {
+                  items: [
+                    "About Us",
+                    "Services",
+                    "Gallery",
+                    "Contact"
+                  ],
+                  style: "bullet",
+                  spacing: "compact"
+                }
+              },
+              // Services Column
+              {
+                type: "TextBlock",
+                props: {
+                  content: "Services",
+                  variant: "h4",
+                  align: "left"
+                }
+              },
+              {
+                type: "SpacerBlock",
+                props: { height: 16 }
+              },
+              {
+                type: "ListBlock",
+                props: {
+                  items: [
+                    "Professional Service",
+                    "Premium Service",
+                    "Complete Care",
+                    "Consultation"
+                  ],
+                  style: "bullet",
+                  spacing: "compact"
+                }
+              },
+              // Connect Column
+              {
+                type: "TextBlock",
+                props: {
+                  content: "Connect With Us",
+                  variant: "h4",
+                  align: "left"
+                }
+              },
+              {
+                type: "SpacerBlock",
+                props: { height: 16 }
+              },
+              {
+                type: "SocialLinksBlock",
+                props: {
+                  platforms: [
+                    { platform: "facebook", url: "https://facebook.com" },
+                    { platform: "instagram", url: "https://instagram.com" },
+                    { platform: "twitter", url: "https://twitter.com" },
+                    { platform: "linkedin", url: "https://linkedin.com" }
+                  ],
+                  style: "icons",
+                  size: "small",
+                  gap: "small"
+                }
+              },
+              {
+                type: "SpacerBlock",
+                props: { height: 24 }
+              },
+              {
+                type: "BadgeBlock",
+                props: {
+                  type: "verified",
+                  text: "Licensed & Insured",
+                  icon: "shield",
+                  size: "small",
+                  color: "success"
+                }
+              }
+            ]
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 48 }
+          },
+          {
+            type: "DividerBlock",
+            props: {
+              style: "solid",
+              width: "full",
+              opacity: 20
+            }
+          },
+          {
+            type: "SpacerBlock",
+            props: { height: 24 }
+          },
+          {
+            type: "ColumnsBlock",
+            props: {
+              columns: "2",
+              gap: "medium",
+              stackOnMobile: "yes"
+            },
+            children: [
+              {
+                type: "TextBlock",
+                props: {
+                  content: `© ${new Date().getFullYear()} ${businessData?.name || "Your Business"}. All rights reserved.`,
+                  variant: "small",
+                  align: "left"
+                }
+              },
+              {
+                type: "PaymentMethodsBlock",
+                props: {
+                  methods: ["visa", "mastercard", "amex", "paypal"],
+                  size: "small",
+                  showLabel: "no"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ];
   },
   icon: Columns3,
   category: "Section"
