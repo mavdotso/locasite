@@ -33,18 +33,20 @@ export default function ResizableColumns({
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState<number | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Update container width on resize
+  // Update container width and check mobile on resize
   useEffect(() => {
-    const updateContainerWidth = () => {
+    const updateDimensions = () => {
       if (containerRef.current) {
         setContainerWidth(containerRef.current.offsetWidth);
       }
+      setIsMobile(window.innerWidth < 768);
     };
 
-    updateContainerWidth();
-    window.addEventListener('resize', updateContainerWidth);
-    return () => window.removeEventListener('resize', updateContainerWidth);
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
   const handleMouseDown = (index: number) => (e: React.MouseEvent) => {
@@ -115,19 +117,21 @@ export default function ResizableColumns({
 
   const currentGap = gapPixels[gap as keyof typeof gapPixels] || 0;
 
+  // Apply grid template columns only on desktop or when not stacking on mobile
+  const shouldApplyColumns = !isMobile || stackOnMobile !== "yes";
+  const gridStyle: React.CSSProperties = shouldApplyColumns
+    ? { gridTemplateColumns: columnWidths.map(w => `${w}%`).join(' ') }
+    : {};
+
   return (
     <div
       ref={containerRef}
       className={cn(
-        "relative grid",
-        stackOnMobile === "yes" ? "grid-cols-1 md:grid-cols-none" : "",
+        "grid",
+        stackOnMobile === "yes" && "grid-cols-1 md:grid-cols-none",
         gapClasses[gap as keyof typeof gapClasses] || gapClasses.medium
       )}
-      style={{
-        gridTemplateColumns: stackOnMobile === "yes" 
-          ? undefined 
-          : columnWidths.map(w => `${w}%`).join(' ')
-      }}
+      style={gridStyle}
     >
       {children.map((child, index) => (
         <div key={index} className="relative min-h-[100px]">

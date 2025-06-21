@@ -21,14 +21,21 @@ export default function DropZone({ id, index, onDrop, className, showAlways = fa
     draggedItem.componentType && 
     componentConfigs[draggedItem.componentType]?.isTemplate;
   
+  // Check if we're dragging a ColumnsBlock
+  const isDraggingColumns = draggedItem?.type === "new-component" && 
+    draggedItem.componentType === "ColumnsBlock";
+  
   // If dragging a template and this is not a root-level drop zone, hide it
   // Root drop zones have IDs like "drop-zone-0", "drop-zone-1", etc.
   // Nested drop zones have IDs like "drop-zone-componentId-0"
   const isRootDropZone = /^drop-zone-\d+$/.test(id);
+  const isInColumns = id.includes('-col-');
+  
   const shouldHideForTemplate = isTemplate && !isRootDropZone;
+  const shouldHideForColumns = isDraggingColumns && isInColumns;
   
   const isActive = dropTargetId === id;
-  const shouldShow = (showAlways || isDragging) && !shouldHideForTemplate;
+  const shouldShow = (showAlways || isDragging) && !shouldHideForTemplate && !shouldHideForColumns;
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();

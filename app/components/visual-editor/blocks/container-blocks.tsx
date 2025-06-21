@@ -184,6 +184,10 @@ export const ColumnsBlock: ComponentConfig = {
       type: "array",
       label: "Column Widths",
       defaultValue: [],
+      itemType: {
+        type: "number",
+        label: "Width"
+      },
       hidden: true // Hidden from UI, managed by resize handles
     },
     gap: {
