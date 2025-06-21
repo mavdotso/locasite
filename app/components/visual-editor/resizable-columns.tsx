@@ -138,21 +138,26 @@ export default function ResizableColumns({
         <div key={index} className="relative min-h-[100px] min-w-0 overflow-hidden">
           {child}
           
-          {/* Resize handle */}
+          {/* Resize handle - spans entire gap between columns */}
           {isEditMode && index < columnCount - 1 && (
             <div
               className={cn(
-                "absolute top-0 bottom-0 w-1 cursor-col-resize z-20",
-                "hover:bg-primary/50 transition-colors",
-                isDragging === index && "bg-primary"
+                "absolute top-0 bottom-0 cursor-col-resize z-20 group",
+                "hover:bg-primary/10 transition-colors"
               )}
               style={{
-                right: `-${currentGap / 2 + 2}px`,
-                width: '4px'
+                right: `-${currentGap}px`,
+                width: `${currentGap}px`
               }}
               onMouseDown={handleMouseDown(index)}
             >
-              <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-8" />
+              <div 
+                className={cn(
+                  "absolute inset-y-0 left-1/2 -translate-x-1/2 w-1 transition-all",
+                  "bg-transparent group-hover:bg-primary/50",
+                  isDragging === index && "bg-primary"
+                )}
+              />
             </div>
           )}
         </div>

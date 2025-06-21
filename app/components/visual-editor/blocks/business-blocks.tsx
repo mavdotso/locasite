@@ -56,37 +56,16 @@ export const HeaderBlock: ComponentConfig = {
                   logoText: businessData?.name || "Business Name"
                 }
               },
-              // Navigation and Buttons
+              // Navigation column
               {
-                type: "SectionBlock",
-                props: {
-                  width: "full",
-                  verticalPadding: "none",
-                  backgroundColor: "transparent"
-                },
+                type: "ColumnContentBlock",
+                props: {},
                 children: [
                   {
                     type: "NavigationBlock",
                     props: {
                       showSections: "auto",
                       style: "horizontal",
-                      align: "right"
-                    }
-                  },
-                  {
-                    type: "SpacerBlock",
-                    props: {
-                      height: "16"
-                    }
-                  },
-                  {
-                    type: "ButtonBlock",
-                    props: {
-                      text: businessData?.phone || "Call Now",
-                      link: `tel:${businessData?.phone || ""}`,
-                      variant: "default",
-                      size: "sm",
-                      width: "auto",
                       align: "right"
                     }
                   }

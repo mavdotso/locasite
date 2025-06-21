@@ -220,22 +220,45 @@ export default function ColumnsDropZone({
         isEditMode={isEditMode}
       >
         {columnContents.map((colChildren, colIndex) => (
-          <div key={colIndex} className="column-drop-zone">
-            {/* Initial drop zone for this column */}
-            {isEditMode && (
-              <DropZone
-                id={`drop-zone-${component.id}-col-${colIndex}-0`}
-                index={0}
-                onDrop={(index) => handleDropInColumn(colIndex, index)}
-                showAlways={colChildren.length === 0}
-              />
-            )}
-            {colChildren}
-            {/* Show placeholder if column is empty */}
-            {isEditMode && colChildren.length === 0 && (
-              <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">
-                <p className="text-sm text-muted-foreground">Column {colIndex + 1}</p>
+          <div key={colIndex} className="column-drop-zone relative">
+            {colChildren.length === 0 && isEditMode ? (
+              // Empty column - entire area is droppable
+              <div
+                className="relative min-h-[100px] border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/10 transition-colors hover:bg-muted/20"
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleDropInColumn(colIndex, 0);
+                }}
+              >
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <p className="text-sm text-muted-foreground">Drop items here</p>
+                </div>
+                <DropZone
+                  id={`drop-zone-${component.id}-col-${colIndex}-0`}
+                  index={0}
+                  onDrop={(index) => handleDropInColumn(colIndex, index)}
+                  showAlways={true}
+                  className="absolute inset-0"
+                />
               </div>
+            ) : (
+              // Column with content
+              <>
+                {/* Initial drop zone for this column */}
+                {isEditMode && (
+                  <DropZone
+                    id={`drop-zone-${component.id}-col-${colIndex}-0`}
+                    index={0}
+                    onDrop={(index) => handleDropInColumn(colIndex, index)}
+                  />
+                )}
+                {colChildren}
+              </>
             )}
           </div>
         ))}

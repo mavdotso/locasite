@@ -62,7 +62,6 @@ export default function NestedDropZone({
             id={`drop-zone-${component.id}-0`}
             index={0}
             onDrop={handleDropInChild}
-            className="h-16 mb-3"
             showAlways={childComponents.length === 0}
           />
         )}
