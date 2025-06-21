@@ -14,6 +14,15 @@ import {
   TooltipTrigger,
 } from "@/app/components/ui/tooltip";
 
+// Format component name for display
+function formatComponentName(type: string): string {
+  // Remove Block/Section suffix and add spaces before capital letters
+  return type
+    .replace(/Block$|Section$/, "")
+    .replace(/([A-Z])/g, " $1")
+    .trim();
+}
+
 export default function ComponentLibrary() {
   const { startDrag, isDragging } = useDragDrop();
   const [searchQuery, setSearchQuery] = useState("");
@@ -70,99 +79,78 @@ export default function ComponentLibrary() {
         </div>
       </div>
 
-      {/* Main Tabs: Blocks vs Pre-made Sections */}
-      <Tabs defaultValue="blocks" className="flex-1 flex flex-col overflow-hidden">
-        {/* No results message */}
-        {searchQuery && categories.length === 0 && (
-          <div className="p-8 text-center">
-            <p className="text-sm text-muted-foreground">No components found for &quot;{searchQuery}&quot;</p>
-          </div>
-        )}
-          <TabsList className="w-full justify-start bg-transparent h-auto p-0 rounded-none border-b">
-            <TabsTrigger
-              value="blocks"
-              className="flex-1 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary pb-2"
-            >
-              Building Blocks
-            </TabsTrigger>
-            <TabsTrigger
-              value="sections"
-              className="flex-1 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary pb-2"
-            >
-              Pre-made Sections
-            </TabsTrigger>
-          </TabsList>
+      {/* No results message */}
+      {searchQuery && categories.length === 0 && (
+        <div className="p-8 text-center">
+          <p className="text-sm text-muted-foreground">No components found for &quot;{searchQuery}&quot;</p>
+        </div>
+      )}
 
-          {/* Building Blocks Tab */}
-          <TabsContent value="blocks" className="mt-0 flex-1 overflow-hidden">
-            <ScrollArea className="h-full">
-            {/* Component Categories */}
-            <Tabs defaultValue={categories[0] || ""} className="w-full flex flex-col overflow-hidden">
-              {categories.length > 1 && (
-                <TabsList className="w-full justify-start bg-transparent h-auto p-0 rounded-none border-b">
-                  {categories.filter(cat => cat !== "Content" && cat !== "Media" && cat !== "Contact" && cat !== "Social" && cat !== "Location").map((category) => (
-                    <TabsTrigger
-                      key={category}
-                      value={category}
-                      className="flex-1 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary pb-2"
-                    >
-                      {category}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              )}
+      {/* All Components with Categories */}
+      <Tabs defaultValue="Basic" className="flex-1 flex flex-col overflow-hidden">
+        <TabsList className="w-full justify-start bg-transparent h-auto p-0 rounded-none border-b">
+          <TabsTrigger
+            value="Basic"
+            className="flex-1 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary pb-2"
+          >
+            Basic
+          </TabsTrigger>
+          <TabsTrigger
+            value="Section"
+            className="flex-1 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary pb-2"
+          >
+            Sections
+          </TabsTrigger>
+        </TabsList>
 
-              {categories.filter(cat => cat !== "Content" && cat !== "Media" && cat !== "Contact" && cat !== "Social" && cat !== "Location").map((category) => (
-                <TabsContent key={category} value={category} className="p-4 mt-0">
-                  <div className="grid gap-3">
-                    {componentsByCategory[category].map(({ type, config }) => {
-                      const Icon = config.icon;
-                      return (
-                        <ComponentCard
-                          key={type}
-                          type={type}
-                          config={config}
-                          Icon={Icon}
-                          onDragStart={() => handleDragStart(type)}
-                          isDragging={isDragging}
-                          showPreview={false}
-                        />
-                      );
-                    })}
-                  </div>
-                </TabsContent>
-              ))}
-            </Tabs>
-            </ScrollArea>
-          </TabsContent>
-
-          {/* Pre-made Sections Tab */}
-          <TabsContent value="sections" className="mt-0 flex-1 overflow-hidden">
-            <ScrollArea className="h-full">
-              <div className="p-4">
-                <div className="grid gap-3">
-                  {Object.entries(componentsByCategory)
-                    .filter(([category]) => ["Content", "Media", "Contact", "Social", "Location"].includes(category))
-                    .flatMap(([_, components]) => components)
-                    .map(({ type, config }) => {
-                      const Icon = config.icon;
-                      return (
-                        <ComponentCard
-                          key={type}
-                          type={type}
-                          config={config}
-                          Icon={Icon}
-                          onDragStart={() => handleDragStart(type)}
-                          isDragging={isDragging}
-                          showPreview={false}
-                        />
-                      );
-                    })}
-                </div>
+        {/* Basic Components */}
+        <TabsContent value="Basic" className="mt-0 flex-1 overflow-hidden">
+          <ScrollArea className="h-full">
+            <div className="p-4">
+              <div className="grid gap-3">
+                {(componentsByCategory["Basic"] || []).map(({ type, config }) => {
+                  const Icon = config.icon;
+                  return (
+                    <ComponentCard
+                      key={type}
+                      type={type}
+                      config={config}
+                      Icon={Icon}
+                      onDragStart={() => handleDragStart(type)}
+                      isDragging={isDragging}
+                      showPreview={false}
+                    />
+                  );
+                })}
               </div>
-            </ScrollArea>
-          </TabsContent>
-        </Tabs>
+            </div>
+          </ScrollArea>
+        </TabsContent>
+
+        {/* Section Components */}
+        <TabsContent value="Section" className="mt-0 flex-1 overflow-hidden">
+          <ScrollArea className="h-full">
+            <div className="p-4">
+              <div className="grid gap-3">
+                {(componentsByCategory["Section"] || []).map(({ type, config }) => {
+                  const Icon = config.icon;
+                  return (
+                    <ComponentCard
+                      key={type}
+                      type={type}
+                      config={config}
+                      Icon={Icon}
+                      onDragStart={() => handleDragStart(type)}
+                      isDragging={isDragging}
+                      showPreview={false}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          </ScrollArea>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
@@ -200,7 +188,7 @@ function ComponentCard({ type, config, Icon, onDragStart, isDragging }: Componen
           )}
           <div className="flex-1 min-w-0">
             <h4 className="font-medium text-sm truncate">
-              {type.replace(/Block$/, "")}
+              {formatComponentName(type)}
             </h4>
             {config.fields.title?.defaultValue && (
               <p className="text-xs text-muted-foreground truncate">
@@ -214,7 +202,7 @@ function ComponentCard({ type, config, Icon, onDragStart, isDragging }: Componen
         </div>
       </TooltipTrigger>
       <TooltipContent side="right">
-        <p>Drag to add {type.replace(/Block$/, "")} component</p>
+        <p>Drag to add {formatComponentName(type)} component</p>
       </TooltipContent>
     </Tooltip>
   );

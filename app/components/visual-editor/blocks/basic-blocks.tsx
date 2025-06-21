@@ -494,7 +494,7 @@ export const VideoBlock: ComponentConfig = {
     );
   },
   icon: Video,
-  category: "Media"
+  category: "Basic"
 };
 
 // Icon Block - Display icons
@@ -752,7 +752,7 @@ export const BadgeBlock: ComponentConfig = {
     );
   },
   icon: Shield,
-  category: "Business",
+  category: "Basic",
   inline: true
 };
 
@@ -890,7 +890,7 @@ export const ReviewStarsBlock: ComponentConfig = {
     );
   },
   icon: Star,
-  category: "Business",
+  category: "Basic",
   inline: true
 };
 
@@ -1039,7 +1039,7 @@ export const BusinessHoursBlock: ComponentConfig = {
     );
   },
   icon: Clock,
-  category: "Business"
+  category: "Basic"
 };
 
 // Social Media Links Block
@@ -1196,7 +1196,7 @@ export const SocialLinksBlock: ComponentConfig = {
     );
   },
   icon: Share2,
-  category: "Business",
+  category: "Basic",
   inline: true
 };
 
@@ -1300,7 +1300,7 @@ export const PaymentMethodsBlock: ComponentConfig = {
     );
   },
   icon: CreditCard,
-  category: "Business"
+  category: "Basic"
 };
 
 // List Block - Styled lists

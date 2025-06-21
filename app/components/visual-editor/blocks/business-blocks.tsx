@@ -658,7 +658,7 @@ export const HeroBlock: ComponentConfig = {
     );
   },
   icon: Sparkles,
-  category: "Hero"
+  category: "Section"
 };
 
 // About Section Block
@@ -758,7 +758,7 @@ export const AboutBlock: ComponentConfig = {
     );
   },
   icon: Info,
-  category: "Content"
+  category: "Section"
 };
 
 // Services Section Block
@@ -899,7 +899,7 @@ export const ServicesBlock: ComponentConfig = {
     );
   },
   icon: Briefcase,
-  category: "Content"
+  category: "Section"
 };
 
 // Gallery Section Block with Lightbox
@@ -945,7 +945,7 @@ export const GalleryBlock: ComponentConfig = {
     return <GalleryComponent {...props as { title?: string; layout?: string; columns?: number; images?: ImageConfig[] }} />;
   },
   icon: ImageIcon,
-  category: "Media"
+  category: "Section"
 };
 
 // Testimonials Section Block
@@ -986,7 +986,7 @@ export const TestimonialsBlock: ComponentConfig = {
     return <TestimonialsCarouselComponent {...props as { title?: string; layout?: string; testimonials?: TestimonialConfig[] }} />;
   },
   icon: Star,
-  category: "Social"
+  category: "Section"
 };
 
 // Contact Section Block
@@ -1209,7 +1209,7 @@ export const ContactBlock: ComponentConfig = {
     );
   },
   icon: Phone,
-  category: "Contact"
+  category: "Section"
 };
 
 // Team Section Block
@@ -1292,7 +1292,7 @@ export const TeamBlock: ComponentConfig = {
     );
   },
   icon: Users,
-  category: "Team"
+  category: "Section"
 };
 
 // CTA Section Block
@@ -1377,7 +1377,7 @@ export const CTABlock: ComponentConfig = {
     );
   },
   icon: Target,
-  category: "CTA"
+  category: "Section"
 };
 
 // Footer Section Block
@@ -1492,5 +1492,5 @@ export const FooterBlock: ComponentConfig = {
     );
   },
   icon: Columns3,
-  category: "Layout"
+  category: "Section"
 };

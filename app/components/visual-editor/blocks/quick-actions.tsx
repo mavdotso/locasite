@@ -301,7 +301,7 @@ export const QuickActionsBar: ComponentConfig = {
     return <QuickActionsBarComponent {...props} business={business as Doc<"businesses"> | undefined} />;
   },
   icon: Phone,
-  category: "Mobile"
+  category: "Business"
 };
 
 // Mobile Click-to-Call Bar
@@ -378,7 +378,7 @@ export const MobileCallBar: ComponentConfig = {
     );
   },
   icon: Phone,
-  category: "Mobile"
+  category: "Business"
 };
 
 // Back to Top Button Component
@@ -490,5 +490,5 @@ export const BackToTopButton: ComponentConfig = {
     return <BackToTopButtonComponent {...props as { style?: string; position?: string; showAfter?: number; backgroundColor?: string }} />;
   },
   icon: ArrowUp,
-  category: "Mobile"
+  category: "Business"
 };

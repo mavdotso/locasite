@@ -275,7 +275,7 @@ export const OperatingHoursSection: ComponentConfig = {
     );
   },
   icon: Clock,
-  category: "Local Business"
+  category: "Section"
 };
 
 // Location/Directions Section
@@ -408,7 +408,7 @@ export const LocationDirectionsSection: ComponentConfig = {
     );
   },
   icon: MapPin,
-  category: "Local Business"
+  category: "Section"
 };
 
 // Menu/Price List Section
@@ -607,7 +607,7 @@ export const MenuPriceListSection: ComponentConfig = {
     );
   },
   icon: Menu,
-  category: "Local Business"
+  category: "Section"
 };
 
 // Special Offers Section
@@ -732,7 +732,7 @@ export const SpecialOffersSection: ComponentConfig = {
     );
   },
   icon: Tag,
-  category: "Local Business"
+  category: "Section"
 };
 
 // FAQ Section
@@ -862,7 +862,7 @@ export const FAQSection: ComponentConfig = {
     );
   },
   icon: HelpCircle,
-  category: "Local Business"
+  category: "Section"
 };
 
 // Service Area Section
@@ -971,7 +971,7 @@ export const ServiceAreaSection: ComponentConfig = {
     );
   },
   icon: Map,
-  category: "Local Business"
+  category: "Section"
 };
 
 // Insurance/Payment Accepted Section
@@ -1090,5 +1090,5 @@ export const InsurancePaymentSection: ComponentConfig = {
     );
   },
   icon: Shield,
-  category: "Local Business"
+  category: "Section"
 };

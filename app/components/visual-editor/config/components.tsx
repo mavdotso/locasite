@@ -38,22 +38,11 @@ import {
   LocationDirectionsSection,
   MenuPriceListSection,
   SpecialOffersSection,
-  FAQSection,
-  ServiceAreaSection,
-  InsurancePaymentSection
+  FAQSection
 } from "../blocks/local-business-sections";
 import {
-  AwardsCertificationsSection,
-  CommunityInvolvementSection,
-  GoogleReviewsSection,
-  MembershipBadgesSection,
-  CustomerSuccessSection
+  GoogleReviewsSection
 } from "../blocks/trust-sections";
-import {
-  QuickActionsBar,
-  MobileCallBar,
-  BackToTopButton
-} from "../blocks/quick-actions";
 
 export const componentConfigs: Record<string, ComponentConfig> = {
   // Basic Blocks
@@ -98,18 +87,5 @@ export const componentConfigs: Record<string, ComponentConfig> = {
   MenuPriceListSection,
   SpecialOffersSection,
   FAQSection,
-  ServiceAreaSection,
-  InsurancePaymentSection,
-  
-  // Trust & Social Proof
-  AwardsCertificationsSection,
-  CommunityInvolvementSection,
-  GoogleReviewsSection,
-  MembershipBadgesSection,
-  CustomerSuccessSection,
-  
-  // Mobile & Quick Actions
-  QuickActionsBar,
-  MobileCallBar,
-  BackToTopButton
+  GoogleReviewsSection
 };

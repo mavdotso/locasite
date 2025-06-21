@@ -227,7 +227,7 @@ export const AwardsCertificationsSection: ComponentConfig = {
     );
   },
   icon: Award,
-  category: "Trust & Social Proof"
+  category: "Section"
 };
 
 // Community Involvement Section
@@ -389,7 +389,7 @@ export const CommunityInvolvementSection: ComponentConfig = {
     );
   },
   icon: HandHeart,
-  category: "Trust & Social Proof"
+  category: "Section"
 };
 
 // Google Reviews Integration Section
@@ -583,7 +583,7 @@ export const GoogleReviewsSection: ComponentConfig = {
     );
   },
   icon: Star,
-  category: "Trust & Social Proof"
+  category: "Section"
 };
 
 // Membership Badges Section
@@ -818,7 +818,7 @@ export const MembershipBadgesSection: ComponentConfig = {
     );
   },
   icon: Building,
-  category: "Trust & Social Proof"
+  category: "Section"
 };
 
 // Customer Success Stories Section
@@ -1009,5 +1009,5 @@ export const CustomerSuccessSection: ComponentConfig = {
     );
   },
   icon: ThumbsUp,
-  category: "Trust & Social Proof"
+  category: "Section"
 };

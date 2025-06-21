@@ -80,7 +80,7 @@ export const SectionBlock: ComponentConfig = {
     );
   },
   icon: Box,
-  category: "Layout",
+  category: "Basic",
   acceptsChildren: true
 };
 
@@ -225,7 +225,7 @@ export const ColumnsBlock: ComponentConfig = {
     );
   },
   icon: Columns,
-  category: "Layout",
+  category: "Basic",
   acceptsChildren: true
 };
 
@@ -289,7 +289,7 @@ export const CardBlock: ComponentConfig = {
     );
   },
   icon: CreditCard,
-  category: "Layout",
+  category: "Basic",
   acceptsChildren: true
 };
 
@@ -345,7 +345,7 @@ export const AccordionBlock: ComponentConfig = {
     );
   },
   icon: ChevronDown,
-  category: "Interactive"
+  category: "Basic"
 };
 
 // Tabs Block - Tabbed content
@@ -400,6 +400,6 @@ export const TabsBlock: ComponentConfig = {
     );
   },
   icon: Layout,
-  category: "Interactive",
+  category: "Basic",
   acceptsChildren: true
 };

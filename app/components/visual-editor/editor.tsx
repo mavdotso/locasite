@@ -579,7 +579,7 @@ export default function VisualEditor({
         <div className="flex-1 flex overflow-hidden">
           {/* Left Sidebar - Component Library */}
           {isEditMode && (
-            <div className="w-64 border-r bg-card">
+            <div className="w-64 border-r bg-card relative z-50">
               <ComponentLibrary />
             </div>
           )}
