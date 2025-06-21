@@ -23,7 +23,9 @@ export default function DropZone({ id, index, onDrop, className, showAlways = fa
     componentConfigs[draggedItem.componentType]?.isTemplate;
   
   // If dragging a template and this is not a root-level drop zone, hide it
-  const isRootDropZone = !id.includes('-'); // Root drop zones don't have nested IDs
+  // Root drop zones have IDs like "drop-zone-0", "drop-zone-1", etc.
+  // Nested drop zones have IDs like "drop-zone-componentId-0"
+  const isRootDropZone = /^drop-zone-\d+$/.test(id);
   const shouldHideForTemplate = isTemplate && !isRootDropZone;
   
   const isActive = dropTargetId === id;
