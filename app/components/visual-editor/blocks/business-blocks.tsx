@@ -551,7 +551,8 @@ export const HeroBlock: ComponentConfig = {
               text: "Get Started",
               link: "#contact",
               variant: "default",
-              size: "lg"
+              size: "lg",
+              align: "center"
             }
           },
           {

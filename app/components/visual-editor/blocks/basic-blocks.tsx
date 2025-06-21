@@ -35,7 +35,9 @@ import {
   Linkedin,
   X,
   CreditCard,
-  Sparkles
+  Sparkles,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { cn } from "@/app/lib/utils";
@@ -306,15 +308,26 @@ export const ButtonBlock: ComponentConfig = {
         { value: "auto", label: "Auto" },
         { value: "full", label: "Full Width" }
       ]
+    },
+    align: {
+      type: "select",
+      label: "Alignment",
+      defaultValue: "left",
+      options: [
+        { value: "left", label: "Left" },
+        { value: "center", label: "Center" },
+        { value: "right", label: "Right" }
+      ]
     }
   },
   render: (props) => {
-    const { text, link, variant, size, fullWidth } = props as {
+    const { text, link, variant, size, fullWidth, align } = props as {
       text?: string;
       link?: string;
       variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
       size?: "sm" | "default" | "lg";
       fullWidth?: string;
+      align?: string;
     };
     
     const button = (
@@ -334,7 +347,21 @@ export const ButtonBlock: ComponentConfig = {
       </Button>
     );
     
-    return fullWidth === "full" ? button : <div className="inline-block">{button}</div>;
+    if (fullWidth === "full") {
+      return button;
+    }
+    
+    const alignClasses = {
+      left: "text-left",
+      center: "text-center",
+      right: "text-right"
+    };
+    
+    return (
+      <div className={alignClasses[align as keyof typeof alignClasses] || alignClasses.left}>
+        {button}
+      </div>
+    );
   },
   icon: Square,
   category: "Basic",
@@ -1408,6 +1435,175 @@ export const ListBlock: ComponentConfig = {
     );
   },
   icon: CheckCircle,
+  category: "Basic"
+};
+
+// Gallery Grid Block - Image gallery with lightbox
+export const GalleryGridBlock: ComponentConfig = {
+  fields: {
+    images: {
+      type: "array",
+      label: "Images",
+      defaultValue: [],
+      itemType: {
+        type: "image",
+        label: "Image"
+      },
+      maxItems: 20
+    },
+    columns: {
+      type: "select",
+      label: "Columns",
+      defaultValue: "3",
+      options: [
+        { value: "2", label: "2 Columns" },
+        { value: "3", label: "3 Columns" },
+        { value: "4", label: "4 Columns" },
+        { value: "5", label: "5 Columns" },
+        { value: "6", label: "6 Columns" }
+      ]
+    },
+    gap: {
+      type: "select",
+      label: "Gap",
+      defaultValue: "medium",
+      options: [
+        { value: "none", label: "None" },
+        { value: "small", label: "Small" },
+        { value: "medium", label: "Medium" },
+        { value: "large", label: "Large" }
+      ]
+    },
+    aspectRatio: {
+      type: "select",
+      label: "Aspect Ratio",
+      defaultValue: "square",
+      options: [
+        { value: "square", label: "Square (1:1)" },
+        { value: "landscape", label: "Landscape (4:3)" },
+        { value: "portrait", label: "Portrait (3:4)" },
+        { value: "wide", label: "Wide (16:9)" },
+        { value: "auto", label: "Auto" }
+      ]
+    }
+  },
+  render: function GalleryBlockRender(props, _editMode, business) {
+    const { images = [], columns = "3", gap = "medium", aspectRatio = "square" } = props as {
+      images?: string[];
+      columns?: string;
+      gap?: string;
+      aspectRatio?: string;
+    };
+    
+    const [lightboxOpen, setLightboxOpen] = React.useState(false);
+    const [currentImage, setCurrentImage] = React.useState(0);
+    
+    const businessData = business as Doc<"businesses"> | undefined;
+    
+    // Use business photos if no images provided
+    const galleryImages = images.length > 0 ? images : (businessData?.photos || []);
+    
+    if (galleryImages.length === 0) {
+      return (
+        <div className="text-center py-8 text-muted-foreground">
+          <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
+          <p>No images in gallery</p>
+        </div>
+      );
+    }
+    
+    const gapClasses = {
+      none: "gap-0",
+      small: "gap-2",
+      medium: "gap-4",
+      large: "gap-6"
+    };
+    
+    const aspectClasses = {
+      square: "aspect-square",
+      landscape: "aspect-[4/3]",
+      portrait: "aspect-[3/4]",
+      wide: "aspect-video",
+      auto: ""
+    };
+    
+    const openLightbox = (index: number) => {
+      setCurrentImage(index);
+      setLightboxOpen(true);
+    };
+    
+    return (
+      <>
+        <div className={cn(
+          "grid",
+          gapClasses[gap as keyof typeof gapClasses],
+          columns === "2" && "grid-cols-2",
+          columns === "3" && "grid-cols-2 md:grid-cols-3",
+          columns === "4" && "grid-cols-2 md:grid-cols-4",
+          columns === "5" && "grid-cols-2 md:grid-cols-3 lg:grid-cols-5",
+          columns === "6" && "grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
+        )}>
+          {galleryImages.map((image, index) => (
+            <div
+              key={index}
+              className={cn(
+                "relative overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition-opacity",
+                aspectClasses[aspectRatio as keyof typeof aspectClasses]
+              )}
+              onClick={() => openLightbox(index)}
+            >
+              <img
+                src={image}
+                alt={`Gallery image ${index + 1}`}
+                className={cn(
+                  "w-full",
+                  aspectRatio === "auto" ? "h-auto" : "h-full object-cover"
+                )}
+              />
+            </div>
+          ))}
+        </div>
+        
+        {/* Lightbox */}
+        {lightboxOpen && (
+          <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur">
+            <div className="absolute inset-0 flex items-center justify-center p-4">
+              <button
+                onClick={() => setLightboxOpen(false)}
+                className="absolute top-4 right-4 p-2 rounded-full bg-background/80 hover:bg-background"
+              >
+                <X className="w-6 h-6" />
+              </button>
+              
+              {galleryImages.length > 1 && (
+                <>
+                  <button
+                    onClick={() => setCurrentImage((prev) => (prev - 1 + galleryImages.length) % galleryImages.length)}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background/80 hover:bg-background"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={() => setCurrentImage((prev) => (prev + 1) % galleryImages.length)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background/80 hover:bg-background"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+                </>
+              )}
+              
+              <img
+                src={galleryImages[currentImage]}
+                alt={`Gallery image ${currentImage + 1}`}
+                className="max-w-full max-h-full object-contain"
+              />
+            </div>
+          </div>
+        )}
+      </>
+    );
+  },
+  icon: ImageIcon,
   category: "Basic"
 };
 

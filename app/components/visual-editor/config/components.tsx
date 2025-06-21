@@ -24,6 +24,7 @@ import {
   SocialLinksBlock,
   PaymentMethodsBlock,
   ListBlock,
+  GalleryGridBlock,
   AlertBlock
 } from "../blocks/basic-blocks";
 import {
@@ -52,6 +53,7 @@ export const componentConfigs: Record<string, ComponentConfig> = {
   SpacerBlock,
   IconBlock,
   ListBlock,
+  GalleryGridBlock,
   AlertBlock,
   
   // Business-Specific Blocks
