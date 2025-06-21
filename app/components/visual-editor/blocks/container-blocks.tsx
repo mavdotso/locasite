@@ -101,16 +101,16 @@ export const SectionBlock: ComponentConfig = {
     
     const widthClasses = {
       full: "w-full",
-      container: "container mx-auto px-4",
-      narrow: "max-w-4xl mx-auto px-4"
+      container: "container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl",
+      narrow: "max-w-4xl mx-auto px-4 sm:px-6"
     };
     
     const paddingClasses = {
       none: "",
-      small: "py-8",
-      medium: "py-16",
-      large: "py-24",
-      xlarge: "py-32"
+      small: "py-6 sm:py-8",
+      medium: "py-12 sm:py-16",
+      large: "py-16 sm:py-24",
+      xlarge: "py-20 sm:py-32"
     };
     
     const bgColorClasses = {
@@ -267,7 +267,7 @@ export const ColumnsBlock: ComponentConfig = {
           isEditMode={editMode}
         >
           {childrenArray.map((colContent, colIndex) => (
-            <div key={colIndex} className="column-drop-zone">
+            <div key={colIndex} className="column-drop-zone overflow-hidden">
               {(colContent as React.ReactElement<{ children?: React.ReactNode }>).props.children}
               {editMode && !(colContent as React.ReactElement<{ children?: React.ReactNode }>).props.children && (
                 <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">
@@ -325,7 +325,7 @@ export const ColumnsBlock: ComponentConfig = {
         isEditMode={editMode}
       >
         {columnContents.map((colChildren, colIndex) => (
-          <div key={colIndex}>
+          <div key={colIndex} className="overflow-hidden">
             {colChildren}
             {editMode && colChildren.length === 0 && (
               <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">

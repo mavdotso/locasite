@@ -42,7 +42,8 @@ export const HeaderBlock: ComponentConfig = {
             props: {
               columns: "2",
               gap: "large",
-              stackOnMobile: "yes"
+              stackOnMobile: "yes",
+              columnWidths: [30, 70]
             },
             children: [
               // Logo
@@ -55,40 +56,38 @@ export const HeaderBlock: ComponentConfig = {
                   logoText: businessData?.name || "Business Name"
                 }
               },
-              // Buttons
+              // Navigation and Buttons
               {
-                type: "ColumnsBlock",
+                type: "SectionBlock",
                 props: {
-                  columns: "3",
-                  gap: "small",
-                  stackOnMobile: "no"
+                  width: "full",
+                  verticalPadding: "none",
+                  backgroundColor: "transparent"
                 },
                 children: [
                   {
+                    type: "NavigationBlock",
+                    props: {
+                      showSections: "auto",
+                      style: "horizontal",
+                      align: "right"
+                    }
+                  },
+                  {
+                    type: "SpacerBlock",
+                    props: {
+                      height: "16"
+                    }
+                  },
+                  {
                     type: "ButtonBlock",
                     props: {
-                      text: businessData?.phone || "(555) 123-4567",
+                      text: businessData?.phone || "Call Now",
                       link: `tel:${businessData?.phone || ""}`,
-                      variant: "ghost",
-                      size: "sm"
-                    }
-                  },
-                  {
-                    type: "ButtonBlock",
-                    props: {
-                      text: "Hours",
-                      link: "#hours",
-                      variant: "ghost",
-                      size: "sm"
-                    }
-                  },
-                  {
-                    type: "ButtonBlock",
-                    props: {
-                      text: "Contact",
-                      link: "#contact",
                       variant: "default",
-                      size: "sm"
+                      size: "sm",
+                      width: "auto",
+                      align: "right"
                     }
                   }
                 ]

@@ -37,7 +37,8 @@ import {
   CreditCard,
   Sparkles,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Menu
 } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { cn } from "@/app/lib/utils";
@@ -1898,5 +1899,155 @@ export const AlertBlock: ComponentConfig = {
     );
   },
   icon: AlertCircle,
+  category: "Basic"
+};
+
+// Navigation Component
+const NavigationComponent = ({ showSections, customLinks, style, align, editMode }: {
+  showSections?: string;
+  customLinks?: Array<{ text: string; link: string }>;
+  style?: string;
+  align?: string;
+  editMode?: boolean;
+}) => {
+  // Default navigation items - these would be populated from actual page sections
+  const defaultSections = [
+    { text: "About", link: "#about" },
+    { text: "Services", link: "#services" },
+    { text: "Gallery", link: "#gallery" },
+    { text: "Reviews", link: "#reviews" },
+    { text: "Contact", link: "#contact" }
+  ];
+
+  const sections = showSections === "custom" && customLinks?.length 
+    ? customLinks 
+    : defaultSections;
+
+  const alignmentClasses = {
+    left: "justify-start",
+    center: "justify-center",
+    right: "justify-end"
+  };
+
+  // Mobile menu state
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  if (style === "mobile" || style === "dropdown") {
+    return (
+      <div className="relative">
+        <button
+          onClick={(e) => {
+            if (!editMode) {
+              e.preventDefault();
+              setIsOpen(!isOpen);
+            }
+          }}
+          className={cn(
+            "p-2 rounded-md hover:bg-muted transition-colors",
+            alignmentClasses[align as keyof typeof alignmentClasses]
+          )}
+        >
+          <Menu className="w-6 h-6" />
+        </button>
+        
+        {isOpen && !editMode && (
+          <div className="absolute top-full mt-2 bg-background border rounded-md shadow-lg p-2 min-w-[200px] z-50">
+            {sections.map((item, index) => (
+              <a
+                key={index}
+                href={item.link}
+                className="block px-4 py-2 hover:bg-muted rounded-md transition-colors"
+                onClick={(e) => {
+                  if (editMode) e.preventDefault();
+                  setIsOpen(false);
+                }}
+              >
+                {item.text}
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Horizontal navigation
+  return (
+    <nav className={cn(
+      "flex flex-wrap gap-6",
+      alignmentClasses[align as keyof typeof alignmentClasses]
+    )}>
+      {sections.map((item, index) => (
+        <a
+          key={index}
+          href={item.link}
+          className="text-sm font-medium hover:text-primary transition-colors"
+          onClick={(e) => {
+            if (editMode) e.preventDefault();
+          }}
+        >
+          {item.text}
+        </a>
+      ))}
+    </nav>
+  );
+};
+
+// Navigation Block
+export const NavigationBlock: ComponentConfig = {
+  fields: {
+    showSections: {
+      type: "select",
+      label: "Show Page Sections",
+      defaultValue: "auto",
+      options: [
+        { value: "auto", label: "Automatic (All Sections)" },
+        { value: "custom", label: "Custom Selection" }
+      ]
+    },
+    hiddenSections: {
+      type: "array",
+      label: "Hidden Sections",
+      defaultValue: [],
+      itemType: {
+        type: "text",
+        label: "Section ID"
+      },
+      hidden: true
+    },
+    customLinks: {
+      type: "array",
+      label: "Custom Links",
+      defaultValue: [],
+      itemType: {
+        type: "text",
+        label: "Link"
+      }
+    },
+    style: {
+      type: "select",
+      label: "Navigation Style",
+      defaultValue: "horizontal",
+      options: [
+        { value: "horizontal", label: "Horizontal" },
+        { value: "dropdown", label: "Dropdown Menu" },
+        { value: "mobile", label: "Mobile Menu (Hamburger)" }
+      ]
+    },
+    align: {
+      type: "select",
+      label: "Alignment",
+      defaultValue: "center",
+      options: [
+        { value: "left", label: "Left" },
+        { value: "center", label: "Center" },
+        { value: "right", label: "Right" }
+      ]
+    }
+  },
+  render: (props, editMode) => {
+    return <NavigationComponent {...props} editMode={editMode} />;
+  },
+  icon: Menu,
   category: "Basic"
 };

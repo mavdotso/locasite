@@ -129,12 +129,13 @@ export default function ResizableColumns({
       className={cn(
         "grid",
         stackOnMobile === "yes" && "grid-cols-1 md:grid-cols-none",
-        gapClasses[gap as keyof typeof gapClasses] || gapClasses.medium
+        gapClasses[gap as keyof typeof gapClasses] || gapClasses.medium,
+        "max-w-full overflow-hidden"
       )}
       style={gridStyle}
     >
       {children.map((child, index) => (
-        <div key={index} className="relative min-h-[100px]">
+        <div key={index} className="relative min-h-[100px] min-w-0 overflow-hidden">
           {child}
           
           {/* Resize handle */}
