@@ -105,7 +105,7 @@ export default function ComponentWrapper({
         "absolute -top-10 right-2 z-10",
         "flex items-center gap-1 bg-background border rounded-lg p-1",
         "transition-all duration-200",
-        isSelected ? "opacity-100 -translate-y-1 pointer-events-auto" : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
+        isSelected ? "opacity-100 -translate-y-1 pointer-events-auto" : "opacity-0 pointer-events-none"
       )}>
         {/* Drag Handle */}
         <Tooltip>
@@ -123,8 +123,8 @@ export default function ComponentWrapper({
           </TooltipContent>
         </Tooltip>
 
-        {/* Move Buttons - only show for top-level components */}
-        {!isNested && (
+        {/* Move Buttons - only show for Sections and Columns */}
+        {!isNested && (component.type === 'SectionBlock' || component.type === 'ColumnsBlock') && (
           <>
             <Tooltip>
               <TooltipTrigger asChild>

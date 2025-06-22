@@ -174,12 +174,17 @@ function TreeItem({ node, level, onDragStart, isDragging, searchQuery }: TreeIte
         )}
         style={{ paddingLeft: `${level * 24 + 8}px` }}
         onClick={handleClick}
-        draggable={isComponent}
-        onDragStart={isComponent ? handleDrag : undefined}
       >
         {/* Drag handle */}
         {isComponent && (
-          <GripVertical className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity -ml-1" />
+          <div
+            draggable
+            onDragStart={handleDrag}
+            className="cursor-move"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <GripVertical className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity -ml-1" />
+          </div>
         )}
         
         {/* Expand/Collapse icon */}
