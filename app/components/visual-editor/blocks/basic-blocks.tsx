@@ -1831,7 +1831,9 @@ export const AlertBlock: ComponentConfig = {
       ]
     }
   },
-  render: function AlertBlockRender(props) {
+  render: function AlertBlockRender(props, editMode) {
+    const [dismissed, setDismissed] = React.useState(false);
+    
     const { type, title, message, showIcon, dismissible } = props as {
       type?: string;
       title?: string;
@@ -1840,9 +1842,7 @@ export const AlertBlock: ComponentConfig = {
       dismissible?: string;
     };
     
-    const [dismissed, setDismissed] = React.useState(false);
-    
-    if (dismissed) return null;
+    if (dismissed && !editMode) return null;
     
     const typeConfig = {
       info: {
