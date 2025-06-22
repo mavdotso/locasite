@@ -27,18 +27,30 @@ export default function ResizableColumns({
   minHeight = '100px'
 }: ResizableColumnsProps) {
   // Initialize column widths - equal distribution by default
+  const getEqualWidths = (count: number) => Array(count).fill(100 / count);
+  
   const [columnWidths, setColumnWidths] = useState<number[]>(() => {
     if (initialWidths && initialWidths.length === columnCount) {
       return initialWidths;
     }
-    return Array(columnCount).fill(100 / columnCount);
+    return getEqualWidths(columnCount);
   });
 
-  // Reset column widths when column count changes
+  // Ensure column widths array matches column count
+  const actualColumnWidths = columnWidths.length === columnCount 
+    ? columnWidths 
+    : getEqualWidths(columnCount);
+
+  // Update column widths when column count changes
   useEffect(() => {
-    const newWidths = Array(columnCount).fill(100 / columnCount);
-    setColumnWidths(newWidths);
-  }, [columnCount]);
+    if (columnWidths.length !== columnCount) {
+      const newWidths = getEqualWidths(columnCount);
+      setColumnWidths(newWidths);
+      if (onColumnWidthsChange) {
+        onColumnWidthsChange(newWidths);
+      }
+    }
+  }, [columnCount, columnWidths.length, onColumnWidthsChange]);
   
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState<number | null>(null);
@@ -140,7 +152,7 @@ export default function ResizableColumns({
   const shouldApplyColumns = !isMobile || stackOnMobile !== "yes";
   const gridStyle: React.CSSProperties = shouldApplyColumns
     ? { 
-        gridTemplateColumns: columnWidths.map(w => `minmax(0, ${w}fr)`).join(' '),
+        gridTemplateColumns: actualColumnWidths.map(w => `minmax(0, ${w}fr)`).join(' '),
         gap: currentGap + 'px'
       }
     : {};
@@ -156,7 +168,7 @@ export default function ResizableColumns({
       )}
       style={gridStyle}
     >
-      {Array.from({ length: columnCount }, (_, index) => (
+      {actualColumnWidths.map((width, index) => (
         <div 
           key={index} 
           className={cn(
@@ -171,7 +183,7 @@ export default function ResizableColumns({
           }}
         >
           <div className="w-full">
-            {children[index] || null}
+            {index < children.length ? children[index] : null}
           </div>
           
           {/* Resize handle - spans entire gap between columns with minimum width */}

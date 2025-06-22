@@ -72,7 +72,7 @@ export default function NestedDropZone({
             // eslint-disable-next-line @typescript-eslint/no-require-imports
             const ColumnsDropZone = require('./columns-drop-zone').default;
             return (
-              <React.Fragment key={child.id}>
+              <React.Fragment key={`${child.id}-${child.props.columns || '2'}`}>
                 <ColumnsDropZone
                   component={child}
                   business={business}

@@ -229,7 +229,7 @@ export default function PreviewPanel({
                 if (config?.acceptsChildren) {
                   const DropZoneComponent = component.type === "ColumnsBlock" ? ColumnsDropZone : NestedDropZone;
                   return (
-                    <React.Fragment key={component.id}>
+                    <React.Fragment key={`${component.id}-${component.props.columns || '2'}`}>
                       <DropZoneComponent
                         component={component}
                         business={business}

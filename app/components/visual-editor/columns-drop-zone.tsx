@@ -180,7 +180,7 @@ export default function ColumnsDropZone({
     const isVertical = direction === "col";
     
     const handleColumnWidthsChange = (widths: number[]) => {
-      onUpdateComponent(component.id, { columnWidths: widths });
+      onUpdateComponent(component.id, { ...component.props, columnWidths: widths });
     };
     
     // For vertical layout
@@ -214,6 +214,7 @@ export default function ColumnsDropZone({
     // For horizontal layout, use ResizableColumns
     return (
       <ResizableColumns
+        key={`columns-${columnCount}`}
         columnCount={columnCount}
         gap={gap}
         stackOnMobile={stackOnMobile}
@@ -222,7 +223,7 @@ export default function ColumnsDropZone({
         isEditMode={isEditMode}
       >
         {columnContents.map((colChildren, colIndex) => (
-          <div key={colIndex} className="column-drop-zone relative">
+          <div key={`col-${colIndex}-of-${columnCount}`} className="column-drop-zone relative">
             {colChildren.length === 0 && isEditMode ? (
               // Empty column - entire area is droppable
               <div

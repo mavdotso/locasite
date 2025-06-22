@@ -209,8 +209,8 @@ export default function VisualEditor({
             const oldColumnCount = parseInt(comp.props.columns as string || "2");
             const newColumnCount = parseInt(props.columns as string || "2");
             
-            // If column count changed, redistribute children
-            if (oldColumnCount !== newColumnCount && comp.children.length > 0) {
+            // If column count changed, redistribute children and reset column widths
+            if (oldColumnCount !== newColumnCount) {
               const redistributedChildren = comp.children.map((child, index) => ({
                 ...child,
                 metadata: {
@@ -219,7 +219,11 @@ export default function VisualEditor({
                 }
               }));
               
-              return { ...comp, props, children: redistributedChildren };
+              // Remove columnWidths from props when column count changes
+              const newProps = { ...props };
+              delete newProps.columnWidths;
+              
+              return { ...comp, props: newProps, children: redistributedChildren };
             }
           }
           
@@ -237,8 +241,9 @@ export default function VisualEditor({
       components: updateInComponents(pageData.components)
     };
     setPageData(newData);
+    addToHistory(newData);
     setHasUnsavedChanges(true);
-  }, [pageData]);
+  }, [pageData, addToHistory]);
 
   // Update component layout (handles nested components)
   const handleUpdateComponentLayout = useCallback((id: string, layout: LayoutOptions) => {
