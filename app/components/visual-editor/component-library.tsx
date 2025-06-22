@@ -10,14 +10,12 @@ import {
   Search, 
   ChevronRight, 
   ChevronDown,
-  FileText,
   Layout,
   Type,
   Image,
   Square,
   Users,
   Film,
-  FormInput,
   Plus,
   Columns,
   GripVertical
@@ -35,54 +33,52 @@ interface TreeNode {
 
 const componentTree: TreeNode[] = [
   {
-    label: "Pages",
-    icon: FileText,
+    label: "Layout",
+    icon: Layout,
     children: [
-      { label: "Home", icon: FileText },
-      { 
-        label: "Category", 
-        icon: Layout,
-        children: []
-      },
-      {
-        label: "CTA",
-        icon: Square,
-        children: []
-      },
-      {
-        label: "Sections",
-        icon: Layout,
-        children: [
-          { label: "Heading", componentType: "TextBlock", icon: Type },
-          { label: "Paragraph", componentType: "TextBlock", icon: Type },
-          { label: "Image", componentType: "ImageBlock", icon: Image }
-        ]
-      },
-      {
-        label: "Community",
-        icon: Users,
-        children: []
-      }
+      { label: "Section", componentType: "SectionBlock", icon: Layout },
+      { label: "Columns", componentType: "ColumnsBlock", icon: Columns },
+      { label: "Card", componentType: "CardBlock", icon: Square },
+      { label: "Accordion", componentType: "AccordionBlock", icon: Layout },
+      { label: "Tabs", componentType: "TabsBlock", icon: Layout }
+    ]
+  },
+  {
+    label: "Content",
+    icon: Type,
+    children: [
+      { label: "Text", componentType: "TextBlock", icon: Type },
+      { label: "Button", componentType: "ButtonBlock", icon: Square },
+      { label: "List", componentType: "ListBlock", icon: Layout },
+      { label: "Alert", componentType: "AlertBlock", icon: Square },
+      { label: "Badge", componentType: "BadgeBlock", icon: Square },
+      { label: "Divider", componentType: "DividerBlock", icon: Layout },
+      { label: "Spacer", componentType: "SpacerBlock", icon: Square }
     ]
   },
   {
     label: "Media",
-    icon: Film,
+    icon: Image,
     children: [
       { label: "Image", componentType: "ImageBlock", icon: Image },
+      { label: "Logo", componentType: "LogoBlock", icon: Image },
       { label: "Video", componentType: "VideoBlock", icon: Film },
-      { label: "Youtube", componentType: "VideoBlock" },
-      { label: "Lottie Animation", componentType: "VideoBlock" },
-      { label: "Spline Scene", componentType: "VideoBlock" }
+      { label: "Gallery Grid", componentType: "GalleryGridBlock", icon: Layout },
+      { label: "Icon", componentType: "IconBlock", icon: Square }
     ]
   },
   {
-    label: "Forms",
-    icon: FormInput,
+    label: "Business",
+    icon: Users,
     children: [
-      { label: "Form Block", componentType: "CardBlock" },
-      { label: "Label", componentType: "TextBlock" },
-      { label: "Input", componentType: "ButtonBlock" }
+      { label: "Hero Section", componentType: "HeroSection", icon: Layout },
+      { label: "Info Section", componentType: "InfoSection", icon: Layout },
+      { label: "Gallery Section", componentType: "GallerySection", icon: Image },
+      { label: "Reviews Section", componentType: "ReviewsSection", icon: Users },
+      { label: "Business Hours", componentType: "BusinessHoursBlock", icon: Square },
+      { label: "Social Links", componentType: "SocialLinksBlock", icon: Users },
+      { label: "Payment Methods", componentType: "PaymentMethodsBlock", icon: Square },
+      { label: "Review Stars", componentType: "ReviewStarsBlock", icon: Square }
     ]
   }
 ];
@@ -273,21 +269,12 @@ export default function ComponentLibrary() {
         children: remainingComponents
       });
     }
-    
-    // Add the "Add Column" action at the end
-    tree.push({
-      label: "Add Column",
-      icon: Columns,
-      componentType: "ColumnsBlock",
-      isAddAction: true
-    });
-    
     return tree;
   }, []);
 
   return (
     <div className="h-full flex flex-col bg-background">
-      <div className="p-4 border-b border-border/50 space-y-3">
+      <div className="flex-shrink-0 p-4 border-b border-border/50 space-y-3">
         <div>
           <h3 className="font-semibold text-sm text-foreground">Components</h3>
           <p className="text-xs text-muted-foreground mt-1">
@@ -305,7 +292,7 @@ export default function ComponentLibrary() {
         </div>
       </div>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="py-2">
           {completeTree.map((node, index) => (
             <TreeItem
