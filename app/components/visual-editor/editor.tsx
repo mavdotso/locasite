@@ -621,26 +621,20 @@ export default function VisualEditor({
             </div>
           )}
 
-          {/* Center - Preview */}
-          <div className="flex-1 bg-muted/30 overflow-auto">
-            <div className="min-h-full p-8">
-              <div className="max-w-7xl mx-auto">
-                <div className="bg-background rounded-lg shadow-sm border border-border/50">
-                  <PreviewPanel
-                    pageData={pageData}
-                    business={business}
-                    selectedComponentId={selectedComponentId}
-                    onSelectComponent={setSelectedComponentId}
-                    onUpdateComponent={handleUpdateComponent}
-                    onRemoveComponent={handleRemoveComponent}
-                    onMoveComponent={handleMoveComponent}
-                    onAddComponent={(type, index, parentId) => handleAddComponent(type, index, parentId)}
-                    onDuplicateComponent={handleDuplicateComponent}
-                    isEditMode={isEditMode}
-                  />
-                </div>
-              </div>
-            </div>
+          {/* Center - Canvas */}
+          <div className="flex-1 relative overflow-hidden">
+            <PreviewPanel
+              pageData={pageData}
+              business={business}
+              selectedComponentId={selectedComponentId}
+              onSelectComponent={setSelectedComponentId}
+              onUpdateComponent={handleUpdateComponent}
+              onRemoveComponent={handleRemoveComponent}
+              onMoveComponent={handleMoveComponent}
+              onAddComponent={(type, index, parentId) => handleAddComponent(type, index, parentId)}
+              onDuplicateComponent={handleDuplicateComponent}
+              isEditMode={isEditMode}
+            />
           </div>
 
           {/* Right Sidebar - Field Editor */}
