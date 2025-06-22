@@ -218,15 +218,33 @@ export const ColumnsBlock: ComponentConfig = {
         { value: "yes", label: "Yes" },
         { value: "no", label: "No" }
       ]
+    },
+    verticalAlign: {
+      type: "select",
+      label: "Vertical Alignment",
+      defaultValue: "top",
+      options: [
+        { value: "top", label: "Top" },
+        { value: "center", label: "Center" },
+        { value: "bottom", label: "Bottom" }
+      ]
+    },
+    minHeight: {
+      type: "text",
+      label: "Minimum Height",
+      defaultValue: "100px",
+      placeholder: "e.g. 100px, 50vh, 0"
     }
   },
   render: (props, editMode, _business, children, onUpdate) => {
-    const { columns, gap, direction, stackOnMobile, columnWidths } = props as {
+    const { columns, gap, direction, stackOnMobile, columnWidths, verticalAlign, minHeight } = props as {
       columns?: string;
       gap?: string;
       direction?: string;
       stackOnMobile?: string;
       columnWidths?: number[];
+      verticalAlign?: 'top' | 'center' | 'bottom';
+      minHeight?: string;
     };
     
     const columnCount = parseInt(columns || "2");
@@ -265,6 +283,8 @@ export const ColumnsBlock: ComponentConfig = {
           initialWidths={columnWidths}
           onColumnWidthsChange={handleColumnWidthsChange}
           isEditMode={editMode}
+          verticalAlign={verticalAlign || "top"}
+          minHeight={minHeight || "100px"}
         >
           {childrenArray.map((colContent, colIndex) => (
             <div key={colIndex} className="column-drop-zone overflow-hidden">
@@ -323,6 +343,8 @@ export const ColumnsBlock: ComponentConfig = {
         initialWidths={columnWidths}
         onColumnWidthsChange={handleColumnWidthsChange}
         isEditMode={editMode}
+        verticalAlign={verticalAlign || "top"}
+        minHeight={minHeight || "100px"}
       >
         {columnContents.map((colChildren, colIndex) => (
           <div key={colIndex} className="overflow-hidden">

@@ -1,46 +1,95 @@
-## TODOS:
-- [ ] Re-create all the basic (standard) sections in the new visual editor style so that they're all completely editable
-- [ ] Create a "user library" component that stores all images that can be used on pages
-- [ ] Create pre-made page templates for different business types with styles
-- [ ] Messages / reservations implementation (+third party integrations + Zapier, whatsapp, etc)
-- [ ] Payments
-- [ ] Claim business on Google Maps
-- [ ] Logo upload
+# Locasite Todo List
 
-### Enhanced Layout Controls
-- [ ] Add margin/padding controls for sections
-- [ ] Implement column width distribution (e.g., 30/70, 25/75 splits)
-- [ ] Add alignment options for content within containers
-- [ ] Add background image positioning controls
+## 🔴 High Priority
 
-### Additional Building Blocks
-- [ ] Icon block with icon picker
-- [ ] Code block for technical content
-- [ ] Embed block for external content (maps, forms, etc.)
-- [ ] List block with customizable bullets/numbers
-- [ ] Quote block with citation
-- [ ] Social media links block
+### Features
+- [ ] Re-create all basic sections in visual editor style
+- [ ] Create user library component for image storage
+- [ ] Create pre-made page templates for business types
+- [ ] Implement messages/reservations with third-party integrations
+- [ ] Implement payment system
 
 ### Advanced Features
-- [ ] Copy/paste functionality for components
-- [ ] Component templates/presets library
-- [ ] Global styles management
-- [ ] Mobile-specific editing mode
-- [ ] Keyboard shortcuts for power users
-- [ ] Multi-select components for bulk operations
+- [ ] Implement copy/paste for components
+- [ ] Add mobile-specific editing mode
 
-### Performance & Polish
-- [ ] Add loading states for image uploads
-- [ ] Implement component search in the library
-- [ ] Add tooltips for all controls
+### Performance
 - [ ] Optimize re-renders for large pages
-- [ ] Lazy load component previews
-- [ ] Add progress indicators for auto-save
 
 ### Business Features
 - [ ] Save as template functionality
 - [ ] Version history with rollback
-- [ ] A/B testing support
 - [ ] SEO metadata editing
+
+### Documentation
+- [ ] Create README.md with setup instructions
+
+### Testing
+- [ ] Add tests for visual editor components
+- [ ] Add E2E tests for business creation flow
+
+## 🟡 Medium Priority
+
+### Code Improvements
+- [ ] Implement nested component movement in preview-panel.tsx
+- [ ] Implement user settings mutations (profile update, notifications, account deletion)
+- [ ] Implement email sending functionality in messages-management.tsx
+
+### Features
+- [ ] Implement Google Maps business claiming
+- [ ] Add logo upload functionality
+
+### Layout Controls
+- [ ] Add margin/padding controls for sections
+- [ ] Implement column width distribution presets (e.g., 30/70, 25/75 splits)
+- [ ] Add alignment options for content within containers ✓
+
+### Building Blocks
+- [ ] Create icon block with icon picker
+- [ ] Create embed block for external content (maps, forms, etc.)
+- [ ] Create list block with customizable bullets/numbers
+- [ ] Create social media links block
+
+### Advanced Features
+- [ ] Create component templates/presets library
+- [ ] Add global styles management
+- [ ] Multi-select components for bulk operations
+
+### Performance
+- [ ] Add loading states for image uploads
+- [ ] Implement component search in library
+- [ ] Lazy load component previews
+- [ ] Add progress indicators for auto-save
+
+### Business Features
 - [ ] Analytics integration
 - [ ] Multi-language support
+
+### Documentation
+- [ ] Update production deployment guide
+
+### Infrastructure
+- [ ] Set up CI/CD pipeline
+- [ ] Configure error monitoring (Sentry)
+- [ ] Set up staging environment
+
+## 🔵 Low Priority
+
+### Code Improvements
+- [ ] Move domain validation logic from convex/domains.ts to frontend
+
+### Layout Controls
+- [ ] Add background image positioning controls
+
+### Building Blocks
+- [ ] Create code block for technical content
+- [ ] Create quote block with citation
+
+### Advanced Features
+- [ ] Add keyboard shortcuts for power users
+
+### Performance
+- [ ] Add tooltips for all controls
+
+### Business Features
+- [ ] A/B testing support

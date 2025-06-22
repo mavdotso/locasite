@@ -11,6 +11,8 @@ interface ResizableColumnsProps {
   onColumnWidthsChange?: (widths: number[]) => void;
   initialWidths?: number[];
   isEditMode?: boolean;
+  verticalAlign?: 'top' | 'center' | 'bottom';
+  minHeight?: string | number;
 }
 
 export default function ResizableColumns({
@@ -20,7 +22,9 @@ export default function ResizableColumns({
   children,
   onColumnWidthsChange,
   initialWidths,
-  isEditMode = false
+  isEditMode = false,
+  verticalAlign = 'top',
+  minHeight = '100px'
 }: ResizableColumnsProps) {
   // Initialize column widths - equal distribution by default
   const [columnWidths, setColumnWidths] = useState<number[]>(() => {
@@ -144,8 +148,21 @@ export default function ResizableColumns({
       style={gridStyle}
     >
       {children.map((child, index) => (
-        <div key={index} className="relative min-h-[100px] min-w-0 overflow-hidden">
-          {child}
+        <div 
+          key={index} 
+          className={cn(
+            "relative min-w-0 overflow-hidden flex",
+            verticalAlign === 'top' && "items-start",
+            verticalAlign === 'center' && "items-center",
+            verticalAlign === 'bottom' && "items-end"
+          )}
+          style={{ 
+            minHeight: typeof minHeight === 'number' ? `${minHeight}px` : minHeight 
+          }}
+        >
+          <div className="w-full">
+            {child}
+          </div>
           
           {/* Resize handle - spans entire gap between columns with minimum width */}
           {isEditMode && index < columnCount - 1 && (
