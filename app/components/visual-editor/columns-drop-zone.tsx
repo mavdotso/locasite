@@ -42,6 +42,9 @@ export default function ColumnsDropZone({
   const { draggedItem } = useDragDrop();
   const config = componentConfigs[component.type];
   
+  // Get column count from props
+  const columnCount = parseInt((component.props.columns as string) || "2");
+  
   if (!config || component.type !== "ColumnsBlock") {
     // Fallback to regular NestedDropZone if not a columns block
     return (
@@ -78,9 +81,6 @@ export default function ColumnsDropZone({
       );
     }
   };
-
-  // Get column count from props
-  const columnCount = parseInt((component.props.columns as string) || "2");
 
   // Calculate the actual index in the full children array
   const calculateActualIndex = (columnIndex: number, dropIndex: number): number => {
@@ -126,16 +126,18 @@ export default function ColumnsDropZone({
   // Build the columns structure directly instead of using renderComponent
   // because ColumnsBlock's render expects raw children, not pre-distributed
   const columnsContent = (() => {
-    const columnCount = parseInt(component.props.columns as string || "2");
     const columnContents: React.ReactNode[][] = Array(columnCount).fill(null).map(() => []);
     
     // Distribute children to columns based on metadata
     if (component.children) {
       component.children.forEach((child, index) => {
-        const columnIndex = child.metadata?.columnIndex !== undefined 
-          ? child.metadata.columnIndex as number
-          : index % columnCount;
+        // Get columnIndex from metadata, ensuring it's valid for current column count
+        let columnIndex = child.metadata?.columnIndex as number | undefined;
         
+        // If columnIndex is undefined or out of bounds, redistribute
+        if (columnIndex === undefined || columnIndex >= columnCount) {
+          columnIndex = index % columnCount;
+        }
         
         // Ensure columnIndex is within bounds
         const safeColumnIndex = Math.min(Math.max(0, columnIndex), columnCount - 1);

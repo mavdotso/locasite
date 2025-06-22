@@ -204,6 +204,25 @@ export default function VisualEditor({
     const updateInComponents = (components: ComponentData[]): ComponentData[] => {
       return components.map(comp => {
         if (comp.id === id) {
+          // Special handling for ColumnsBlock when column count changes
+          if (comp.type === 'ColumnsBlock' && comp.props.columns !== props.columns && comp.children) {
+            const oldColumnCount = parseInt(comp.props.columns as string || "2");
+            const newColumnCount = parseInt(props.columns as string || "2");
+            
+            // If column count changed, redistribute children
+            if (oldColumnCount !== newColumnCount && comp.children.length > 0) {
+              const redistributedChildren = comp.children.map((child, index) => ({
+                ...child,
+                metadata: {
+                  ...child.metadata,
+                  columnIndex: index % newColumnCount
+                }
+              }));
+              
+              return { ...comp, props, children: redistributedChildren };
+            }
+          }
+          
           return { ...comp, props };
         }
         if (comp.children) {

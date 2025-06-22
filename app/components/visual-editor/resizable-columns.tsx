@@ -34,14 +34,11 @@ export default function ResizableColumns({
     return Array(columnCount).fill(100 / columnCount);
   });
 
-  // Update column widths when column count changes
+  // Reset column widths when column count changes
   useEffect(() => {
     const newWidths = Array(columnCount).fill(100 / columnCount);
     setColumnWidths(newWidths);
-    if (onColumnWidthsChange) {
-      onColumnWidthsChange(newWidths);
-    }
-  }, [columnCount, onColumnWidthsChange]);
+  }, [columnCount]);
   
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState<number | null>(null);
@@ -121,7 +118,7 @@ export default function ResizableColumns({
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, dragStartX, dragStartWidths, containerWidth, columnCount, onColumnWidthsChange]);
+  }, [isDragging, dragStartX, dragStartWidths, containerWidth, columnCount, columnWidths, onColumnWidthsChange]);
 
   const gapClasses = {
     none: "",
@@ -144,7 +141,7 @@ export default function ResizableColumns({
   const gridStyle: React.CSSProperties = shouldApplyColumns
     ? { 
         gridTemplateColumns: columnWidths.map(w => `minmax(0, ${w}fr)`).join(' '),
-        gridAutoFlow: 'column'
+        gap: currentGap + 'px'
       }
     : {};
 
@@ -159,7 +156,7 @@ export default function ResizableColumns({
       )}
       style={gridStyle}
     >
-      {children.map((child, index) => (
+      {Array.from({ length: columnCount }, (_, index) => (
         <div 
           key={index} 
           className={cn(
@@ -174,7 +171,7 @@ export default function ResizableColumns({
           }}
         >
           <div className="w-full">
-            {child}
+            {children[index] || null}
           </div>
           
           {/* Resize handle - spans entire gap between columns with minimum width */}

@@ -81,10 +81,13 @@ export default function PreviewPanel({
         
         // Distribute children to columns based on metadata
         component.children.forEach((child, index) => {
-          const columnIndex = child.metadata?.columnIndex !== undefined 
-            ? child.metadata.columnIndex as number
-            : index % columnCount;
+          // Get columnIndex from metadata, ensuring it's valid for current column count
+          let columnIndex = child.metadata?.columnIndex as number | undefined;
           
+          // If columnIndex is undefined or out of bounds, redistribute
+          if (columnIndex === undefined || columnIndex >= columnCount) {
+            columnIndex = index % columnCount;
+          }
           
           // Ensure columnIndex is within bounds
           const safeColumnIndex = Math.min(Math.max(0, columnIndex), columnCount - 1);

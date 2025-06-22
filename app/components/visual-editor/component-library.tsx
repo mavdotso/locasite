@@ -38,9 +38,7 @@ const componentTree: TreeNode[] = [
     icon: Layout,
     children: [
       { label: "Section", componentType: "SectionBlock", icon: Layout },
-      { label: "2 Columns", componentType: "ColumnsBlock", icon: Columns, metadata: { columns: "2" } },
-      { label: "3 Columns", componentType: "ColumnsBlock", icon: Columns, metadata: { columns: "3" } },
-      { label: "4 Columns", componentType: "ColumnsBlock", icon: Columns, metadata: { columns: "4" } },
+      { label: "Columns", componentType: "ColumnsBlock", icon: Columns },
       { label: "Card", componentType: "CardBlock", icon: Square },
       { label: "Accordion", componentType: "AccordionBlock", icon: Layout },
       { label: "Tabs", componentType: "TabsBlock", icon: Layout }
