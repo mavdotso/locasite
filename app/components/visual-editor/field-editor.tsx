@@ -4,7 +4,7 @@ import React from "react";
 import { ComponentData } from "./types";
 import { allComponentConfigs as componentConfigs } from "./config/all-components";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
-import { X } from "lucide-react";
+import { X, ChevronDown } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import TextField from "./fields/text-field";
 import TextareaField from "./fields/textarea-field";
@@ -15,7 +15,8 @@ import NumberField from "./fields/number-field";
 import ArrayField from "./fields/array-field";
 import LayoutControls from "./layout-controls";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
-import { LayoutOptions } from "./types";
+import { LayoutOptions, Field } from "./types";
+import { cn } from "@/app/lib/utils";
 
 interface FieldEditorProps {
   component: ComponentData | null;
@@ -25,6 +26,59 @@ interface FieldEditorProps {
   businessId: string;
 }
 
+interface FieldSection {
+  title: string;
+  fields: string[];
+  defaultOpen?: boolean;
+}
+
+// Group fields into logical sections
+function getFieldSections(fields: Record<string, Field>): FieldSection[] {
+  const sections: FieldSection[] = [];
+  const fieldNames = Object.keys(fields);
+  
+  // Content fields
+  const contentFields = fieldNames.filter(name => 
+    ['content', 'text', 'title', 'description', 'caption', 'label', 'subtext', 'message'].includes(name)
+  );
+  if (contentFields.length > 0) {
+    sections.push({ title: "Content", fields: contentFields, defaultOpen: true });
+  }
+  
+  // Media fields
+  const mediaFields = fieldNames.filter(name => 
+    ['src', 'image', 'backgroundImage', 'logoImage', 'url', 'video'].includes(name)
+  );
+  if (mediaFields.length > 0) {
+    sections.push({ title: "Media", fields: mediaFields });
+  }
+  
+  // Style fields
+  const styleFields = fieldNames.filter(name => 
+    ['variant', 'style', 'size', 'color', 'backgroundColor', 'textColor', 'align', 'direction'].includes(name)
+  );
+  if (styleFields.length > 0) {
+    sections.push({ title: "Style", fields: styleFields });
+  }
+  
+  // Layout fields
+  const layoutFields = fieldNames.filter(name => 
+    ['width', 'height', 'padding', 'margin', 'gap', 'columns', 'fullWidth', 'aspectRatio'].includes(name)
+  );
+  if (layoutFields.length > 0) {
+    sections.push({ title: "Layout", fields: layoutFields });
+  }
+  
+  // Other fields
+  const usedFields = new Set([...contentFields, ...mediaFields, ...styleFields, ...layoutFields]);
+  const otherFields = fieldNames.filter(name => !usedFields.has(name) && !fields[name].hidden);
+  if (otherFields.length > 0) {
+    sections.push({ title: "Other", fields: otherFields });
+  }
+  
+  return sections;
+}
+
 export default function FieldEditor({ 
   component, 
   onUpdate,
@@ -32,6 +86,25 @@ export default function FieldEditor({
   onClose,
   businessId 
 }: FieldEditorProps) {
+  const [expandedSections, setExpandedSections] = React.useState<Set<string>>(new Set());
+
+  // Get config and sections before any conditional returns
+  const config = component ? componentConfigs[component.type] : null;
+  const fieldSections = config ? getFieldSections(config.fields) : [];
+
+  // Initialize expanded sections
+  React.useEffect(() => {
+    if (!component || !config) return;
+    
+    const initial = new Set<string>();
+    fieldSections.forEach((section, index) => {
+      if (section.defaultOpen ?? index === 0) {
+        initial.add(section.title);
+      }
+    });
+    setExpandedSections(initial);
+  }, [component?.type]); // Reset when component type changes
+
   if (!component) {
     return (
       <div className="h-full flex items-center justify-center p-8">
@@ -42,7 +115,6 @@ export default function FieldEditor({
     );
   }
 
-  const config = componentConfigs[component.type];
   if (!config) {
     return (
       <div className="h-full flex items-center justify-center p-8">
@@ -60,128 +132,174 @@ export default function FieldEditor({
     });
   };
 
+  const toggleSection = (title: string) => {
+    setExpandedSections(prev => {
+      const next = new Set(prev);
+      if (next.has(title)) {
+        next.delete(title);
+      } else {
+        next.add(title);
+      }
+      return next;
+    });
+  };
+
+  const renderField = (fieldName: string) => {
+    const field = config.fields[fieldName];
+    const value = component.props[fieldName] ?? field.defaultValue;
+
+    switch (field.type) {
+      case "text":
+        return (
+          <TextField
+            key={fieldName}
+            field={field}
+            value={value as string || ""}
+            onChange={(val) => handleFieldChange(fieldName, val)}
+          />
+        );
+
+      case "textarea":
+        return (
+          <TextareaField
+            key={fieldName}
+            field={field}
+            value={value as string || ""}
+            onChange={(val) => handleFieldChange(fieldName, val)}
+          />
+        );
+
+      case "image":
+        return (
+          <ImageField
+            key={fieldName}
+            field={field}
+            value={value as string || ""}
+            onChange={(val) => handleFieldChange(fieldName, val)}
+            businessId={businessId}
+          />
+        );
+
+      case "color":
+        return (
+          <ColorField
+            key={fieldName}
+            field={field}
+            value={value as string || ""}
+            onChange={(val) => handleFieldChange(fieldName, val)}
+          />
+        );
+
+      case "select":
+        return (
+          <SelectField
+            key={fieldName}
+            field={field}
+            value={value as string || ""}
+            onChange={(val) => handleFieldChange(fieldName, val)}
+          />
+        );
+
+      case "number":
+        return (
+          <NumberField
+            key={fieldName}
+            field={field}
+            value={value as number || 0}
+            onChange={(val) => handleFieldChange(fieldName, val)}
+          />
+        );
+
+      case "array":
+        return (
+          <ArrayField
+            key={fieldName}
+            field={field}
+            value={value as unknown[] || []}
+            onChange={(val) => handleFieldChange(fieldName, val)}
+            businessId={businessId}
+          />
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between p-4 border-b">
+    <div className="h-full flex flex-col bg-background">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
         <div>
-          <h3 className="font-semibold text-sm">
-            Edit {component.type.replace(/Block$/, "")}
+          <h3 className="font-semibold text-base">
+            {component.type.replace(/Block$/, "")}
           </h3>
-          <p className="text-xs text-muted-foreground mt-1">
-            Customize component
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Component Properties
           </p>
         </div>
         <Button
           variant="ghost"
           size="sm"
           onClick={onClose}
-          className="h-8 w-8 p-0"
+          className="h-8 w-8 p-0 hover:bg-muted"
         >
           <X className="h-4 w-4" />
         </Button>
       </div>
 
       <Tabs defaultValue="properties" className="flex-1 flex flex-col">
-        <TabsList className="w-full">
-          <TabsTrigger value="properties" className="flex-1">Properties</TabsTrigger>
-          <TabsTrigger value="layout" className="flex-1">Layout</TabsTrigger>
+        <TabsList className="w-full rounded-none border-b h-10">
+          <TabsTrigger value="properties" className="flex-1 data-[state=active]:shadow-none">
+            Properties
+          </TabsTrigger>
+          <TabsTrigger value="layout" className="flex-1 data-[state=active]:shadow-none">
+            Layout
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="properties" className="flex-1 mt-0">
+        <TabsContent value="properties" className="flex-1 mt-0 overflow-hidden">
           <ScrollArea className="h-full">
-            <div className="p-4 space-y-6">
-              {Object.entries(config.fields)
-                .filter(([_, field]) => !field.hidden)
-                .map(([fieldName, field]) => {
-            const value = component.props[fieldName] ?? field.defaultValue;
-
-            switch (field.type) {
-              case "text":
+            <div className="p-4 space-y-1">
+              {fieldSections.map((section) => {
+                const isExpanded = expandedSections.has(section.title);
                 return (
-                  <TextField
-                    key={fieldName}
-                    field={field}
-                    value={value as string || ""}
-                    onChange={(val) => handleFieldChange(fieldName, val)}
-                  />
+                  <div
+                    key={section.title}
+                    className="border rounded-lg overflow-hidden"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => toggleSection(section.title)}
+                      className="flex w-full items-center justify-between p-3 hover:bg-muted/50 transition-colors"
+                    >
+                      <h4 className="text-sm font-medium">{section.title}</h4>
+                      <ChevronDown 
+                        className={cn(
+                          "h-4 w-4 text-muted-foreground transition-transform duration-200",
+                          isExpanded && "rotate-180"
+                        )} 
+                      />
+                    </button>
+                    {isExpanded && (
+                      <div className="px-3 pb-3 space-y-4 border-t">
+                        {section.fields.map(fieldName => renderField(fieldName))}
+                      </div>
+                    )}
+                  </div>
                 );
-
-              case "textarea":
-                return (
-                  <TextareaField
-                    key={fieldName}
-                    field={field}
-                    value={value as string || ""}
-                    onChange={(val) => handleFieldChange(fieldName, val)}
-                  />
-                );
-
-              case "image":
-                return (
-                  <ImageField
-                    key={fieldName}
-                    field={field}
-                    value={value as string || ""}
-                    onChange={(val) => handleFieldChange(fieldName, val)}
-                    businessId={businessId}
-                  />
-                );
-
-              case "color":
-                return (
-                  <ColorField
-                    key={fieldName}
-                    field={field}
-                    value={value as string || ""}
-                    onChange={(val) => handleFieldChange(fieldName, val)}
-                  />
-                );
-
-              case "select":
-                return (
-                  <SelectField
-                    key={fieldName}
-                    field={field}
-                    value={value as string || ""}
-                    onChange={(val) => handleFieldChange(fieldName, val)}
-                  />
-                );
-
-              case "number":
-                return (
-                  <NumberField
-                    key={fieldName}
-                    field={field}
-                    value={value as number || 0}
-                    onChange={(val) => handleFieldChange(fieldName, val)}
-                  />
-                );
-
-              case "array":
-                return (
-                  <ArrayField
-                    key={fieldName}
-                    field={field}
-                    value={value as unknown[] || []}
-                    onChange={(val) => handleFieldChange(fieldName, val)}
-                    businessId={businessId}
-                  />
-                );
-
-              default:
-                return null;
-            }
-          })}
+              })}
             </div>
           </ScrollArea>
         </TabsContent>
 
-        <TabsContent value="layout" className="flex-1 mt-0">
+        <TabsContent value="layout" className="flex-1 mt-0 overflow-hidden">
           <ScrollArea className="h-full">
-            <LayoutControls
-              layout={component.layout || {}}
-              onChange={onUpdateLayout}
-            />
+            <div className="p-4">
+              <LayoutControls
+                layout={component.layout || {}}
+                onChange={onUpdateLayout}
+              />
+            </div>
           </ScrollArea>
         </TabsContent>
       </Tabs>

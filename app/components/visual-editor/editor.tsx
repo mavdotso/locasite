@@ -434,11 +434,11 @@ export default function VisualEditor({
   return (
     <TooltipProvider>
       <DragDropProvider>
-        <div className="h-screen flex flex-col bg-background">
+        <div className="h-screen flex flex-col bg-muted/30">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b bg-card">
+          <div className="flex items-center justify-between px-6 py-4 bg-background border-b border-border/50">
             <div className="flex items-center gap-4">
-              <h1 className="text-lg font-semibold">Visual Editor</h1>
+              <h1 className="text-xl font-semibold text-foreground">Visual Editor</h1>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -566,9 +566,9 @@ export default function VisualEditor({
 
         {/* Help Overlay */}
         {showHelp && (
-          <div className="absolute top-16 left-4 z-50 bg-card border rounded-lg shadow-lg p-4 max-w-sm">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold flex items-center gap-2">
+          <div className="absolute top-20 left-6 z-50 bg-background border border-border/50 rounded-lg shadow-lg p-5 max-w-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold flex items-center gap-2 text-foreground">
                 <HelpCircle className="h-4 w-4" />
                 Keyboard Shortcuts
               </h3>
@@ -576,7 +576,7 @@ export default function VisualEditor({
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowHelp(false)}
-                className="h-6 w-6 p-0"
+                className="h-7 w-7 p-0 hover:bg-muted"
               >
                 <X className="h-3 w-3" />
               </Button>
@@ -632,14 +632,14 @@ export default function VisualEditor({
         <div className="flex-1 flex overflow-hidden">
           {/* Left Sidebar - Component Library */}
           {isEditMode && (
-            <div className="w-64 border-r bg-card relative z-50">
+            <div className="w-[280px] bg-background shadow-sm relative z-50 border-r border-border/50">
               <ComponentLibrary />
             </div>
           )}
 
           {/* Outline View */}
           {isEditMode && showOutline && (
-            <div className="w-64 border-r bg-card">
+            <div className="w-[280px] bg-background shadow-sm border-r border-border/50">
               <OutlineView
                 pageData={pageData}
                 selectedComponentId={selectedComponentId}
@@ -649,26 +649,32 @@ export default function VisualEditor({
           )}
 
           {/* Center - Preview */}
-          <div className="flex-1">
-            <PreviewPanel
-              pageData={pageData}
-              business={business}
-              selectedComponentId={selectedComponentId}
-              onSelectComponent={setSelectedComponentId}
-              onUpdateComponent={handleUpdateComponent}
-              onRemoveComponent={handleRemoveComponent}
-              onMoveComponent={handleMoveComponent}
-              onAddComponent={(type, index, parentId) => handleAddComponent(type, index, parentId)}
-              onDuplicateComponent={handleDuplicateComponent}
-              isEditMode={isEditMode}
-            />
+          <div className="flex-1 bg-muted/30 overflow-auto">
+            <div className="min-h-full p-8">
+              <div className="max-w-7xl mx-auto">
+                <div className="bg-background rounded-lg shadow-sm border border-border/50">
+                  <PreviewPanel
+                    pageData={pageData}
+                    business={business}
+                    selectedComponentId={selectedComponentId}
+                    onSelectComponent={setSelectedComponentId}
+                    onUpdateComponent={handleUpdateComponent}
+                    onRemoveComponent={handleRemoveComponent}
+                    onMoveComponent={handleMoveComponent}
+                    onAddComponent={(type, index, parentId) => handleAddComponent(type, index, parentId)}
+                    onDuplicateComponent={handleDuplicateComponent}
+                    isEditMode={isEditMode}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Right Sidebar - Field Editor */}
           {isEditMode && (
             <div className={cn(
-              "border-l bg-card transition-all duration-300",
-              selectedComponent ? "w-80" : "w-0"
+              "bg-background shadow-sm border-l border-border/50 transition-all duration-300",
+              selectedComponent ? "w-[320px]" : "w-0"
             )}>
               {selectedComponent && (
                 <FieldEditor
