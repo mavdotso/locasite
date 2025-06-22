@@ -165,7 +165,7 @@ export const SectionBlock: ComponentConfig = {
               }}
             >
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <p className="text-sm text-muted-foreground">Drop content blocks here</p>
+                <p className="text-sm text-muted-foreground">Drop items here</p>
               </div>
             </div>
           ) : (

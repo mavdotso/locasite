@@ -4,7 +4,7 @@ import React from "react";
 import { ComponentData } from "./types";
 import { allComponentConfigs as componentConfigs } from "./config/all-components";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
-import { X, ChevronDown } from "lucide-react";
+import { X } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import TextField from "./fields/text-field";
 import TextareaField from "./fields/textarea-field";
@@ -16,7 +16,6 @@ import ArrayField from "./fields/array-field";
 import LayoutControls from "./layout-controls";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
 import { LayoutOptions, Field } from "./types";
-import { cn } from "@/app/lib/utils";
 
 interface FieldEditorProps {
   component: ComponentData | null;
@@ -29,7 +28,6 @@ interface FieldEditorProps {
 interface FieldSection {
   title: string;
   fields: string[];
-  defaultOpen?: boolean;
 }
 
 // Group fields into logical sections
@@ -42,7 +40,7 @@ function getFieldSections(fields: Record<string, Field>): FieldSection[] {
     ['content', 'text', 'title', 'description', 'caption', 'label', 'subtext', 'message'].includes(name)
   );
   if (contentFields.length > 0) {
-    sections.push({ title: "Content", fields: contentFields, defaultOpen: true });
+    sections.push({ title: "Content", fields: contentFields });
   }
   
   // Media fields
@@ -86,24 +84,9 @@ export default function FieldEditor({
   onClose,
   businessId 
 }: FieldEditorProps) {
-  const [expandedSections, setExpandedSections] = React.useState<Set<string>>(new Set());
-
   // Get config and sections before any conditional returns
   const config = component ? componentConfigs[component.type] : null;
   const fieldSections = config ? getFieldSections(config.fields) : [];
-
-  // Initialize expanded sections
-  React.useEffect(() => {
-    if (!component || !config) return;
-    
-    const initial = new Set<string>();
-    fieldSections.forEach((section, index) => {
-      if (section.defaultOpen ?? index === 0) {
-        initial.add(section.title);
-      }
-    });
-    setExpandedSections(initial);
-  }, [component?.type]); // Reset when component type changes
 
   if (!component) {
     return (
@@ -129,18 +112,6 @@ export default function FieldEditor({
     onUpdate({
       ...component.props,
       [fieldName]: value
-    });
-  };
-
-  const toggleSection = (title: string) => {
-    setExpandedSections(prev => {
-      const next = new Set(prev);
-      if (next.has(title)) {
-        next.delete(title);
-      } else {
-        next.add(title);
-      }
-      return next;
     });
   };
 
@@ -259,32 +230,17 @@ export default function FieldEditor({
 
         <TabsContent value="properties" className="flex-1 mt-0 overflow-hidden">
           <ScrollArea className="h-full">
-            <div className="p-4 space-y-1">
+            <div className="p-4 space-y-6">
               {fieldSections.map((section) => {
-                const isExpanded = expandedSections.has(section.title);
                 return (
                   <div
                     key={section.title}
-                    className="border rounded-lg overflow-hidden"
+                    className="space-y-3"
                   >
-                    <button
-                      type="button"
-                      onClick={() => toggleSection(section.title)}
-                      className="flex w-full items-center justify-between p-3 hover:bg-muted/50 transition-colors"
-                    >
-                      <h4 className="text-sm font-medium">{section.title}</h4>
-                      <ChevronDown 
-                        className={cn(
-                          "h-4 w-4 text-muted-foreground transition-transform duration-200",
-                          isExpanded && "rotate-180"
-                        )} 
-                      />
-                    </button>
-                    {isExpanded && (
-                      <div className="px-3 pb-3 space-y-4 border-t">
-                        {section.fields.map(fieldName => renderField(fieldName))}
-                      </div>
-                    )}
+                    <h4 className="text-sm font-medium text-muted-foreground">{section.title}</h4>
+                    <div className="space-y-4">
+                      {section.fields.map(fieldName => renderField(fieldName))}
+                    </div>
                   </div>
                 );
               })}
