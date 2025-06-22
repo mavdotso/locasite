@@ -13,7 +13,7 @@ import ColorField from "./fields/color-field";
 import SelectField from "./fields/select-field";
 import NumberField from "./fields/number-field";
 import ArrayField from "./fields/array-field";
-import LayoutControlsV3 from "./layout-controls-v3";
+import LayoutControls from "./layout-controls";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
 import { LayoutOptions, Field } from "./types";
 import { cn } from "@/app/lib/utils";
@@ -294,7 +294,7 @@ export default function FieldEditor({
 
         <TabsContent value="layout" className="flex-1 mt-0 overflow-hidden flex flex-col">
           <div className="flex-1 overflow-hidden">
-            <LayoutControlsV3
+            <LayoutControls
               layout={component.layout || {}}
               onChange={onUpdateLayout}
               showTypography={component.type === "TextBlock"}
