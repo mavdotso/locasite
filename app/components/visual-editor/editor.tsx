@@ -3,13 +3,12 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { PageData, ComponentData, LayoutOptions, ComponentTemplate } from "./types";
 import { DragDropProvider } from "./drag-drop-provider";
-import ComponentLibrary from "./component-library";
+import LeftSidebar from "./left-sidebar";
 import PreviewPanel from "./preview-panel";
 import FieldEditor from "./field-editor";
-import OutlineView from "./outline-view";
 import { allComponentConfigs as componentConfigs } from "./config/all-components";
 import { Button } from "@/app/components/ui/button";
-import { Save, Loader2, Undo, Redo, Eye, EyeOff, Layers, HelpCircle, Info, X } from "lucide-react";
+import { Save, Loader2, Undo, Redo, Eye, EyeOff, HelpCircle, Info, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
 import { Doc, Id } from "@/convex/_generated/dataModel";
@@ -49,7 +48,6 @@ export default function VisualEditor({
   const [isSaving, setIsSaving] = useState(false);
   const [history, setHistory] = useState<PageData[]>([pageData]);
   const [historyIndex, setHistoryIndex] = useState(0);
-  const [showOutline, setShowOutline] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -489,24 +487,6 @@ export default function VisualEditor({
           </div>
 
             <div className="flex items-center gap-2">
-              {isEditMode && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                variant="outline"
-                size="sm"
-                      onClick={() => setShowOutline(!showOutline)}
-                    >
-                      <Layers className="h-4 w-4 mr-2" />
-                      Outline
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Toggle page structure view</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
-
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -630,17 +610,10 @@ export default function VisualEditor({
 
         {/* Main Content */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Left Sidebar - Component Library */}
+          {/* Left Sidebar - Page Structure + Component Library */}
           {isEditMode && (
             <div className="w-[280px] bg-background shadow-sm relative z-50 border-r border-border/50">
-              <ComponentLibrary />
-            </div>
-          )}
-
-          {/* Outline View */}
-          {isEditMode && showOutline && (
-            <div className="w-[280px] bg-background shadow-sm border-r border-border/50">
-              <OutlineView
+              <LeftSidebar
                 pageData={pageData}
                 selectedComponentId={selectedComponentId}
                 onSelectComponent={setSelectedComponentId}
