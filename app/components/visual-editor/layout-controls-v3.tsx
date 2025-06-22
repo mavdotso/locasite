@@ -524,8 +524,8 @@ export default function LayoutControlsV3({
               value={layout.borderRadius?.split(" ")[0]?.replace(/[^\d]/g, "") || "0"}
               onChange={(e) => {
                 const val = e.target.value;
-                const current = layout.borderRadius?.split(" ") || ["0", "0", "0", "0"];
-                handleChange("borderRadius", `${val}px ${current[1]} ${current[2]} ${current[3]}`);
+                const current = layout.borderRadius?.split(" ").map(v => v.replace(/[^\d]/g, "")) || ["0", "0", "0", "0"];
+                handleChange("borderRadius", `${val}px ${current[1] || "0"}px ${current[2] || "0"}px ${current[3] || "0"}px`);
               }}
               className="h-full border-0 bg-transparent text-center pl-8 pr-3 focus-visible:ring-0"
               placeholder="0"
@@ -548,8 +548,8 @@ export default function LayoutControlsV3({
               value={layout.borderRadius?.split(" ")[1]?.replace(/[^\d]/g, "") || "0"}
               onChange={(e) => {
                 const val = e.target.value;
-                const current = layout.borderRadius?.split(" ") || ["0", "0", "0", "0"];
-                handleChange("borderRadius", `${current[0]} ${val}px ${current[2]} ${current[3]}`);
+                const current = layout.borderRadius?.split(" ").map(v => v.replace(/[^\d]/g, "")) || ["0", "0", "0", "0"];
+                handleChange("borderRadius", `${current[0] || "0"}px ${val}px ${current[2] || "0"}px ${current[3] || "0"}px`);
               }}
               className="h-full border-0 bg-transparent text-center pl-8 pr-3 focus-visible:ring-0"
               placeholder="0"
@@ -572,8 +572,8 @@ export default function LayoutControlsV3({
               value={layout.borderRadius?.split(" ")[3]?.replace(/[^\d]/g, "") || "0"}
               onChange={(e) => {
                 const val = e.target.value;
-                const current = layout.borderRadius?.split(" ") || ["0", "0", "0", "0"];
-                handleChange("borderRadius", `${current[0]} ${current[1]} ${current[2]} ${val}px`);
+                const current = layout.borderRadius?.split(" ").map(v => v.replace(/[^\d]/g, "")) || ["0", "0", "0", "0"];
+                handleChange("borderRadius", `${current[0] || "0"}px ${current[1] || "0"}px ${current[2] || "0"}px ${val}px`);
               }}
               className="h-full border-0 bg-transparent text-center pl-8 pr-3 focus-visible:ring-0"
               placeholder="0"
@@ -596,8 +596,8 @@ export default function LayoutControlsV3({
               value={layout.borderRadius?.split(" ")[2]?.replace(/[^\d]/g, "") || "0"}
               onChange={(e) => {
                 const val = e.target.value;
-                const current = layout.borderRadius?.split(" ") || ["0", "0", "0", "0"];
-                handleChange("borderRadius", `${current[0]} ${current[1]} ${val}px ${current[3]}`);
+                const current = layout.borderRadius?.split(" ").map(v => v.replace(/[^\d]/g, "")) || ["0", "0", "0", "0"];
+                handleChange("borderRadius", `${current[0] || "0"}px ${current[1] || "0"}px ${val}px ${current[3] || "0"}px`);
               }}
               className="h-full border-0 bg-transparent text-center pl-8 pr-3 focus-visible:ring-0"
               placeholder="0"
@@ -611,7 +611,7 @@ export default function LayoutControlsV3({
           <div className="flex items-center gap-2">
             <Minus className="h-4 w-4 text-muted-foreground" />
             <Select
-              value={layout.borderStyle || "Solid"}
+              value={layout.borderStyle || "solid"}
               onValueChange={(value) => handleChange("borderStyle", value)}
             >
               <SelectTrigger className="h-10 flex-1 bg-muted/50">
