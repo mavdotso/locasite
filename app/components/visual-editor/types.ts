@@ -102,17 +102,40 @@ export interface ComponentTemplate {
 
 // Layout options
 export interface LayoutOptions {
-  direction?: "row" | "column";
-  align?: "start" | "center" | "end" | "stretch";
-  justify?: "start" | "center" | "end" | "between" | "around";
-  gap?: "none" | "small" | "medium" | "large";
-  padding?: "none" | "small" | "medium" | "large";
-  margin?: "none" | "small" | "medium" | "large";
+  // Layout
+  display?: "block" | "flex" | "grid" | "inline" | "inline-block";
+  direction?: "row" | "row-reverse" | "column" | "column-reverse";
+  align?: "start" | "center" | "end" | "stretch" | "baseline";
+  justify?: "start" | "center" | "end" | "between" | "around" | "evenly";
+  gap?: string;
+  
+  // Spacing
+  padding?: string;
+  margin?: string;
+  
+  // Size
+  width?: string;
+  height?: string;
   fullWidth?: boolean;
+  
+  // Style
   background?: {
     type: "color" | "gradient" | "image";
     value: string;
   };
+  borderWidth?: string;
+  borderStyle?: string;
+  borderColor?: string;
+  borderRadius?: string;
+  opacity?: number;
+  
+  // Typography (for text components)
+  fontFamily?: string;
+  fontSize?: string;
+  fontWeight?: string;
+  fontStyle?: string;
+  textDecoration?: string;
+  textAlign?: string;
 }
 
 // Page data model

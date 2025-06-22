@@ -13,7 +13,7 @@ import ColorField from "./fields/color-field";
 import SelectField from "./fields/select-field";
 import NumberField from "./fields/number-field";
 import ArrayField from "./fields/array-field";
-import LayoutControls from "./layout-controls";
+import LayoutControlsEnhanced from "./layout-controls-enhanced";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
 import { LayoutOptions, Field } from "./types";
 import { cn } from "@/app/lib/utils";
@@ -295,9 +295,10 @@ export default function FieldEditor({
         <TabsContent value="layout" className="flex-1 mt-0 overflow-hidden">
           <ScrollArea className="h-full">
             <div className="p-4">
-              <LayoutControls
+              <LayoutControlsEnhanced
                 layout={component.layout || {}}
                 onChange={onUpdateLayout}
+                showTypography={component.type === "TextBlock"}
               />
             </div>
           </ScrollArea>
