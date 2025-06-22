@@ -69,8 +69,8 @@ export default function DropZone({ id, index, onDrop, className, showAlways = fa
   return (
     <div
       className={cn(
-        "relative transition-all duration-200",
-        isDragging ? "h-1" : "h-0",
+        "relative transition-all duration-300 ease-out",
+        isDragging ? (isActive ? "h-20" : "h-2") : "h-0",
         className
       )}
       onDragOver={handleDragOver}
@@ -79,15 +79,19 @@ export default function DropZone({ id, index, onDrop, className, showAlways = fa
     >
       <div
         className={cn(
-          "absolute inset-x-0 top-1/2 -translate-y-1/2 h-1 rounded-full transition-all duration-200",
+          "absolute inset-x-0 top-1/2 -translate-y-1/2 rounded-lg transition-all duration-300 ease-out",
           isActive 
-            ? "bg-primary h-2 shadow-lg shadow-primary/50" 
-            : isDragging ? "bg-muted-foreground/20" : "bg-transparent"
+            ? "h-16 bg-primary/10 border-2 border-dashed border-primary shadow-lg shadow-primary/20" 
+            : isDragging 
+              ? "h-0.5 bg-muted-foreground/30 hover:h-1 hover:bg-muted-foreground/50" 
+              : "bg-transparent"
         )}
       >
         {isActive && (
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-3 py-1 bg-primary text-primary-foreground text-xs rounded-full whitespace-nowrap shadow-lg">
-            Drop here
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-md shadow-lg animate-in fade-in-0 zoom-in-95 duration-200">
+              Drop to place here
+            </div>
           </div>
         )}
       </div>

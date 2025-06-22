@@ -7,7 +7,8 @@ interface DragDropContextValue {
   isDragging: boolean;
   draggedItem: DragItem | null;
   dropTargetId: string | null;
-  startDrag: (item: DragItem) => void;
+  draggedElement: HTMLElement | null;
+  startDrag: (item: DragItem, element?: HTMLElement) => void;
   endDrag: () => void;
   setDropTarget: (id: string | null) => void;
 }
@@ -30,17 +31,27 @@ export function DragDropProvider({ children }: DragDropProviderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [draggedItem, setDraggedItem] = useState<DragItem | null>(null);
   const [dropTargetId, setDropTargetId] = useState<string | null>(null);
+  const [draggedElement, setDraggedElement] = useState<HTMLElement | null>(null);
 
-  const startDrag = useCallback((item: DragItem) => {
+  const startDrag = useCallback((item: DragItem, element?: HTMLElement) => {
     setDraggedItem(item);
     setIsDragging(true);
+    if (element) {
+      setDraggedElement(element);
+      // Add dragging class for visual feedback
+      element.classList.add('opacity-50');
+    }
   }, []);
 
   const endDrag = useCallback(() => {
+    if (draggedElement) {
+      draggedElement.classList.remove('opacity-50');
+      setDraggedElement(null);
+    }
     setDraggedItem(null);
     setIsDragging(false);
     setDropTargetId(null);
-  }, []);
+  }, [draggedElement]);
 
   const setDropTarget = useCallback((id: string | null) => {
     setDropTargetId(id);
@@ -75,6 +86,7 @@ export function DragDropProvider({ children }: DragDropProviderProps) {
         isDragging,
         draggedItem,
         dropTargetId,
+        draggedElement,
         startDrag,
         endDrag,
         setDropTarget

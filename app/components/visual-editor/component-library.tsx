@@ -95,7 +95,7 @@ function formatComponentName(type: string): string {
 interface TreeItemProps {
   node: TreeNode;
   level: number;
-  onDragStart: (componentType: string) => void;
+  onDragStart: (componentType: string, element: HTMLElement) => void;
   isDragging: boolean;
   searchQuery: string;
 }
@@ -135,9 +135,28 @@ function TreeItem({ node, level, onDragStart, isDragging, searchQuery }: TreeIte
     }
   };
 
-  const handleDrag = () => {
+  const handleDrag = (e: React.DragEvent) => {
     if (node.componentType) {
-      onDragStart(node.componentType);
+      const element = e.currentTarget as HTMLElement;
+      onDragStart(node.componentType, element);
+      
+      // Create custom drag preview
+      const dragPreview = document.createElement('div');
+      dragPreview.className = 'fixed pointer-events-none z-50 bg-background border-2 border-primary rounded-lg shadow-xl p-3 opacity-90';
+      dragPreview.innerHTML = `
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+          <span class="text-sm font-medium">${node.label}</span>
+        </div>
+      `;
+      dragPreview.style.position = 'absolute';
+      dragPreview.style.top = '-9999px';
+      document.body.appendChild(dragPreview);
+      e.dataTransfer.setDragImage(dragPreview, 0, 0);
+      
+      setTimeout(() => {
+        document.body.removeChild(dragPreview);
+      }, 0);
     }
   };
 
@@ -224,11 +243,11 @@ export default function ComponentLibrary() {
   const { startDrag, isDragging } = useDragDrop();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const handleDragStart = (componentType: string) => {
+  const handleDragStart = (componentType: string, element: HTMLElement) => {
     startDrag({
       type: "new-component",
       componentType
-    });
+    }, element);
   };
 
   // Create a complete tree with all components

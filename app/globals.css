@@ -127,4 +127,23 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Improve drag and drop experience */
+  [draggable="true"] {
+    @apply cursor-move;
+  }
+  
+  /* Hide the default drag ghost image */
+  [draggable="true"]:active {
+    @apply opacity-50;
+  }
+  
+  /* Smooth transitions for drag states */
+  .dragging {
+    @apply opacity-50 scale-95 transition-all duration-200;
+  }
+  
+  .drag-over {
+    @apply ring-2 ring-primary ring-offset-2;
+  }
 }

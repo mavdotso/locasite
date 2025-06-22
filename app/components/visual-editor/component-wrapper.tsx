@@ -50,10 +50,29 @@ export default function ComponentWrapper({
 
   const handleDragStart = (e: React.DragEvent) => {
     e.stopPropagation();
+    const target = e.currentTarget.closest('.group') as HTMLElement;
     startDrag({
       type: "existing-component",
       component
-    });
+    }, target);
+    
+    // Create custom drag preview
+    const dragPreview = document.createElement('div');
+    dragPreview.className = 'fixed pointer-events-none z-50 bg-background border-2 border-primary rounded-lg shadow-xl p-3 opacity-90';
+    dragPreview.innerHTML = `
+      <div class="flex items-center gap-2">
+        <div class="w-2 h-2 bg-primary rounded-full"></div>
+        <span class="text-sm font-medium">${component.type.replace(/Block$/, '')}</span>
+      </div>
+    `;
+    dragPreview.style.position = 'absolute';
+    dragPreview.style.top = '-9999px';
+    document.body.appendChild(dragPreview);
+    e.dataTransfer.setDragImage(dragPreview, 0, 0);
+    
+    setTimeout(() => {
+      document.body.removeChild(dragPreview);
+    }, 0);
   };
 
   const layoutStyles = getLayoutStyles(component.layout);
@@ -71,11 +90,14 @@ export default function ComponentWrapper({
       className={cn(
         "relative group transition-all duration-200",
         isSelected && "ring-2 ring-primary ring-offset-2 animate-in fade-in-0 zoom-in-95",
-        "hover:ring-2 hover:ring-primary/50 hover:ring-offset-2"
+        "hover:ring-2 hover:ring-primary/30 hover:ring-offset-1"
       )}
       onClick={(e) => {
         e.stopPropagation();
         onSelect();
+      }}
+      style={{
+        cursor: isEditMode ? 'pointer' : 'default'
       }}
     >
       {/* Component Controls */}
@@ -83,7 +105,7 @@ export default function ComponentWrapper({
         "absolute -top-10 right-2 z-10",
         "flex items-center gap-1 bg-background border rounded-lg shadow-lg p-1",
         "transition-all duration-200",
-        isSelected ? "opacity-100 -translate-y-1 pointer-events-auto" : "opacity-0 pointer-events-none"
+        isSelected ? "opacity-100 -translate-y-1 pointer-events-auto" : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
       )}>
         {/* Drag Handle */}
         <Tooltip>
@@ -91,9 +113,9 @@ export default function ComponentWrapper({
             <div
               draggable
               onDragStart={handleDragStart}
-              className="cursor-move p-1.5 hover:bg-muted rounded transition-colors"
+              className="cursor-move p-1.5 hover:bg-muted rounded transition-colors touch-none select-none"
             >
-              <GripVertical className="w-4 h-4 text-muted-foreground" />
+              <GripVertical className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
             </div>
           </TooltipTrigger>
           <TooltipContent>
