@@ -646,7 +646,7 @@ export default function VisualEditor({
           {/* Right Sidebar - Field Editor */}
           {isEditMode && (
             <div className={cn(
-              "bg-background shadow-sm border-l border-border/50 transition-all duration-300",
+              "bg-background shadow-sm border-l border-border/50 transition-all duration-300 overflow-hidden flex flex-col",
               selectedComponent ? "w-[320px]" : "w-0"
             )}>
               {selectedComponent && (

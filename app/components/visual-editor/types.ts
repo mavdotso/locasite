@@ -103,11 +103,12 @@ export interface ComponentTemplate {
 // Layout options
 export interface LayoutOptions {
   // Layout
-  display?: "block" | "flex" | "grid" | "inline" | "inline-block";
-  direction?: "row" | "row-reverse" | "column" | "column-reverse";
-  align?: "start" | "center" | "end" | "stretch" | "baseline";
-  justify?: "start" | "center" | "end" | "between" | "around" | "evenly";
+  display?: "block" | "flex" | "grid" | "inline" | "inline-block" | "inline-flex" | "none";
+  flexDirection?: "row" | "row-reverse" | "column" | "column-reverse";
+  alignItems?: "flex-start" | "center" | "flex-end" | "stretch" | "baseline";
+  justifyContent?: "flex-start" | "center" | "flex-end" | "space-between" | "space-around" | "space-evenly";
   gap?: string;
+  position?: "static" | "relative" | "absolute" | "fixed" | "sticky";
   
   // Spacing
   padding?: string;
@@ -116,9 +117,16 @@ export interface LayoutOptions {
   // Size
   width?: string;
   height?: string;
+  minWidth?: string;
+  minHeight?: string;
+  maxWidth?: string;
+  maxHeight?: string;
   fullWidth?: boolean;
+  overflow?: "visible" | "hidden" | "scroll" | "auto";
   
   // Style
+  backgroundColor?: string;
+  backgroundClip?: "none" | "padding-box" | "border-box" | "content-box" | "text";
   background?: {
     type: "color" | "gradient" | "image";
     value: string;
@@ -128,6 +136,7 @@ export interface LayoutOptions {
   borderColor?: string;
   borderRadius?: string;
   opacity?: number;
+  mixBlendMode?: string;
   
   // Typography (for text components)
   fontFamily?: string;
@@ -136,6 +145,13 @@ export interface LayoutOptions {
   fontStyle?: string;
   textDecoration?: string;
   textAlign?: string;
+  lineHeight?: string;
+  letterSpacing?: string;
+  
+  // Legacy properties for backward compatibility
+  direction?: "row" | "row-reverse" | "column" | "column-reverse";
+  align?: "start" | "center" | "end" | "stretch" | "baseline";
+  justify?: "start" | "center" | "end" | "between" | "around" | "evenly";
 }
 
 // Page data model

@@ -13,7 +13,7 @@ import ColorField from "./fields/color-field";
 import SelectField from "./fields/select-field";
 import NumberField from "./fields/number-field";
 import ArrayField from "./fields/array-field";
-import LayoutControlsEnhanced from "./layout-controls-enhanced";
+import LayoutControlsV2 from "./layout-controls-v2";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
 import { LayoutOptions, Field } from "./types";
 import { cn } from "@/app/lib/utils";
@@ -247,8 +247,8 @@ export default function FieldEditor({
         </Button>
       </div>
 
-      <Tabs defaultValue="properties" className="flex-1 flex flex-col">
-        <TabsList className="w-full rounded-none border-b h-10">
+      <Tabs defaultValue="properties" className="flex-1 flex flex-col overflow-hidden">
+        <TabsList className="w-full rounded-none border-b h-10 flex-shrink-0">
           <TabsTrigger value="properties" className="flex-1 data-[state=active]:shadow-none">
             Properties
           </TabsTrigger>
@@ -292,16 +292,14 @@ export default function FieldEditor({
           </ScrollArea>
         </TabsContent>
 
-        <TabsContent value="layout" className="flex-1 mt-0 overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="p-4">
-              <LayoutControlsEnhanced
-                layout={component.layout || {}}
-                onChange={onUpdateLayout}
-                showTypography={component.type === "TextBlock"}
-              />
-            </div>
-          </ScrollArea>
+        <TabsContent value="layout" className="flex-1 mt-0 overflow-hidden flex flex-col">
+          <div className="flex-1 overflow-hidden">
+            <LayoutControlsV2
+              layout={component.layout || {}}
+              onChange={onUpdateLayout}
+              showTypography={component.type === "TextBlock"}
+            />
+          </div>
         </TabsContent>
       </Tabs>
     </div>
