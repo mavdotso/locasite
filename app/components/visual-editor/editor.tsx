@@ -8,7 +8,7 @@ import PreviewPanel from "./preview-panel";
 import FieldEditor from "./field-editor";
 import { allComponentConfigs as componentConfigs } from "./config/all-components";
 import { Button } from "@/app/components/ui/button";
-import { Save, Loader2, Undo, Redo, Eye, EyeOff, HelpCircle, Info, X } from "lucide-react";
+import { Save, Loader2, Undo, Redo, HelpCircle, Info, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
 import { Doc, Id } from "@/convex/_generated/dataModel";
@@ -44,7 +44,6 @@ export default function VisualEditor({
   );
   
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
-  const [isEditMode, setIsEditMode] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [history, setHistory] = useState<PageData[]>([pageData]);
   const [historyIndex, setHistoryIndex] = useState(0);
@@ -402,11 +401,6 @@ export default function VisualEditor({
         e.preventDefault();
         handleRedo();
       }
-      // Toggle preview: Ctrl/Cmd + P
-      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
-        e.preventDefault();
-        setIsEditMode(!isEditMode);
-      }
       // Show help: Ctrl/Cmd + /
       if ((e.ctrlKey || e.metaKey) && e.key === '/') {
         e.preventDefault();
@@ -416,7 +410,7 @@ export default function VisualEditor({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isEditMode, showHelp, handleRedo, handleSave, handleUndo]);
+  }, [showHelp, handleRedo, handleSave, handleUndo]);
 
   // Auto-save functionality
   useEffect(() => {
@@ -434,34 +428,19 @@ export default function VisualEditor({
       <DragDropProvider>
         <div className="h-screen flex flex-col bg-muted/30">
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 bg-background border-b border-border/50">
-            <div className="flex items-center gap-4">
-              <h1 className="text-xl font-semibold text-foreground">Visual Editor</h1>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowHelp(!showHelp)}
-                    className="h-8 w-8 p-0"
-                  >
-                    <HelpCircle className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Show keyboard shortcuts and tips</p>
-                </TooltipContent>
-              </Tooltip>
-              <div className="flex items-center gap-1">
+          <div className="flex items-center justify-between px-4 py-3 bg-background border-b border-border/50">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1 bg-muted/50 rounded-md p-0.5">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
-                variant="ghost"
-                size="sm"
+                      variant={canUndo ? "ghost" : "ghost"}
+                      size="sm"
                       onClick={handleUndo}
                       disabled={!canUndo}
+                      className="h-7 w-7 p-0 rounded"
                     >
-                      <Undo className="h-4 w-4" />
+                      <Undo className="h-3.5 w-3.5" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -471,82 +450,74 @@ export default function VisualEditor({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
-                variant="ghost"
-                size="sm"
+                      variant={canRedo ? "ghost" : "ghost"}
+                      size="sm"
                       onClick={handleRedo}
                       disabled={!canRedo}
+                      className="h-7 w-7 p-0 rounded"
                     >
-                      <Redo className="h-4 w-4" />
+                      <Redo className="h-3.5 w-3.5" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Redo (Ctrl+Shift+Z)</p>
                   </TooltipContent>
                 </Tooltip>
+              </div>
+
+              {/* Save Status */}
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                {hasUnsavedChanges && !isSaving && (
+                  <div className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
+                )}
+                {autoSaveEnabled && lastSaved && !hasUnsavedChanges && (
+                  <span>Saved</span>
+                )}
+              </div>
             </div>
-          </div>
 
             <div className="flex items-center gap-2">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
-                    onClick={() => setIsEditMode(!isEditMode)}
+                    onClick={() => setShowHelp(!showHelp)}
+                    className="h-8 w-8 p-0"
                   >
-                    {isEditMode ? (
-                      <>
-                        <EyeOff className="h-4 w-4 mr-2" />
-                        Preview
-                      </>
+                    <HelpCircle className="h-3.5 w-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Show keyboard shortcuts</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    onClick={handleSave}
+                    disabled={isSaving || (!hasUnsavedChanges && !autoSaveEnabled)}
+                    className="h-8"
+                  >
+                    {isSaving ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
                     ) : (
-                      <>
-                        <Eye className="h-4 w-4 mr-2" />
-                        Edit
-                      </>
+                      <Save className="h-3.5 w-3.5" />
                     )}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Toggle between edit and preview mode</p>
+                  <p>Save changes (Ctrl+S)</p>
                 </TooltipContent>
               </Tooltip>
-
-              <div className="flex items-center gap-2">
-                {autoSaveEnabled && lastSaved && (
-                  <span className="text-xs text-muted-foreground">
-                    Saved {new Date(lastSaved).toLocaleTimeString()}
-                  </span>
-                )}
-                {hasUnsavedChanges && !isSaving && (
-                  <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
-                )}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="sm"
-                      onClick={handleSave}
-                      disabled={isSaving || (!hasUnsavedChanges && !autoSaveEnabled)}
-                    >
-                      {isSaving ? (
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      ) : (
-                        <Save className="h-4 w-4 mr-2" />
-                      )}
-                      Save
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Save changes (Ctrl+S)</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
+            </div>
           </div>
-        </div>
 
         {/* Help Overlay */}
         {showHelp && (
-          <div className="absolute top-20 left-6 z-50 bg-background border border-border/50 rounded-lg shadow-lg p-5 max-w-sm">
+          <div className="absolute top-16 left-4 z-50 bg-background border border-border/50 rounded-lg shadow-lg p-5 max-w-sm">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold flex items-center gap-2 text-foreground">
                 <HelpCircle className="h-4 w-4" />
@@ -573,10 +544,6 @@ export default function VisualEditor({
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Redo</span>
                 <kbd className="px-2 py-0.5 bg-muted rounded text-xs">Ctrl+Shift+Z</kbd>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Preview</span>
-                <kbd className="px-2 py-0.5 bg-muted rounded text-xs">Ctrl+P</kbd>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Help</span>
@@ -611,15 +578,13 @@ export default function VisualEditor({
         {/* Main Content */}
         <div className="flex-1 flex overflow-hidden">
           {/* Left Sidebar - Page Structure + Component Library */}
-          {isEditMode && (
-            <div className="w-[280px] bg-background shadow-sm relative z-50 border-r border-border/50">
-              <LeftSidebar
-                pageData={pageData}
-                selectedComponentId={selectedComponentId}
-                onSelectComponent={setSelectedComponentId}
-              />
-            </div>
-          )}
+          <div className="w-[280px] bg-background shadow-sm relative z-50 border-r border-border/50">
+            <LeftSidebar
+              pageData={pageData}
+              selectedComponentId={selectedComponentId}
+              onSelectComponent={setSelectedComponentId}
+            />
+          </div>
 
           {/* Center - Canvas */}
           <div className="flex-1 relative overflow-hidden">
@@ -633,16 +598,15 @@ export default function VisualEditor({
               onMoveComponent={handleMoveComponent}
               onAddComponent={(type, index, parentId) => handleAddComponent(type, index, parentId)}
               onDuplicateComponent={handleDuplicateComponent}
-              isEditMode={isEditMode}
+              isEditMode={true}
             />
           </div>
 
           {/* Right Sidebar - Field Editor */}
-          {isEditMode && (
-            <div className={cn(
-              "bg-background shadow-sm border-l border-border/50 transition-all duration-300 overflow-hidden flex flex-col",
-              selectedComponent ? "w-[320px]" : "w-0"
-            )}>
+          <div className={cn(
+            "bg-background shadow-sm border-l border-border/50 transition-all duration-300 overflow-hidden flex flex-col",
+            selectedComponent ? "w-[320px]" : "w-0"
+          )}>
               {selectedComponent && (
                 <FieldEditor
                   component={selectedComponent}
@@ -657,7 +621,6 @@ export default function VisualEditor({
                 />
               )}
             </div>
-          )}
         </div>
       </div>
     </DragDropProvider>
