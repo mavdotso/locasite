@@ -184,6 +184,7 @@ export interface DragItem {
   componentType?: string;
   component?: ComponentData;
   index?: number;
+  metadata?: Record<string, unknown>;
 }
 
 export interface DropZone {

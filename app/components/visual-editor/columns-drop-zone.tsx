@@ -74,7 +74,7 @@ export default function ColumnsDropZone({
         draggedItem.componentType, 
         actualIndex, 
         component.id,
-        { columnIndex }
+        { columnIndex, ...(draggedItem.metadata || {}) }
       );
     }
   };

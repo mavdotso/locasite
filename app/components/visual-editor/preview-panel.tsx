@@ -49,7 +49,7 @@ export default function PreviewPanel({
     if (!draggedItem) return;
 
     if (draggedItem.type === "new-component" && draggedItem.componentType) {
-      onAddComponent(draggedItem.componentType, index, parentId);
+      onAddComponent(draggedItem.componentType, index, parentId, draggedItem.metadata);
     } else if (draggedItem.type === "existing-component" && draggedItem.component) {
       // Find the current index of the dragged component
       const currentIndex = pageData.components.findIndex(c => c.id === draggedItem.component?.id);

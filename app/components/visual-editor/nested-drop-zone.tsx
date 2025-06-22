@@ -45,7 +45,7 @@ export default function NestedDropZone({
     if (!draggedItem) return;
     
     if (draggedItem.type === "new-component" && draggedItem.componentType) {
-      onAddComponent(draggedItem.componentType, index, component.id);
+      onAddComponent(draggedItem.componentType, index, component.id, draggedItem.metadata);
     }
   };
 

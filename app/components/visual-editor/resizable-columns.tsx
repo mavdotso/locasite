@@ -33,6 +33,15 @@ export default function ResizableColumns({
     }
     return Array(columnCount).fill(100 / columnCount);
   });
+
+  // Update column widths when column count changes
+  useEffect(() => {
+    const newWidths = Array(columnCount).fill(100 / columnCount);
+    setColumnWidths(newWidths);
+    if (onColumnWidthsChange) {
+      onColumnWidthsChange(newWidths);
+    }
+  }, [columnCount, onColumnWidthsChange]);
   
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState<number | null>(null);

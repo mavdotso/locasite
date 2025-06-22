@@ -132,6 +132,15 @@ export default function VisualEditor({
     Object.entries(config.fields).forEach(([key, field]) => {
       defaultProps[key] = field.defaultValue ?? "";
     });
+    
+    // Apply metadata values to props if they exist
+    if (metadata) {
+      Object.entries(metadata).forEach(([key, value]) => {
+        if (key in defaultProps) {
+          defaultProps[key] = value;
+        }
+      });
+    }
 
     const newComponent: ComponentData = {
       id: generateId(),

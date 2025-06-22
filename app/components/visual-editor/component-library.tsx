@@ -28,6 +28,7 @@ interface TreeNode {
   children?: TreeNode[];
   componentType?: string;
   isAddAction?: boolean;
+  metadata?: Record<string, unknown>;
   count?: number;
 }
 
@@ -37,7 +38,9 @@ const componentTree: TreeNode[] = [
     icon: Layout,
     children: [
       { label: "Section", componentType: "SectionBlock", icon: Layout },
-      { label: "Columns", componentType: "ColumnsBlock", icon: Columns },
+      { label: "2 Columns", componentType: "ColumnsBlock", icon: Columns, metadata: { columns: "2" } },
+      { label: "3 Columns", componentType: "ColumnsBlock", icon: Columns, metadata: { columns: "3" } },
+      { label: "4 Columns", componentType: "ColumnsBlock", icon: Columns, metadata: { columns: "4" } },
       { label: "Card", componentType: "CardBlock", icon: Square },
       { label: "Accordion", componentType: "AccordionBlock", icon: Layout },
       { label: "Tabs", componentType: "TabsBlock", icon: Layout }
@@ -95,7 +98,7 @@ function formatComponentName(type: string): string {
 interface TreeItemProps {
   node: TreeNode;
   level: number;
-  onDragStart: (componentType: string, element: HTMLElement) => void;
+  onDragStart: (componentType: string, element: HTMLElement, metadata?: Record<string, unknown>) => void;
   isDragging: boolean;
   searchQuery: string;
 }
@@ -138,7 +141,7 @@ function TreeItem({ node, level, onDragStart, isDragging, searchQuery }: TreeIte
   const handleDrag = (e: React.DragEvent) => {
     if (node.componentType) {
       const element = e.currentTarget as HTMLElement;
-      onDragStart(node.componentType, element);
+      onDragStart(node.componentType, element, node.metadata);
       
       // Create custom drag preview
       const dragPreview = document.createElement('div');
@@ -167,24 +170,20 @@ function TreeItem({ node, level, onDragStart, isDragging, searchQuery }: TreeIte
     <div>
       <div
         className={cn(
-          "flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer transition-colors group",
+          "flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors group",
           "hover:bg-muted",
           isDragging && "opacity-50",
-          isComponent && "hover:bg-accent/10"
+          isComponent && "hover:bg-accent/10",
+          isComponent && "cursor-move"
         )}
         style={{ paddingLeft: `${level * 24 + 8}px` }}
         onClick={handleClick}
+        draggable={isComponent}
+        onDragStart={isComponent ? handleDrag : undefined}
       >
         {/* Drag handle */}
         {isComponent && (
-          <div
-            draggable
-            onDragStart={handleDrag}
-            className="cursor-move"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <GripVertical className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity -ml-1" />
-          </div>
+          <GripVertical className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity -ml-1" />
         )}
         
         {/* Expand/Collapse icon */}
@@ -248,10 +247,11 @@ export default function ComponentLibrary() {
   const { startDrag, isDragging } = useDragDrop();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const handleDragStart = (componentType: string, element: HTMLElement) => {
+  const handleDragStart = (componentType: string, element: HTMLElement, metadata?: Record<string, unknown>) => {
     startDrag({
       type: "new-component",
-      componentType
+      componentType,
+      metadata
     }, element);
   };
 
