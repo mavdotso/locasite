@@ -133,7 +133,10 @@ export default function ResizableColumns({
   // Apply grid template columns only on desktop or when not stacking on mobile
   const shouldApplyColumns = !isMobile || stackOnMobile !== "yes";
   const gridStyle: React.CSSProperties = shouldApplyColumns
-    ? { gridTemplateColumns: columnWidths.map(w => `${w}%`).join(' ') }
+    ? { 
+        gridTemplateColumns: columnWidths.map(w => `minmax(0, ${w}fr)`).join(' '),
+        gridAutoFlow: 'column'
+      }
     : {};
 
   return (
@@ -141,9 +144,9 @@ export default function ResizableColumns({
       ref={containerRef}
       className={cn(
         "grid",
-        stackOnMobile === "yes" && "grid-cols-1 md:grid-cols-none",
+        stackOnMobile === "yes" && "grid-cols-1 md:grid-flow-col md:auto-cols-fr",
         gapClasses[gap as keyof typeof gapClasses] || gapClasses.medium,
-        "max-w-full overflow-hidden"
+        "w-full"
       )}
       style={gridStyle}
     >
@@ -151,13 +154,14 @@ export default function ResizableColumns({
         <div 
           key={index} 
           className={cn(
-            "relative min-w-0 overflow-hidden flex",
+            "relative min-w-0 flex",
             verticalAlign === 'top' && "items-start",
             verticalAlign === 'center' && "items-center",
             verticalAlign === 'bottom' && "items-end"
           )}
           style={{ 
-            minHeight: typeof minHeight === 'number' ? `${minHeight}px` : minHeight 
+            minHeight: typeof minHeight === 'number' ? `${minHeight}px` : minHeight,
+            flexShrink: 0 
           }}
         >
           <div className="w-full">

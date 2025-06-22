@@ -151,12 +151,25 @@ export const SectionBlock: ComponentConfig = {
           widthClasses[width as keyof typeof widthClasses] || widthClasses.container,
           paddingClasses[verticalPadding as keyof typeof paddingClasses] || paddingClasses.medium
         )}>
-          {children || (
-            editMode && (
-              <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">
+          {editMode && !children ? (
+            <div 
+              className="relative min-h-[100px] border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/10 transition-colors hover:bg-muted/20"
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                // Drop will be handled by the DropZone component
+              }}
+            >
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <p className="text-sm text-muted-foreground">Drop content blocks here</p>
               </div>
-            )
+            </div>
+          ) : (
+            children
           )}
         </div>
       </section>
@@ -347,7 +360,7 @@ export const ColumnsBlock: ComponentConfig = {
         minHeight={minHeight || "100px"}
       >
         {columnContents.map((colChildren, colIndex) => (
-          <div key={colIndex} className="overflow-hidden">
+          <div key={colIndex} className="min-w-0">
             {colChildren}
             {editMode && colChildren.length === 0 && (
               <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">

@@ -235,16 +235,9 @@ export default function ColumnsDropZone({
                   handleDropInColumn(colIndex, 0);
                 }}
               >
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="flex items-center justify-center h-full">
                   <p className="text-sm text-muted-foreground">Drop items here</p>
                 </div>
-                <DropZone
-                  id={`drop-zone-${component.id}-col-${colIndex}-0`}
-                  index={0}
-                  onDrop={(index) => handleDropInColumn(colIndex, index)}
-                  showAlways={true}
-                  className="absolute inset-0"
-                />
               </div>
             ) : (
               // Column with content

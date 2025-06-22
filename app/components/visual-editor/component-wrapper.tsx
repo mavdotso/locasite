@@ -89,7 +89,7 @@ export default function ComponentWrapper({
     <div
       className={cn(
         "relative group transition-all duration-200",
-        isSelected && "ring-2 ring-primary ring-offset-2 animate-in fade-in-0 zoom-in-95",
+        isSelected && "ring-2 ring-primary ring-offset-2",
         "hover:ring-2 hover:ring-primary/30 hover:ring-offset-1"
       )}
       onClick={(e) => {
@@ -103,7 +103,7 @@ export default function ComponentWrapper({
       {/* Component Controls */}
       <div className={cn(
         "absolute -top-10 right-2 z-10",
-        "flex items-center gap-1 bg-background border rounded-lg shadow-lg p-1",
+        "flex items-center gap-1 bg-background border rounded-lg p-1",
         "transition-all duration-200",
         isSelected ? "opacity-100 -translate-y-1 pointer-events-auto" : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
       )}>
