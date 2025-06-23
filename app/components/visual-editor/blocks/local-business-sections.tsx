@@ -1174,12 +1174,30 @@ export const GoogleReviewsSection: ComponentConfig = {
     let actualTotalReviews = totalReviews || 0;
     
     // Get Google reviews from business data
-    const googleReviews: ReviewData[] = businessData?.reviews?.map(r => ({
-      author: r.reviewer,
-      rating: parseInt(r.rating) || 5,
-      text: r.text,
-      date: "Google Review"
-    })) || [];
+    const googleReviews: ReviewData[] = businessData?.reviews?.map(r => {
+      // Debug logging to see what we're getting - fix the log to show actual textValue
+      const rAsRecord = r as Record<string, unknown>;
+      console.log('Review data full object:', r);
+      console.log('Review fields:', Object.keys(rAsRecord));
+      
+      // Use the actual review text field based on the data structure
+      // Try multiple possible field names for the review text
+      const reviewText = rAsRecord.textValue || 
+                        rAsRecord.review_text || 
+                        rAsRecord.content || 
+                        rAsRecord.description || 
+                        r.text || 
+                        'No review text found';
+                        
+      console.log('Selected review text:', reviewText);
+      
+      return {
+        author: String(r.reviewer || 'Anonymous'),
+        rating: parseInt(String(r.rating)) || 5,
+        text: String(reviewText),
+        date: "Google Review"
+      };
+    }) || [];
     
     // Get AI generated testimonials
     const aiTestimonials: ReviewData[] = businessData?.aiGeneratedContent?.testimonials?.items?.map(t => ({
@@ -1191,6 +1209,8 @@ export const GoogleReviewsSection: ComponentConfig = {
     
     // Parse custom reviews
     const customReviews: ReviewData[] = reviews.map(review => {
+      console.log('Custom review processing:', review);
+      
       if (typeof review === 'string') {
         const [author, reviewRating, text, date] = review.split('|');
         return { 
@@ -1200,11 +1220,24 @@ export const GoogleReviewsSection: ComponentConfig = {
           date: date || '' 
         };
       }
+      
       const obj = review as Record<string, unknown>;
+      console.log('Custom review object fields:', Object.keys(obj));
+      
+      // Try multiple possible field names for custom review text, similar to Google reviews
+      const reviewText = obj.textValue || 
+                        obj.text || 
+                        obj.content || 
+                        obj.description || 
+                        obj.review_text || 
+                        'No custom review text found';
+      
+      console.log('Custom review selected text:', reviewText);
+      
       return {
-        author: String(obj.author || ''),
+        author: String(obj.author || obj.reviewer || ''),
         rating: Number(obj.rating || 5),
-        text: String(obj.text || ''),
+        text: String(reviewText),
         date: String(obj.date || '')
       };
     });
@@ -1322,7 +1355,9 @@ export const GoogleReviewsSection: ComponentConfig = {
                     </div>
                     {renderStars(featuredReview.rating)}
                   </div>
-                  <p className="text-lg leading-relaxed">{featuredReview.text}</p>
+                  <p className="text-lg leading-relaxed">
+                    {typeof featuredReview.text === 'string' ? featuredReview.text : String(featuredReview.text || 'No review text')}
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -1342,7 +1377,9 @@ export const GoogleReviewsSection: ComponentConfig = {
                         </div>
                         {renderStars(review.rating)}
                       </div>
-                      <p className="text-muted-foreground line-clamp-3">{review.text}</p>
+                      <p className="text-muted-foreground line-clamp-3">
+                        {typeof review.text === 'string' ? review.text : String(review.text || 'No review text')}
+                      </p>
                     </CardContent>
                   </Card>
                 ))}
@@ -1428,7 +1465,9 @@ export const GoogleReviewsSection: ComponentConfig = {
                     </div>
                     {renderStars(review.rating)}
                   </div>
-                  <p className="text-muted-foreground leading-relaxed">{review.text}</p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {typeof review.text === 'string' ? review.text : String(review.text || 'No review text')}
+                  </p>
                 </CardContent>
               </Card>
             ))}

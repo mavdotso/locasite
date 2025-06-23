@@ -315,8 +315,12 @@ export const createDefaultPages = mutation({
                 props: {
                     title: "What Our Customers Say",
                     maxReviews: 6,
-                    showRatingBadge: "yes",
-                    businessName: business.name
+                    showRating: "yes",
+                    reviewSource: "google",
+                    layout: "grid",
+                    reviewsPerRow: "3",
+                    showDate: "yes",
+                    showAuthorImage: "no"
                 }
             });
         }

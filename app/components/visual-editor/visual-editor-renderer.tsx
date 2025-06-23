@@ -17,6 +17,12 @@ function renderComponent(component: ComponentData, business?: unknown): React.Re
     return null;
   }
 
+  // Debug logging for GoogleReviewsSection
+  if (component.type === 'GoogleReviewsSection') {
+    console.log('GoogleReviewsSection props:', component.props);
+    console.log('Business reviews:', (business as Record<string, unknown>)?.reviews);
+  }
+
   // Render children first if they exist
   const children = component.children?.map((child) => 
     renderComponent(child, business)
