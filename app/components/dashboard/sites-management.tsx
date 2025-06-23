@@ -47,7 +47,7 @@ export default function SitesManagement() {
   );
 
   const deleteBusiness = useMutation(api.businesses.remove);
-  const publishBusiness = useMutation(api.businesses.publishDraft);
+  const publishBusiness = useMutation(api.businesses.publish);
   const unpublishBusiness = useMutation(api.businesses.unpublish);
 
   // Filter businesses based on search and status

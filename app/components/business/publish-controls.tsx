@@ -18,7 +18,7 @@ interface PublishControlsProps {
 
 export function PublishControls({ businessId, isPublished, publishedAt }: PublishControlsProps) {
   const [loading, setLoading] = useState(false);
-  const publishDraft = useMutation(api.businesses.publishDraft);
+  const publish = useMutation(api.businesses.publish);
   const unpublish = useMutation(api.businesses.unpublish);
 
   const handleToggle = async () => {
@@ -28,7 +28,7 @@ export function PublishControls({ businessId, isPublished, publishedAt }: Publis
         await unpublish({ businessId });
         toast.success("Website unpublished successfully");
       } else {
-        await publishDraft({ businessId });
+        await publish({ businessId });
         toast.success("Website published successfully!");
       }
     } catch (error) {

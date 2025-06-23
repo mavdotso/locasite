@@ -59,7 +59,7 @@ export default function VisualEditor({
   const [isPublishing, setIsPublishing] = useState(false);
 
   const updatePage = useMutation(api.pages.updatePage);
-  const publishBusiness = useMutation(api.businesses.publishDraft);
+  const publishBusiness = useMutation(api.businesses.publish);
   const unpublishBusiness = useMutation(api.businesses.unpublish);
 
   // Add to history
