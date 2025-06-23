@@ -21,6 +21,8 @@ export default function VerifyBusinessPage({ params }: VerifyPageProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const claimId = searchParams.get('claimId');
+  const status = searchParams.get('status');
+  const message = searchParams.get('message');
   const [paramsData, setParamsData] = useState<{ businessId: string } | null>(null);
   const [verificationStatus, setVerificationStatus] = useState<'idle' | 'verifying' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -28,6 +30,22 @@ export default function VerifyBusinessPage({ params }: VerifyPageProps) {
   useEffect(() => {
     params.then(p => setParamsData(p));
   }, [params]);
+
+  useEffect(() => {
+    // Handle OAuth callback status
+    if (status === 'success') {
+      setVerificationStatus('success');
+      toast.success('Business verified successfully!', {
+        description: 'You can now manage this business listing.'
+      });
+    } else if (status === 'failed') {
+      setVerificationStatus('error');
+      setErrorMessage(message || 'Verification failed');
+      toast.error('Verification failed', {
+        description: message || 'Could not verify business ownership'
+      });
+    }
+  }, [status, message]);
 
   const businessId = paramsData?.businessId as Id<"businesses"> | undefined;
   const business = useQuery(api.businesses.getById, businessId ? { id: businessId } : "skip");
@@ -40,7 +58,7 @@ export default function VerifyBusinessPage({ params }: VerifyPageProps) {
     try {
       const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_BUSINESS_CLIENT_ID;
       const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL;
-      const REDIRECT_URI = `${CONVEX_URL}/api/auth/callback/google`;
+      const REDIRECT_URI = `${CONVEX_URL}/google-business/callback`;
       const SCOPES = [
         'https://www.googleapis.com/auth/business.manage',
         'openid',
@@ -115,7 +133,7 @@ export default function VerifyBusinessPage({ params }: VerifyPageProps) {
     );
   }
 
-  if (claim.status === 'approved') {
+  if (claim.status === 'approved' || verificationStatus === 'success') {
     return (
       <Card className="mx-auto w-full max-w-2xl">
         <CardHeader>
