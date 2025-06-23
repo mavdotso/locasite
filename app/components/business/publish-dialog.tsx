@@ -38,9 +38,17 @@ export function PublishDialog({
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState<"domain" | "publishing">("domain");
   
+  // All hooks must be called before any conditional logic
   const domain = useQuery(api.domains.getByBusinessId, { businessId });
   const generateSubdomain = useMutation(api.domains.generateSubdomain);
   const publishBusiness = useMutation(api.businesses.publish);
+  
+  // Set default subdomain input if domain exists
+  useEffect(() => {
+    if (domain?.subdomain && !subdomainInput) {
+      setSubdomainInput(domain.subdomain);
+    }
+  }, [domain, subdomainInput]);
   
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
   
@@ -75,8 +83,6 @@ export function PublishDialog({
       
       // Then publish the business
       await publishBusiness({ businessId });
-      
-      toast.success("Website published successfully!");
       
       // Show the published URL
       const isDevelopment = process.env.NODE_ENV === 'development';
@@ -113,69 +119,25 @@ export function PublishDialog({
     }
   };
   
-  // If business already has a domain, just publish
-  useEffect(() => {
-    if (open && domain) {
-      handleDirectPublish();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, domain]);
   
-  const handleDirectPublish = async () => {
-    setIsLoading(true);
-    try {
-      await publishBusiness({ businessId });
-      toast.success("Website published successfully!");
-      
-      const isDevelopment = process.env.NODE_ENV === 'development';
-      const publishedUrl = isDevelopment 
-        ? `http://${domain!.subdomain}.localhost:3000`
-        : `https://${domain!.subdomain}.${rootDomain}`;
-        
-      toast.success(
-        <div className="flex flex-col gap-1">
-          <span>Your website is now live at:</span>
-          <a 
-            href={publishedUrl} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="font-medium underline"
-          >
-            {publishedUrl}
-          </a>
-        </div>,
-        { duration: 10000 }
-      );
-      
-      onPublishComplete?.();
-      onOpenChange(false);
-    } catch {
-      toast.error("Failed to publish website");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  // Don't show dialog if business already has domain
-  if (domain) {
-    return null;
-  }
+  // Always use the actual step - let user choose domain even if one exists
+  const displayStep = step;
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {step === "domain" ? "Choose Your Website Address" : "Publishing Your Website"}
+            {displayStep === "domain" ? "Choose Your Website Address" : "Publishing Your Website"}
           </DialogTitle>
           <DialogDescription>
-            {step === "domain" 
+            {displayStep === "domain" 
               ? "Select a subdomain for your website. This will be your public web address."
               : "Setting up your website..."}
           </DialogDescription>
         </DialogHeader>
         
-        {step === "domain" ? (
+        {displayStep === "domain" ? (
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="subdomain">Website Address</Label>
@@ -227,7 +189,7 @@ export function PublishDialog({
           </div>
         )}
         
-        {step === "domain" && (
+        {displayStep === "domain" && (
           <DialogFooter>
             <Button
               variant="outline"
