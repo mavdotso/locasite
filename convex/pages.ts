@@ -142,7 +142,7 @@ export const createDefaultPages = mutation({
                                     id: `component-${componentIndex++}`,
                                     type: "TextBlock",
                                     props: {
-                                        content: aiContent?.hero?.subtitle || business.description || `Welcome to ${business.name}`,
+                                        content: aiContent?.hero?.subtitle || business.description || `Welcome to ${business.name}. We're dedicated to providing exceptional service to our community.`,
                                         variant: "lead",
                                         align: "center",
                                         color: "#ffffff"

@@ -3,6 +3,7 @@ import { api } from "../_generated/api";
 import { RateLimiter } from "@convex-dev/rate-limiter";
 import { components } from "../_generated/api";
 import axios from "axios";
+import { generateDefaultDescription } from "./businessDescriptions";
 
 const MINUTE = 60 * 1000; // 1 minute in milliseconds
 
@@ -146,7 +147,7 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
       photos: place.photos?.map((photo: GooglePlacePhoto) =>
         `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=${apiKey}`
       ) || [],
-      description: place.editorial_summary?.overview || '',
+      description: place.editorial_summary?.overview || generateDefaultDescription(place.name, place.types?.[0]),
       placeId: placeId,
       // Extract the most relevant business type/category from types array
       category: place.types?.[0] || undefined

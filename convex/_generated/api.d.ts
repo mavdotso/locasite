@@ -16,6 +16,7 @@ import type * as businesses from "../businesses.js";
 import type * as contactMessages from "../contactMessages.js";
 import type * as domains from "../domains.js";
 import type * as http from "../http.js";
+import type * as lib_businessDescriptions from "../lib/businessDescriptions.js";
 import type * as lib_helpers from "../lib/helpers.js";
 import type * as lib_scrape from "../lib/scrape.js";
 import type * as lib_themePresets from "../lib/themePresets.js";
@@ -50,6 +51,7 @@ declare const fullApi: ApiFromModules<{
   contactMessages: typeof contactMessages;
   domains: typeof domains;
   http: typeof http;
+  "lib/businessDescriptions": typeof lib_businessDescriptions;
   "lib/helpers": typeof lib_helpers;
   "lib/scrape": typeof lib_scrape;
   "lib/themePresets": typeof lib_themePresets;
