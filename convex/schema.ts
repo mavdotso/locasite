@@ -110,7 +110,9 @@ export default defineSchema({
                 title: v.string(),
                 items: v.array(v.object({
                     title: v.string(),
-                    description: v.string()
+                    description: v.string(),
+                    icon: v.optional(v.string()),
+                    features: v.optional(v.array(v.string()))
                 }))
             })),
             whyChooseUs: v.optional(v.object({
@@ -126,6 +128,69 @@ export default defineSchema({
                 metaTitle: v.string(),
                 metaDescription: v.string(),
                 keywords: v.array(v.string())
+            })),
+            testimonials: v.optional(v.object({
+                title: v.string(),
+                items: v.array(v.object({
+                    name: v.string(),
+                    text: v.string(),
+                    rating: v.number(),
+                    role: v.optional(v.string()),
+                    location: v.optional(v.string()),
+                    date: v.optional(v.string())
+                }))
+            })),
+            features: v.optional(v.object({
+                title: v.string(),
+                subtitle: v.string(),
+                items: v.array(v.object({
+                    title: v.string(),
+                    description: v.string(),
+                    icon: v.string()
+                }))
+            })),
+            process: v.optional(v.object({
+                title: v.string(),
+                subtitle: v.string(),
+                steps: v.array(v.object({
+                    number: v.string(),
+                    title: v.string(),
+                    description: v.string()
+                }))
+            })),
+            faq: v.optional(v.object({
+                title: v.string(),
+                items: v.array(v.object({
+                    question: v.string(),
+                    answer: v.string()
+                }))
+            })),
+            team: v.optional(v.object({
+                title: v.string(),
+                subtitle: v.string(),
+                members: v.array(v.object({
+                    name: v.string(),
+                    role: v.string(),
+                    bio: v.string(),
+                    expertise: v.array(v.string())
+                }))
+            })),
+            stats: v.optional(v.object({
+                title: v.string(),
+                items: v.array(v.object({
+                    number: v.string(),
+                    label: v.string(),
+                    suffix: v.optional(v.string())
+                }))
+            })),
+            specialOffers: v.optional(v.object({
+                title: v.string(),
+                offers: v.array(v.object({
+                    title: v.string(),
+                    description: v.string(),
+                    validUntil: v.string(),
+                    code: v.optional(v.string())
+                }))
             }))
         }))
     })

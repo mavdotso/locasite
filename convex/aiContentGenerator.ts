@@ -1,9 +1,9 @@
-import { action } from "../_generated/server";
+import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { openai } from '@ai-sdk/openai';
 import { generateObject, generateText } from 'ai';
 import { z } from 'zod';
-import { PartialBusinessData } from "./types";
+import { PartialBusinessData } from "./lib/types";
 
 export const generateBusinessContent = action({
   args: {
@@ -44,7 +44,9 @@ export const generateBusinessContent = action({
           title: z.string(),
           items: z.array(z.object({
             title: z.string(),
-            description: z.string()
+            description: z.string(),
+            icon: z.optional(z.string()),
+            features: z.optional(z.array(z.string()))
           }))
         }),
         whyChooseUs: z.object({
@@ -60,7 +62,70 @@ export const generateBusinessContent = action({
           metaTitle: z.string(),
           metaDescription: z.string(),
           keywords: z.array(z.string())
-        })
+        }),
+        testimonials: z.object({
+          title: z.string(),
+          items: z.array(z.object({
+            name: z.string(),
+            text: z.string(),
+            rating: z.number(),
+            role: z.optional(z.string()),
+            location: z.optional(z.string()),
+            date: z.optional(z.string())
+          }))
+        }),
+        features: z.optional(z.object({
+          title: z.string(),
+          subtitle: z.string(),
+          items: z.array(z.object({
+            title: z.string(),
+            description: z.string(),
+            icon: z.string()
+          }))
+        })),
+        process: z.optional(z.object({
+          title: z.string(),
+          subtitle: z.string(),
+          steps: z.array(z.object({
+            number: z.string(),
+            title: z.string(),
+            description: z.string()
+          }))
+        })),
+        faq: z.optional(z.object({
+          title: z.string(),
+          items: z.array(z.object({
+            question: z.string(),
+            answer: z.string()
+          }))
+        })),
+        team: z.optional(z.object({
+          title: z.string(),
+          subtitle: z.string(),
+          members: z.array(z.object({
+            name: z.string(),
+            role: z.string(),
+            bio: z.string(),
+            expertise: z.array(z.string())
+          }))
+        })),
+        stats: z.optional(z.object({
+          title: z.string(),
+          items: z.array(z.object({
+            number: z.string(),
+            label: z.string(),
+            suffix: z.optional(z.string())
+          }))
+        })),
+        specialOffers: z.optional(z.object({
+          title: z.string(),
+          offers: z.array(z.object({
+            title: z.string(),
+            description: z.string(),
+            validUntil: z.string(),
+            code: z.optional(z.string())
+          }))
+        }))
       });
 
       // Generate comprehensive content using structured output
@@ -82,7 +147,7 @@ Sample Reviews: ${businessData.reviews?.slice(0, 3).map(r => `"${r.text}" - ${r.
 
 IMPORTANT: You must respond with ONLY valid JSON. Do not include any other text, explanations, or markdown formatting. Start with { and end with }.
 
-Generate the following content sections in this exact JSON structure:
+Generate ALL content sections including optional ones. Make them highly relevant to the ${businessCategory} industry:
 
 {
   "hero": {
@@ -96,49 +161,79 @@ Generate the following content sections in this exact JSON structure:
     "title": "Our Services",
     "items": [
       {
-        "title": "Service 1",
-        "description": "Brief description"
-      },
-      {
-        "title": "Service 2", 
-        "description": "Brief description"
-      },
-      {
-        "title": "Service 3",
-        "description": "Brief description"
+        "title": "Service name specific to ${businessCategory}",
+        "description": "Detailed description",
+        "icon": "icon-name",
+        "features": ["feature1", "feature2", "feature3"]
       }
     ]
   },
   "whyChooseUs": {
-    "title": "Why Choose Us",
-    "points": [
-      "Unique selling point 1",
-      "Unique selling point 2", 
-      "Unique selling point 3",
-      "Unique selling point 4"
-    ]
+    "title": "Why Choose ${businessData.name}",
+    "points": ["Specific benefit 1", "Specific benefit 2", "Specific benefit 3", "Specific benefit 4"]
   },
   "callToAction": {
-    "primary": "Main CTA button text",
-    "secondary": "Secondary CTA text",
-    "urgency": "Create urgency phrase"
+    "primary": "Industry-specific CTA",
+    "secondary": "Secondary action",
+    "urgency": "Time-sensitive message"
   },
   "seo": {
-    "metaTitle": "SEO optimized title (max 60 chars)",
-    "metaDescription": "SEO meta description (max 160 chars)",
-    "keywords": ["keyword1", "keyword2", "keyword3"]
+    "metaTitle": "${businessData.name} - ${businessCategory} in [City]",
+    "metaDescription": "Compelling meta description",
+    "keywords": ["relevant", "local", "keywords"]
+  },
+  "testimonials": {
+    "title": "What Our Customers Say",
+    "items": [Generate 5-6 testimonials]
+  },
+  "features": {
+    "title": "Why We Stand Out",
+    "subtitle": "Key advantages specific to ${businessCategory}",
+    "items": [Generate 4-6 features with icons like "shield", "clock", "star", "check", "users", "award"]
+  },
+  "process": {
+    "title": "Our Process",
+    "subtitle": "How we deliver exceptional results",
+    "steps": [Generate 4-5 process steps numbered "01", "02", etc.]
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "items": [Generate 6-8 FAQs specific to ${businessCategory}]
+  },
+  "team": {
+    "title": "Meet Our Team",
+    "subtitle": "Experienced professionals dedicated to your success",
+    "members": [Generate 3-4 team members with realistic names, roles, bios, and expertise areas]
+  },
+  "stats": {
+    "title": "Our Impact",
+    "items": [
+      {"number": "500+", "label": "Happy Customers", "suffix": ""},
+      {"number": "10", "label": "Years Experience", "suffix": "+"},
+      {"number": "98", "label": "Customer Satisfaction", "suffix": "%"},
+      {"number": "24/7", "label": "Support Available", "suffix": ""}
+    ]
+  },
+  "specialOffers": {
+    "title": "Special Offers",
+    "offers": [Generate 2-3 compelling offers with realistic validity periods]
   }
 }
 
-Make the content:
-- Professional yet conversational
-- Locally focused (mention the area/city if possible)
-- Action-oriented with clear value propositions
-- Trustworthy and credible
-- SEO-friendly with natural keyword integration
-- Specific to the business type/industry
+Requirements:
+- Make ALL content specific to ${businessCategory} - no generic placeholders
+- Use professional language appropriate for the industry
+- Include local references based on the address
+- Create diverse, realistic testimonials
+- Generate believable team members with industry-appropriate roles
+- Make FAQs address real concerns for this business type
+- Stats should be realistic for the business size/type
+- Process steps should reflect actual ${businessCategory} workflows
+- Features should highlight competitive advantages
+- Special offers should be compelling but realistic
+- Services must include specific features relevant to each service
 
-Do not use generic placeholder text. Create specific, compelling content based on the business information provided.`
+For icons, use appropriate ones like: shield, clock, star, check, users, award, heart, globe, phone, mail, map, tool, chart, lock, zap, etc.`
       });
 
       // The result is already a parsed object from generateObject

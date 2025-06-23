@@ -67,7 +67,7 @@ export default function HeroSection() {
       });
       
       if (!response.ok) {
-        const errorText = await response.text();
+        // const errorText = await response.text();
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 

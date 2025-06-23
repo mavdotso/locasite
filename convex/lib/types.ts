@@ -12,6 +12,8 @@ export interface AIContentResult {
         items: Array<{
             title: string;
             description: string;
+            icon?: string;
+            features?: string[];
         }>;
     };
     whyChooseUs?: {
@@ -34,6 +36,61 @@ export interface AIContentResult {
             name: string;
             text: string;
             rating: number;
+            role?: string;
+            location?: string;
+            date?: string;
+        }>;
+    };
+    features?: {
+        title: string;
+        subtitle: string;
+        items: Array<{
+            title: string;
+            description: string;
+            icon: string;
+        }>;
+    };
+    process?: {
+        title: string;
+        subtitle: string;
+        steps: Array<{
+            number: string;
+            title: string;
+            description: string;
+        }>;
+    };
+    faq?: {
+        title: string;
+        items: Array<{
+            question: string;
+            answer: string;
+        }>;
+    };
+    team?: {
+        title: string;
+        subtitle: string;
+        members: Array<{
+            name: string;
+            role: string;
+            bio: string;
+            expertise: string[];
+        }>;
+    };
+    stats?: {
+        title: string;
+        items: Array<{
+            number: string;
+            label: string;
+            suffix?: string;
+        }>;
+    };
+    specialOffers?: {
+        title: string;
+        offers: Array<{
+            title: string;
+            description: string;
+            validUntil: string;
+            code?: string;
         }>;
     };
 }

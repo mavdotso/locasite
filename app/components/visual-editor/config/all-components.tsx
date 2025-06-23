@@ -27,6 +27,21 @@ import {
   TabsBlock,
   ColumnContentBlock
 } from "../blocks/container-blocks";
+import {
+  OperatingHoursSection,
+  LocationDirectionsSection,
+  MenuPriceListSection,
+  SpecialOffersSection,
+  FAQSection,
+  GoogleReviewsSection,
+  BeforeAfterSection,
+  ProcessTimelineSection,
+  StatsCounterSection,
+  TeamSection,
+  FeaturesSection,
+  CTABannerSection,
+  ServicesDetailedSection
+} from "../blocks/local-business-sections";
 
 // Combine all components
 export const allComponentConfigs: Record<string, ComponentConfig> = {
@@ -60,6 +75,21 @@ export const allComponentConfigs: Record<string, ComponentConfig> = {
   // Interactive Components
   AccordionBlock,
   TabsBlock,
+  
+  // Local Business Sections
+  OperatingHoursSection,
+  LocationDirectionsSection,
+  MenuPriceListSection,
+  SpecialOffersSection,
+  FAQSection,
+  GoogleReviewsSection,
+  BeforeAfterSection,
+  ProcessTimelineSection,
+  StatsCounterSection,
+  TeamSection,
+  FeaturesSection,
+  CTABannerSection,
+  ServicesDetailedSection,
   
   // Business-specific components (legacy)
   ...businessComponents
