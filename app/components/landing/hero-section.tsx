@@ -43,13 +43,18 @@ export default function HeroSection() {
     }
 
     if (!validateUrl(url)) {
-      toast.error('Please enter a valid Google Maps URL');
+      toast.error('Please enter a valid Google Maps URL. Example: https://maps.app.goo.gl/...');
       return;
     }
 
     setIsLoading(true);
     try {
       const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL || '';
+      
+      if (!convexUrl) {
+        throw new Error('Convex URL not configured');
+      }
+      
       const deploymentName = convexUrl.split('//')[1]?.split('.')[0];
       const convexSiteUrl = `https://${deploymentName}.convex.site`;
       
@@ -60,6 +65,11 @@ export default function HeroSection() {
         },
         body: JSON.stringify({ url, preview: true }),
       });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
       
@@ -67,13 +77,20 @@ export default function HeroSection() {
         throw new Error(data.error);
       }
       
-      if (data.businessData) {
+      if (data.success && data.data) {
+        setPreviewData(data.data);
+        toast.success('Preview generated successfully!');
+      } else if (data.businessData) {
+        // Fallback for different response format
         setPreviewData(data.businessData);
         toast.success('Preview generated successfully!');
+      } else {
+        throw new Error('No business data returned');
       }
     } catch (error) {
       console.error('Error scraping business:', error);
-      toast.error('Failed to generate preview. Please check the URL and try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      toast.error(`Failed to generate preview: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
@@ -103,7 +120,17 @@ export default function HeroSection() {
         throw new Error(data.error);
       }
       
-      if (data.businessData) {
+      if (data.success && data.data) {
+        const result = await createFromPending({ 
+          businessData: data.data,
+          aiContent: null
+        });
+        
+        if (result.businessId) {
+          router.push(`/preview/${result.businessId}`);
+        }
+      } else if (data.businessData) {
+        // Fallback for different response format
         const result = await createFromPending({ 
           businessData: data.businessData,
           aiContent: null
@@ -154,7 +181,13 @@ export default function HeroSection() {
           
           {/* Input and CTA Section */}
           <div className="mx-auto mb-8 max-w-2xl">
-            <div className="flex flex-col gap-4 sm:flex-row">
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleGeneratePreview();
+              }}
+              className="flex flex-col gap-4 sm:flex-row"
+            >
               <Input
                 type="url"
                 placeholder="Paste a Google Maps business URL here..."
@@ -162,11 +195,17 @@ export default function HeroSection() {
                 onChange={(e) => setUrl(e.target.value)}
                 className="h-14 text-base"
                 disabled={isLoading}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleGeneratePreview();
+                  }
+                }}
               />
               <Button 
+                type="submit"
                 size="lg" 
-                onClick={handleGeneratePreview}
-                disabled={isLoading}
+                disabled={isLoading || !url.trim()}
                 className="h-14 whitespace-nowrap px-8"
               >
                 {isLoading ? (
@@ -181,7 +220,7 @@ export default function HeroSection() {
                   </>
                 )}
               </Button>
-            </div>
+            </form>
             <p className="mt-3 text-center text-sm text-muted-foreground">
               Try it free • No credit card required • Setup in 60 seconds
             </p>
