@@ -36,8 +36,15 @@ export default defineSchema({
     domains: defineTable({
         name: v.string(),
         subdomain: v.string(),
-        createdAt: v.number()
-    }).index("by_subdomain", ["subdomain"]),
+        customDomain: v.optional(v.string()),
+        domainType: v.optional(v.union(v.literal("subdomain"), v.literal("custom"))),
+        isVerified: v.optional(v.boolean()),
+        verificationToken: v.optional(v.string()),
+        createdAt: v.number(),
+        updatedAt: v.optional(v.number())
+    })
+        .index("by_subdomain", ["subdomain"])
+        .index("by_custom_domain", ["customDomain"]),
 
     pages: defineTable({
         domainId: v.id("domains"),

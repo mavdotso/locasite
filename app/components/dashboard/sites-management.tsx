@@ -8,6 +8,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
 import { Input } from '@/app/components/ui/input';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/app/components/ui/dropdown-menu';
 import { 
   Globe, 
   Plus,
@@ -18,7 +25,9 @@ import {
   Calendar,
   MapPin,
   Phone,
-  Trash
+  Trash,
+  Lock,
+  MoreHorizontal
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -38,6 +47,8 @@ export default function SitesManagement() {
   );
 
   const deleteBusiness = useMutation(api.businesses.remove);
+  const publishBusiness = useMutation(api.businesses.publishDraft);
+  const unpublishBusiness = useMutation(api.businesses.unpublish);
 
   // Filter businesses based on search and status
   const filteredBusinesses = userBusinesses?.filter((business: Doc<"businesses">) => {
@@ -61,6 +72,26 @@ export default function SitesManagement() {
         console.error('Error deleting site:', error);
         toast.error('Failed to delete site');
       }
+    }
+  };
+
+  const handlePublish = async (businessId: Id<"businesses">) => {
+    try {
+      await publishBusiness({ businessId });
+      toast.success('Site published successfully!');
+    } catch (error) {
+      console.error('Error publishing site:', error);
+      toast.error('Failed to publish site');
+    }
+  };
+
+  const handleUnpublish = async (businessId: Id<"businesses">) => {
+    try {
+      await unpublishBusiness({ businessId });
+      toast.success('Site unpublished successfully');
+    } catch (error) {
+      console.error('Error unpublishing site:', error);
+      toast.error('Failed to unpublish site');
     }
   };
 
@@ -215,22 +246,47 @@ export default function SitesManagement() {
                         <Edit3 className="w-3 h-3 mr-1" />
                         Edit
                       </EditButton>
-                      <Button size="sm" className="flex-1">
+                      <Button 
+                        size="sm" 
+                        className="flex-1"
+                        onClick={() => handlePublish(business._id)}
+                      >
                         <Globe className="w-3 h-3 mr-1" />
                         Publish
                       </Button>
                     </>
                   )}
                   
-                  {/* Delete Button */}
-                  <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    className="px-2 text-destructive hover:text-destructive"
-                    onClick={() => handleDeleteSite(business._id, business.name)}
-                  >
-                    <Trash className="w-3 h-3" />
-                  </Button>
+                  {/* More Actions */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="px-2"
+                      >
+                        <MoreHorizontal className="w-3 h-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {business.isPublished && (
+                        <>
+                          <DropdownMenuItem onClick={() => handleUnpublish(business._id)}>
+                            <Lock className="w-3 h-3 mr-2" />
+                            Unpublish
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                        </>
+                      )}
+                      <DropdownMenuItem 
+                        className="text-destructive"
+                        onClick={() => handleDeleteSite(business._id, business.name)}
+                      >
+                        <Trash className="w-3 h-3 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
 
                 {/* Quick Stats (for published sites) */}

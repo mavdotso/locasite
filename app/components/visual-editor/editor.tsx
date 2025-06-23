@@ -8,7 +8,7 @@ import PreviewPanel from "./preview-panel";
 import FieldEditor from "./field-editor";
 import { allComponentConfigs as componentConfigs } from "./config/all-components";
 import { Button } from "@/app/components/ui/button";
-import { Save, Loader2, Undo, Redo, HelpCircle, Info, X } from "lucide-react";
+import { Save, Loader2, Undo, Redo, HelpCircle, Info, X, Globe, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
 import { Doc, Id } from "@/convex/_generated/dataModel";
@@ -56,8 +56,11 @@ export default function VisualEditor({
   });
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
 
   const updatePage = useMutation(api.pages.updatePage);
+  const publishBusiness = useMutation(api.businesses.publishDraft);
+  const unpublishBusiness = useMutation(api.businesses.unpublish);
 
   // Add to history
   const addToHistory = useCallback((newData: PageData) => {
@@ -382,6 +385,30 @@ export default function VisualEditor({
     }
   }, [pageId, pageData, onSave, updatePage]);
 
+  // Handle publish/unpublish
+  const handlePublish = useCallback(async () => {
+    try {
+      setIsPublishing(true);
+      
+      if (business.isPublished) {
+        await unpublishBusiness({ businessId });
+        toast.success("Website unpublished successfully");
+      } else {
+        // Save any pending changes first
+        if (hasUnsavedChanges) {
+          await handleSave();
+        }
+        await publishBusiness({ businessId });
+        toast.success("Website published successfully!");
+      }
+    } catch (error) {
+      console.error("Error publishing:", error);
+      toast.error(business.isPublished ? "Failed to unpublish" : "Failed to publish");
+    } finally {
+      setIsPublishing(false);
+    }
+  }, [business.isPublished, businessId, publishBusiness, unpublishBusiness, hasUnsavedChanges, handleSave]);
+
   // Undo/Redo
   const canUndo = historyIndex > 0;
   const canRedo = historyIndex < history.length - 1;
@@ -543,6 +570,35 @@ export default function VisualEditor({
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Save changes (Ctrl+S)</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant={business.isPublished ? "destructive" : "default"}
+                    onClick={handlePublish}
+                    disabled={isPublishing}
+                    className="h-8 gap-1.5"
+                  >
+                    {isPublishing ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : business.isPublished ? (
+                      <>
+                        <Lock className="h-3.5 w-3.5" />
+                        <span className="text-xs">Unpublish</span>
+                      </>
+                    ) : (
+                      <>
+                        <Globe className="h-3.5 w-3.5" />
+                        <span className="text-xs">Publish</span>
+                      </>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{business.isPublished ? "Unpublish website" : "Make website public"}</p>
                 </TooltipContent>
               </Tooltip>
             </div>
