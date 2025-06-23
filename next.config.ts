@@ -5,6 +5,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'careful-emu-235.convex.cloud',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
         hostname: 'maps.googleapis.com',
         pathname: '**',
       },

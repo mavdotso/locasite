@@ -2,7 +2,7 @@
 
 import { Button } from "@/app/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { Doc } from "@/convex/_generated/dataModel";
+import { Id } from "@/convex/_generated/dataModel";
 import { 
   Edit3, 
   Globe, 
@@ -10,22 +10,72 @@ import {
   BarChart3, 
   ExternalLink,
   Shield,
-  ArrowLeft
+  ArrowLeft,
+  Loader2
 } from "lucide-react";
 import Link from "next/link";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { notFound } from "next/navigation";
 
 interface BusinessDashboardClientProps {
-  business: Doc<"businesses">;
-  domain: Doc<"domains"> | null;
-  initialMessages?: Doc<"contactMessages">[];
-  unreadCount: number;
+  businessId: Id<"businesses">;
 }
 
 export default function BusinessDashboardClient({ 
-  business, 
-  domain, 
-  unreadCount 
+  businessId 
 }: BusinessDashboardClientProps) {
+  const router = useRouter();
+  
+  // All hooks must be called before any conditional returns
+  const user = useQuery(api.auth.currentUser);
+  const business = useQuery(api.businesses.getById, { id: businessId });
+  const domain = useQuery(api.domains.getByBusinessId, { businessId });
+  const unreadCount = useQuery(api.contactMessages.getUnreadCount, { businessId });
+  
+  // Handle authentication
+  useEffect(() => {
+    if (user === null) {
+      // User is not authenticated, redirect to sign-in with redirect back to this page
+      router.push(`/sign-in?redirect=/dashboard/business/${businessId}`);
+    }
+  }, [user, businessId, router]);
+  
+  // Loading state while fetching user or business
+  if (user === undefined || business === undefined) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+  
+  // User not authenticated (null)
+  if (user === null) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+  
+  // Business not found
+  if (business === null) {
+    return notFound();
+  }
+  
+  // Check ownership - only allow owner to access dashboard
+  if (business.userId && business.userId !== user._id) {
+    router.push(`/dashboard/sites`);
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+  
   const isPublished = !!domain;
   const canClaim = !business.userId;
 
@@ -48,14 +98,14 @@ export default function BusinessDashboardClient({
             <h1 className="text-3xl font-bold">{business.name}</h1>
             <p className="text-muted-foreground mt-2">
               {isPublished 
-                ? `Published at ${domain.subdomain}.locasite.com` 
+                ? `Published at ${domain?.subdomain}.locasite.com` 
                 : "Not published yet"
               }
             </p>
           </div>
           {isPublished && (
             <Button variant="outline" asChild>
-              <a href={`/${domain.subdomain}`} target="_blank" rel="noopener noreferrer">
+              <a href={`/${domain?.subdomain}`} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="mr-2 h-4 w-4" />
                 View Live Site
               </a>
@@ -90,7 +140,7 @@ export default function BusinessDashboardClient({
             <CardTitle className="flex items-center gap-2">
               <MessageSquare className="h-5 w-5" />
               Messages
-              {unreadCount > 0 && (
+              {(unreadCount || 0) > 0 && (
                 <span className="ml-1 px-2 py-0.5 text-xs bg-red-500 text-white rounded-full">
                   {unreadCount}
                 </span>
