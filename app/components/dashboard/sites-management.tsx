@@ -27,7 +27,8 @@ import {
   Phone,
   Trash,
   Lock,
-  MoreHorizontal
+  MoreHorizontal,
+  Settings
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -261,15 +262,22 @@ export default function SitesManagement() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link href={`/dashboard/business/${business._id}/domain`}>
+                          <Settings className="w-3 h-3 mr-2" />
+                          Domain Settings
+                        </Link>
+                      </DropdownMenuItem>
                       {business.isPublished && (
                         <>
+                          <DropdownMenuSeparator />
                           <DropdownMenuItem onClick={() => handleUnpublish(business._id)}>
                             <Lock className="w-3 h-3 mr-2" />
                             Unpublish
                           </DropdownMenuItem>
-                          <DropdownMenuSeparator />
                         </>
                       )}
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem 
                         className="text-destructive"
                         onClick={() => handleDeleteSite(business._id, business.name)}

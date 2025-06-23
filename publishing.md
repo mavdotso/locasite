@@ -13,6 +13,28 @@ All features have been successfully implemented. The publishing feature is now f
 4. **Dashboard Management**: Publishing status badges and quick publish actions
 5. **Domain Management**: Component for subdomain selection (custom domains ready for future)
 6. **Schema Updates**: Database schema supports custom domains and verification
+7. **Subdomain Routing**: Proper subdomain-based routing (business.locasite.xyz)
+8. **Domain Settings Page**: Dedicated page for managing domain settings in dashboard
+
+### Key Implementation Details:
+
+#### Middleware Subdomain Routing
+- Based on Vercel Platforms example for reliable subdomain detection
+- Supports both development (subdomain.localhost:3000) and production (subdomain.locasite.xyz)
+- Handles special cases like 'app' subdomain and www
+- Blocks dashboard access from business subdomains
+
+#### Publishing Flow
+1. **First-time publish**: Shows domain selection dialog
+2. **Domain selection**: Auto-suggests subdomain from business name
+3. **Instant publishing**: Once domain is set, publish/unpublish is instant
+4. **URL display**: Shows live URL after publishing
+
+#### Domain Management
+- Access via dropdown menu in sites dashboard
+- Located at `/dashboard/business/[businessId]/domain`
+- Shows current domain configuration
+- Allows subdomain changes (custom domains marked as "Coming Soon")
 
 ## Current State Analysis
 - **Schema**: The `businesses` table already has `isPublished` and `publishedAt` fields
