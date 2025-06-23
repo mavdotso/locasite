@@ -28,7 +28,10 @@ import {
   Trash,
   Lock,
   MoreHorizontal,
-  Settings
+  Settings,
+  Shield,
+  MessageSquare,
+  BarChart3
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -91,27 +94,36 @@ export default function SitesManagement() {
   const getSiteStatus = (business: Doc<"businesses">) => {
     if (business.isPublished) return 'published';
     if (business.userId) return 'draft';
-    return 'pending';
+    return 'unclaimed';
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (business: Doc<"businesses">) => {
+    const status = getSiteStatus(business);
+    const isOwned = business.userId === user?._id;
+    
+    if (!business.userId) {
+      return <Badge className="bg-yellow-100 text-yellow-800">Unclaimed</Badge>;
+    }
+    
+    if (!isOwned) {
+      return <Badge className="bg-blue-100 text-blue-800">Not Owned</Badge>;
+    }
+    
     switch (status) {
       case 'published':
         return <Badge className="bg-green-100 text-green-800">Published</Badge>;
       case 'draft':
         return <Badge variant="outline">Draft</Badge>;
-      case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
       default:
         return <Badge variant="outline">Unknown</Badge>;
     }
   };
 
   const statusCounts = {
-    all: filteredBusinesses.length,
-    published: filteredBusinesses.filter((b: Doc<"businesses">) => b.isPublished).length,
-    draft: filteredBusinesses.filter((b: Doc<"businesses">) => !b.isPublished && b.userId).length,
-    pending: filteredBusinesses.filter((b: Doc<"businesses">) => !b.userId).length,
+    all: userBusinesses?.length || 0,
+    published: userBusinesses?.filter((b: Doc<"businesses">) => b.isPublished).length || 0,
+    draft: userBusinesses?.filter((b: Doc<"businesses">) => !b.isPublished && b.userId).length || 0,
+    pending: userBusinesses?.filter((b: Doc<"businesses">) => !b.userId).length || 0,
   };
 
   if (!user) {
@@ -186,7 +198,7 @@ export default function SitesManagement() {
                       <span className="line-clamp-1">{business.address}</span>
                     </CardDescription>
                   </div>
-                  {getStatusBadge(getSiteStatus(business))}
+                  {getStatusBadge(business)}
                 </div>
               </CardHeader>
               
@@ -222,75 +234,114 @@ export default function SitesManagement() {
 
                 {/* Action Buttons */}
                 <div className="flex gap-2 pt-2">
-                  {business.isPublished ? (
+                  {business.userId === user?._id ? (
+                    // Owned businesses
+                    business.isPublished ? (
+                      <>
+                        <Button asChild size="sm" variant="outline" className="flex-1">
+                          <Link href={`/dashboard/business/${business._id}`}>
+                            <Settings className="w-3 h-3 mr-1" />
+                            Manage
+                          </Link>
+                        </Button>
+                        <EditButton businessId={business._id} size="sm" className="flex-1">
+                          <Edit3 className="w-3 h-3 mr-1" />
+                          Edit
+                        </EditButton>
+                      </>
+                    ) : (
+                      <>
+                        <EditButton businessId={business._id} size="sm" variant="outline" className="flex-1">
+                          <Edit3 className="w-3 h-3 mr-1" />
+                          Edit
+                        </EditButton>
+                        <Button 
+                          size="sm" 
+                          className="flex-1"
+                          onClick={() => setPublishDialogBusiness({ id: business._id, name: business.name })}
+                        >
+                          <Globe className="w-3 h-3 mr-1" />
+                          Publish
+                        </Button>
+                      </>
+                    )
+                  ) : !business.userId ? (
+                    // Unclaimed businesses
                     <>
                       <ViewButton businessId={business._id} size="sm" variant="outline" className="flex-1">
                         <Eye className="w-3 h-3 mr-1" />
                         View
                       </ViewButton>
-                      <EditButton businessId={business._id} size="sm" className="flex-1">
-                        <Edit3 className="w-3 h-3 mr-1" />
-                        Edit
-                      </EditButton>
+                      <Button asChild size="sm" className="flex-1">
+                        <Link href={`/${business._id}/claim/${business._id}`}>
+                          <Shield className="w-3 h-3 mr-1" />
+                          Claim
+                        </Link>
+                      </Button>
                     </>
                   ) : (
-                    <>
-                      <EditButton businessId={business._id} size="sm" variant="outline" className="flex-1">
-                        <Edit3 className="w-3 h-3 mr-1" />
-                        Edit
-                      </EditButton>
-                      <Button 
-                        size="sm" 
-                        className="flex-1"
-                        onClick={() => setPublishDialogBusiness({ id: business._id, name: business.name })}
-                      >
-                        <Globe className="w-3 h-3 mr-1" />
-                        Publish
-                      </Button>
-                    </>
+                    // Owned by someone else
+                    <ViewButton businessId={business._id} size="sm" variant="outline" className="w-full">
+                      <Eye className="w-3 h-3 mr-1" />
+                      View Site
+                    </ViewButton>
                   )}
                   
-                  {/* More Actions */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        size="sm" 
-                        variant="ghost" 
-                        className="px-2"
-                      >
-                        <MoreHorizontal className="w-3 h-3" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem asChild>
-                        <Link href={`/dashboard/business/${business._id}/domain`}>
-                          <Settings className="w-3 h-3 mr-2" />
-                          Domain Settings
-                        </Link>
-                      </DropdownMenuItem>
-                      {business.isPublished && (
-                        <>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => handleUnpublish(business._id)}>
-                            <Lock className="w-3 h-3 mr-2" />
-                            Unpublish
-                          </DropdownMenuItem>
-                        </>
-                      )}
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem 
-                        className="text-destructive"
-                        onClick={() => handleDeleteSite(business._id, business.name)}
-                      >
-                        <Trash className="w-3 h-3 mr-2" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  {/* More Actions - Only for owned businesses */}
+                  {business.userId === user?._id && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="px-2"
+                        >
+                          <MoreHorizontal className="w-3 h-3" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link href={`/dashboard/business/${business._id}`}>
+                            <BarChart3 className="w-3 h-3 mr-2" />
+                            Dashboard
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href={`/dashboard/business/${business._id}/messages`}>
+                            <MessageSquare className="w-3 h-3 mr-2" />
+                            Messages
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href={`/dashboard/business/${business._id}/domain`}>
+                            <Settings className="w-3 h-3 mr-2" />
+                            Domain Settings
+                          </Link>
+                        </DropdownMenuItem>
+                        {business.isPublished && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => handleUnpublish(business._id)}>
+                              <Lock className="w-3 h-3 mr-2" />
+                              Unpublish
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          className="text-destructive"
+                          onClick={() => handleDeleteSite(business._id, business.name)}
+                        >
+                          <Trash className="w-3 h-3 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </div>
 
-                {/* Quick Stats (for published sites) */}
-                {business.isPublished && (
+                {/* Quick Stats (for owned published sites) */}
+                {business.isPublished && business.userId === user?._id && (
                   <div className="grid grid-cols-3 gap-2 pt-2 border-t">
                     <div className="text-center">
                       <div className="text-sm font-medium text-foreground">0</div>

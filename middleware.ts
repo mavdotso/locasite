@@ -68,6 +68,15 @@ export default async function middleware(request: NextRequest, event: NextFetchE
             return NextResponse.redirect(new URL("/", request.url));
         }
 
+        // Allow business edit pages to pass through to auth middleware
+        if (pathname.startsWith("/business/")) {
+            const authResponse = await authMiddleware(request, event);
+            if (authResponse) {
+                return authResponse;
+            }
+            return NextResponse.next();
+        }
+
         // For any path on a business subdomain, rewrite to /[subdomain]/...
         const rewritePath = `/${subdomain}${pathname}`;
         return NextResponse.rewrite(new URL(rewritePath, request.url));
@@ -82,15 +91,17 @@ export default async function middleware(request: NextRequest, event: NextFetchE
     // On the root domain, allow normal access
     return NextResponse.next();
 }
+
 export const config = {
     matcher: [
         /*
          * Match all request paths except for the ones starting with:
-         * - api (API routes)
          * - _next/static (static files)
          * - _next/image (image optimization files)
          * - favicon.ico (favicon file)
+         * 
+         * NOTE: We DO want to match /api/auth routes for Convex auth
          */
-        '/((?!api|_next/static|_next/image|favicon.ico).*)',
+        '/((?!_next/static|_next/image|favicon.ico).*)',
     ],
 };

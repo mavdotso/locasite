@@ -7,54 +7,24 @@ import { useQuery } from 'convex/react';
 import { useAuthActions } from '@convex-dev/auth/react';
 import { api } from '@/convex/_generated/api';
 import { Button } from '@/app/components/ui/button';
-import { Badge } from '@/app/components/ui/badge';
 import { 
-  LayoutDashboard, 
   Globe, 
   Settings, 
   User, 
   Menu,
   X,
   LogOut,
-  MessageSquare,
-  BarChart3,
-  PlusCircle,
-  Shield
+  PlusCircle
 } from 'lucide-react';
 import { cn } from '@/app/lib/utils';
 import Logo from '@/app/components/ui/logo';
 
 const navigation = [
   { 
-    name: 'Overview', 
-    href: '/dashboard', 
-    icon: LayoutDashboard, 
-    description: 'Dashboard overview and quick stats' 
-  },
-  { 
     name: 'My Sites', 
     href: '/dashboard/sites', 
     icon: Globe, 
     description: 'Manage your business websites' 
-  },
-  { 
-    name: 'Claims', 
-    href: '/dashboard/claims', 
-    icon: Shield, 
-    description: 'Business ownership claims' 
-  },
-  { 
-    name: 'Messages', 
-    href: '/dashboard/messages', 
-    icon: MessageSquare, 
-    description: 'Customer inquiries and contact forms',
-    badge: 'unreadCount'
-  },
-  { 
-    name: 'Analytics', 
-    href: '/dashboard/analytics', 
-    icon: BarChart3, 
-    description: 'Website performance and visitor insights' 
   },
   { 
     name: 'Settings', 
@@ -70,18 +40,6 @@ export default function DashboardNav() {
   const router = useRouter();
   const { signOut } = useAuthActions();
   const user = useQuery(api.auth.currentUser);
-  
-  // Get unread messages count for badge
-  const unreadCount = useQuery(api.contactMessages.getTotalUnreadCount) || 0;
-
-  const getBadgeValue = (badgeType: string) => {
-    switch (badgeType) {
-      case 'unreadCount':
-        return unreadCount > 0 ? unreadCount : null;
-      default:
-        return null;
-    }
-  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -103,32 +61,23 @@ export default function DashboardNav() {
 
             {/* Desktop Navigation Links */}
             <div className="hidden md:flex items-center space-x-1">
-              {navigation.map((item) => {
-                const badgeValue = item.badge ? getBadgeValue(item.badge) : null;
-                
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={cn(
-                      'relative px-3 py-2 rounded-md text-sm font-medium transition-colors',
-                      pathname === item.href
-                        ? 'bg-primary/10 text-primary'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                    )}
-                  >
-                    <div className="flex items-center gap-2">
-                      <item.icon className="w-4 h-4" />
-                      <span>{item.name}</span>
-                      {badgeValue && (
-                        <Badge className="bg-red-500 text-white text-xs px-1.5 py-0.5 min-w-[1.25rem] h-5">
-                          {badgeValue}
-                        </Badge>
-                      )}
-                    </div>
-                  </Link>
-                );
-              })}
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={cn(
+                    'relative px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                    pathname === item.href
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <item.icon className="w-4 h-4" />
+                    <span>{item.name}</span>
+                  </div>
+                </Link>
+              ))}
             </div>
 
             {/* User Menu */}
@@ -181,36 +130,27 @@ export default function DashboardNav() {
               </div>
 
               {/* Navigation Links */}
-              {navigation.map((item) => {
-                const badgeValue = item.badge ? getBadgeValue(item.badge) : null;
-                
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={cn(
-                      'flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium transition-colors',
-                      pathname === item.href
-                        ? 'bg-primary/10 text-primary'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <div className="flex items-center gap-2">
-                      <item.icon className="w-4 h-4" />
-                      <div>
-                        <div>{item.name}</div>
-                        <div className="text-xs text-muted-foreground">{item.description}</div>
-                      </div>
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={cn(
+                    'flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                    pathname === item.href
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  )}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <div className="flex items-center gap-2">
+                    <item.icon className="w-4 h-4" />
+                    <div>
+                      <div>{item.name}</div>
+                      <div className="text-xs text-muted-foreground">{item.description}</div>
                     </div>
-                    {badgeValue && (
-                      <Badge className="bg-red-500 text-white text-xs px-1.5 py-0.5">
-                        {badgeValue}
-                      </Badge>
-                    )}
-                  </Link>
-                );
-              })}
+                  </div>
+                </Link>
+              ))}
 
               {/* Actions */}
               <div className="pt-3 border-t border-border mt-3">
