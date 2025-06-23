@@ -244,7 +244,8 @@ export const create = mutation({
         const businessId = await ctx.db.insert("businesses", {
             ...args.business,
             createdAt: Date.now(),
-            userId: user._id
+            userId: user._id,
+            isPublished: false // Default to unpublished
         });
 
 
@@ -586,6 +587,24 @@ export const discardDraft = mutation({
         // Clear draft content
         return await ctx.db.patch(args.businessId, {
             draftContent: undefined
+        });
+    }
+});
+
+// Simple publish toggle (without draft content)
+export const publish = mutation({
+    args: {
+        businessId: v.id("businesses")
+    },
+    handler: async (ctx, args) => {
+        const user = await getUserFromAuth(ctx);
+
+        // Verify ownership
+        await verifyBusinessOwnership(ctx, args.businessId, user._id);
+
+        return await ctx.db.patch(args.businessId, {
+            isPublished: true,
+            publishedAt: Date.now()
         });
     }
 });

@@ -53,7 +53,11 @@ export default function BusinessPageRenderer({
           
           // Ensure columnIndex is within bounds
           const safeColumnIndex = Math.min(Math.max(0, columnIndex), columnCount - 1);
-          columnContents[safeColumnIndex].push(renderComponent(child));
+          columnContents[safeColumnIndex].push(
+            <React.Fragment key={child.id}>
+              {renderComponent(child)}
+            </React.Fragment>
+          );
         });
         
         // Pass the distributed children to ColumnsBlock

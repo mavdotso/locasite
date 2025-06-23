@@ -4,7 +4,6 @@ import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { Button } from '@/app/components/ui/button';
-import Link from 'next/link';
 import { ReactNode } from 'react';
 
 interface ViewButtonProps {
@@ -23,6 +22,9 @@ export default function ViewButton({
   className = ''
 }: ViewButtonProps) {
   const domain = useQuery(api.domains.getByBusinessId, { businessId });
+  
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'locasite.xyz';
+  const isDevelopment = process.env.NODE_ENV === 'development';
 
   if (!domain) {
     // If no domain exists, the business isn't published yet, so no view link
@@ -33,11 +35,16 @@ export default function ViewButton({
     );
   }
 
+  // Generate the correct URL based on environment
+  const url = isDevelopment 
+    ? `http://${domain.subdomain}.localhost:3000`
+    : `https://${domain.subdomain}.${rootDomain}`;
+
   return (
     <Button variant={variant} size={size} className={className} asChild>
-      <Link href={`/${domain.subdomain}`}>
+      <a href={url} target="_blank" rel="noopener noreferrer">
         {children}
-      </Link>
+      </a>
     </Button>
   );
 }

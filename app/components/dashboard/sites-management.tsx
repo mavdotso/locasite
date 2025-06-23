@@ -8,6 +8,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
 import { Input } from '@/app/components/ui/input';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/app/components/ui/dropdown-menu';
 import { 
   Globe, 
   Plus,
@@ -18,19 +25,24 @@ import {
   Calendar,
   MapPin,
   Phone,
-  Trash
+  Trash,
+  Lock,
+  MoreHorizontal,
+  Settings
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import Image from 'next/image';
 import EditButton from '@/app/components/ui/edit-button';
 import ViewButton from '@/app/components/ui/view-button';
+import { PublishDialog } from '@/app/components/business/publish-dialog';
 
 type SiteStatus = 'all' | 'published' | 'draft' | 'pending';
 
 export default function SitesManagement() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<SiteStatus>('all');
+  const [publishDialogBusiness, setPublishDialogBusiness] = useState<{ id: Id<"businesses">, name: string } | null>(null);
   
   const user = useQuery(api.auth.currentUser);
   const userBusinesses = useQuery(api.businesses.listByUser, 
@@ -38,6 +50,7 @@ export default function SitesManagement() {
   );
 
   const deleteBusiness = useMutation(api.businesses.remove);
+  const unpublishBusiness = useMutation(api.businesses.unpublish);
 
   // Filter businesses based on search and status
   const filteredBusinesses = userBusinesses?.filter((business: Doc<"businesses">) => {
@@ -61,6 +74,17 @@ export default function SitesManagement() {
         console.error('Error deleting site:', error);
         toast.error('Failed to delete site');
       }
+    }
+  };
+
+
+  const handleUnpublish = async (businessId: Id<"businesses">) => {
+    try {
+      await unpublishBusiness({ businessId });
+      toast.success('Site unpublished successfully');
+    } catch (error) {
+      console.error('Error unpublishing site:', error);
+      toast.error('Failed to unpublish site');
     }
   };
 
@@ -215,22 +239,54 @@ export default function SitesManagement() {
                         <Edit3 className="w-3 h-3 mr-1" />
                         Edit
                       </EditButton>
-                      <Button size="sm" className="flex-1">
+                      <Button 
+                        size="sm" 
+                        className="flex-1"
+                        onClick={() => setPublishDialogBusiness({ id: business._id, name: business.name })}
+                      >
                         <Globe className="w-3 h-3 mr-1" />
                         Publish
                       </Button>
                     </>
                   )}
                   
-                  {/* Delete Button */}
-                  <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    className="px-2 text-destructive hover:text-destructive"
-                    onClick={() => handleDeleteSite(business._id, business.name)}
-                  >
-                    <Trash className="w-3 h-3" />
-                  </Button>
+                  {/* More Actions */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="px-2"
+                      >
+                        <MoreHorizontal className="w-3 h-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link href={`/dashboard/business/${business._id}/domain`}>
+                          <Settings className="w-3 h-3 mr-2" />
+                          Domain Settings
+                        </Link>
+                      </DropdownMenuItem>
+                      {business.isPublished && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => handleUnpublish(business._id)}>
+                            <Lock className="w-3 h-3 mr-2" />
+                            Unpublish
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        className="text-destructive"
+                        onClick={() => handleDeleteSite(business._id, business.name)}
+                      >
+                        <Trash className="w-3 h-3 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
 
                 {/* Quick Stats (for published sites) */}
@@ -284,6 +340,19 @@ export default function SitesManagement() {
             )}
           </div>
         </Card>
+      )}
+      
+      {/* Publish Dialog */}
+      {publishDialogBusiness && (
+        <PublishDialog
+          businessId={publishDialogBusiness.id}
+          businessName={publishDialogBusiness.name}
+          open={!!publishDialogBusiness}
+          onOpenChange={(open) => !open && setPublishDialogBusiness(null)}
+          onPublishComplete={() => {
+            setPublishDialogBusiness(null);
+          }}
+        />
       )}
     </div>
   );

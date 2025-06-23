@@ -155,6 +155,12 @@ export default async function BusinessPage({ params }: PageProps) {
     });
 
     const businessData = business[0];
+    
+    // Check if business is published
+    if (!businessData.isPublished) {
+      notFound();
+    }
+    
     // Content parsing is now handled by BusinessPageRenderer
     if (!page.content) {
       return (

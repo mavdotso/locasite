@@ -8,11 +8,11 @@ import PreviewPanel from "./preview-panel";
 import FieldEditor from "./field-editor";
 import { allComponentConfigs as componentConfigs } from "./config/all-components";
 import { Button } from "@/app/components/ui/button";
-import { Save, Loader2, Undo, Redo, HelpCircle, Info, X } from "lucide-react";
+import { Save, Loader2, Undo, Redo, HelpCircle, Info, X, Globe, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import {
   Tooltip,
@@ -20,6 +20,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/app/components/ui/tooltip";
+import { PublishDialog } from "@/app/components/business/publish-dialog";
 
 interface VisualEditorProps {
   businessId: Id<"businesses">;
@@ -56,8 +57,13 @@ export default function VisualEditor({
   });
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [showPublishDialog, setShowPublishDialog] = useState(false);
 
   const updatePage = useMutation(api.pages.updatePage);
+  const publishBusiness = useMutation(api.businesses.publish);
+  const unpublishBusiness = useMutation(api.businesses.unpublish);
+  const domain = useQuery(api.domains.getByBusinessId, { businessId });
 
   // Add to history
   const addToHistory = useCallback((newData: PageData) => {
@@ -382,6 +388,37 @@ export default function VisualEditor({
     }
   }, [pageId, pageData, onSave, updatePage]);
 
+  // Handle publish/unpublish
+  const handlePublish = useCallback(async () => {
+    try {
+      if (business.isPublished) {
+        setIsPublishing(true);
+        await unpublishBusiness({ businessId });
+        toast.success("Website unpublished successfully");
+        setIsPublishing(false);
+      } else {
+        // Save any pending changes first
+        if (hasUnsavedChanges) {
+          await handleSave();
+        }
+        
+        // If no domain exists, show domain selection dialog
+        if (!domain) {
+          setShowPublishDialog(true);
+        } else {
+          setIsPublishing(true);
+          await publishBusiness({ businessId });
+          toast.success("Website published successfully!");
+          setIsPublishing(false);
+        }
+      }
+    } catch (error) {
+      console.error("Error publishing:", error);
+      toast.error(business.isPublished ? "Failed to unpublish" : "Failed to publish");
+      setIsPublishing(false);
+    }
+  }, [business.isPublished, businessId, publishBusiness, unpublishBusiness, hasUnsavedChanges, handleSave, domain]);
+
   // Undo/Redo
   const canUndo = historyIndex > 0;
   const canRedo = historyIndex < history.length - 1;
@@ -545,6 +582,35 @@ export default function VisualEditor({
                   <p>Save changes (Ctrl+S)</p>
                 </TooltipContent>
               </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant={business.isPublished ? "destructive" : "default"}
+                    onClick={handlePublish}
+                    disabled={isPublishing}
+                    className="h-8 gap-1.5"
+                  >
+                    {isPublishing ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : business.isPublished ? (
+                      <>
+                        <Lock className="h-3.5 w-3.5" />
+                        <span className="text-xs">Unpublish</span>
+                      </>
+                    ) : (
+                      <>
+                        <Globe className="h-3.5 w-3.5" />
+                        <span className="text-xs">Publish</span>
+                      </>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{business.isPublished ? "Unpublish website" : "Make website public"}</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
           </div>
 
@@ -656,6 +722,19 @@ export default function VisualEditor({
             </div>
         </div>
       </div>
+      
+      {/* Publish Dialog */}
+      <PublishDialog
+        businessId={businessId}
+        businessName={business.name}
+        open={showPublishDialog}
+        onOpenChange={setShowPublishDialog}
+        onPublishComplete={() => {
+          setIsPublishing(false);
+          // Reload to update UI with published state
+          window.location.reload();
+        }}
+      />
     </DragDropProvider>
   </TooltipProvider>
   );
