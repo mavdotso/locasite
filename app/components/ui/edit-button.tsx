@@ -11,7 +11,6 @@ interface EditButtonProps {
   variant?: 'default' | 'outline' | 'ghost';
   size?: 'sm' | 'default' | 'lg';
   className?: string;
-  pageSlug?: string; // Optional page slug, defaults to "home"
 }
 
 export default function EditButton({ 

@@ -113,17 +113,15 @@ export default async function BusinessPage({ params }: PageProps) {
     });
 
     if (!domain) {
-      console.log("Domain not found:", businessDomain);
       notFound();
     }
 
-    // Get the home page (try published first, then fallback to unpublished)
-    let page = await fetchQuery(api.pages.getBySlug, {
+    // Get the page for this domain
+    let page = await fetchQuery(api.pages.getByDomain, {
       domain: businessDomain,
-      slug: "home",
     });
 
-    // If no home page found, check if there are any pages and use the first one
+    // If no page found, check if there are any pages and use the first one
     if (!page) {
       const allPages = await fetchQuery(api.pages.listByDomain, {
         domainId: domain._id,
@@ -135,7 +133,6 @@ export default async function BusinessPage({ params }: PageProps) {
     }
 
     if (!page) {
-      console.log("No page found for domain:", businessDomain);
       notFound();
     }
 
@@ -176,7 +173,6 @@ export default async function BusinessPage({ params }: PageProps) {
         <BusinessHeader
           domain={domain.name}
           pages={pages}
-          currentSlug="home"
           businessUserId={businessData.userId}
         />
 

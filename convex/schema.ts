@@ -48,13 +48,12 @@ export default defineSchema({
 
     pages: defineTable({
         domainId: v.id("domains"),
-        slug: v.string(),
         content: v.string(),
         // Draft content for unpublished changes
         draftContent: v.optional(v.string()),
         isPublished: v.optional(v.boolean()),
         lastEditedAt: v.optional(v.number())
-    }).index("by_domain_slug", ["domainId", "slug"]),
+    }).index("by_domain", ["domainId"]),
 
     businesses: defineTable({
         name: v.string(),

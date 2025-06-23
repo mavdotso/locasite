@@ -1,13 +1,13 @@
 "use client";
 
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { VisualEditor, PageData } from "@/app/components/visual-editor";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { Doc } from "@/convex/_generated/dataModel";
+import { useEffect } from "react";
 
 interface Section {
   type: string;
@@ -27,9 +27,11 @@ export default function BusinessEditClient({
 }: {
   businessId: Id<"businesses">;
 }) {
-  // Fetch business and pages
-  const business = useQuery(api.businesses.getById, { id: businessId });
+  const router = useRouter();
   
+  // All hooks must be called before any conditional returns
+  const user = useQuery(api.auth.currentUser);
+  const business = useQuery(api.businesses.getById, { id: businessId });
   const domain = useQuery(api.domains.getByBusinessId, 
     business ? { businessId: business._id } : "skip"
   );
@@ -38,9 +40,41 @@ export default function BusinessEditClient({
   );
   const updatePage = useMutation(api.pages.updatePage);
   const createDefaultPages = useMutation(api.pages.createDefaultPages);
-
-  // Loading state while fetching business
-  if (business === undefined) {
+  
+  // Handle authentication
+  useEffect(() => {
+    if (user === null) {
+      // User is not authenticated, redirect to sign-in with redirect back to this page
+      router.push(`/sign-in?redirect=/business/${businessId}/edit`);
+    }
+  }, [user, businessId, router]);
+  
+  // Loading state while fetching user or business
+  if (user === undefined || business === undefined) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+  
+  // User not authenticated (null)
+  if (user === null) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+  
+  // Business not found
+  if (business === null) {
+    return notFound();
+  }
+  
+  // Check ownership - only allow owner to edit
+  if (business.userId && business.userId !== user._id) {
+    router.push(`/dashboard/sites`);
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -48,23 +82,17 @@ export default function BusinessEditClient({
     );
   }
 
-  // Business not found
-  if (business === null) {
-    console.error("Business not found for ID:", businessId);
-    return notFound();
-  }
-
-  // Get the home page or create initial data
-  const homePage = pages?.find((p: Doc<"pages">) => p.slug === "home");
+  // Get the single page or create initial data
+  const page = pages?.[0];
   
   let initialData: PageData = {
     title: business?.name || "Welcome",
     components: []
   };
 
-  if (homePage?.content) {
+  if (page?.content) {
     try {
-      const parsed = JSON.parse(homePage.content);
+      const parsed = JSON.parse(page.content);
       
       // Convert from section-based format to component-based format
       if (parsed.sections) {
@@ -86,13 +114,13 @@ export default function BusinessEditClient({
 
   const handleSave = async (data: PageData) => {
     try {
-      if (homePage) {
+      if (page) {
         await updatePage({
-          pageId: homePage._id,
+          pageId: page._id,
           content: JSON.stringify(data)
         });
       } else if (domain) {
-        // Create default pages first if no home page exists
+        // Create default page first if no page exists
         await createDefaultPages({
           domainId: domain._id,
           businessId: businessId
@@ -121,7 +149,7 @@ export default function BusinessEditClient({
     <VisualEditor
       businessId={businessId}
       business={business}
-      pageId={homePage?._id || ("temp-id" as Id<"pages">)}
+      pageId={page?._id || ("temp-id" as Id<"pages">)}
       initialData={initialData}
       onSave={handleSave}
     />

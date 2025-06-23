@@ -37,7 +37,11 @@ export default function BusinessCreationForm({ onSuccess, className }: BusinessC
   const createFromPending = useMutation(api.businesses.createBusinessFromPendingData);
 
   const validateUrl = (url: string): boolean => {
-    return url.includes('maps.google.com') || url.includes('goo.gl/maps');
+    // Check for various Google Maps URL patterns
+    return url.includes('google.com/maps') || 
+           url.includes('maps.google.com') || 
+           url.includes('goo.gl/maps') ||
+           url.includes('maps.app.goo.gl');
   };
 
   const handleExtractData = async () => {
