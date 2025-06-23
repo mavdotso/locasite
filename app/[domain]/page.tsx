@@ -9,7 +9,6 @@ import { fetchQuery } from "convex/nextjs";
 interface PageProps {
   params: Promise<{
     domain: string;
-    slug: string[];
   }>;
 }
 

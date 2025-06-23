@@ -47,20 +47,17 @@ export default async function middleware(request: NextRequest, event: NextFetchE
     const { pathname } = request.nextUrl;
     const subdomain = extractSubdomain(request);
 
-    // Handle subdomain routing BEFORE auth middleware
+    // First, run the auth middleware
+    const authResponse = await authMiddleware(request, event);
+    if (authResponse) {
+        return authResponse;
+    }
+
+    // Handle subdomain routing
     if (subdomain) {
         // Special handling for 'app' subdomain
         if (subdomain === "app") {
-            // For app subdomain, rewrite first then apply auth
-            const rewrittenRequest = NextResponse.rewrite(new URL(`/app${pathname}`, request.url));
-            
-            // Apply auth middleware to the rewritten request
-            const authResponse = await authMiddleware(request, event);
-            if (authResponse && authResponse.status !== 200) {
-                return authResponse;
-            }
-            
-            return rewrittenRequest;
+            return NextResponse.rewrite(new URL(`/app${pathname}`, request.url));
         }
 
         // Block access to dashboard from business subdomains
@@ -73,24 +70,18 @@ export default async function middleware(request: NextRequest, event: NextFetchE
         return NextResponse.rewrite(new URL(rewritePath, request.url));
     }
 
-    // For non-subdomain requests, run auth middleware normally
-    const authResponse = await authMiddleware(request, event);
-    if (authResponse) {
-        return authResponse;
-    }
-
     // On the root domain, allow normal access
     return NextResponse.next();
 }
+
 export const config = {
     matcher: [
         /*
-         * Match all request paths except for the ones starting with:
-         * - api (API routes)
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
+         * Match all paths except for:
+         * 1. /_next (Next.js internals)
+         * 2. /_static
+         * 3. all root files inside /public (e.g. /favicon.ico)
          */
-        '/((?!api|_next/static|_next/image|favicon.ico).*)',
-    ],
+        '/((?!_next/|_static/|[\\w-]+\\.\\w+).*)',
+    ]
 };
