@@ -9,6 +9,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
+import Image from "next/image";
 
 interface ImageFieldProps {
   field: ImageFieldType;
@@ -79,9 +80,11 @@ export default function ImageField({ field, value, onChange, businessId }: Image
       
       {value ? (
         <div className="relative group">
-          <img
+          <Image
             src={value}
             alt={field.label}
+            width={400}
+            height={128}
             className="w-full h-32 object-cover rounded-lg border"
           />
           <Button

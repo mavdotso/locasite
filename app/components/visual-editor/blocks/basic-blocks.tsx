@@ -1,11 +1,11 @@
 import React from "react";
 import { ComponentConfig } from "../types";
 import { 
-  Type, 
-  Image as ImageIcon, 
+  Type,
   Square, 
-  Minus,
   Video,
+  Image as ImageIcon,
+  Minus,
   Space,
   Star,
   Heart,
@@ -44,6 +44,9 @@ import { Button } from "@/app/components/ui/button";
 import { cn } from "@/app/lib/utils";
 import { Doc } from "@/convex/_generated/dataModel";
 import Link from "next/link";
+import Image from "next/image";
+
+// TODO: Future refactoring to split this large file into smaller modules
 
 // Simple text component without inline editing
 const TextBlockComponent = (props: {
@@ -247,9 +250,11 @@ export const ImageBlock: ComponentConfig = {
     
     return (
       <figure className={widthClasses[width as keyof typeof widthClasses] || widthClasses.full}>
-        <img 
+        <Image 
           src={src} 
           alt={alt || ""} 
+          width={800}
+          height={600}
           className={cn("w-full h-auto", roundedClasses[rounded as keyof typeof roundedClasses] || roundedClasses.md)}
         />
         {caption && (
@@ -352,9 +357,11 @@ export const LogoBlock: ComponentConfig = {
     if (logoImage) {
       // Show uploaded logo image
       logoContent = (
-        <img 
+        <Image 
           src={logoImage} 
           alt={businessData?.name || customText || "Logo"} 
+          width={200}
+          height={100}
           className={cn("w-auto", sizeClasses[size as keyof typeof sizeClasses] || sizeClasses.medium)}
         />
       );
@@ -1730,14 +1737,22 @@ export const GalleryGridBlock: ComponentConfig = {
               )}
               onClick={() => openLightbox(index)}
             >
-              <img
-                src={image}
-                alt={`Gallery image ${index + 1}`}
-                className={cn(
-                  "w-full",
-                  aspectRatio === "auto" ? "h-auto" : "h-full object-cover"
-                )}
-              />
+              {aspectRatio === "auto" ? (
+                <Image
+                  src={image}
+                  alt={`Gallery image ${index + 1}`}
+                  width={600}
+                  height={400}
+                  className="w-full h-auto"
+                />
+              ) : (
+                <Image
+                  src={image}
+                  alt={`Gallery image ${index + 1}`}
+                  fill
+                  className="object-cover"
+                />
+              )}
             </div>
           ))}
         </div>
@@ -1770,9 +1785,11 @@ export const GalleryGridBlock: ComponentConfig = {
                 </>
               )}
               
-              <img
+              <Image
                 src={galleryImages[currentImage]}
                 alt={`Gallery image ${currentImage + 1}`}
+                width={1200}
+                height={800}
                 className="max-w-full max-h-full object-contain"
               />
             </div>
