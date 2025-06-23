@@ -1,22 +1,43 @@
 import BusinessCreationForm from '@/app/components/business/business-creation-form';
-import Logo from "./components/ui/logo";
+import NavBar from '@/app/components/landing/nav-bar';
+import HeroSection from '@/app/components/landing/hero-section';
+import FeaturesSection from '@/app/components/landing/features-section';
+import HowItWorksSection from '@/app/components/landing/how-it-works-section';
+import FooterSection from '@/app/components/landing/footer-section';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen py-12 bg-muted">
-      <div className="container max-w-4xl px-4 mx-auto">
-        <div className="mb-8 text-center">
-          <Logo width={40} height={40} className="justify-center mb-6" />
+    <div className="min-h-screen">
+      {/* Navigation */}
+      <NavBar />
+      
+      {/* Hero Section */}
+      <HeroSection />
+      
+      {/* Features Section */}
+      <FeaturesSection />
+      
+      {/* How It Works Section */}
+      <HowItWorksSection />
+      
+      {/* Create Website Section */}
+      <section id="create" className="py-24 bg-muted/50">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-2xl text-center mb-12">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Ready to Create Your Website?
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Start by entering a Google Maps URL below
+            </p>
+          </div>
+          
+          <BusinessCreationForm className="max-w-2xl mx-auto" />
         </div>
-        <div className="mb-10 text-center">
-          <h1 className="text-4xl font-bold tracking-tight">Business Site Generator</h1>
-          <p className="mt-3 text-lg text-muted-foreground">
-            Create a professional website for your business in minutes
-          </p>
-        </div>
-
-        <BusinessCreationForm className="max-w-2xl mx-auto" />
-      </div>
+      </section>
+      
+      {/* Footer */}
+      <FooterSection />
     </div>
   );
 }

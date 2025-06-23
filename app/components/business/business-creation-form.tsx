@@ -216,7 +216,7 @@ export default function BusinessCreationForm({ onSuccess, className }: BusinessC
             <Button 
               onClick={handleExtractData} 
               disabled={isLoading || !googleMapsUrl.trim()}
-              className="w-full"
+              className="w-full transition-all"
               size="lg"
             >
               {isLoading ? (
