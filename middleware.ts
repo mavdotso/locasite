@@ -9,30 +9,19 @@ function extractSubdomain(request: NextRequest): string | null {
     const hostname = host.split(":")[0];
     const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
 
-    console.log("Middleware Debug:", {
-        url,
-        host,
-        hostname,
-        isLocalhost: url.includes("localhost") || url.includes("127.0.0.1")
-    });
-
     // Local development environment
     if (url.includes("localhost") || url.includes("127.0.0.1")) {
         // Try to extract subdomain from the full URL
         const fullUrlMatch = url.match(/http:\/\/([^.]+)\.localhost/);
         if (fullUrlMatch && fullUrlMatch[1]) {
-            console.log("Extracted subdomain from URL:", fullUrlMatch[1]);
             return fullUrlMatch[1];
         }
 
         // Fallback to host header approach
         if (hostname.includes(".localhost")) {
-            const subdomain = hostname.split(".")[0];
-            console.log("Extracted subdomain from hostname:", subdomain);
-            return subdomain;
+            return hostname.split(".")[0];
         }
 
-        console.log("No subdomain found in localhost");
         return null;
     }
 
@@ -55,25 +44,13 @@ function extractSubdomain(request: NextRequest): string | null {
 }
 
 export default async function middleware(request: NextRequest, event: NextFetchEvent) {
-    console.log("=== MIDDLEWARE START ===");
-    console.log("URL:", request.url);
-    console.log("Host header:", request.headers.get("host"));
-    console.log("Pathname:", request.nextUrl.pathname);
-    
     const { pathname } = request.nextUrl;
     const subdomain = extractSubdomain(request);
-
-    console.log("Middleware processing:", {
-        pathname,
-        subdomain,
-        hasSubdomain: !!subdomain
-    });
 
     // Handle subdomain routing BEFORE auth middleware
     if (subdomain) {
         // Special handling for 'app' subdomain
         if (subdomain === "app") {
-            console.log("Rewriting to app subdomain:", `/app${pathname}`);
             // For app subdomain, rewrite first then apply auth
             const rewrittenRequest = NextResponse.rewrite(new URL(`/app${pathname}`, request.url));
             
@@ -88,38 +65,21 @@ export default async function middleware(request: NextRequest, event: NextFetchE
 
         // Block access to dashboard from business subdomains
         if (pathname.startsWith("/dashboard") || pathname.startsWith("/app")) {
-            console.log("Blocking dashboard access from subdomain");
             return NextResponse.redirect(new URL("/", request.url));
         }
 
         // For any path on a business subdomain, rewrite to /[subdomain]/...
-        // This handles both root path and any subpaths
         const rewritePath = `/${subdomain}${pathname}`;
-        console.log("Rewriting business subdomain to:", rewritePath);
-        
-        // Create a new request with the rewritten URL
-        const newUrl = new URL(rewritePath, request.url);
-        const rewrittenResponse = NextResponse.rewrite(newUrl);
-        
-        // Copy headers from original request
-        request.headers.forEach((value, key) => {
-            if (key !== 'host') {
-                rewrittenResponse.headers.set(key, value);
-            }
-        });
-        
-        return rewrittenResponse;
+        return NextResponse.rewrite(new URL(rewritePath, request.url));
     }
 
     // For non-subdomain requests, run auth middleware normally
     const authResponse = await authMiddleware(request, event);
     if (authResponse) {
-        console.log("Auth middleware returned response");
         return authResponse;
     }
 
     // On the root domain, allow normal access
-    console.log("No subdomain, allowing normal access");
     return NextResponse.next();
 }
 export const config = {
