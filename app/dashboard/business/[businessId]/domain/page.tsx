@@ -1,68 +1,35 @@
-"use client";
-
-import { use } from "react";
-import { useQuery } from "convex/react";
+import { redirect } from "next/navigation";
+import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { notFound } from "next/navigation";
-import AuthGuard from "@/app/components/auth/auth-guard";
-import { DomainSelector } from "@/app/components/business/domain-selector";
-import { Button } from "@/app/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import DomainPageClient from "./domain-page-client";
 
-export default function BusinessDomainPage({
+export default async function BusinessDomainPage({
   params,
 }: {
   params: Promise<{ businessId: string }>;
 }) {
-  const resolvedParams = use(params);
+  const resolvedParams = await params;
   const businessId = resolvedParams.businessId as Id<"businesses">;
   
-  const business = useQuery(api.businesses.getById, { id: businessId });
-  const domain = useQuery(api.domains.getByBusinessId, { businessId });
+  // Server-side auth check
+  const user = await fetchQuery(api.auth.currentUser, {});
   
-  if (business === undefined || domain === undefined) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+  if (!user) {
+    redirect(`/sign-in?redirect=/dashboard/business/${businessId}/domain`);
   }
+  
+  // Fetch initial data
+  const business = await fetchQuery(api.businesses.getById, { id: businessId });
   
   if (!business) {
-    notFound();
+    redirect("/dashboard/sites");
   }
   
-  return (
-    <AuthGuard>
-      <div className="container max-w-2xl py-8">
-        <div className="mb-6">
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/sites">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Sites
-            </Link>
-          </Button>
-        </div>
-        
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">{business.name}</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage your website&apos;s domain settings
-          </p>
-        </div>
-        
-        <DomainSelector
-          businessId={businessId}
-          currentDomain={domain ? {
-            subdomain: domain.subdomain,
-            customDomain: domain.customDomain,
-            domainType: domain.domainType,
-            isVerified: domain.isVerified
-          } : undefined}
-        />
-      </div>
-    </AuthGuard>
-  );
+  // Check ownership
+  if (business.userId && business.userId !== user._id) {
+    redirect("/dashboard/sites");
+  }
+  
+  return <DomainPageClient businessId={businessId} />;
 }
