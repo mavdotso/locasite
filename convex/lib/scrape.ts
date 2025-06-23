@@ -25,12 +25,12 @@ interface GooglePlacePhoto {
 export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
   try {
     const { url, preview = false } = await request.json();
-    
+
     // Apply rate limiting for preview requests (unauthenticated users)
     if (preview) {
       const identifier = request.headers.get("x-forwarded-for") || "anonymous";
       const status = await rateLimiter.limit(ctx, "previewScrape", { key: identifier });
-      
+
       if (!status.ok) {
         return new Response(
           JSON.stringify({ error: 'Rate limit exceeded. Please try again in a minute.' }),
@@ -120,7 +120,8 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
       'rating',
       'reviews',
       'photos',
-      'editorial_summary'
+      'editorial_summary',
+      'types'
     ].join(',');
 
     const detailsResponse = await axios.get(
@@ -146,7 +147,9 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
         `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=${apiKey}`
       ) || [],
       description: place.editorial_summary?.overview || '',
-      placeId: placeId
+      placeId: placeId,
+      // Extract the most relevant business type/category from types array
+      category: place.types?.[0] || undefined
     };
 
     // AI content generation removed - will be a premium feature
@@ -155,25 +158,18 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
     let businessId = null;
     let domainId = null;
     let authenticationRequired = false;
-    
+
     if (!preview) {
       try {
-        // Create the business
-        businessId = await ctx.runMutation(api.businesses.create, {
-          business: businessData
+        // Use the new createBusinessFromPendingData mutation that handles theme assignment
+        // and creates pages with primitive blocks
+        const result = await ctx.runMutation(api.businesses.createBusinessFromPendingData, {
+          businessData,
+          aiContent: null // No AI content for now
         });
 
-        // Automatically generate domain and create pages
-        const { domainId: generatedDomainId } = await ctx.runMutation(api.domains.generateSubdomain, {
-          businessId
-        });
-        domainId = generatedDomainId;
-
-        // Create default pages with AI content
-        await ctx.runMutation(api.pages.createDefaultPages, {
-          domainId: generatedDomainId,
-          businessId
-        });
+        businessId = result.businessId;
+        domainId = result.domainId;
       } catch (error) {
         console.log('Authentication required for business creation:', error);
         authenticationRequired = true;
@@ -181,10 +177,10 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
     }
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        data: businessData, 
-        businessId, 
+      JSON.stringify({
+        success: true,
+        data: businessData,
+        businessId,
         domainId,
         preview,
         hasAIContent: false,

@@ -93,7 +93,7 @@ export default function ClaimsPage() {
           </Card>
         ) : (
           <div className="space-y-6">
-            {claims.map((claim) => (
+            {claims.map((claim: typeof claims[0]) => (
               <Card key={claim._id}>
                 <CardHeader>
                   <div className="flex items-start justify-between">

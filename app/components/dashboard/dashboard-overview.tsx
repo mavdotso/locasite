@@ -2,6 +2,7 @@
 
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { Doc } from '@/convex/_generated/dataModel';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
@@ -34,7 +35,7 @@ export default function DashboardOverview({ initialData: _initialData }: Dashboa
 
   // Calculate stats
   const totalSites = userBusinesses?.length || 0;
-  const activeSites = userBusinesses?.filter(b => b.isPublished).length || 0;
+  const activeSites = userBusinesses?.filter((b: Doc<"businesses">) => b.isPublished).length || 0;
 
   // Mock analytics data (in a real app, this would come from your analytics service)
   const mockAnalytics = {
@@ -151,7 +152,7 @@ export default function DashboardOverview({ initialData: _initialData }: Dashboa
           <CardContent>
             {userBusinesses && userBusinesses.length > 0 ? (
               <div className="space-y-4">
-                {userBusinesses.slice(0, 3).map((business) => (
+                {userBusinesses.slice(0, 3).map((business: Doc<"businesses">) => (
                   <div key={business._id} className="flex items-center justify-between p-4 border border-border rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">

@@ -108,6 +108,41 @@ export default function ArrayField({ field, value, onChange, businessId }: Array
                     rows={2}
                   />
                 </div>
+              ) : field.label === "Featured Reviews" ? (
+                <div className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="text"
+                      value={typeof item === 'object' && item !== null ? (item as { author?: string; rating?: number; text?: string; date?: string }).author || "" : ""}
+                      onChange={(e) => updateItem(index, { ...(typeof item === 'object' ? item : {}), author: e.target.value })}
+                      placeholder="Author name"
+                      className="w-full px-3 py-2 border rounded-md"
+                    />
+                    <input
+                      type="number"
+                      value={typeof item === 'object' && item !== null ? (item as { author?: string; rating?: number; text?: string; date?: string }).rating || 5 : 5}
+                      onChange={(e) => updateItem(index, { ...(typeof item === 'object' ? item : { author: "" }), rating: parseInt(e.target.value) || 5 })}
+                      placeholder="Rating (1-5)"
+                      min="1"
+                      max="5"
+                      className="w-full px-3 py-2 border rounded-md"
+                    />
+                  </div>
+                  <textarea
+                    value={typeof item === 'object' && item !== null ? (item as { author?: string; rating?: number; text?: string; date?: string }).text || "" : ""}
+                    onChange={(e) => updateItem(index, { ...(typeof item === 'object' ? item : { author: "", rating: 5 }), text: e.target.value })}
+                    placeholder="Review text"
+                    className="w-full px-3 py-2 border rounded-md"
+                    rows={2}
+                  />
+                  <input
+                    type="text"
+                    value={typeof item === 'object' && item !== null ? (item as { author?: string; rating?: number; text?: string; date?: string }).date || "" : ""}
+                    onChange={(e) => updateItem(index, { ...(typeof item === 'object' ? item : { author: "", rating: 5, text: "" }), date: e.target.value })}
+                    placeholder="Date (e.g., 2 weeks ago)"
+                    className="w-full px-3 py-2 border rounded-md"
+                  />
+                </div>
               ) : (
                 <input
                   type="text"

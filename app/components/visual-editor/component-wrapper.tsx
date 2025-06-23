@@ -5,7 +5,7 @@ import { ComponentData } from "./types";
 import { useDragDrop } from "./drag-drop-provider";
 import { cn } from "@/app/lib/utils";
 import { Button } from "@/app/components/ui/button";
-import { getLayoutClasses, getBackgroundStyle } from "./utils/layout";
+import { getLayoutStyles } from "./utils/layout-styles";
 import { 
   ChevronUp, 
   ChevronDown, 
@@ -30,6 +30,7 @@ interface ComponentWrapperProps {
   canMoveUp: boolean;
   canMoveDown: boolean;
   children: React.ReactNode;
+  isNested?: boolean;
 }
 
 export default function ComponentWrapper({
@@ -42,24 +43,43 @@ export default function ComponentWrapper({
   onDuplicate,
   canMoveUp,
   canMoveDown,
-  children
+  children,
+  isNested = false
 }: ComponentWrapperProps) {
   const { startDrag } = useDragDrop();
 
   const handleDragStart = (e: React.DragEvent) => {
     e.stopPropagation();
+    const target = e.currentTarget.closest('.group') as HTMLElement;
     startDrag({
       type: "existing-component",
       component
-    });
+    }, target);
+    
+    // Create custom drag preview
+    const dragPreview = document.createElement('div');
+    dragPreview.className = 'fixed pointer-events-none z-50 bg-background border-2 border-primary rounded-lg shadow-xl p-3 opacity-90';
+    dragPreview.innerHTML = `
+      <div class="flex items-center gap-2">
+        <div class="w-2 h-2 bg-primary rounded-full"></div>
+        <span class="text-sm font-medium">${component.type.replace(/Block$/, '')}</span>
+      </div>
+    `;
+    dragPreview.style.position = 'absolute';
+    dragPreview.style.top = '-9999px';
+    document.body.appendChild(dragPreview);
+    e.dataTransfer.setDragImage(dragPreview, 0, 0);
+    
+    setTimeout(() => {
+      document.body.removeChild(dragPreview);
+    }, 0);
   };
 
-  const layoutClasses = getLayoutClasses(component.layout);
-  const backgroundStyle = getBackgroundStyle(component.layout);
+  const layoutStyles = getLayoutStyles(component.layout);
 
   if (!isEditMode) {
     return (
-      <div className={layoutClasses} style={backgroundStyle}>
+      <div style={layoutStyles}>
         {children}
       </div>
     );
@@ -69,18 +89,21 @@ export default function ComponentWrapper({
     <div
       className={cn(
         "relative group transition-all duration-200",
-        isSelected && "ring-2 ring-primary ring-offset-2 animate-in fade-in-0 zoom-in-95",
-        "hover:ring-2 hover:ring-primary/50 hover:ring-offset-2"
+        isSelected && "ring-2 ring-primary ring-offset-2",
+        "hover:ring-2 hover:ring-primary/30 hover:ring-offset-1"
       )}
       onClick={(e) => {
         e.stopPropagation();
         onSelect();
       }}
+      style={{
+        cursor: isEditMode ? 'pointer' : 'default'
+      }}
     >
       {/* Component Controls */}
       <div className={cn(
         "absolute -top-10 right-2 z-10",
-        "flex items-center gap-1 bg-background border rounded-lg shadow-lg p-1",
+        "flex items-center gap-1 bg-background border rounded-lg p-1",
         "transition-all duration-200",
         isSelected ? "opacity-100 -translate-y-1 pointer-events-auto" : "opacity-0 pointer-events-none"
       )}>
@@ -90,9 +113,9 @@ export default function ComponentWrapper({
             <div
               draggable
               onDragStart={handleDragStart}
-              className="cursor-move p-1.5 hover:bg-muted rounded transition-colors"
+              className="cursor-move p-1.5 hover:bg-muted rounded transition-colors touch-none select-none"
             >
-              <GripVertical className="w-4 h-4 text-muted-foreground" />
+              <GripVertical className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
             </div>
           </TooltipTrigger>
           <TooltipContent>
@@ -100,46 +123,50 @@ export default function ComponentWrapper({
           </TooltipContent>
         </Tooltip>
 
-        {/* Move Buttons */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={(e) => {
-                e.stopPropagation();
-                onMove("up");
-              }}
-              disabled={!canMoveUp}
-              className="h-8 w-8 p-0 transition-all hover:bg-primary/10"
-            >
-              <ChevronUp className="w-4 h-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Move up</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={(e) => {
-                e.stopPropagation();
-                onMove("down");
-              }}
-              disabled={!canMoveDown}
-              className="h-8 w-8 p-0 transition-all hover:bg-primary/10"
-            >
-              <ChevronDown className="w-4 h-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Move down</p>
-          </TooltipContent>
-        </Tooltip>
+        {/* Move Buttons - only show for Sections and Columns */}
+        {!isNested && (component.type === 'SectionBlock' || component.type === 'ColumnsBlock') && (
+          <>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMove("up");
+                  }}
+                  disabled={!canMoveUp}
+                  className="h-8 w-8 p-0 transition-all hover:bg-primary/10"
+                >
+                  <ChevronUp className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Move up</p>
+              </TooltipContent>
+            </Tooltip>
+            
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMove("down");
+                  }}
+                  disabled={!canMoveDown}
+                  className="h-8 w-8 p-0 transition-all hover:bg-primary/10"
+                >
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Move down</p>
+              </TooltipContent>
+            </Tooltip>
+          </>
+        )}
 
         {/* Duplicate Button */}
         {onDuplicate && (
@@ -190,7 +217,7 @@ export default function ComponentWrapper({
       </div>
 
       {/* Component Content */}
-      <div className={cn("relative", layoutClasses)} style={backgroundStyle}>
+      <div className="relative" style={layoutStyles}>
         {children}
       </div>
     </div>

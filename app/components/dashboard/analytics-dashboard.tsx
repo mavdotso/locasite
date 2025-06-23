@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { Doc } from '@/convex/_generated/dataModel';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { 
@@ -60,7 +61,7 @@ export default function AnalyticsDashboard() {
     ]
   };
 
-  const publishedSites = userBusinesses?.filter(b => b.domainId) || [];
+  const publishedSites = userBusinesses?.filter((b: Doc<"businesses">) => b.domainId) || [];
 
   const statCards = [
     {
@@ -138,7 +139,7 @@ export default function AnalyticsDashboard() {
             className="px-3 py-2 border border-border rounded-md text-sm"
           >
             <option value="all">All Sites</option>
-            {publishedSites.map(site => (
+            {publishedSites.map((site: Doc<"businesses">) => (
               <option key={site._id} value={site._id}>
                 {site.name}
               </option>

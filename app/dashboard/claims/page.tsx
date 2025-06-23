@@ -2,6 +2,7 @@
 
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { Doc } from '@/convex/_generated/dataModel';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Badge } from '@/app/components/ui/badge';
 import { Button } from '@/app/components/ui/button';
@@ -11,6 +12,10 @@ import { format } from 'date-fns';
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
+
+type ClaimWithBusiness = Doc<"businessClaims"> & {
+  business: Doc<"businesses"> | null;
+};
 
 export default function ClaimsPage() {
   const claims = useQuery(api.businessClaims.getClaimsByUser);
@@ -107,7 +112,7 @@ export default function ClaimsPage() {
         </Card>
       ) : (
         <div className="grid gap-4">
-          {claims.map((claim) => (
+          {claims.map((claim: ClaimWithBusiness) => (
             <Card key={claim._id}>
               <CardHeader>
                 <div className="flex justify-between items-start">

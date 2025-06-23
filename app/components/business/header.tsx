@@ -18,8 +18,8 @@ export default function BusinessHeader({
     domain,
     businessUserId 
 }: BusinessHeaderProps) {
-    const currentUser = useQuery(api.helpers.getCurrentUser)
-    const isOwner = currentUser?.userId === businessUserId;
+    const currentUser = useQuery(api.auth.currentUser)
+    const isOwner = currentUser?._id === businessUserId;
 
     return (
         <header className="sticky top-0 z-50 bg-background shadow-sm">

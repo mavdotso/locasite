@@ -13,34 +13,50 @@ export const regenerateAIContentForBusiness = action({
       throw new Error("Business not found");
     }
 
-    // Generate AI content
-    try {
-      console.log('Regenerating AI content for:', business.name);
-      const aiResult = await ctx.runAction(api.aiContentGenerator.generateBusinessContent, {
-        businessData: {
-          name: business.name,
-          address: business.address,
-          phone: business.phone,
-          website: business.website,
-          description: business.description,
-          reviews: business.reviews,
-          rating: business.rating
-        }
-      });
+    // AI content generation is currently disabled (premium feature)
+    // For now, return a placeholder response
+    const placeholderContent: AIContentResult = {
+      hero: {
+        title: business.name,
+        subtitle: business.description || `Welcome to ${business.name}`
+      },
+      about: {
+        content: business.description || `${business.name} is dedicated to providing exceptional service to our customers.`
+      },
+      services: {
+        title: "Our Services",
+        items: []
+      },
+      whyChooseUs: {
+        title: "Why Choose Us",
+        points: [
+          "Professional and experienced team",
+          "Customer satisfaction guaranteed",
+          "Competitive pricing",
+          "Quality service"
+        ]
+      },
+      callToAction: {
+        primary: "Contact Us",
+        secondary: "Learn More",
+        urgency: "Get in touch today!"
+      },
+      seo: {
+        metaTitle: `${business.name} - ${business.address}`,
+        metaDescription: business.description || `Visit ${business.name} for quality service. Located at ${business.address}.`,
+        keywords: [business.name, "local business", "quality service"]
+      }
+    };
 
-      // Update the business with AI content
-      await ctx.runMutation(api.businesses.update, {
-        id: args.businessId,
-        business: {
-          aiGeneratedContent: aiResult.content
-        }
-      });
+    // Update the business with placeholder content
+    await ctx.runMutation(api.businesses.update, {
+      id: args.businessId,
+      business: {
+        aiGeneratedContent: placeholderContent
+      }
+    });
 
-      console.log('AI content regeneration successful for:', business.name);
-      return { success: true, content: aiResult.content };
-    } catch (error) {
-      console.error('AI content regeneration failed:', error);
-      throw error;
-    }
+    console.log('Placeholder AI content generated for:', business.name);
+    return { success: true, content: placeholderContent };
   }
 });

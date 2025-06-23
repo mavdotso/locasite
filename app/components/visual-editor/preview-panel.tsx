@@ -7,11 +7,10 @@ import { useDragDrop } from "./drag-drop-provider";
 import DropZone from "./drop-zone";
 import ComponentWrapper from "./component-wrapper";
 import { cn } from "@/app/lib/utils";
-import { Button } from "@/app/components/ui/button";
-import { Monitor, Tablet, Smartphone } from "lucide-react";
 import { Doc } from "@/convex/_generated/dataModel";
 import NestedDropZone from "./nested-drop-zone";
 import ColumnsDropZone from "./columns-drop-zone";
+import CanvasControls, { DeviceSize, deviceSizes } from "./canvas-controls";
 
 interface PreviewPanelProps {
   pageData: PageData;
@@ -26,13 +25,6 @@ interface PreviewPanelProps {
   isEditMode?: boolean;
 }
 
-type DeviceSize = "desktop" | "tablet" | "mobile";
-
-const deviceSizes: Record<DeviceSize, { width: string; icon: typeof Monitor }> = {
-  desktop: { width: "100%", icon: Monitor },
-  tablet: { width: "768px", icon: Tablet },
-  mobile: { width: "375px", icon: Smartphone }
-};
 
 export default function PreviewPanel({
   pageData,
@@ -47,15 +39,25 @@ export default function PreviewPanel({
   isEditMode = true
 }: PreviewPanelProps) {
   const [deviceSize, setDeviceSize] = useState<DeviceSize>("desktop");
+  const [zoom, setZoom] = useState(100);
+  const [showGrid, setShowGrid] = useState(false);
+  const [showRulers, setShowRulers] = useState(false);
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
   const { draggedItem } = useDragDrop();
 
   const handleDrop = (index: number, parentId?: string) => {
     if (!draggedItem) return;
 
     if (draggedItem.type === "new-component" && draggedItem.componentType) {
-      onAddComponent(draggedItem.componentType, index, parentId);
-    } else if (draggedItem.type === "existing-component" && draggedItem.index !== undefined) {
-      onMoveComponent(draggedItem.index, index);
+      onAddComponent(draggedItem.componentType, index, parentId, draggedItem.metadata);
+    } else if (draggedItem.type === "existing-component" && draggedItem.component) {
+      // Find the current index of the dragged component
+      const currentIndex = pageData.components.findIndex(c => c.id === draggedItem.component?.id);
+      if (currentIndex !== -1 && currentIndex !== index) {
+        // Adjust target index if dragging to a position after the current position
+        const targetIndex = currentIndex < index ? index - 1 : index;
+        onMoveComponent(currentIndex, targetIndex);
+      }
     }
   };
 
@@ -72,25 +74,75 @@ export default function PreviewPanel({
     // Render children if component accepts them
     let children: React.ReactNode = null;
     if (config.acceptsChildren && component.children && component.children.length > 0) {
-      children = component.children.map((child, childIndex) => (
-        <ComponentWrapper
-          key={child.id}
-          component={child}
-          isSelected={selectedComponentId === child.id}
-          isEditMode={isEditMode}
-          onSelect={() => onSelectComponent(child.id)}
-          onRemove={() => onRemoveComponent(child.id)}
-          onMove={(direction) => {
-            // TODO: Implement nested component movement
-            console.log('Move nested component', direction);
-          }}
-          onDuplicate={onDuplicateComponent ? () => onDuplicateComponent(child.id) : undefined}
-          canMoveUp={childIndex > 0}
-          canMoveDown={childIndex < (component.children?.length || 0) - 1}
-        >
-          {renderComponent(child, childIndex)}
-        </ComponentWrapper>
-      ));
+      // Special handling for ColumnsBlock to distribute children
+      if (component.type === 'ColumnsBlock') {
+        const columnCount = parseInt(component.props.columns as string || "2");
+        const columnContents: React.ReactNode[][] = Array(columnCount).fill(null).map(() => []);
+        
+        // Distribute children to columns based on metadata
+        component.children.forEach((child, index) => {
+          // Get columnIndex from metadata, ensuring it's valid for current column count
+          let columnIndex = child.metadata?.columnIndex as number | undefined;
+          
+          // If columnIndex is undefined or out of bounds, redistribute
+          if (columnIndex === undefined || columnIndex >= columnCount) {
+            columnIndex = index % columnCount;
+          }
+          
+          // Ensure columnIndex is within bounds
+          const safeColumnIndex = Math.min(Math.max(0, columnIndex), columnCount - 1);
+          
+          const childNode = (
+            <ComponentWrapper
+              key={child.id}
+              component={child}
+              isSelected={selectedComponentId === child.id}
+              isEditMode={isEditMode}
+              onSelect={() => onSelectComponent(child.id)}
+              onRemove={() => onRemoveComponent(child.id)}
+              onMove={(_direction) => {
+                // TODO: Implement nested component movement
+              }}
+              onDuplicate={onDuplicateComponent ? () => onDuplicateComponent(child.id) : undefined}
+              canMoveUp={index > 0}
+              canMoveDown={index < (component.children?.length || 0) - 1}
+              isNested={true}
+            >
+              {renderComponent(child, index)}
+            </ComponentWrapper>
+          );
+          
+          columnContents[safeColumnIndex].push(childNode);
+        });
+        
+        // Create pre-distributed children for ColumnsBlock
+        children = columnContents.map((colChildren, colIndex) => (
+          <div key={colIndex} className="column-content">
+            {colChildren}
+          </div>
+        ));
+      } else {
+        // For other container components, render children normally
+        children = component.children.map((child, childIndex) => (
+          <ComponentWrapper
+            key={child.id}
+            component={child}
+            isSelected={selectedComponentId === child.id}
+            isEditMode={isEditMode}
+            onSelect={() => onSelectComponent(child.id)}
+            onRemove={() => onRemoveComponent(child.id)}
+            onMove={(_direction) => {
+              // TODO: Implement nested component movement
+            }}
+            onDuplicate={onDuplicateComponent ? () => onDuplicateComponent(child.id) : undefined}
+            canMoveUp={childIndex > 0}
+            canMoveDown={childIndex < (component.children?.length || 0) - 1}
+            isNested={true}
+          >
+            {renderComponent(child, childIndex)}
+          </ComponentWrapper>
+        ));
+      }
     }
 
     // Create update handler for this component
@@ -101,35 +153,57 @@ export default function PreviewPanel({
     return config.render(componentProps, isEditMode, business, children, handleUpdate);
   };
 
-  return (
-    <div className="h-full flex flex-col bg-muted/30">
-      {/* Device Size Selector */}
-      <div className="flex items-center justify-between p-4 border-b bg-background">
-        <div className="flex items-center gap-2">
-          {Object.entries(deviceSizes).map(([size, { icon: Icon }]) => (
-            <Button
-              key={size}
-              variant={deviceSize === size ? "default" : "outline"}
-              size="sm"
-              onClick={() => setDeviceSize(size as DeviceSize)}
-              className="gap-2"
-            >
-              <Icon className="w-4 h-4" />
-              <span className="capitalize">{size}</span>
-            </Button>
-          ))}
-        </div>
-      </div>
+  const effectiveEditMode = isEditMode && !isPreviewMode;
 
-      {/* Preview Area */}
-      <div className="flex-1 overflow-auto p-8">
+  return (
+    <div className="h-full relative bg-muted/30">
+      {/* Canvas Controls */}
+      {isEditMode && (
+        <CanvasControls
+          deviceSize={deviceSize}
+          onDeviceSizeChange={setDeviceSize}
+          zoom={zoom}
+          onZoomChange={setZoom}
+          showGrid={showGrid}
+          onShowGridChange={setShowGrid}
+          showRulers={showRulers}
+          onShowRulersChange={setShowRulers}
+          isPreviewMode={isPreviewMode}
+          onPreviewModeChange={setIsPreviewMode}
+        />
+      )}
+
+      {/* Canvas Area */}
+      <div 
+        className="h-full overflow-auto"
+        style={{
+          background: showGrid 
+            ? `
+              linear-gradient(to right, #e5e5e5 1px, transparent 1px),
+              linear-gradient(to bottom, #e5e5e5 1px, transparent 1px)
+            `
+            : undefined,
+          backgroundSize: showGrid ? '20px 20px' : undefined
+        }}
+      >
         <div
+          className="min-h-full flex items-start justify-center p-8"
+          style={{
+            transform: `scale(${zoom / 100})`,
+            transformOrigin: 'top center'
+          }}
+        >
+          <div
             className={cn(
-              "mx-auto bg-background shadow-xl transition-all duration-300",
+              "bg-background shadow-xl transition-all duration-300",
               deviceSize === "tablet" && "max-w-[768px]",
-              deviceSize === "mobile" && "max-w-[375px]"
+              deviceSize === "mobile" && "max-w-[375px]",
+              "w-full"
             )}
-            style={{ minHeight: "100%" }}
+            style={{ 
+              minHeight: "100vh",
+              width: deviceSize === "desktop" ? "100%" : deviceSizes[deviceSize].width
+            }}
           >
             {/* Page Title */}
             <div className="p-8 border-b">
@@ -139,12 +213,11 @@ export default function PreviewPanel({
             {/* Components */}
             <div className="relative">
               {/* Initial drop zone */}
-              {isEditMode && (
+              {effectiveEditMode && (
                 <DropZone
                   id="drop-zone-0"
                   index={0}
                   onDrop={handleDrop}
-                  className="h-20"
                   showAlways={pageData.components.length === 0}
                 />
               )}
@@ -156,7 +229,7 @@ export default function PreviewPanel({
                 if (config?.acceptsChildren) {
                   const DropZoneComponent = component.type === "ColumnsBlock" ? ColumnsDropZone : NestedDropZone;
                   return (
-                    <React.Fragment key={component.id}>
+                    <React.Fragment key={`${component.id}-${component.props.columns || '2'}`}>
                       <DropZoneComponent
                         component={component}
                         business={business}
@@ -166,7 +239,7 @@ export default function PreviewPanel({
                         onRemoveComponent={onRemoveComponent}
                         onAddComponent={onAddComponent}
                         onDuplicateComponent={onDuplicateComponent}
-                        isEditMode={isEditMode}
+                        isEditMode={effectiveEditMode}
                         onMove={(direction) => {
                           const newIndex = direction === "up" ? index - 1 : index + 1;
                           if (newIndex >= 0 && newIndex < pageData.components.length) {
@@ -178,12 +251,11 @@ export default function PreviewPanel({
                       />
                       
                       {/* Drop zone after component */}
-                      {isEditMode && (
+                      {effectiveEditMode && (
                         <DropZone
                           id={`drop-zone-${index + 1}`}
                           index={index + 1}
                           onDrop={handleDrop}
-                          className="h-20"
                         />
                       )}
                     </React.Fragment>
@@ -196,7 +268,7 @@ export default function PreviewPanel({
                     <ComponentWrapper
                       component={component}
                       isSelected={selectedComponentId === component.id}
-                      isEditMode={isEditMode}
+                      isEditMode={effectiveEditMode}
                       onSelect={() => onSelectComponent(component.id)}
                       onRemove={() => onRemoveComponent(component.id)}
                       onMove={(direction) => {
@@ -213,12 +285,11 @@ export default function PreviewPanel({
                     </ComponentWrapper>
 
                     {/* Drop zone after each component */}
-                    {isEditMode && (
+                    {effectiveEditMode && (
                       <DropZone
                         id={`drop-zone-${index + 1}`}
                         index={index + 1}
                         onDrop={handleDrop}
-                        className="h-20"
                       />
                     )}
                   </React.Fragment>
@@ -226,6 +297,7 @@ export default function PreviewPanel({
               })}
             </div>
           </div>
+        </div>
       </div>
     </div>
   );

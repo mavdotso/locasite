@@ -16,6 +16,7 @@ export interface BaseField {
   defaultValue?: unknown;
   required?: boolean;
   placeholder?: string;
+  hidden?: boolean;
 }
 
 export interface TextField extends BaseField {
@@ -88,21 +89,69 @@ export interface ComponentConfig {
   category?: string;
   acceptsChildren?: boolean; // Whether this component can contain other components
   inline?: boolean; // Whether this is an inline element (for text flow)
+  isTemplate?: boolean; // Whether this is a template that returns multiple blocks
+  template?: (business?: unknown) => ComponentTemplate[]; // Template definition
+}
+
+// Template block structure
+export interface ComponentTemplate {
+  type: string;
+  props: Record<string, unknown>;
+  children?: ComponentTemplate[];
 }
 
 // Layout options
 export interface LayoutOptions {
-  direction?: "row" | "column";
-  align?: "start" | "center" | "end" | "stretch";
-  justify?: "start" | "center" | "end" | "between" | "around";
-  gap?: "none" | "small" | "medium" | "large";
-  padding?: "none" | "small" | "medium" | "large";
-  margin?: "none" | "small" | "medium" | "large";
+  // Layout
+  display?: "block" | "flex" | "grid" | "inline" | "inline-block" | "inline-flex" | "none";
+  flexDirection?: "row" | "row-reverse" | "column" | "column-reverse";
+  alignItems?: "flex-start" | "center" | "flex-end" | "stretch" | "baseline";
+  justifyContent?: "flex-start" | "center" | "flex-end" | "space-between" | "space-around" | "space-evenly";
+  gap?: string;
+  position?: "static" | "relative" | "absolute" | "fixed" | "sticky";
+  
+  // Spacing
+  padding?: string;
+  margin?: string;
+  
+  // Size
+  width?: string;
+  height?: string;
+  minWidth?: string;
+  minHeight?: string;
+  maxWidth?: string;
+  maxHeight?: string;
   fullWidth?: boolean;
+  overflow?: "visible" | "hidden" | "scroll" | "auto";
+  
+  // Style
+  backgroundColor?: string;
+  backgroundClip?: "none" | "padding-box" | "border-box" | "content-box" | "text";
   background?: {
     type: "color" | "gradient" | "image";
     value: string;
   };
+  borderWidth?: string;
+  borderStyle?: string;
+  borderColor?: string;
+  borderRadius?: string;
+  opacity?: number;
+  mixBlendMode?: string;
+  
+  // Typography (for text components)
+  fontFamily?: string;
+  fontSize?: string;
+  fontWeight?: string;
+  fontStyle?: string;
+  textDecoration?: string;
+  textAlign?: string;
+  lineHeight?: string;
+  letterSpacing?: string;
+  
+  // Legacy properties for backward compatibility
+  direction?: "row" | "row-reverse" | "column" | "column-reverse";
+  align?: "start" | "center" | "end" | "stretch" | "baseline";
+  justify?: "start" | "center" | "end" | "between" | "around" | "evenly";
 }
 
 // Page data model
@@ -135,6 +184,7 @@ export interface DragItem {
   componentType?: string;
   component?: ComponentData;
   index?: number;
+  metadata?: Record<string, unknown>;
 }
 
 export interface DropZone {

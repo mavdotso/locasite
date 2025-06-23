@@ -3,7 +3,7 @@
 import React from "react";
 import { useDragDrop } from "./drag-drop-provider";
 import { cn } from "@/app/lib/utils";
-import { Plus } from "lucide-react";
+import { allComponentConfigs as componentConfigs } from "./config/all-components";
 
 interface DropZoneProps {
   id: string;
@@ -16,8 +16,28 @@ interface DropZoneProps {
 export default function DropZone({ id, index, onDrop, className, showAlways = false }: DropZoneProps) {
   const { isDragging, dropTargetId, setDropTarget, endDrag, draggedItem } = useDragDrop();
   
+  // Check if the dragged item is a template
+  const isTemplate = draggedItem?.type === "new-component" && 
+    draggedItem.componentType && 
+    componentConfigs[draggedItem.componentType]?.isTemplate;
+  
+  // Check what we're dragging
+  const isDraggingColumns = draggedItem?.type === "new-component" && 
+    draggedItem.componentType === "ColumnsBlock";
+  const isDraggingSection = draggedItem?.type === "new-component" && 
+    draggedItem.componentType === "SectionBlock";
+  
+  // Determine drop zone context
+  const isRootDropZone = /^drop-zone-\d+$/.test(id);
+  const isInColumns = id.includes('-col-');
+  
+  // Apply restrictions
+  const shouldHideForTemplate = isTemplate && !isRootDropZone;
+  const shouldHideForColumns = isDraggingColumns && isInColumns; // Columns can't go in columns
+  const shouldHideForSection = isDraggingSection && !isRootDropZone; // Sections only at root
+  
   const isActive = dropTargetId === id;
-  const shouldShow = showAlways || isDragging;
+  const shouldShow = (showAlways || isDragging) && !shouldHideForTemplate && !shouldHideForColumns && !shouldHideForSection;
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -49,9 +69,8 @@ export default function DropZone({ id, index, onDrop, className, showAlways = fa
   return (
     <div
       className={cn(
-        "relative transition-all duration-200",
-        isDragging && "min-h-[80px]",
-        isActive && "animate-in fade-in-0 zoom-in-95",
+        "relative transition-all duration-300 ease-out",
+        isDragging ? (isActive ? "h-20" : "h-2") : "h-0",
         className
       )}
       onDragOver={handleDragOver}
@@ -60,26 +79,21 @@ export default function DropZone({ id, index, onDrop, className, showAlways = fa
     >
       <div
         className={cn(
-          "absolute inset-0 border-2 border-dashed rounded-lg transition-all duration-200",
-          "flex items-center justify-center",
+          "absolute inset-x-0 top-1/2 -translate-y-1/2 rounded-lg transition-all duration-300 ease-out",
           isActive 
-            ? "border-primary bg-primary/10 scale-[1.02] shadow-lg" 
-            : "border-muted-foreground/20 bg-muted/5",
-          !isDragging && "opacity-0 hover:opacity-100"
+            ? "h-16 bg-primary/10 border-2 border-dashed border-primary" 
+            : isDragging 
+              ? "h-0.5 bg-muted-foreground/30 hover:h-1 hover:bg-muted-foreground/50" 
+              : "bg-transparent"
         )}
       >
-        <div className={cn(
-          "flex flex-col items-center gap-1 text-sm transition-all duration-200",
-          isActive ? "text-primary scale-110" : "text-muted-foreground"
-        )}>
-          <div className="flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            <span>Drop component here</span>
+        {isActive && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-md">
+              Drop to place here
+            </div>
           </div>
-          {isDragging && !isActive && (
-            <span className="text-xs text-muted-foreground/70">Press ESC to cancel</span>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { Doc } from '@/convex/_generated/dataModel';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
@@ -75,7 +76,7 @@ export default function UserSettings() {
 
   const accountStats = {
     totalSites: userBusinesses?.length || 0,
-    activeSites: userBusinesses?.filter(b => b.domainId).length || 0
+    activeSites: userBusinesses?.filter((b: Doc<"businesses">) => b.domainId).length || 0
   };
 
   return (

@@ -25,7 +25,7 @@ export default function SelectField({ field, value, onChange }: SelectFieldProps
         {field.required && <span className="text-destructive ml-1">*</span>}
       </Label>
       <Select
-        value={value || field.defaultValue}
+        value={value || field.defaultValue || ""}
         onValueChange={onChange}
       >
         <SelectTrigger id={field.label}>
