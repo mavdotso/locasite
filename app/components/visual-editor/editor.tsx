@@ -12,7 +12,7 @@ import { Save, Loader2, Undo, Redo, HelpCircle, Info, X, Globe, Lock } from "luc
 import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import {
   Tooltip,
@@ -20,6 +20,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/app/components/ui/tooltip";
+import { PublishDialog } from "@/app/components/business/publish-dialog";
 
 interface VisualEditorProps {
   businessId: Id<"businesses">;
@@ -57,10 +58,12 @@ export default function VisualEditor({
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [showPublishDialog, setShowPublishDialog] = useState(false);
 
   const updatePage = useMutation(api.pages.updatePage);
   const publishBusiness = useMutation(api.businesses.publish);
   const unpublishBusiness = useMutation(api.businesses.unpublish);
+  const domain = useQuery(api.domains.getByBusinessId, { businessId });
 
   // Add to history
   const addToHistory = useCallback((newData: PageData) => {
@@ -388,26 +391,33 @@ export default function VisualEditor({
   // Handle publish/unpublish
   const handlePublish = useCallback(async () => {
     try {
-      setIsPublishing(true);
-      
       if (business.isPublished) {
+        setIsPublishing(true);
         await unpublishBusiness({ businessId });
         toast.success("Website unpublished successfully");
+        setIsPublishing(false);
       } else {
         // Save any pending changes first
         if (hasUnsavedChanges) {
           await handleSave();
         }
-        await publishBusiness({ businessId });
-        toast.success("Website published successfully!");
+        
+        // If no domain exists, show domain selection dialog
+        if (!domain) {
+          setShowPublishDialog(true);
+        } else {
+          setIsPublishing(true);
+          await publishBusiness({ businessId });
+          toast.success("Website published successfully!");
+          setIsPublishing(false);
+        }
       }
     } catch (error) {
       console.error("Error publishing:", error);
       toast.error(business.isPublished ? "Failed to unpublish" : "Failed to publish");
-    } finally {
       setIsPublishing(false);
     }
-  }, [business.isPublished, businessId, publishBusiness, unpublishBusiness, hasUnsavedChanges, handleSave]);
+  }, [business.isPublished, businessId, publishBusiness, unpublishBusiness, hasUnsavedChanges, handleSave, domain]);
 
   // Undo/Redo
   const canUndo = historyIndex > 0;
@@ -712,6 +722,19 @@ export default function VisualEditor({
             </div>
         </div>
       </div>
+      
+      {/* Publish Dialog */}
+      <PublishDialog
+        businessId={businessId}
+        businessName={business.name}
+        open={showPublishDialog}
+        onOpenChange={setShowPublishDialog}
+        onPublishComplete={() => {
+          setIsPublishing(false);
+          // Reload to update UI with published state
+          window.location.reload();
+        }}
+      />
     </DragDropProvider>
   </TooltipProvider>
   );

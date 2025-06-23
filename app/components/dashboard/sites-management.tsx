@@ -34,12 +34,14 @@ import { toast } from 'sonner';
 import Image from 'next/image';
 import EditButton from '@/app/components/ui/edit-button';
 import ViewButton from '@/app/components/ui/view-button';
+import { PublishDialog } from '@/app/components/business/publish-dialog';
 
 type SiteStatus = 'all' | 'published' | 'draft' | 'pending';
 
 export default function SitesManagement() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<SiteStatus>('all');
+  const [publishDialogBusiness, setPublishDialogBusiness] = useState<{ id: Id<"businesses">, name: string } | null>(null);
   
   const user = useQuery(api.auth.currentUser);
   const userBusinesses = useQuery(api.businesses.listByUser, 
@@ -47,7 +49,6 @@ export default function SitesManagement() {
   );
 
   const deleteBusiness = useMutation(api.businesses.remove);
-  const publishBusiness = useMutation(api.businesses.publish);
   const unpublishBusiness = useMutation(api.businesses.unpublish);
 
   // Filter businesses based on search and status
@@ -75,15 +76,6 @@ export default function SitesManagement() {
     }
   };
 
-  const handlePublish = async (businessId: Id<"businesses">) => {
-    try {
-      await publishBusiness({ businessId });
-      toast.success('Site published successfully!');
-    } catch (error) {
-      console.error('Error publishing site:', error);
-      toast.error('Failed to publish site');
-    }
-  };
 
   const handleUnpublish = async (businessId: Id<"businesses">) => {
     try {
@@ -249,7 +241,7 @@ export default function SitesManagement() {
                       <Button 
                         size="sm" 
                         className="flex-1"
-                        onClick={() => handlePublish(business._id)}
+                        onClick={() => setPublishDialogBusiness({ id: business._id, name: business.name })}
                       >
                         <Globe className="w-3 h-3 mr-1" />
                         Publish
@@ -340,6 +332,19 @@ export default function SitesManagement() {
             )}
           </div>
         </Card>
+      )}
+      
+      {/* Publish Dialog */}
+      {publishDialogBusiness && (
+        <PublishDialog
+          businessId={publishDialogBusiness.id}
+          businessName={publishDialogBusiness.name}
+          open={!!publishDialogBusiness}
+          onOpenChange={(open) => !open && setPublishDialogBusiness(null)}
+          onPublishComplete={() => {
+            setPublishDialogBusiness(null);
+          }}
+        />
       )}
     </div>
   );
