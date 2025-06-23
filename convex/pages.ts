@@ -41,10 +41,23 @@ export const createDefaultPages = mutation({
             throw new Error("Domain not found");
         }
 
+        // Check if pages already exist to avoid duplicates
+        const existingPage = await ctx.db
+            .query("pages")
+            .withIndex("by_domain", q => q.eq("domainId", args.domainId))
+            .first();
+
+        if (existingPage) {
+            console.log("Pages already exist for this domain");
+            return { pageId: existingPage._id };
+        }
+
         // Use AI-generated content if available, otherwise fall back to basic content
         const aiContent = business.aiGeneratedContent;
         
-        // Create components array for visual editor format
+        console.log(`Creating default pages for business: ${business.name}, domain: ${domain.subdomain}`);
+        
+        // Create components array for visual editor format with new 6-section structure
         const components: Array<{
             id: string;
             type: string;
@@ -61,7 +74,27 @@ export const createDefaultPages = mutation({
         
         let componentIndex = 0;
         
-        // Hero Section - using primitive blocks
+        // 1. Header Section - Navigation header
+        components.push({
+            id: `component-${componentIndex++}`,
+            type: "HeaderSection",
+            props: {
+                logoText: business.name,
+                logoUrl: "",
+                menuItems: [
+                    "Home|#",
+                    "About|#about",
+                    "Gallery|#gallery", 
+                    "Reviews|#reviews",
+                    "Contact|#contact"
+                ],
+                showCtaButton: "yes",
+                ctaButtonLabel: "Call Now",
+                ctaButtonHref: business.phone ? `tel:${business.phone}` : "tel:"
+            }
+        });
+        
+        // 2. Hero Section - Main banner with background image
         components.push({
             id: `component-${componentIndex++}`,
             type: "SectionBlock",
@@ -75,7 +108,7 @@ export const createDefaultPages = mutation({
                     type: "DividerBlock",
                     props: {
                         height: "xlarge",
-                        backgroundImage: business.photos[0] || "",
+                        backgroundImage: business.photos?.[0] || "",
                         backgroundColor: "#000000",
                         overlayOpacity: 0.5
                     },
@@ -164,7 +197,7 @@ export const createDefaultPages = mutation({
             ]
         });
         
-        // About Section - using primitive blocks
+        // 3. About Section - About the business
         components.push({
             id: `component-${componentIndex++}`,
             type: "SectionBlock",
@@ -218,7 +251,7 @@ export const createDefaultPages = mutation({
                                 }
                             ]
                         },
-                        business.photos[1] ? {
+                        business.photos?.[1] ? {
                             id: `component-${componentIndex++}`,
                             type: "ImageBlock",
                             props: {
@@ -234,86 +267,7 @@ export const createDefaultPages = mutation({
             ]
         });
         
-        // Services Section (if AI generated) - using primitive blocks
-        if (aiContent?.services && aiContent.services.items.length > 0) {
-            components.push({
-                id: `component-${componentIndex++}`,
-                type: "SectionBlock",
-                props: {
-                    width: "container",
-                    verticalPadding: "large"
-                },
-                children: [
-                    {
-                        id: `component-${componentIndex++}`,
-                        type: "TextBlock",
-                        props: {
-                            content: aiContent.services.title || "Our Services",
-                            variant: "h2",
-                            align: "center"
-                        }
-                    },
-                    {
-                        id: `component-${componentIndex++}`,
-                        type: "TextBlock",
-                        props: {
-                            content: "What we offer",
-                            variant: "lead",
-                            align: "center"
-                        }
-                    },
-                    {
-                        id: `component-${componentIndex++}`,
-                        type: "SpacerBlock",
-                        props: {
-                            size: "large"
-                        }
-                    },
-                    {
-                        id: `component-${componentIndex++}`,
-                        type: "ColumnsBlock",
-                        props: {
-                            columns: "3",
-                            gap: "medium",
-                            stackOnMobile: "yes"
-                        },
-                        children: aiContent.services.items.map((service: any, index: number) => ({
-                            id: `component-${componentIndex++}-service-${index}`,
-                            type: "CardBlock",
-                            props: {
-                                title: service.title || service.name,
-                                description: "",
-                                variant: "default",
-                                padding: "medium"
-                            },
-                            metadata: { columnIndex: index % 3 },
-                            children: [
-                                {
-                                    id: `component-${componentIndex++}-service-desc-${index}`,
-                                    type: "TextBlock",
-                                    props: {
-                                        content: service.description,
-                                        variant: "paragraph",
-                                        align: "left"
-                                    }
-                                },
-                                service.price ? {
-                                    id: `component-${componentIndex++}-service-price-${index}`,
-                                    type: "TextBlock",
-                                    props: {
-                                        content: service.price,
-                                        variant: "muted",
-                                        align: "left"
-                                    }
-                                } : null
-                            ].filter(Boolean)
-                        }))
-                    }
-                ]
-            });
-        }
-        
-        // Gallery Section (if photos available) - using primitive blocks
+        // 4. Gallery Section - Photo gallery using the GalleryGridBlock
         if (business.photos && business.photos.length > 0) {
             components.push({
                 id: `component-${componentIndex++}`,
@@ -327,7 +281,7 @@ export const createDefaultPages = mutation({
                         id: `component-${componentIndex++}`,
                         type: "TextBlock",
                         props: {
-                            content: "Photo Gallery",
+                            content: "Gallery",
                             variant: "h2",
                             align: "center"
                         }
@@ -341,94 +295,33 @@ export const createDefaultPages = mutation({
                     },
                     {
                         id: `component-${componentIndex++}`,
-                        type: "ColumnsBlock",
+                        type: "GalleryGridBlock",
                         props: {
+                            images: business.photos.slice(0, 12),
                             columns: "3",
                             gap: "small",
-                            stackOnMobile: "yes"
-                        },
-                        children: business.photos.map((photo: string, index: number) => ({
-                            id: `component-${componentIndex++}-photo-${index}`,
-                            type: "ImageBlock",
-                            props: {
-                                src: photo,
-                                alt: `${business.name} gallery image ${index + 1}`,
-                                aspectRatio: "square",
-                                objectFit: "cover"
-                            },
-                            metadata: { columnIndex: index % 3 }
-                        }))
+                            aspectRatio: "square"
+                        }
                     }
                 ]
             });
         }
         
-        // Testimonials/Reviews Section (if reviews available) - using primitive blocks
+        // 5. Reviews Section - Google Reviews using GoogleReviewsSection
         if (business.reviews && business.reviews.length > 0) {
-            // Main testimonials section container
             components.push({
                 id: `component-${componentIndex++}`,
-                type: "SectionBlock",
+                type: "GoogleReviewsSection",
                 props: {
-                    width: "container",
-                    verticalPadding: "large"
-                },
-                children: [
-                    // Section title
-                    {
-                        id: `component-${componentIndex++}`,
-                        type: "TextBlock",
-                        props: {
-                            content: "What Our Customers Say",
-                            variant: "h2",
-                            align: "center"
-                        }
-                    },
-                    // Spacer
-                    {
-                        id: `component-${componentIndex++}`,
-                        type: "SpacerBlock",
-                        props: {
-                            size: "medium"
-                        }
-                    },
-                    // Reviews in columns
-                    {
-                        id: `component-${componentIndex++}`,
-                        type: "ColumnsBlock",
-                        props: {
-                            columns: business.reviews.length > 2 ? "3" : "2",
-                            gap: "medium",
-                            stackOnMobile: "yes"
-                        },
-                        children: business.reviews.slice(0, 6).map((review: any, index: number) => ({
-                            id: `component-${componentIndex++}-review-${index}`,
-                            type: "CardBlock",
-                            props: {
-                                title: review.reviewer,
-                                description: review.rating,
-                                variant: "default",
-                                padding: "medium"
-                            },
-                            metadata: { columnIndex: index % (business.reviews.length > 2 ? 3 : 2) },
-                            children: [
-                                {
-                                    id: `component-${componentIndex++}-review-text-${index}`,
-                                    type: "TextBlock",
-                                    props: {
-                                        content: review.text,
-                                        variant: "paragraph",
-                                        align: "left"
-                                    }
-                                }
-                            ]
-                        }))
-                    }
-                ]
+                    title: "What Our Customers Say",
+                    maxReviews: 6,
+                    showRatingBadge: "yes",
+                    businessName: business.name
+                }
             });
         }
         
-        // Contact Section - using primitive blocks
+        // 6. Contact Section - Contact information and location
         components.push({
             id: `component-${componentIndex++}`,
             type: "SectionBlock",
@@ -437,26 +330,15 @@ export const createDefaultPages = mutation({
                 verticalPadding: "large"
             },
             children: [
-                // Section title
                 {
                     id: `component-${componentIndex++}`,
                     type: "TextBlock",
                     props: {
-                        content: "Get in Touch",
+                        content: "Contact Us",
                         variant: "h2",
                         align: "center"
                     }
                 },
-                {
-                    id: `component-${componentIndex++}`,
-                    type: "TextBlock",
-                    props: {
-                        content: aiContent?.callToAction?.urgency || "We'd love to hear from you",
-                        variant: "lead",
-                        align: "center"
-                    }
-                },
-                // Spacer
                 {
                     id: `component-${componentIndex++}`,
                     type: "SpacerBlock",
@@ -464,7 +346,6 @@ export const createDefaultPages = mutation({
                         size: "large"
                     }
                 },
-                // Contact info in columns
                 {
                     id: `component-${componentIndex++}`,
                     type: "ColumnsBlock",
@@ -665,6 +546,17 @@ export const listByDomain = query({
             .withIndex("by_domain", q => q.eq("domainId", args.domainId))
             .collect();
     },
+});
+
+// Get homepage by domain
+export const getHomepageByDomain = query({
+    args: { domainId: v.id("domains") },
+    handler: async (ctx, args) => {
+        return await ctx.db
+            .query("pages")
+            .withIndex("by_domain", q => q.eq("domainId", args.domainId))
+            .first();
+    }
 });
 
 export const getByDomain = query({

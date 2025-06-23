@@ -32,6 +32,133 @@ interface ReviewData {
   date: string;
 }
 
+// Header Section - Professional navigation header
+export const HeaderSection: ComponentConfig = {
+  fields: {
+    logoText: {
+      type: "text",
+      label: "Business Name",
+      defaultValue: "Your Business"
+    },
+    logoUrl: {
+      type: "image",
+      label: "Logo Image (optional)",
+      defaultValue: ""
+    },
+    menuItems: {
+      type: "array",
+      label: "Menu Items",
+      defaultValue: [
+        "Home|#",
+        "About|#about",
+        "Services|#services", 
+        "Gallery|#gallery",
+        "Reviews|#reviews",
+        "Contact|#contact"
+      ],
+      itemType: {
+        type: "text",
+        label: "Menu Item (Label|Link)",
+        defaultValue: "Home|#"
+      }
+    },
+    showCtaButton: {
+      type: "select",
+      label: "Show CTA Button",
+      defaultValue: "yes",
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" }
+      ]
+    },
+    ctaButtonLabel: {
+      type: "text",
+      label: "CTA Button Text",
+      defaultValue: "Call Now"
+    },
+    ctaButtonHref: {
+      type: "text",
+      label: "CTA Button Link",
+      defaultValue: "tel:"
+    }
+  },
+  render: (props: Record<string, unknown>, _editMode, _business) => {
+    const logoText = (props.logoText as string) || "Your Business";
+    const logoUrl = props.logoUrl as string;
+    const menuItemsRaw = (props.menuItems as string[]) || [];
+    const showCtaButton = props.showCtaButton === "yes";
+    const ctaButtonLabel = (props.ctaButtonLabel as string) || "Call Now";
+    const ctaButtonHref = (props.ctaButtonHref as string) || "tel:";
+    
+    // Parse menu items from "Label|Link" format
+    const menuItems = menuItemsRaw.map(item => {
+      const [label, href] = item.split('|');
+      return { label: label || 'Menu Item', href: href || '#' };
+    });
+
+    // Simple static header without state for now
+    return (
+      <header className="bg-background border-b border-border sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <div className="flex items-center">
+              {logoUrl ? (
+                <Image 
+                  src={logoUrl} 
+                  alt={logoText} 
+                  width={32} 
+                  height={32} 
+                  className="h-8 w-auto" 
+                />
+              ) : (
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-primary text-primary-foreground rounded-md flex items-center justify-center font-bold text-sm mr-2">
+                    {logoText.charAt(0)}
+                  </div>
+                  <span className="font-bold text-lg text-foreground">{logoText}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Desktop Menu */}
+            <nav className="hidden md:flex items-center gap-6">
+              {menuItems.map((item, index) => (
+                <a
+                  key={index}
+                  href={item.href}
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {item.label}
+                </a>
+              ))}
+              {showCtaButton && (
+                <Button size="sm" className="ml-4" asChild>
+                  <a href={ctaButtonHref}>
+                    {ctaButtonLabel}
+                  </a>
+                </Button>
+              )}
+            </nav>
+
+            {/* Mobile Menu Button - simplified for now */}
+            <div className="md:hidden">
+              {showCtaButton && (
+                <Button size="sm" asChild>
+                  <a href={ctaButtonHref}>
+                    {ctaButtonLabel}
+                  </a>
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+  },
+  category: "sections"
+};
+
 // Operating Hours Section - Full schedule with holidays
 export const OperatingHoursSection: ComponentConfig = {
   fields: {

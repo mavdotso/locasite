@@ -28,6 +28,7 @@ import {
   ColumnContentBlock
 } from "../blocks/container-blocks";
 import {
+  HeaderSection,
   OperatingHoursSection,
   LocationDirectionsSection,
   MenuPriceListSection,
@@ -77,6 +78,7 @@ export const allComponentConfigs: Record<string, ComponentConfig> = {
   TabsBlock,
   
   // Local Business Sections
+  HeaderSection,
   OperatingHoursSection,
   LocationDirectionsSection,
   MenuPriceListSection,

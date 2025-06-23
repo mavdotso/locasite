@@ -754,10 +754,12 @@ export const createBusinessFromPendingData = mutation({
         await ctx.db.patch(businessId, { domainId });
 
         // Create default pages as drafts
-        await ctx.runMutation(api.pages.createDefaultPages, {
+        console.log(`Creating default pages for business ${businessId} with domain ${domainId}`);
+        const { pageId } = await ctx.runMutation(api.pages.createDefaultPages, {
             domainId,
             businessId
         });
+        console.log(`Created page ${pageId} for business ${businessId}`);
 
         // Assign a theme based on business category
         const themeSuggestions = getThemeSuggestions(category, 1);
