@@ -40,8 +40,6 @@ export default function BusinessReviews({ reviews, className }: BusinessReviewsP
                                 <p className="mb-3 text-foreground">
                                     {(() => {
                                         const reviewAsRecord = review as Record<string, unknown>;
-                                        console.log('BusinessReviews - Review object:', review);
-                                        console.log('BusinessReviews - Available fields:', Object.keys(reviewAsRecord));
                                         
                                         const reviewText = reviewAsRecord.textValue || 
                                                           reviewAsRecord.review_text || 
@@ -50,7 +48,6 @@ export default function BusinessReviews({ reviews, className }: BusinessReviewsP
                                                           review.text || 
                                                           'No review text found in BusinessReviews';
                                         
-                                        console.log('BusinessReviews - Selected text:', reviewText);
                                         return String(reviewText);
                                     })()}
                                 </p>

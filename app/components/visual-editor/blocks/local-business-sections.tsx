@@ -1175,10 +1175,7 @@ export const GoogleReviewsSection: ComponentConfig = {
     
     // Get Google reviews from business data
     const googleReviews: ReviewData[] = businessData?.reviews?.map(r => {
-      // Debug logging to see what we're getting - fix the log to show actual textValue
       const rAsRecord = r as Record<string, unknown>;
-      console.log('Review data full object:', r);
-      console.log('Review fields:', Object.keys(rAsRecord));
       
       // Use the actual review text field based on the data structure
       // Try multiple possible field names for the review text
@@ -1188,8 +1185,6 @@ export const GoogleReviewsSection: ComponentConfig = {
                         rAsRecord.description || 
                         r.text || 
                         'No review text found';
-                        
-      console.log('Selected review text:', reviewText);
       
       return {
         author: String(r.reviewer || 'Anonymous'),
@@ -1209,8 +1204,6 @@ export const GoogleReviewsSection: ComponentConfig = {
     
     // Parse custom reviews
     const customReviews: ReviewData[] = reviews.map(review => {
-      console.log('Custom review processing:', review);
-      
       if (typeof review === 'string') {
         const [author, reviewRating, text, date] = review.split('|');
         return { 
@@ -1222,7 +1215,6 @@ export const GoogleReviewsSection: ComponentConfig = {
       }
       
       const obj = review as Record<string, unknown>;
-      console.log('Custom review object fields:', Object.keys(obj));
       
       // Try multiple possible field names for custom review text, similar to Google reviews
       const reviewText = obj.textValue || 
@@ -1231,8 +1223,6 @@ export const GoogleReviewsSection: ComponentConfig = {
                         obj.description || 
                         obj.review_text || 
                         'No custom review text found';
-      
-      console.log('Custom review selected text:', reviewText);
       
       return {
         author: String(obj.author || obj.reviewer || ''),
