@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import SiteCreationFlow from '@/app/components/dashboard/site-creation-flow';
+import BusinessCreationForm from '@/app/components/business/business-creation-form';
 import { Card } from '@/app/components/ui/card';
 
 export default function NewSitePage() {
@@ -23,7 +23,7 @@ export default function NewSitePage() {
           </div>
         </Card>
       }>
-        <SiteCreationFlow />
+        <BusinessCreationForm />
       </Suspense>
     </div>
   );
