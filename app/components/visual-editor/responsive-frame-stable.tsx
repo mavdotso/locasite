@@ -19,7 +19,7 @@ function FrameInner({
   onReady
 }: { 
   children: React.ReactNode; 
-  doc: Document | null; 
+  doc: Document | null | undefined; 
   showGrid: boolean;
   onReady: () => void;
 }) {

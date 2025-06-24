@@ -72,21 +72,26 @@ export default function ResizableColumns({
     const updateDimensions = () => {
       if (containerRef.current) {
         setContainerWidth(containerRef.current.offsetWidth);
-      }
-      const width = window.innerWidth;
-      if (width < 640) {
-        setScreenSize('mobile');
-      } else if (width < 1024) {
-        setScreenSize('tablet');
-      } else {
-        setScreenSize('desktop');
+        // In edit mode, always treat as desktop for resize handles
+        if (isEditMode) {
+          setScreenSize('desktop');
+        } else {
+          const width = window.innerWidth;
+          if (width < 640) {
+            setScreenSize('mobile');
+          } else if (width < 1024) {
+            setScreenSize('tablet');
+          } else {
+            setScreenSize('desktop');
+          }
+        }
       }
     };
 
     updateDimensions();
     window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
-  }, []);
+  }, [isEditMode]);
 
   const handleMouseDown = (index: number) => (e: React.MouseEvent) => {
     if (!isEditMode || !containerRef.current) return;
@@ -138,12 +143,15 @@ export default function ResizableColumns({
       }
     };
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    // Get the owner document (works in both iframe and regular context)
+    const ownerDocument = containerRef.current?.ownerDocument || document;
+    
+    ownerDocument.addEventListener('mousemove', handleMouseMove);
+    ownerDocument.addEventListener('mouseup', handleMouseUp);
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      ownerDocument.removeEventListener('mousemove', handleMouseMove);
+      ownerDocument.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging, dragStartX, dragStartWidths, containerWidth, columnCount, columnWidths, onColumnWidthsChange]);
 
@@ -263,23 +271,23 @@ export default function ResizableColumns({
               onMouseDown={handleMouseDown(index)}
             >
               {/* Background hover effect on both sides */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-primary/10" />
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-border/10" />
               
               {/* Center resize line */}
               <div 
                 className={cn(
                   "absolute inset-y-0 left-1/2 -translate-x-1/2 w-1 transition-all z-10",
-                  "bg-border/50 group-hover:bg-primary group-hover:w-2",
-                  isDragging === index && "bg-primary w-2"
+                  "bg-border group-hover:bg-border group-hover:w-1.5",
+                  isDragging === index && "bg-primary/50 w-1.5"
                 )}
               />
               
               {/* Drag handle dots indicator */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                 <div className="flex flex-col gap-1">
-                  <div className="w-1 h-1 bg-primary rounded-full" />
-                  <div className="w-1 h-1 bg-primary rounded-full" />
-                  <div className="w-1 h-1 bg-primary rounded-full" />
+                  <div className="w-1 h-1 bg-border rounded-full" />
+                  <div className="w-1 h-1 bg-border rounded-full" />
+                  <div className="w-1 h-1 bg-border rounded-full" />
                 </div>
               </div>
             </div>
