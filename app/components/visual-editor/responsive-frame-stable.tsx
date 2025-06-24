@@ -147,7 +147,6 @@ export default function ResponsiveFrame({
     width: width === "100%" ? "100%" : width,
     maxWidth: width === "100%" ? "100%" : width,
     height: "100%",
-    minHeight: "100vh",
     transition: "width 0.3s ease-out, max-width 0.3s ease-out"
   }), [width]);
 

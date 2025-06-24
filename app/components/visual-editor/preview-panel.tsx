@@ -160,12 +160,14 @@ const PreviewPanel = React.memo(function PreviewPanel({
       
 
       {/* Canvas Area */}
-      <div className="h-full overflow-hidden">
+      <div className="h-full overflow-hidden flex items-center justify-center">
         <div
-          className="w-full h-full flex items-start justify-center p-8"
+          className="flex items-start justify-center"
           style={{
             transform: `scale(${zoom / 100})`,
-            transformOrigin: 'top center'
+            transformOrigin: 'center center',
+            height: `${100 / (zoom / 100)}%`,
+            width: '100%'
           }}
         >
           <ResponsiveFrame 
