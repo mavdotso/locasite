@@ -99,7 +99,7 @@ export const HeaderSection: ComponentConfig = {
     // Simple static header without state for now
     return (
       <header className="bg-background border-b border-border sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 @sm:px-6 @lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center">
@@ -122,7 +122,7 @@ export const HeaderSection: ComponentConfig = {
             </div>
 
             {/* Desktop Menu */}
-            <nav className="hidden @md:flex items-center gap-6">
+            <nav className="hidden md:flex items-center gap-6">
               {menuItems.map((item, index) => (
                 <a
                   key={index}
@@ -142,7 +142,7 @@ export const HeaderSection: ComponentConfig = {
             </nav>
 
             {/* Mobile Menu Button - simplified for now */}
-            <div className="@md:hidden">
+            <div className="md:hidden">
               {showCtaButton && (
                 <Button size="sm" asChild>
                   <a href={ctaButtonHref}>
@@ -289,7 +289,7 @@ export const OperatingHoursSection: ComponentConfig = {
         <div className="py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold mb-8 text-center">{title || "Business Hours"}</h2>
-            <div className="grid @md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               <div>
                 <h3 className="font-semibold mb-4 flex items-center gap-2">
                   <Clock className="w-5 h-5" />
@@ -370,7 +370,7 @@ export const OperatingHoursSection: ComponentConfig = {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid @md:grid-cols-2 gap-6">
+                <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <h4 className="font-medium mb-4">Regular Hours</h4>
                     <div className="space-y-2">
@@ -475,7 +475,7 @@ export const LocationDirectionsSection: ComponentConfig = {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">{title || "Find Us"}</h2>
           
-          <div className="grid @lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
             {showMap === "yes" && businessData?.address && (
               <div className="rounded-lg overflow-hidden shadow-lg">
                 <iframe
@@ -723,7 +723,7 @@ export const MenuPriceListSection: ComponentConfig = {
             {subtitle && <p className="text-lg text-muted-foreground">{subtitle}</p>}
           </div>
           
-          <div className="grid @md:grid-cols-2 @lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {categoryData.map((category, catIndex) => (
               <Card key={catIndex}>
                 <CardHeader>
@@ -848,7 +848,7 @@ export const SpecialOffersSection: ComponentConfig = {
       <div className="py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">{title}</h2>
-          <div className="grid @md:grid-cols-2 @lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {offerData.map((offer, index) => (
               <Card key={index} className="relative overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-sm font-medium">
@@ -945,7 +945,7 @@ export const FAQSection: ComponentConfig = {
         <div className="py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold text-center mb-12">{title}</h2>
-            <div className="grid @md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
               {faqData.map((faq, index) => (
                 <Card key={index}>
                   <CardHeader>
@@ -1285,9 +1285,9 @@ export const GoogleReviewsSection: ComponentConfig = {
     };
     
     // Render based on layout
-    const gridColsClass = reviewsPerRow === "2" ? "@md:grid-cols-2" : 
-                         reviewsPerRow === "4" ? "@md:grid-cols-2 @lg:grid-cols-4" : 
-                         "@md:grid-cols-2 @lg:grid-cols-3";
+    const gridColsClass = reviewsPerRow === "2" ? "md:grid-cols-2" : 
+                         reviewsPerRow === "4" ? "md:grid-cols-2 lg:grid-cols-4" : 
+                         "md:grid-cols-2 lg:grid-cols-3";
     
     if (layout === "featured" && displayReviews.length > 0) {
       const featuredReview = displayReviews[0];
@@ -1582,7 +1582,7 @@ export const BeforeAfterSection: ComponentConfig = {
           </div>
           
           {layout === "grid" ? (
-            <div className="grid @md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
               {beforeAfterData.map((item, index) => (
                 <div key={index} className="space-y-4">
                   <h3 className="text-xl font-semibold">{item.title}</h3>
@@ -1632,7 +1632,7 @@ export const BeforeAfterSection: ComponentConfig = {
                     )}
                   </CardHeader>
                   <CardContent className="p-0">
-                    <div className="grid @md:grid-cols-2">
+                    <div className="grid md:grid-cols-2">
                       <div className="relative">
                         {showLabels === "yes" && (
                           <div className="absolute top-4 left-4 bg-black/70 text-white px-4 py-2 rounded font-medium z-10">
@@ -1778,11 +1778,11 @@ export const ProcessTimelineSection: ComponentConfig = {
               {subtitle && <p className="text-lg text-muted-foreground">{subtitle}</p>}
             </div>
             
-            <div className="grid @md:grid-cols-2 @lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
               {processSteps.map((step, index) => (
                 <div key={index} className="relative">
                   {showConnectors === "yes" && index < processSteps.length - 1 && (
-                    <div className="hidden @lg:block absolute top-1/3 left-full w-full h-0.5 bg-border -z-10" />
+                    <div className="hidden lg:block absolute top-1/3 left-full w-full h-0.5 bg-border -z-10" />
                   )}
                   <Card className="relative h-full hover:shadow-lg transition-shadow">
                     <CardHeader>
@@ -1845,10 +1845,10 @@ export const ProcessTimelineSection: ComponentConfig = {
           <div className="max-w-6xl mx-auto">
             <div className="relative">
               {showConnectors === "yes" && (
-                <div className="absolute top-16 left-0 right-0 h-0.5 bg-border hidden @md:block" />
+                <div className="absolute top-16 left-0 right-0 h-0.5 bg-border hidden md:block" />
               )}
               
-              <div className="grid @md:grid-cols-4 gap-8">
+              <div className="grid md:grid-cols-4 gap-8">
                 {processSteps.map((step, index) => (
                   <div key={index} className="relative text-center">
                     <div className="relative inline-flex">
@@ -1996,7 +1996,7 @@ export const StatsCounterSection: ComponentConfig = {
           )}
           
           {layout === "inline" ? (
-            <div className="flex flex-wrap justify-center gap-8 @md:gap-16 max-w-5xl mx-auto">
+            <div className="flex flex-wrap justify-center gap-8 md:gap-16 max-w-5xl mx-auto">
               {statsData.map((stat, index) => (
                 <div key={index} className="text-center">
                   {showIcons === "yes" && stat.icon && (
@@ -2044,7 +2044,7 @@ export const StatsCounterSection: ComponentConfig = {
             // Grid layout (default)
             <div className={cn(
               "grid gap-8 max-w-5xl mx-auto",
-              statsData.length === 3 ? "@md:grid-cols-3" : "@md:grid-cols-2 @lg:grid-cols-4"
+              statsData.length === 3 ? "md:grid-cols-3" : "md:grid-cols-2 lg:grid-cols-4"
             )}>
               {statsData.map((stat, index) => (
                 <div key={index} className="text-center">
@@ -2153,9 +2153,9 @@ export const TeamSection: ComponentConfig = {
       }
     ];
     
-    const gridCols = teamSize === "2" ? "@md:grid-cols-2" : 
-                    teamSize === "4" ? "@md:grid-cols-2 @lg:grid-cols-4" : 
-                    "@md:grid-cols-2 @lg:grid-cols-3";
+    const gridCols = teamSize === "2" ? "md:grid-cols-2" : 
+                    teamSize === "4" ? "md:grid-cols-2 lg:grid-cols-4" : 
+                    "md:grid-cols-2 lg:grid-cols-3";
     
     return (
       <div className="py-16 bg-muted/30">
@@ -2305,9 +2305,9 @@ export const FeaturesSection: ComponentConfig = {
       }
     ];
     
-    const gridCols = columns === "2" ? "@md:grid-cols-2" :
-                    columns === "4" ? "@md:grid-cols-2 @lg:grid-cols-4" :
-                    "@md:grid-cols-2 @lg:grid-cols-3";
+    const gridCols = columns === "2" ? "md:grid-cols-2" :
+                    columns === "4" ? "md:grid-cols-2 lg:grid-cols-4" :
+                    "md:grid-cols-2 lg:grid-cols-3";
     
     const iconComponents: Record<string, React.ComponentType<{ className?: string }>> = {
       users: Users,
@@ -2341,8 +2341,8 @@ export const FeaturesSection: ComponentConfig = {
                 
                 return (
                   <div key={index} className={cn(
-                    "flex flex-col @md:flex-row items-center gap-8",
-                    !isEven && "@md:flex-row-reverse"
+                    "flex flex-col md:flex-row items-center gap-8",
+                    !isEven && "md:flex-row-reverse"
                   )}>
                     <div className="flex-1">
                       <div className={cn(
@@ -2495,13 +2495,13 @@ export const CTABannerSection: ComponentConfig = {
         <div className="container mx-auto px-4 relative z-10">
           <div className={cn(
             "max-w-4xl mx-auto",
-            layout === "split" ? "grid @md:grid-cols-2 gap-8 items-center" : "text-center"
+            layout === "split" ? "grid md:grid-cols-2 gap-8 items-center" : "text-center"
           )}>
             <div>
-              <h2 className={cn("text-3xl @md:text-4xl font-bold mb-4", textColor)}>
+              <h2 className={cn("text-3xl md:text-4xl font-bold mb-4", textColor)}>
                 {title}
               </h2>
-              <p className={cn("text-lg @md:text-xl mb-6", textColor, "opacity-90")}>
+              <p className={cn("text-lg md:text-xl mb-6", textColor, "opacity-90")}>
                 {subtitle}
               </p>
               {urgencyText && (
@@ -2513,7 +2513,7 @@ export const CTABannerSection: ComponentConfig = {
             </div>
             
             <div className={cn(
-              "flex flex-col @sm:flex-row gap-4",
+              "flex flex-col sm:flex-row gap-4",
               layout === "split" ? "" : "justify-center"
             )}>
               <Button 
@@ -2656,8 +2656,8 @@ export const ServicesDetailedSection: ComponentConfig = {
                 return (
                   <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
                     <CardContent className="p-0">
-                      <div className="flex flex-col @md:flex-row">
-                        <div className="@md:w-1/3 bg-primary/5 p-8 flex items-center justify-center">
+                      <div className="flex flex-col md:flex-row">
+                        <div className="md:w-1/3 bg-primary/5 p-8 flex items-center justify-center">
                           <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center">
                             <IconComponent className="w-12 h-12 text-primary" />
                           </div>
@@ -2702,7 +2702,7 @@ export const ServicesDetailedSection: ComponentConfig = {
             {subtitle && <p className="text-lg text-muted-foreground max-w-3xl mx-auto">{subtitle}</p>}
           </div>
           
-          <div className="grid @md:grid-cols-2 @lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {services.map((service, index) => {
               const IconComponent = iconComponents[service.icon || 'star'] || Star;
               

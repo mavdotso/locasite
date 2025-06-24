@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
-@plugin "@tailwindcss/container-queries";
 
 @custom-variant dark (&:is(.dark *));
 

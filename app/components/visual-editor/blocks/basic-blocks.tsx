@@ -71,19 +71,19 @@ const TextBlockComponent = (props: {
   const mobileTextAlign = alignClasses[mobileAlign as keyof typeof alignClasses] || textAlign;
   
   const variantClasses = {
-    h1: "text-2xl @sm:text-3xl @lg:text-4xl font-bold",
-    h2: "text-xl @sm:text-2xl @lg:text-3xl font-bold",
-    h3: "text-lg @sm:text-xl @lg:text-2xl font-semibold",
-    h4: "text-base @sm:text-lg @lg:text-xl font-semibold",
-    paragraph: "text-sm @sm:text-base",
-    lead: "text-base @sm:text-lg @lg:text-xl text-muted-foreground",
-    small: "text-xs @sm:text-sm",
-    muted: "text-sm @sm:text-base text-muted-foreground"
+    h1: "text-2xl sm:text-3xl lg:text-4xl font-bold",
+    h2: "text-xl sm:text-2xl lg:text-3xl font-bold",
+    h3: "text-lg sm:text-xl lg:text-2xl font-semibold",
+    h4: "text-base sm:text-lg lg:text-xl font-semibold",
+    paragraph: "text-sm sm:text-base",
+    lead: "text-base sm:text-lg lg:text-xl text-muted-foreground",
+    small: "text-xs sm:text-sm",
+    muted: "text-sm sm:text-base text-muted-foreground"
   };
   
   const className = cn(
     variantClasses[variant as keyof typeof variantClasses] || variantClasses.paragraph,
-    mobileTextAlign !== textAlign ? cn(mobileTextAlign, `@sm:${textAlign}`) : textAlign
+    mobileTextAlign !== textAlign ? cn(mobileTextAlign, `sm:${textAlign}`) : textAlign
   );
   
   const style = color ? { color } : undefined;
@@ -312,7 +312,7 @@ export const ImageBlock: ComponentConfig = {
     
     const containerClass = effectiveMobileWidth === width 
       ? desktopClass 
-      : cn(mobileClass, desktopClass.replace('w-full', '@sm:w-full').replace('max-w-', '@sm:max-w-'));
+      : cn(mobileClass, desktopClass.replace('w-full', 'sm:w-full').replace('max-w-', 'sm:max-w-'));
     
     return (
       <figure className={containerClass}>
@@ -583,7 +583,7 @@ export const ButtonBlock: ComponentConfig = {
         size={size || "default"}
         className={cn(
           fullWidth === "full" ? "w-full" : "",
-          mobileFullWidth === "yes" && fullWidth !== "full" && "w-full @sm:w-auto"
+          mobileFullWidth === "yes" && fullWidth !== "full" && "w-full sm:w-auto"
         )}
         asChild={!!link && link !== "#" && !editMode}
         onClick={editMode ? handleClick : undefined}
@@ -614,7 +614,7 @@ export const ButtonBlock: ComponentConfig = {
     
     const containerClass = effectiveMobileAlign === align 
       ? desktopAlign 
-      : cn(mobileAlignClass, `@sm:${desktopAlign}`);
+      : cn(mobileAlignClass, `sm:${desktopAlign}`);
     
     return (
       <div className={containerClass}>
@@ -656,8 +656,8 @@ export const SpacerBlock: ComponentConfig = {
     
     return (
       <div className="w-full">
-        <div className="block @sm:hidden" style={{ height: `${mobileHeightValue}px` }} />
-        <div className="hidden @sm:block" style={{ height: `${desktopHeight}px` }} />
+        <div className="block sm:hidden" style={{ height: `${mobileHeightValue}px` }} />
+        <div className="hidden sm:block" style={{ height: `${desktopHeight}px` }} />
       </div>
     );
   },
@@ -1700,8 +1700,8 @@ export const ListBlock: ComponentConfig = {
     
     const columnClasses = {
       "1": "",
-      "2": "grid grid-cols-1 @md:grid-cols-2 gap-4",
-      "3": "grid grid-cols-1 @md:grid-cols-3 gap-4"
+      "2": "grid grid-cols-1 md:grid-cols-2 gap-4",
+      "3": "grid grid-cols-1 md:grid-cols-3 gap-4"
     };
     
     const spacingClasses = {
@@ -1848,10 +1848,10 @@ export const GalleryGridBlock: ComponentConfig = {
           "grid",
           gapClasses[gap as keyof typeof gapClasses],
           columns === "2" && "grid-cols-2",
-          columns === "3" && "grid-cols-2 @md:grid-cols-3",
-          columns === "4" && "grid-cols-2 @md:grid-cols-4",
-          columns === "5" && "grid-cols-2 @md:grid-cols-3 @lg:grid-cols-5",
-          columns === "6" && "grid-cols-3 @md:grid-cols-4 @lg:grid-cols-6"
+          columns === "3" && "grid-cols-2 md:grid-cols-3",
+          columns === "4" && "grid-cols-2 md:grid-cols-4",
+          columns === "5" && "grid-cols-2 md:grid-cols-3 lg:grid-cols-5",
+          columns === "6" && "grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
         )}>
           {galleryImages.map((image, index) => (
             <div

@@ -115,16 +115,16 @@ export const SectionBlock: ComponentConfig = {
     
     const widthClasses = {
       full: "w-full",
-      container: "container mx-auto px-4 @sm:px-6 @lg:px-8 max-w-7xl",
-      narrow: "max-w-4xl mx-auto px-4 @sm:px-6"
+      container: "container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl",
+      narrow: "max-w-4xl mx-auto px-4 sm:px-6"
     };
     
     const paddingClassesDesktop = {
       none: "",
-      small: "@sm:py-8",
-      medium: "@sm:py-16",
-      large: "@sm:py-24",
-      xlarge: "@sm:py-32"
+      small: "sm:py-8",
+      medium: "sm:py-16",
+      large: "sm:py-24",
+      xlarge: "sm:py-32"
     };
     
     const paddingClassesMobile = {

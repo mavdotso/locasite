@@ -16,7 +16,7 @@ export default function BusinessReviews({ reviews, className }: BusinessReviewsP
         <section className={cn("bg-background py-12", className)}>
             <div className="mx-auto px-4 container">
                 <h2 className="mb-8 font-bold text-3xl text-center">Customer Reviews</h2>
-                <div className="gap-6 grid grid-cols-1 @md:grid-cols-2 @lg:grid-cols-3">
+                <div className="gap-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                     {reviews.map((review, id) => (
                         <Card key={id || `review-${review.author_name}-${review.rating}`} className="bg-card/5 hover:shadow-md transition-shadow">
                             <CardHeader className="pb-2">

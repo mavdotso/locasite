@@ -11,6 +11,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 import NestedDropZone from "./nested-drop-zone";
 import ColumnsDropZone from "./columns-drop-zone";
 import CanvasControls, { DeviceSize, deviceSizes } from "./canvas-controls";
+import ResponsiveFrame from "./responsive-frame-simple";
 
 interface PreviewPanelProps {
   pageData: PageData;
@@ -160,20 +161,9 @@ const PreviewPanel = React.memo(function PreviewPanel({
       
 
       {/* Canvas Area */}
-      <div 
-        className="h-full overflow-auto"
-        style={{
-          background: showGrid 
-            ? `
-              linear-gradient(to right, #e5e5e5 1px, transparent 1px),
-              linear-gradient(to bottom, #e5e5e5 1px, transparent 1px)
-            `
-            : undefined,
-          backgroundSize: showGrid ? '20px 20px' : undefined
-        }}
-      >
+      <div className="h-full overflow-hidden">
         <div
-          className="min-h-full flex items-start justify-center p-8"
+          className="w-full h-full flex items-start justify-center p-8"
           style={{
             transform: `scale(${zoom / 100})`,
             transformOrigin: 'top center'
@@ -181,16 +171,20 @@ const PreviewPanel = React.memo(function PreviewPanel({
         >
           <div
             className={cn(
-              "bg-background shadow-xl transition-all duration-300 @container",
+              "shadow-xl transition-all duration-300 h-full",
               deviceSize === "tablet" && "max-w-[768px]",
               deviceSize === "mobile" && "max-w-[375px]",
-              "w-full"
+              deviceSize === "desktop" && "w-full"
             )}
             style={{ 
-              minHeight: "100vh",
               width: deviceSize === "desktop" ? "100%" : deviceSizes[deviceSize].width
             }}
           >
+            <ResponsiveFrame 
+              width={deviceSize === "desktop" ? "100%" : deviceSizes[deviceSize].width}
+              showGrid={showGrid}
+              className="bg-background"
+            >
             {/* Components */}
             <div className="relative">
               {/* Initial drop zone */}
@@ -277,6 +271,7 @@ const PreviewPanel = React.memo(function PreviewPanel({
                 );
               })}
             </div>
+            </ResponsiveFrame>
           </div>
         </div>
       </div>
