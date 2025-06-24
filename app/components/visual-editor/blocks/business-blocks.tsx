@@ -34,6 +34,7 @@ export const HeaderBlock: ComponentConfig = {
         props: {
           width: "container",
           verticalPadding: "small",
+          mobileVerticalPadding: "small",
           backgroundColor: "default"
         },
         children: [
@@ -105,7 +106,8 @@ export const HeroBlock: ComponentConfig = {
           backgroundImageStyle: "cover",
           overlayOpacity: 0.6,
           width: "full",
-          verticalPadding: "xlarge"
+          verticalPadding: "xlarge",
+          mobileVerticalPadding: "large"
         },
         children: [
           {
@@ -203,6 +205,7 @@ export const AboutBlock: ComponentConfig = {
         props: {
           width: "container",
           verticalPadding: "large",
+          mobileVerticalPadding: "medium",
           backgroundColor: "default"
         },
         children: [

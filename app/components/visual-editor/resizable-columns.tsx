@@ -5,26 +5,34 @@ import { cn } from "@/app/lib/utils";
 
 interface ResizableColumnsProps {
   columnCount: number;
+  mobileColumns?: string;
+  tabletColumns?: string;
   gap: string;
-  stackOnMobile: string;
+  mobileGap?: string;
   children: React.ReactNode[];
   onColumnWidthsChange?: (widths: number[]) => void;
   initialWidths?: number[];
   isEditMode?: boolean;
   verticalAlign?: 'top' | 'center' | 'bottom';
   minHeight?: string | number;
+  reverseOnMobile?: boolean;
+  stackOnMobile?: string; // Kept for backward compatibility
 }
 
 export default function ResizableColumns({
   columnCount,
+  mobileColumns = "1",
+  tabletColumns = "2",
   gap,
-  stackOnMobile,
+  mobileGap = "small",
   children,
   onColumnWidthsChange,
   initialWidths,
   isEditMode = false,
   verticalAlign = 'top',
-  minHeight = '100px'
+  minHeight = '100px',
+  reverseOnMobile = false,
+  stackOnMobile // Backward compatibility
 }: ResizableColumnsProps) {
   // Initialize column widths - equal distribution by default
   const getEqualWidths = (count: number) => Array(count).fill(100 / count);
@@ -57,15 +65,22 @@ export default function ResizableColumns({
   const [dragStartX, setDragStartX] = useState<number>(0);
   const [dragStartWidths, setDragStartWidths] = useState<number[]>([]);
   const [containerWidth, setContainerWidth] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
+  const [screenSize, setScreenSize] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
 
-  // Update container width and check mobile on resize
+  // Update container width and check screen size on resize
   useEffect(() => {
     const updateDimensions = () => {
       if (containerRef.current) {
         setContainerWidth(containerRef.current.offsetWidth);
       }
-      setIsMobile(window.innerWidth < 768);
+      const width = window.innerWidth;
+      if (width < 640) {
+        setScreenSize('mobile');
+      } else if (width < 1024) {
+        setScreenSize('tablet');
+      } else {
+        setScreenSize('desktop');
+      }
     };
 
     updateDimensions();
@@ -132,13 +147,6 @@ export default function ResizableColumns({
     };
   }, [isDragging, dragStartX, dragStartWidths, containerWidth, columnCount, columnWidths, onColumnWidthsChange]);
 
-  const gapClasses = {
-    none: "",
-    small: "gap-2",
-    medium: "gap-6",
-    large: "gap-10"
-  };
-
   const gapPixels = {
     none: 0,
     small: 8,
@@ -147,23 +155,75 @@ export default function ResizableColumns({
   };
 
   const currentGap = gapPixels[gap as keyof typeof gapPixels] || 0;
+  const currentMobileGap = gapPixels[mobileGap as keyof typeof gapPixels] || gapPixels.small;
 
-  // Apply grid template columns only on desktop or when not stacking on mobile
-  const shouldApplyColumns = !isMobile || stackOnMobile !== "yes";
-  const gridStyle: React.CSSProperties = shouldApplyColumns
+  // Determine effective column count based on screen size
+  const getEffectiveColumns = () => {
+    if (screenSize === 'mobile') {
+      // Handle backward compatibility with stackOnMobile
+      if (stackOnMobile === "no") return columnCount;
+      return mobileColumns === 'same' ? columnCount : parseInt(mobileColumns);
+    }
+    if (screenSize === 'tablet') {
+      return tabletColumns === 'same' ? columnCount : parseInt(tabletColumns);
+    }
+    return columnCount;
+  };
+
+  const effectiveColumns = getEffectiveColumns();
+  const shouldUseGrid = effectiveColumns > 1;
+
+  // Generate responsive class names
+  const getResponsiveClasses = () => {
+    const classes = [];
+    
+    // Mobile columns
+    const mobileCols = mobileColumns === 'same' ? columnCount : parseInt(mobileColumns);
+    if (mobileCols === 1) {
+      classes.push('grid-cols-1');
+    } else if (mobileCols === 2) {
+      classes.push('grid-cols-2');
+    }
+    
+    // Tablet columns
+    const tabletCols = tabletColumns === 'same' ? columnCount : parseInt(tabletColumns);
+    if (tabletCols === 1) {
+      classes.push('sm:grid-cols-1');
+    } else if (tabletCols === 2) {
+      classes.push('sm:grid-cols-2');
+    } else if (tabletCols === 3) {
+      classes.push('sm:grid-cols-3');
+    }
+    
+    // Desktop columns
+    if (columnCount === 2) {
+      classes.push('lg:grid-cols-2');
+    } else if (columnCount === 3) {
+      classes.push('lg:grid-cols-3');
+    } else if (columnCount === 4) {
+      classes.push('lg:grid-cols-4');
+    }
+    
+    return classes.join(' ');
+  };
+
+  // Apply custom widths only on desktop
+  const gridStyle: React.CSSProperties = screenSize === 'desktop' && shouldUseGrid
     ? { 
         gridTemplateColumns: actualColumnWidths.map(w => `minmax(0, ${w}fr)`).join(' '),
         gap: currentGap + 'px'
       }
-    : {};
+    : {
+        gap: screenSize === 'mobile' ? currentMobileGap + 'px' : currentGap + 'px'
+      };
 
   return (
     <div
       ref={containerRef}
       className={cn(
         "grid",
-        stackOnMobile === "yes" && "grid-cols-1 md:grid-flow-col md:auto-cols-fr",
-        gapClasses[gap as keyof typeof gapClasses] || gapClasses.medium,
+        getResponsiveClasses(),
+        reverseOnMobile && "flex-col-reverse sm:flex-row",
         "w-full"
       )}
       style={gridStyle}
@@ -186,8 +246,8 @@ export default function ResizableColumns({
             {index < children.length ? children[index] : null}
           </div>
           
-          {/* Resize handle - spans entire gap between columns with minimum width */}
-          {isEditMode && index < columnCount - 1 && (
+          {/* Resize handle - only show on desktop */}
+          {isEditMode && screenSize === 'desktop' && index < columnCount - 1 && (
             <div
               className={cn(
                 "absolute top-0 bottom-0 cursor-col-resize z-20 group"

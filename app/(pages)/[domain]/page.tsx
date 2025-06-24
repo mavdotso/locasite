@@ -1,7 +1,5 @@
 import { notFound } from "next/navigation";
 import { api } from "@/convex/_generated/api";
-import BusinessHeader from "@/app/components/business/header";
-import BusinessFooter from "@/app/components/business/footer";
 import BusinessPageRenderer from "@/app/components/business/business-page-renderer";
 import { Metadata } from "next";
 import { fetchQuery } from "convex/nextjs";
@@ -145,11 +143,6 @@ export default async function BusinessPage({ params }: PageProps) {
       notFound();
     }
 
-    // Fetch all pages for the navigation
-    const pages = await fetchQuery(api.pages.listByDomain, {
-      domainId: domain._id,
-    });
-
     const businessData = business[0];
     
     // Check if business is published
@@ -170,12 +163,6 @@ export default async function BusinessPage({ params }: PageProps) {
 
     return (
       <div className="flex flex-col min-h-screen">
-        <BusinessHeader
-          domain={domain.name}
-          pages={pages}
-          businessUserId={businessData.userId}
-        />
-
         {!businessData.userId && (
           <div className="px-4 py-2 bg-amber-50 border-b border-amber-200">
             <div className="container flex items-center justify-between mx-auto">
@@ -201,7 +188,7 @@ export default async function BusinessPage({ params }: PageProps) {
           business={businessData}
           pageContent={page?.content || JSON.stringify({ sections: [] })}
         />
-        <BusinessFooter businessName={domain.name} />
+        {/* TODO: Enable only on free plans? <BusinessFooter businessName={domain.name} /> */}
       </div>
     );
   } catch (error) {

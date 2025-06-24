@@ -73,7 +73,7 @@ export default function CanvasControls({
   return (
     <>
       {/* Top Floating Controls */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
         <div className="flex items-center gap-1 bg-background/95 backdrop-blur-sm border rounded-lg shadow-lg p-1">
           {/* Device Size Controls */}
           <div className="flex items-center gap-0.5 px-1">

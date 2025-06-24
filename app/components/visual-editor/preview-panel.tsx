@@ -157,21 +157,7 @@ const PreviewPanel = React.memo(function PreviewPanel({
 
   return (
     <div className="h-full relative bg-muted/30">
-      {/* Canvas Controls */}
-      {isEditMode && (
-        <CanvasControls
-          deviceSize={deviceSize}
-          onDeviceSizeChange={setDeviceSize}
-          zoom={zoom}
-          onZoomChange={setZoom}
-          showGrid={showGrid}
-          onShowGridChange={setShowGrid}
-          showRulers={showRulers}
-          onShowRulersChange={setShowRulers}
-          isPreviewMode={isPreviewMode}
-          onPreviewModeChange={setIsPreviewMode}
-        />
-      )}
+      
 
       {/* Canvas Area */}
       <div 
@@ -205,11 +191,6 @@ const PreviewPanel = React.memo(function PreviewPanel({
               width: deviceSize === "desktop" ? "100%" : deviceSizes[deviceSize].width
             }}
           >
-            {/* Page Title */}
-            <div className="p-8 border-b">
-              <h1 className="text-3xl font-bold">{pageData.title}</h1>
-            </div>
-
             {/* Components */}
             <div className="relative">
               {/* Initial drop zone */}
@@ -299,6 +280,21 @@ const PreviewPanel = React.memo(function PreviewPanel({
           </div>
         </div>
       </div>
+      {/* Canvas Controls */}
+      {isEditMode && (
+        <CanvasControls
+          deviceSize={deviceSize}
+          onDeviceSizeChange={setDeviceSize}
+          zoom={zoom}
+          onZoomChange={setZoom}
+          showGrid={showGrid}
+          onShowGridChange={setShowGrid}
+          showRulers={showRulers}
+          onShowRulersChange={setShowRulers}
+          isPreviewMode={isPreviewMode}
+          onPreviewModeChange={setIsPreviewMode}
+        />
+      )}
     </div>
   );
 });

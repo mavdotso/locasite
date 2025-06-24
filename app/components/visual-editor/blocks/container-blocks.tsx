@@ -43,6 +43,18 @@ export const SectionBlock: ComponentConfig = {
         { value: "xlarge", label: "Extra Large" }
       ]
     },
+    mobileVerticalPadding: {
+      type: "select",
+      label: "Mobile Vertical Padding",
+      defaultValue: "same",
+      options: [
+        { value: "same", label: "Same as Desktop" },
+        { value: "none", label: "None" },
+        { value: "small", label: "Small" },
+        { value: "medium", label: "Medium" },
+        { value: "large", label: "Large" }
+      ]
+    },
     backgroundColor: {
       type: "select",
       label: "Background Color",
@@ -85,7 +97,8 @@ export const SectionBlock: ComponentConfig = {
   render: (props, editMode, _business, children, _onUpdate) => {
     const { 
       width, 
-      verticalPadding, 
+      verticalPadding,
+      mobileVerticalPadding, 
       backgroundColor, 
       backgroundImage, 
       backgroundImageStyle,
@@ -93,6 +106,7 @@ export const SectionBlock: ComponentConfig = {
     } = props as {
       width?: string;
       verticalPadding?: string;
+      mobileVerticalPadding?: string;
       backgroundColor?: string;
       backgroundImage?: string;
       backgroundImageStyle?: string;
@@ -105,13 +119,25 @@ export const SectionBlock: ComponentConfig = {
       narrow: "max-w-4xl mx-auto px-4 sm:px-6"
     };
     
-    const paddingClasses = {
+    const paddingClassesDesktop = {
       none: "",
-      small: "py-6 sm:py-8",
-      medium: "py-12 sm:py-16",
-      large: "py-16 sm:py-24",
-      xlarge: "py-20 sm:py-32"
+      small: "sm:py-8",
+      medium: "sm:py-16",
+      large: "sm:py-24",
+      xlarge: "sm:py-32"
     };
+    
+    const paddingClassesMobile = {
+      none: "",
+      small: "py-4",
+      medium: "py-8",
+      large: "py-12",
+      xlarge: "py-16"
+    };
+    
+    const effectiveMobilePadding = mobileVerticalPadding === 'same' ? verticalPadding : mobileVerticalPadding;
+    const desktopPadding = paddingClassesDesktop[verticalPadding as keyof typeof paddingClassesDesktop] || paddingClassesDesktop.medium;
+    const mobilePadding = paddingClassesMobile[effectiveMobilePadding as keyof typeof paddingClassesMobile] || paddingClassesMobile.medium;
     
     const bgColorClasses = {
       default: "",
@@ -149,7 +175,8 @@ export const SectionBlock: ComponentConfig = {
         <div className={cn(
           "relative",
           widthClasses[width as keyof typeof widthClasses] || widthClasses.container,
-          paddingClasses[verticalPadding as keyof typeof paddingClasses] || paddingClasses.medium
+          mobilePadding,
+          desktopPadding
         )}>
           {editMode && !children ? (
             <div 
@@ -193,6 +220,27 @@ export const ColumnsBlock: ComponentConfig = {
         { value: "4", label: "4 Columns" }
       ]
     },
+    mobileColumns: {
+      type: "select",
+      label: "Mobile Columns",
+      defaultValue: "1",
+      options: [
+        { value: "1", label: "1 Column (Stack)" },
+        { value: "2", label: "2 Columns" },
+        { value: "same", label: "Same as Desktop" }
+      ]
+    },
+    tabletColumns: {
+      type: "select",
+      label: "Tablet Columns",
+      defaultValue: "2",
+      options: [
+        { value: "1", label: "1 Column" },
+        { value: "2", label: "2 Columns" },
+        { value: "3", label: "3 Columns" },
+        { value: "same", label: "Same as Desktop" }
+      ]
+    },
     columnWidths: {
       type: "array",
       label: "Column Widths",
@@ -223,10 +271,21 @@ export const ColumnsBlock: ComponentConfig = {
         { value: "col", label: "Column (Vertical)" }
       ]
     },
-    stackOnMobile: {
+    mobileGap: {
       type: "select",
-      label: "Stack on Mobile",
-      defaultValue: "yes",
+      label: "Mobile Gap",
+      defaultValue: "small",
+      options: [
+        { value: "none", label: "None" },
+        { value: "small", label: "Small" },
+        { value: "medium", label: "Medium" },
+        { value: "large", label: "Large" }
+      ]
+    },
+    reverseOnMobile: {
+      type: "select",
+      label: "Reverse Order on Mobile",
+      defaultValue: "no",
       options: [
         { value: "yes", label: "Yes" },
         { value: "no", label: "No" }
@@ -250,14 +309,28 @@ export const ColumnsBlock: ComponentConfig = {
     }
   },
   render: (props, editMode, _business, children, onUpdate) => {
-    const { columns, gap, direction, stackOnMobile, columnWidths, verticalAlign, minHeight } = props as {
+    const { 
+      columns, 
+      mobileColumns, 
+      tabletColumns, 
+      gap, 
+      mobileGap,
+      direction, 
+      columnWidths, 
+      verticalAlign, 
+      minHeight,
+      reverseOnMobile 
+    } = props as {
       columns?: string;
+      mobileColumns?: string;
+      tabletColumns?: string;
       gap?: string;
+      mobileGap?: string;
       direction?: string;
-      stackOnMobile?: string;
       columnWidths?: number[];
       verticalAlign?: 'top' | 'center' | 'bottom';
       minHeight?: string;
+      reverseOnMobile?: string;
     };
     
     const columnCount = parseInt(columns || "2");
@@ -291,13 +364,16 @@ export const ColumnsBlock: ComponentConfig = {
       return (
         <ResizableColumns
           columnCount={columnCount}
+          mobileColumns={mobileColumns || "1"}
+          tabletColumns={tabletColumns || "2"}
           gap={gap || "medium"}
-          stackOnMobile={stackOnMobile || "yes"}
+          mobileGap={mobileGap || "small"}
           initialWidths={columnWidths}
           onColumnWidthsChange={handleColumnWidthsChange}
           isEditMode={editMode}
           verticalAlign={verticalAlign || "top"}
           minHeight={minHeight || "100px"}
+          reverseOnMobile={reverseOnMobile === "yes"}
         >
           {childrenArray.map((colContent, colIndex) => (
             <div key={colIndex} className="column-drop-zone overflow-hidden">
@@ -351,13 +427,16 @@ export const ColumnsBlock: ComponentConfig = {
     return (
       <ResizableColumns
         columnCount={columnCount}
+        mobileColumns={mobileColumns || "1"}
+        tabletColumns={tabletColumns || "2"}
         gap={gap || "medium"}
-        stackOnMobile={stackOnMobile || "yes"}
+        mobileGap={mobileGap || "small"}
         initialWidths={columnWidths}
         onColumnWidthsChange={handleColumnWidthsChange}
         isEditMode={editMode}
         verticalAlign={verticalAlign || "top"}
         minHeight={minHeight || "100px"}
+        reverseOnMobile={reverseOnMobile === "yes"}
       >
         {columnContents.map((colChildren, colIndex) => (
           <div key={colIndex} className="min-w-0">
