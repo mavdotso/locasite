@@ -40,8 +40,6 @@ const PreviewPanel = React.memo(function PreviewPanel({
 }: PreviewPanelProps) {
   const [deviceSize, setDeviceSize] = useState<DeviceSize>("desktop");
   const [zoom, setZoom] = useState(100);
-  const [showGrid, setShowGrid] = useState(false);
-  const [showRulers, setShowRulers] = useState(false);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const { draggedItem } = useDragDrop();
 
@@ -172,7 +170,6 @@ const PreviewPanel = React.memo(function PreviewPanel({
         >
           <ResponsiveFrame 
             width={deviceSize === "desktop" ? "100%" : deviceSizes[deviceSize].width}
-            showGrid={showGrid}
             className="bg-background shadow-xl"
           >
             {/* Components */}
@@ -271,10 +268,6 @@ const PreviewPanel = React.memo(function PreviewPanel({
           onDeviceSizeChange={setDeviceSize}
           zoom={zoom}
           onZoomChange={setZoom}
-          showGrid={showGrid}
-          onShowGridChange={setShowGrid}
-          showRulers={showRulers}
-          onShowRulersChange={setShowRulers}
           isPreviewMode={isPreviewMode}
           onPreviewModeChange={setIsPreviewMode}
         />

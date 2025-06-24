@@ -8,19 +8,16 @@ interface ResponsiveFrameProps {
   children: React.ReactNode;
   width?: string | number;
   className?: string;
-  showGrid?: boolean;
 }
 
 // Inner component to handle iframe content with hooks
 function FrameInner({ 
   children, 
   doc, 
-  showGrid,
   onReady
 }: { 
   children: React.ReactNode; 
   doc: Document | null | undefined; 
-  showGrid: boolean;
   onReady: () => void;
 }) {
   const [isReady, setIsReady] = useState(false);
@@ -52,14 +49,8 @@ function FrameInner({
             doc.documentElement.classList.remove('dark');
           }
 
-          // Add grid overlay if needed
-          if (showGrid && doc.body) {
-            doc.body.style.backgroundImage = `
-              linear-gradient(to right, rgba(229, 229, 229, 0.5) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(229, 229, 229, 0.5) 1px, transparent 1px)
-            `;
-            doc.body.style.backgroundSize = '20px 20px';
-          } else if (doc.body) {
+          // Clear any background image
+          if (doc.body) {
             doc.body.style.backgroundImage = 'none';
           }
           
@@ -73,7 +64,7 @@ function FrameInner({
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [doc, showGrid, onReady]);
+  }, [doc, onReady]);
 
   return (
     <div className="min-h-screen" style={{ opacity: isReady ? 1 : 0, transition: 'opacity 0.2s' }}>
@@ -85,8 +76,7 @@ function FrameInner({
 export default function ResponsiveFrame({ 
   children, 
   width = "100%",
-  className,
-  showGrid = false
+  className
 }: ResponsiveFrameProps) {
   const [frameKey] = useState(0);
   const [isFrameReady, setIsFrameReady] = useState(false);
@@ -174,7 +164,6 @@ export default function ResponsiveFrame({
           {({ document: doc }) => (
             <FrameInner 
               doc={doc} 
-              showGrid={showGrid}
               onReady={handleReady}
             >
               {children}
