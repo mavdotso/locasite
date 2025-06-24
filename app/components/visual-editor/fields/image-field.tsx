@@ -52,8 +52,8 @@ export default function ImageField({ field, value, onChange, businessId }: Image
       
       onChange(url);
       toast.success("Image uploaded successfully");
-    } catch (error) {
-      console.error("Error uploading image:", error);
+    } catch {
+      // Handle image upload error silently
       toast.error("Failed to upload image");
     } finally {
       setIsUploading(false);

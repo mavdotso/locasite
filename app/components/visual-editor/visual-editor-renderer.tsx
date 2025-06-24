@@ -13,7 +13,7 @@ function renderComponent(component: ComponentData, business?: BusinessData): Rea
   const config = allComponentConfigs[component.type];
   
   if (!config) {
-    console.warn(`Component type "${component.type}" not found`);
+    // Component type not found - render nothing
     return null;
   }
 

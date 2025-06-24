@@ -57,8 +57,8 @@ function FrameInner({
           setIsReady(true);
           onReady();
         });
-      } catch (error) {
-        console.error('Error setting up iframe:', error);
+      } catch {
+        // Silently handle iframe setup errors
         setIsReady(true); // Still mark as ready to show content
       }
     }, 100);

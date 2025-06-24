@@ -382,8 +382,8 @@ export default function VisualEditor({
       setLastSaved(new Date());
       setHasUnsavedChanges(false);
       toast.success("Page saved successfully");
-    } catch (error) {
-      console.error("Error saving page:", error);
+    } catch {
+      // Handle save error silently
       toast.error("Failed to save page");
     } finally {
       setIsSaving(false);
@@ -414,8 +414,8 @@ export default function VisualEditor({
           setIsPublishing(false);
         }
       }
-    } catch (error) {
-      console.error("Error publishing:", error);
+    } catch {
+      // Handle publish error silently
       toast.error(business.isPublished ? "Failed to unpublish" : "Failed to publish");
       setIsPublishing(false);
     }
