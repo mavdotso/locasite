@@ -25,7 +25,7 @@ export default function BusinessContact({ title, subtitle, phone, email, address
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="flex md:flex-row flex-col md:justify-center gap-8">
+                            <div className="flex @md:flex-row flex-col @md:justify-center gap-8">
                                 <HoverCard>
                                     <HoverCardTrigger asChild>
                                         <div className="text-center cursor-pointer">

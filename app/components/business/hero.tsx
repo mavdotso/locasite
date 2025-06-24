@@ -31,12 +31,12 @@ export default function BusinessHero({ title, subtitle, image, className }: Busi
             )}
             <div className="z-10 relative mx-auto px-4 py-32 text-center container">
                 {title && (
-                    <h1 className="drop-shadow-md mb-6 font-bold text-4xl md:text-6xl tracking-tight">
+                    <h1 className="drop-shadow-md mb-6 font-bold text-4xl @md:text-6xl tracking-tight">
                         {title}
                     </h1>
                 )}
                 {subtitle && (
-                    <p className="text-lg md:text-xl opacity-90 mx-auto max-w-2xl">
+                    <p className="text-lg @md:text-xl opacity-90 mx-auto max-w-2xl">
                         {subtitle}
                     </p>
                 )}

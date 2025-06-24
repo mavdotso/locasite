@@ -21,7 +21,7 @@ export default function BusinessGallery({ images, className }: BusinessGalleryPr
     return (
         <div className={cn("py-16", className)}>
             <div className="container mx-auto px-4">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 @md:grid-cols-3 @lg:grid-cols-4 gap-4">
                     {images.map((image, index) => (
                         <Card 
                             key={index} 

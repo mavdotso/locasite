@@ -188,20 +188,20 @@ export default function ResizableColumns({
     // Tablet columns
     const tabletCols = tabletColumns === 'same' ? columnCount : parseInt(tabletColumns);
     if (tabletCols === 1) {
-      classes.push('sm:grid-cols-1');
+      classes.push('@sm:grid-cols-1');
     } else if (tabletCols === 2) {
-      classes.push('sm:grid-cols-2');
+      classes.push('@sm:grid-cols-2');
     } else if (tabletCols === 3) {
-      classes.push('sm:grid-cols-3');
+      classes.push('@sm:grid-cols-3');
     }
     
     // Desktop columns
     if (columnCount === 2) {
-      classes.push('lg:grid-cols-2');
+      classes.push('@lg:grid-cols-2');
     } else if (columnCount === 3) {
-      classes.push('lg:grid-cols-3');
+      classes.push('@lg:grid-cols-3');
     } else if (columnCount === 4) {
-      classes.push('lg:grid-cols-4');
+      classes.push('@lg:grid-cols-4');
     }
     
     return classes.join(' ');
@@ -223,7 +223,7 @@ export default function ResizableColumns({
       className={cn(
         "grid",
         getResponsiveClasses(),
-        reverseOnMobile && "flex-col-reverse sm:flex-row",
+        reverseOnMobile && "flex-col-reverse @sm:flex-row",
         "w-full"
       )}
       style={gridStyle}

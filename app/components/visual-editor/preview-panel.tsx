@@ -181,7 +181,7 @@ const PreviewPanel = React.memo(function PreviewPanel({
         >
           <div
             className={cn(
-              "bg-background shadow-xl transition-all duration-300",
+              "bg-background shadow-xl transition-all duration-300 @container",
               deviceSize === "tablet" && "max-w-[768px]",
               deviceSize === "mobile" && "max-w-[375px]",
               "w-full"
