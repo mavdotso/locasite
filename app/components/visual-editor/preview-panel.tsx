@@ -6,12 +6,11 @@ import { allComponentConfigs as componentConfigs } from "./config/all-components
 import { useDragDrop } from "./drag-drop-provider";
 import DropZone from "./drop-zone";
 import ComponentWrapper from "./component-wrapper";
-import { cn } from "@/app/lib/utils";
 import { Doc } from "@/convex/_generated/dataModel";
 import NestedDropZone from "./nested-drop-zone";
 import ColumnsDropZone from "./columns-drop-zone";
 import CanvasControls, { DeviceSize, deviceSizes } from "./canvas-controls";
-import ResponsiveFrame from "./responsive-frame-simple";
+import ResponsiveFrame from "./responsive-frame-stable";
 
 interface PreviewPanelProps {
   pageData: PageData;
@@ -169,22 +168,11 @@ const PreviewPanel = React.memo(function PreviewPanel({
             transformOrigin: 'top center'
           }}
         >
-          <div
-            className={cn(
-              "shadow-xl transition-all duration-300 h-full",
-              deviceSize === "tablet" && "max-w-[768px]",
-              deviceSize === "mobile" && "max-w-[375px]",
-              deviceSize === "desktop" && "w-full"
-            )}
-            style={{ 
-              width: deviceSize === "desktop" ? "100%" : deviceSizes[deviceSize].width
-            }}
+          <ResponsiveFrame 
+            width={deviceSize === "desktop" ? "100%" : deviceSizes[deviceSize].width}
+            showGrid={showGrid}
+            className="bg-background shadow-xl"
           >
-            <ResponsiveFrame 
-              width={deviceSize === "desktop" ? "100%" : deviceSizes[deviceSize].width}
-              showGrid={showGrid}
-              className="bg-background"
-            >
             {/* Components */}
             <div className="relative">
               {/* Initial drop zone */}
@@ -272,7 +260,6 @@ const PreviewPanel = React.memo(function PreviewPanel({
               })}
             </div>
             </ResponsiveFrame>
-          </div>
         </div>
       </div>
       {/* Canvas Controls */}
