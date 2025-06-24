@@ -160,7 +160,7 @@ const PreviewPanel = React.memo(function PreviewPanel({
       
 
       {/* Canvas Area */}
-      <div className="h-full overflow-hidden flex items-center justify-center">
+      <div className="h-full overflow-hidden flex items-center justify-center p-4">
         <div
           className="flex items-start justify-center"
           style={{
