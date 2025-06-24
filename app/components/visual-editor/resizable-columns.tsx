@@ -269,18 +269,8 @@ export default function ResizableColumns({
                 paddingRight: '12px'
               }}
               onMouseDown={handleMouseDown(index)}
-            >
-              {/* Background hover effect on both sides */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-border/10" />
-              
-              {/* Center resize line */}
-              <div 
-                className={cn(
-                  "absolute inset-y-0 left-1/2 -translate-x-1/2 w-1 transition-all z-10",
-                  "bg-border group-hover:bg-border group-hover:w-1.5",
-                  isDragging === index && "bg-primary/50 w-1.5"
-                )}
-              />
+            >              
+
               
               {/* Drag handle dots indicator */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-10">

@@ -144,10 +144,11 @@ export default function ResponsiveFrame({
 
   // Handle width changes more smoothly
   const frameStyle = React.useMemo(() => ({
-    width: width,
+    width: width === "100%" ? "100%" : width,
+    maxWidth: width === "100%" ? "100%" : width,
     height: "100%",
     minHeight: "100vh",
-    transition: "width 0.3s ease-out"
+    transition: "width 0.3s ease-out, max-width 0.3s ease-out"
   }), [width]);
 
   const handleReady = React.useCallback(() => {
@@ -157,7 +158,7 @@ export default function ResponsiveFrame({
   }, []);
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full flex justify-center">
       {!isFrameReady && (
         <div className="absolute inset-0 flex items-center justify-center bg-background">
           <div className="text-muted-foreground">Loading preview...</div>
@@ -166,7 +167,7 @@ export default function ResponsiveFrame({
       <Frame
         key={frameKey}
         initialContent={initialContent}
-        className={cn("w-full h-full border-0", className)}
+        className={cn("h-full border-0", className)}
         style={frameStyle}
         mountTarget="#frame-root"
       >
