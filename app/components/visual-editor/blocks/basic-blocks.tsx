@@ -53,11 +53,12 @@ const TextBlockComponent = (props: {
   content?: string;
   variant?: string;
   align?: string;
+  mobileAlign?: string;
   color?: string;
   editMode?: boolean;
   onUpdate?: (newProps: Record<string, unknown>) => void;
 }) => {
-  const { content, variant, align, color } = props;
+  const { content, variant, align, mobileAlign, color } = props;
   
   const alignClasses = {
     left: "text-left",
@@ -67,21 +68,22 @@ const TextBlockComponent = (props: {
   };
   
   const textAlign = alignClasses[align as keyof typeof alignClasses] || "text-left";
+  const mobileTextAlign = alignClasses[mobileAlign as keyof typeof alignClasses] || textAlign;
   
   const variantClasses = {
-    h1: "text-4xl font-bold",
-    h2: "text-3xl font-bold",
-    h3: "text-2xl font-semibold",
-    h4: "text-xl font-semibold",
-    paragraph: "text-base",
-    lead: "text-xl text-muted-foreground",
-    small: "text-sm",
-    muted: "text-base text-muted-foreground"
+    h1: "text-2xl sm:text-3xl lg:text-4xl font-bold",
+    h2: "text-xl sm:text-2xl lg:text-3xl font-bold",
+    h3: "text-lg sm:text-xl lg:text-2xl font-semibold",
+    h4: "text-base sm:text-lg lg:text-xl font-semibold",
+    paragraph: "text-sm sm:text-base",
+    lead: "text-base sm:text-lg lg:text-xl text-muted-foreground",
+    small: "text-xs sm:text-sm",
+    muted: "text-sm sm:text-base text-muted-foreground"
   };
   
   const className = cn(
     variantClasses[variant as keyof typeof variantClasses] || variantClasses.paragraph,
-    textAlign
+    mobileTextAlign !== textAlign ? cn(mobileTextAlign, `sm:${textAlign}`) : textAlign
   );
   
   const style = color ? { color } : undefined;
@@ -141,6 +143,17 @@ export const TextBlock: ComponentConfig = {
         { value: "justify", label: "Justify" }
       ]
     },
+    mobileAlign: {
+      type: "select",
+      label: "Mobile Alignment",
+      defaultValue: "same",
+      options: [
+        { value: "same", label: "Same as Desktop" },
+        { value: "left", label: "Left" },
+        { value: "center", label: "Center" },
+        { value: "right", label: "Right" }
+      ]
+    },
     color: {
       type: "color",
       label: "Text Color",
@@ -158,9 +171,13 @@ export const TextBlock: ComponentConfig = {
     }
   },
   render: (props, editMode, _business, _children, onUpdate) => {
+    const { mobileAlign, ...otherProps } = props as { mobileAlign?: string; [key: string]: unknown };
+    const finalMobileAlign = mobileAlign === 'same' ? otherProps.align as string : mobileAlign;
+    
     return (
       <TextBlockComponent
-        {...props as { content?: string; variant?: string; align?: string; color?: string }}
+        {...otherProps as { content?: string; variant?: string; align?: string; color?: string }}
+        mobileAlign={finalMobileAlign}
         editMode={editMode}
         onUpdate={onUpdate}
       />
@@ -203,6 +220,30 @@ export const ImageBlock: ComponentConfig = {
         { value: "narrow", label: "Narrow" }
       ]
     },
+    mobileWidth: {
+      type: "select",
+      label: "Mobile Width",
+      defaultValue: "full",
+      options: [
+        { value: "same", label: "Same as Desktop" },
+        { value: "full", label: "Full Width" },
+        { value: "normal", label: "Normal" },
+        { value: "narrow", label: "Narrow" }
+      ]
+    },
+    aspectRatio: {
+      type: "select",
+      label: "Aspect Ratio",
+      defaultValue: "auto",
+      options: [
+        { value: "auto", label: "Auto (Original)" },
+        { value: "1:1", label: "Square (1:1)" },
+        { value: "16:9", label: "Widescreen (16:9)" },
+        { value: "4:3", label: "Standard (4:3)" },
+        { value: "3:2", label: "Classic (3:2)" },
+        { value: "21:9", label: "Ultrawide (21:9)" }
+      ]
+    },
     rounded: {
       type: "select",
       label: "Border Radius",
@@ -217,12 +258,14 @@ export const ImageBlock: ComponentConfig = {
     }
   },
   render: (props) => {
-    const { src, alt, caption, width, rounded } = props as {
+    const { src, alt, caption, width, mobileWidth, rounded, aspectRatio } = props as {
       src?: string;
       alt?: string;
       caption?: string;
       width?: string;
+      mobileWidth?: string;
       rounded?: string;
+      aspectRatio?: string;
     };
     
     if (!src) {
@@ -240,6 +283,21 @@ export const ImageBlock: ComponentConfig = {
       narrow: "w-full max-w-lg mx-auto"
     };
     
+    const mobileWidthClasses = {
+      full: "w-full",
+      normal: "w-full max-w-sm mx-auto",
+      narrow: "w-full max-w-xs mx-auto"
+    };
+    
+    const aspectRatioClasses = {
+      "auto": "",
+      "1:1": "aspect-square",
+      "16:9": "aspect-video",
+      "4:3": "aspect-[4/3]",
+      "3:2": "aspect-[3/2]",
+      "21:9": "aspect-[21/9]"
+    };
+    
     const roundedClasses = {
       none: "",
       sm: "rounded-sm",
@@ -248,15 +306,32 @@ export const ImageBlock: ComponentConfig = {
       full: "rounded-full"
     };
     
+    const effectiveMobileWidth = mobileWidth === 'same' ? width : mobileWidth;
+    const desktopClass = widthClasses[width as keyof typeof widthClasses] || widthClasses.full;
+    const mobileClass = mobileWidthClasses[effectiveMobileWidth as keyof typeof mobileWidthClasses];
+    
+    const containerClass = effectiveMobileWidth === width 
+      ? desktopClass 
+      : cn(mobileClass, desktopClass.replace('w-full', 'sm:w-full').replace('max-w-', 'sm:max-w-'));
+    
     return (
-      <figure className={widthClasses[width as keyof typeof widthClasses] || widthClasses.full}>
-        <Image 
-          src={src} 
-          alt={alt || ""} 
-          width={800}
-          height={600}
-          className={cn("w-full h-auto", roundedClasses[rounded as keyof typeof roundedClasses] || roundedClasses.md)}
-        />
+      <figure className={containerClass}>
+        <div className={cn(
+          "relative overflow-hidden",
+          aspectRatioClasses[aspectRatio as keyof typeof aspectRatioClasses] || "",
+          roundedClasses[rounded as keyof typeof roundedClasses] || roundedClasses.md
+        )}>
+          <Image 
+            src={src} 
+            alt={alt || ""} 
+            width={800}
+            height={600}
+            className={cn(
+              "w-full h-auto",
+              aspectRatio !== "auto" && "absolute inset-0 w-full h-full object-cover"
+            )}
+          />
+        </div>
         {caption && (
           <figcaption className="text-sm text-muted-foreground text-center mt-2">
             {caption}
@@ -461,16 +536,38 @@ export const ButtonBlock: ComponentConfig = {
         { value: "center", label: "Center" },
         { value: "right", label: "Right" }
       ]
+    },
+    mobileFullWidth: {
+      type: "select",
+      label: "Mobile Full Width",
+      defaultValue: "no",
+      options: [
+        { value: "no", label: "No" },
+        { value: "yes", label: "Yes" }
+      ]
+    },
+    mobileAlign: {
+      type: "select",
+      label: "Mobile Alignment",
+      defaultValue: "same",
+      options: [
+        { value: "same", label: "Same as Desktop" },
+        { value: "left", label: "Left" },
+        { value: "center", label: "Center" },
+        { value: "right", label: "Right" }
+      ]
     }
   },
   render: (props, editMode) => {
-    const { text, link, variant, size, fullWidth, align } = props as {
+    const { text, link, variant, size, fullWidth, align, mobileFullWidth, mobileAlign } = props as {
       text?: string;
       link?: string;
       variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
       size?: "sm" | "default" | "lg";
       fullWidth?: string;
       align?: string;
+      mobileFullWidth?: string;
+      mobileAlign?: string;
     };
     
     const handleClick = (e: React.MouseEvent) => {
@@ -484,7 +581,10 @@ export const ButtonBlock: ComponentConfig = {
       <Button 
         variant={variant || "default"} 
         size={size || "default"}
-        className={fullWidth === "full" ? "w-full" : ""}
+        className={cn(
+          fullWidth === "full" ? "w-full" : "",
+          mobileFullWidth === "yes" && fullWidth !== "full" && "w-full sm:w-auto"
+        )}
         asChild={!!link && link !== "#" && !editMode}
         onClick={editMode ? handleClick : undefined}
       >
@@ -508,8 +608,16 @@ export const ButtonBlock: ComponentConfig = {
       right: "text-right"
     };
     
+    const effectiveMobileAlign = mobileAlign === 'same' ? align : mobileAlign;
+    const desktopAlign = alignClasses[align as keyof typeof alignClasses] || alignClasses.left;
+    const mobileAlignClass = alignClasses[effectiveMobileAlign as keyof typeof alignClasses] || desktopAlign;
+    
+    const containerClass = effectiveMobileAlign === align 
+      ? desktopAlign 
+      : cn(mobileAlignClass, `sm:${desktopAlign}`);
+    
     return (
-      <div className={alignClasses[align as keyof typeof alignClasses] || alignClasses.left}>
+      <div className={containerClass}>
         {button}
       </div>
     );
@@ -530,11 +638,28 @@ export const SpacerBlock: ComponentConfig = {
       max: 200,
       step: 10,
       showSlider: true
+    },
+    mobileHeight: {
+      type: "number",
+      label: "Mobile Height (px)",
+      defaultValue: 20,
+      min: 10,
+      max: 200,
+      step: 10,
+      showSlider: true
     }
   },
   render: (props) => {
-    const { height } = props as { height?: number };
-    return <div style={{ height: `${height || 40}px` }} className="w-full" />;
+    const { height, mobileHeight } = props as { height?: number; mobileHeight?: number };
+    const desktopHeight = height || 40;
+    const mobileHeightValue = mobileHeight || 20;
+    
+    return (
+      <div className="w-full">
+        <div className="block sm:hidden" style={{ height: `${mobileHeightValue}px` }} />
+        <div className="hidden sm:block" style={{ height: `${desktopHeight}px` }} />
+      </div>
+    );
   },
   icon: Space,
   category: "Basic"

@@ -1,5 +1,4 @@
 import { ComponentConfig } from "../types";
-import { componentConfigs as businessComponents } from "./components";
 import { 
   TextBlock, 
   ImageBlock,
@@ -27,6 +26,34 @@ import {
   TabsBlock,
   ColumnContentBlock
 } from "../blocks/container-blocks";
+import {
+  HeaderBlock,
+  HeroBlock,
+  AboutBlock,
+  ServicesBlock,
+  GalleryBlock,
+  TestimonialsBlock,
+  ContactBlock,
+  TeamBlock,
+  CTABlock,
+  FooterBlock
+} from "../blocks/business-blocks";
+import {
+  HeaderSection,
+  OperatingHoursSection,
+  LocationDirectionsSection,
+  MenuPriceListSection,
+  SpecialOffersSection,
+  FAQSection,
+  GoogleReviewsSection,
+  BeforeAfterSection,
+  ProcessTimelineSection,
+  StatsCounterSection,
+  TeamSection,
+  FeaturesSection,
+  CTABannerSection,
+  ServicesDetailedSection
+} from "../blocks/local-business-sections";
 
 // Combine all components
 export const allComponentConfigs: Record<string, ComponentConfig> = {
@@ -61,6 +88,31 @@ export const allComponentConfigs: Record<string, ComponentConfig> = {
   AccordionBlock,
   TabsBlock,
   
-  // Business-specific components (legacy)
-  ...businessComponents
+  // Business Templates (expand into full sections)
+  HeaderBlock,
+  HeroBlock,
+  AboutBlock,
+  ServicesBlock,
+  GalleryBlock,
+  TestimonialsBlock,
+  ContactBlock,
+  TeamBlock,
+  CTABlock,
+  FooterBlock,
+  
+  // Local Business Sections
+  HeaderSection,
+  OperatingHoursSection,
+  LocationDirectionsSection,
+  MenuPriceListSection,
+  SpecialOffersSection,
+  FAQSection,
+  GoogleReviewsSection,
+  BeforeAfterSection,
+  ProcessTimelineSection,
+  StatsCounterSection,
+  TeamSection,
+  FeaturesSection,
+  CTABannerSection,
+  ServicesDetailedSection
 };

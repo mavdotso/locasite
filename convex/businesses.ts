@@ -233,6 +233,17 @@ export const create = mutation({
                     metaTitle: v.string(),
                     metaDescription: v.string(),
                     keywords: v.array(v.string())
+                })),
+                testimonials: v.optional(v.object({
+                    title: v.string(),
+                    items: v.array(v.object({
+                        name: v.string(),
+                        text: v.string(),
+                        rating: v.number(),
+                        role: v.optional(v.string()),
+                        location: v.optional(v.string()),
+                        date: v.optional(v.string())
+                    }))
                 }))
             }))
         }),
@@ -397,6 +408,17 @@ export const update = mutation({
                     metaTitle: v.string(),
                     metaDescription: v.string(),
                     keywords: v.array(v.string())
+                })),
+                testimonials: v.optional(v.object({
+                    title: v.string(),
+                    items: v.array(v.object({
+                        name: v.string(),
+                        text: v.string(),
+                        rating: v.number(),
+                        role: v.optional(v.string()),
+                        location: v.optional(v.string()),
+                        date: v.optional(v.string())
+                    }))
                 }))
             }))
         }),
@@ -702,7 +724,9 @@ export const createBusinessFromPendingData = mutation({
                 metaDescription: v.string(),
                 keywords: v.array(v.string())
             }))
-        })))
+        }))),
+        generateAIContent: v.optional(v.boolean()),
+        applyTemplate: v.optional(v.boolean())
     },
     handler: async (ctx, args): Promise<{ businessId: Id<"businesses">; domainId: Id<"domains"> }> => {
         const user = await getUserFromAuth(ctx);
@@ -730,10 +754,12 @@ export const createBusinessFromPendingData = mutation({
         await ctx.db.patch(businessId, { domainId });
 
         // Create default pages as drafts
-        await ctx.runMutation(api.pages.createDefaultPages, {
+        console.log(`Creating default pages for business ${businessId} with domain ${domainId}`);
+        const { pageId } = await ctx.runMutation(api.pages.createDefaultPages, {
             domainId,
             businessId
         });
+        console.log(`Created page ${pageId} for business ${businessId}`);
 
         // Assign a theme based on business category
         const themeSuggestions = getThemeSuggestions(category, 1);

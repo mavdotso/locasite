@@ -1,9 +1,10 @@
 "use client";
 
-import { Preloaded, usePreloadedQuery } from "convex/react";
+import { Preloaded, usePreloadedQuery, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import BusinessPageContent from "@/components/business/business-page-content";
+import { VisualEditorRenderer } from "@/app/components/visual-editor/visual-editor-renderer";
+// Using simple loading div instead of skeleton
 
 interface BusinessPreviewWrapperProps {
   businessId: Id<"businesses">;
@@ -11,54 +12,45 @@ interface BusinessPreviewWrapperProps {
 }
 
 export function BusinessPreviewWrapper({
-  businessId: _businessId,
+  businessId,
   preloadedBusiness,
 }: BusinessPreviewWrapperProps) {
   const business = usePreloadedQuery(preloadedBusiness);
+  
+  // Get the domain for this business
+  const domain = useQuery(api.domains.getByBusinessId, business ? { businessId } : "skip");
+  
+  // Get the homepage for this domain
+  const page = useQuery(api.pages.getHomepageByDomain, domain ? { domainId: domain._id } : "skip");
 
   if (!business) {
     return <div>Business not found</div>;
   }
 
-  // Create default page content structure
-  const defaultContent = {
-    sections: [
-      {
-        type: "hero" as const,
-        title: business.name,
-        subtitle: business.description,
-        image: business.photos?.[0]
-      },
-      {
-        type: "info" as const,
-        address: business.address,
-        phone: business.phone,
-        email: business.email,
-        website: business.website,
-        hours: business.hours
-      },
-      {
-        type: "about" as const,
-        content: business.description || ""
-      },
-      {
-        type: "gallery" as const,
-        images: business.photos || []
-      },
-      {
-        type: "reviews" as const,
-        reviews: business.reviews || []
-      },
-      {
-        type: "contact" as const
-      }
-    ]
-  };
+  if (!domain || !page) {
+    return (
+      <div className="space-y-4">
+        <div className="h-16 w-full bg-muted animate-pulse rounded" />
+        <div className="h-96 w-full bg-muted animate-pulse rounded" />
+        <div className="h-64 w-full bg-muted animate-pulse rounded" />
+        <div className="h-32 w-full bg-muted animate-pulse rounded" />
+      </div>
+    );
+  }
+
+  // Parse the page content
+  let pageData;
+  try {
+    pageData = JSON.parse(page.content);
+  } catch (error) {
+    console.error("Failed to parse page content:", error);
+    return <div>Error loading page content</div>;
+  }
 
   return (
-    <BusinessPageContent
-      initialBusiness={business}
-      content={defaultContent}
+    <VisualEditorRenderer 
+      pageData={pageData} 
+      business={business}
     />
   );
 }

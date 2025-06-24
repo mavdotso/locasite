@@ -8,12 +8,8 @@ import {
   Smartphone,
   ZoomIn,
   ZoomOut,
-  Grid3x3,
-  Settings,
   Eye,
   EyeOff,
-  Download,
-  Upload,
   Maximize2
 } from "lucide-react";
 import {
@@ -44,12 +40,6 @@ interface CanvasControlsProps {
   onDeviceSizeChange: (size: DeviceSize) => void;
   zoom: number;
   onZoomChange: (zoom: number) => void;
-  showGrid: boolean;
-  onShowGridChange: (show: boolean) => void;
-  showRulers: boolean;
-  onShowRulersChange: (show: boolean) => void;
-  onExport?: () => void;
-  onImport?: () => void;
   isPreviewMode?: boolean;
   onPreviewModeChange?: (preview: boolean) => void;
 }
@@ -59,12 +49,6 @@ export default function CanvasControls({
   onDeviceSizeChange,
   zoom,
   onZoomChange,
-  showGrid,
-  onShowGridChange,
-  showRulers,
-  onShowRulersChange,
-  onExport,
-  onImport,
   isPreviewMode = false,
   onPreviewModeChange
 }: CanvasControlsProps) {
@@ -73,7 +57,7 @@ export default function CanvasControls({
   return (
     <>
       {/* Top Floating Controls */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
         <div className="flex items-center gap-1 bg-background/95 backdrop-blur-sm border rounded-lg shadow-lg p-1">
           {/* Device Size Controls */}
           <div className="flex items-center gap-0.5 px-1">
@@ -168,21 +152,6 @@ export default function CanvasControls({
 
           {/* View Options */}
           <div className="flex items-center gap-0.5 px-1">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant={showGrid ? "secondary" : "ghost"}
-                  size="sm"
-                  onClick={() => onShowGridChange(!showGrid)}
-                  className="h-8 w-8 p-0"
-                >
-                  <Grid3x3 className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{showGrid ? "Hide grid" : "Show grid"}</p>
-              </TooltipContent>
-            </Tooltip>
 
             {onPreviewModeChange && (
               <Tooltip>
@@ -205,70 +174,6 @@ export default function CanvasControls({
         </div>
       </div>
 
-      {/* Bottom Right Floating Actions */}
-      <div className="absolute bottom-4 right-4 z-20">
-        <div className="flex flex-col gap-2">
-          {onExport && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onExport}
-                  className="h-10 w-10 p-0 bg-background/95 backdrop-blur-sm shadow-lg"
-                >
-                  <Download className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="left">
-                <p>Export page</p>
-              </TooltipContent>
-            </Tooltip>
-          )}
-
-          {onImport && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onImport}
-                  className="h-10 w-10 p-0 bg-background/95 backdrop-blur-sm shadow-lg"
-                >
-                  <Upload className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="left">
-                <p>Import page</p>
-              </TooltipContent>
-            </Tooltip>
-          )}
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-10 w-10 p-0 bg-background/95 backdrop-blur-sm shadow-lg"
-              >
-                <Settings className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="left" align="end">
-              <DropdownMenuLabel>Canvas Settings</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onShowGridChange(!showGrid)}>
-                <Grid3x3 className="h-4 w-4 mr-2" />
-                {showGrid ? "Hide Grid" : "Show Grid"}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onShowRulersChange(!showRulers)}>
-                <Settings className="h-4 w-4 mr-2" />
-                {showRulers ? "Hide Rulers" : "Show Rulers"}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
     </>
   );
 }

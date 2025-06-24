@@ -4,7 +4,8 @@ import { notFound, useRouter } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { VisualEditor, PageData } from "@/app/components/visual-editor";
+import { LazyVisualEditor as VisualEditor } from "@/app/components/visual-editor/lazy-editor";
+import type { PageData } from "@/app/components/visual-editor/types";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect } from "react";
@@ -136,10 +137,23 @@ export default function BusinessEditClient({
     }
   };
 
+  // Debug logging
+  console.log('Business Edit Client Debug:', {
+    businessId,
+    business: business?.name,
+    domain: domain?.subdomain,
+    pagesCount: pages?.length || 0,
+    pages: pages?.map(p => ({ id: p._id, content: p.content ? 'has content' : 'no content' }))
+  });
+
   if (!domain || !pages) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading your website...</p>
+          {business && <p className="text-sm text-muted-foreground mt-2">{business.name}</p>}
+        </div>
       </div>
     );
   }

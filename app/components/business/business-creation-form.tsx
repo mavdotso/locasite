@@ -117,6 +117,9 @@ export default function BusinessCreationForm({ onSuccess, className }: BusinessC
         description: `Your ${businessData.name} website has been created.`,
       });
       
+      // Small delay to ensure pages are created and queries are updated
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       if (onSuccess) {
         onSuccess(businessId);
       } else {

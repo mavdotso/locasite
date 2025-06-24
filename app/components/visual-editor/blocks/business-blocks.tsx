@@ -34,6 +34,7 @@ export const HeaderBlock: ComponentConfig = {
         props: {
           width: "container",
           verticalPadding: "small",
+          mobileVerticalPadding: "small",
           backgroundColor: "default"
         },
         children: [
@@ -105,7 +106,8 @@ export const HeroBlock: ComponentConfig = {
           backgroundImageStyle: "cover",
           overlayOpacity: 0.6,
           width: "full",
-          verticalPadding: "xlarge"
+          verticalPadding: "xlarge",
+          mobileVerticalPadding: "large"
         },
         children: [
           {
@@ -203,6 +205,7 @@ export const AboutBlock: ComponentConfig = {
         props: {
           width: "container",
           verticalPadding: "large",
+          mobileVerticalPadding: "medium",
           backgroundColor: "default"
         },
         children: [
@@ -1512,7 +1515,36 @@ export const TestimonialsBlock: ComponentConfig = {
     );
   },
   isTemplate: true,
-  template: (_business?: unknown) => {
+  template: (business?: unknown) => {
+    const businessData = business as Doc<"businesses"> | undefined;
+    
+    // Check if we have AI-generated testimonials
+    // const hasAITestimonials = businessData?.aiGeneratedContent?.testimonials?.items && 
+    //                          businessData.aiGeneratedContent.testimonials.items.length > 0;
+    
+    // Use AI testimonials if available, otherwise fall back to default
+    const testimonialTitle = businessData?.aiGeneratedContent?.testimonials?.title || "What Our Customers Say";
+    // TODO: Update template to use dynamic testimonials from AI content
+    // const testimonialItems = businessData?.aiGeneratedContent?.testimonials?.items || [
+    //   {
+    //     name: "John Smith",
+    //     text: "Amazing service! The team was professional, punctual, and exceeded all our expectations. Highly recommend to anyone looking for quality work.",
+    //     rating: 5,
+    //     role: "Local Business Owner"
+    //   },
+    //   {
+    //     name: "Sarah Johnson",
+    //     text: "Outstanding experience from start to finish. They really care about their customers and it shows in their work. Will definitely use again!",
+    //     rating: 5,
+    //     role: "Happy Customer"
+    //   },
+    //   {
+    //     name: "Michael Davis",
+    //     text: "Professional, reliable, and affordable. They went above and beyond to ensure we were satisfied. Can't ask for better service!",
+    //     rating: 5,
+    //     role: "Satisfied Client"
+    //   }
+    // ];
     return [
       {
         type: "SectionBlock",
@@ -1525,7 +1557,7 @@ export const TestimonialsBlock: ComponentConfig = {
           {
             type: "TextBlock",
             props: {
-              content: "What Our Customers Say",
+              content: testimonialTitle,
               variant: "h2",
               align: "center"
             }

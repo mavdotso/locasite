@@ -37,7 +37,21 @@ export default function BusinessReviews({ reviews, className }: BusinessReviewsP
                                 </div>
                             </CardHeader>
                             <CardContent>
-                                <p className="mb-3 text-foreground">{review.text}</p>
+                                <p className="mb-3 text-foreground">
+                                    {(() => {
+                                        const reviewAsUnknown = review as unknown;
+                                        const reviewAsRecord = reviewAsUnknown as Record<string, unknown>;
+                                        
+                                        const reviewText = reviewAsRecord.textValue || 
+                                                          reviewAsRecord.review_text || 
+                                                          reviewAsRecord.content || 
+                                                          reviewAsRecord.description || 
+                                                          review.text || 
+                                                          'No review text found in BusinessReviews';
+                                        
+                                        return String(reviewText);
+                                    })()}
+                                </p>
                                 <p className="font-medium text-muted-foreground text-sm">— {review.author_name}</p>
                             </CardContent>
                         </Card>

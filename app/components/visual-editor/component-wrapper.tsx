@@ -33,7 +33,7 @@ interface ComponentWrapperProps {
   isNested?: boolean;
 }
 
-export default function ComponentWrapper({
+const ComponentWrapper = React.memo(function ComponentWrapper({
   component,
   isSelected,
   isEditMode,
@@ -47,6 +47,46 @@ export default function ComponentWrapper({
   isNested = false
 }: ComponentWrapperProps) {
   const { startDrag } = useDragDrop();
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
+
+  // Keyboard navigation
+  React.useEffect(() => {
+    if (isSelected && wrapperRef.current) {
+      wrapperRef.current.focus();
+    }
+  }, [isSelected]);
+
+  const handleKeyDown = React.useCallback((e: React.KeyboardEvent) => {
+    if (!isEditMode || !isSelected) return;
+
+    switch (e.key) {
+      case 'ArrowUp':
+        if (e.altKey && canMoveUp) {
+          e.preventDefault();
+          onMove('up');
+        }
+        break;
+      case 'ArrowDown':
+        if (e.altKey && canMoveDown) {
+          e.preventDefault();
+          onMove('down');
+        }
+        break;
+      case 'Delete':
+      case 'Backspace':
+        if (e.metaKey || e.ctrlKey) {
+          e.preventDefault();
+          onRemove();
+        }
+        break;
+      case 'd':
+        if ((e.metaKey || e.ctrlKey) && onDuplicate) {
+          e.preventDefault();
+          onDuplicate();
+        }
+        break;
+    }
+  }, [isEditMode, isSelected, canMoveUp, canMoveDown, onMove, onRemove, onDuplicate]);
 
   const handleDragStart = (e: React.DragEvent) => {
     e.stopPropagation();
@@ -87,15 +127,22 @@ export default function ComponentWrapper({
 
   return (
     <div
+      ref={wrapperRef}
       className={cn(
         "relative group transition-all duration-200",
         isSelected && "ring-2 ring-primary ring-offset-2",
-        "hover:ring-2 hover:ring-primary/30 hover:ring-offset-1"
+        "hover:ring-2 hover:ring-primary/30 hover:ring-offset-1",
+        "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
       )}
       onClick={(e) => {
         e.stopPropagation();
         onSelect();
       }}
+      onKeyDown={handleKeyDown}
+      tabIndex={isEditMode ? 0 : -1}
+      role={isEditMode ? "button" : undefined}
+      aria-label={`${component.type.replace(/Block$/, '')} component${isSelected ? ' (selected)' : ''}`}
+      aria-selected={isEditMode ? isSelected : undefined}
       style={{
         cursor: isEditMode ? 'pointer' : 'default'
       }}
@@ -115,7 +162,7 @@ export default function ComponentWrapper({
               onDragStart={handleDragStart}
               className="cursor-move p-1.5 hover:bg-muted rounded transition-colors touch-none select-none"
             >
-              <GripVertical className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
+              <GripVertical className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" aria-hidden="true" />
             </div>
           </TooltipTrigger>
           <TooltipContent>
@@ -138,7 +185,7 @@ export default function ComponentWrapper({
                   disabled={!canMoveUp}
                   className="h-8 w-8 p-0 transition-all hover:bg-primary/10"
                 >
-                  <ChevronUp className="w-4 h-4" />
+                  <ChevronUp className="w-4 h-4" aria-hidden="true" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -158,7 +205,7 @@ export default function ComponentWrapper({
                   disabled={!canMoveDown}
                   className="h-8 w-8 p-0 transition-all hover:bg-primary/10"
                 >
-                  <ChevronDown className="w-4 h-4" />
+                  <ChevronDown className="w-4 h-4" aria-hidden="true" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -181,7 +228,7 @@ export default function ComponentWrapper({
                 }}
                 className="h-8 w-8 p-0 transition-all hover:bg-primary/10"
               >
-                <Copy className="w-4 h-4" />
+                <Copy className="w-4 h-4" aria-hidden="true" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -202,7 +249,7 @@ export default function ComponentWrapper({
               }}
               className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 transition-all"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-4 h-4" aria-hidden="true" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
@@ -222,4 +269,6 @@ export default function ComponentWrapper({
       </div>
     </div>
   );
-}
+});
+
+export default ComponentWrapper;

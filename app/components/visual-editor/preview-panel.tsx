@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { ComponentData, PageData } from "./types";
 import { allComponentConfigs as componentConfigs } from "./config/all-components";
 import { useDragDrop } from "./drag-drop-provider";
 import DropZone from "./drop-zone";
 import ComponentWrapper from "./component-wrapper";
-import { cn } from "@/app/lib/utils";
 import { Doc } from "@/convex/_generated/dataModel";
 import NestedDropZone from "./nested-drop-zone";
 import ColumnsDropZone from "./columns-drop-zone";
 import CanvasControls, { DeviceSize, deviceSizes } from "./canvas-controls";
+import ResponsiveFrame from "./responsive-frame-stable";
 
 interface PreviewPanelProps {
   pageData: PageData;
@@ -26,7 +26,7 @@ interface PreviewPanelProps {
 }
 
 
-export default function PreviewPanel({
+const PreviewPanel = React.memo(function PreviewPanel({
   pageData,
   business,
   selectedComponentId,
@@ -40,8 +40,6 @@ export default function PreviewPanel({
 }: PreviewPanelProps) {
   const [deviceSize, setDeviceSize] = useState<DeviceSize>("desktop");
   const [zoom, setZoom] = useState(100);
-  const [showGrid, setShowGrid] = useState(false);
-  const [showRulers, setShowRulers] = useState(false);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const { draggedItem } = useDragDrop();
 
@@ -61,7 +59,7 @@ export default function PreviewPanel({
     }
   };
 
-  const renderComponent = (component: ComponentData, _index: number): React.ReactNode => {
+  const renderComponent = useCallback((component: ComponentData, _index: number): React.ReactNode => {
     const config = componentConfigs[component.type];
     if (!config) return null;
 
@@ -151,65 +149,29 @@ export default function PreviewPanel({
     };
 
     return config.render(componentProps, isEditMode, business, children, handleUpdate);
-  };
+  }, [business, selectedComponentId, onSelectComponent, onRemoveComponent, onUpdateComponent, onDuplicateComponent, isEditMode]);
 
   const effectiveEditMode = isEditMode && !isPreviewMode;
 
   return (
     <div className="h-full relative bg-muted/30">
-      {/* Canvas Controls */}
-      {isEditMode && (
-        <CanvasControls
-          deviceSize={deviceSize}
-          onDeviceSizeChange={setDeviceSize}
-          zoom={zoom}
-          onZoomChange={setZoom}
-          showGrid={showGrid}
-          onShowGridChange={setShowGrid}
-          showRulers={showRulers}
-          onShowRulersChange={setShowRulers}
-          isPreviewMode={isPreviewMode}
-          onPreviewModeChange={setIsPreviewMode}
-        />
-      )}
+      
 
       {/* Canvas Area */}
-      <div 
-        className="h-full overflow-auto"
-        style={{
-          background: showGrid 
-            ? `
-              linear-gradient(to right, #e5e5e5 1px, transparent 1px),
-              linear-gradient(to bottom, #e5e5e5 1px, transparent 1px)
-            `
-            : undefined,
-          backgroundSize: showGrid ? '20px 20px' : undefined
-        }}
-      >
+      <div className="h-full overflow-hidden flex items-center justify-center p-4">
         <div
-          className="min-h-full flex items-start justify-center p-8"
+          className="flex items-start justify-center"
           style={{
             transform: `scale(${zoom / 100})`,
-            transformOrigin: 'top center'
+            transformOrigin: 'center center',
+            height: `${100 / (zoom / 100)}%`,
+            width: '100%'
           }}
         >
-          <div
-            className={cn(
-              "bg-background shadow-xl transition-all duration-300",
-              deviceSize === "tablet" && "max-w-[768px]",
-              deviceSize === "mobile" && "max-w-[375px]",
-              "w-full"
-            )}
-            style={{ 
-              minHeight: "100vh",
-              width: deviceSize === "desktop" ? "100%" : deviceSizes[deviceSize].width
-            }}
+          <ResponsiveFrame 
+            width={deviceSize === "desktop" ? "100%" : deviceSizes[deviceSize].width}
+            className="bg-background shadow-xl"
           >
-            {/* Page Title */}
-            <div className="p-8 border-b">
-              <h1 className="text-3xl font-bold">{pageData.title}</h1>
-            </div>
-
             {/* Components */}
             <div className="relative">
               {/* Initial drop zone */}
@@ -296,9 +258,22 @@ export default function PreviewPanel({
                 );
               })}
             </div>
-          </div>
+            </ResponsiveFrame>
         </div>
       </div>
+      {/* Canvas Controls */}
+      {isEditMode && (
+        <CanvasControls
+          deviceSize={deviceSize}
+          onDeviceSizeChange={setDeviceSize}
+          zoom={zoom}
+          onZoomChange={setZoom}
+          isPreviewMode={isPreviewMode}
+          onPreviewModeChange={setIsPreviewMode}
+        />
+      )}
     </div>
   );
-}
+});
+
+export default PreviewPanel;
