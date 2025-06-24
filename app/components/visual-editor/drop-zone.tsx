@@ -13,7 +13,7 @@ interface DropZoneProps {
   showAlways?: boolean;
 }
 
-export default function DropZone({ id, index, onDrop, className, showAlways = false }: DropZoneProps) {
+const DropZone = React.memo(function DropZone({ id, index, onDrop, className, showAlways = false }: DropZoneProps) {
   const { isDragging, dropTargetId, setDropTarget, endDrag, draggedItem } = useDragDrop();
   
   // Check if the dragged item is a template
@@ -81,7 +81,7 @@ export default function DropZone({ id, index, onDrop, className, showAlways = fa
         className={cn(
           "absolute inset-x-0 top-1/2 -translate-y-1/2 rounded-lg transition-all duration-300 ease-out",
           isActive 
-            ? "h-16 bg-primary/10 border-2 border-dashed border-primary" 
+            ? "h-16 bg-primary/10 border-2 border-dashed border-primary shadow-lg shadow-primary/20" 
             : isDragging 
               ? "h-0.5 bg-muted-foreground/30 hover:h-1 hover:bg-muted-foreground/50" 
               : "bg-transparent"
@@ -89,12 +89,22 @@ export default function DropZone({ id, index, onDrop, className, showAlways = fa
       >
         {isActive && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-md">
+            <div className={cn(
+              "px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-md transition-all",
+              "animate-in fade-in-0 zoom-in-95 duration-300"
+            )}>
               Drop to place here
             </div>
+          </div>
+        )}
+        {isActive && (
+          <div className="absolute inset-0 rounded-lg overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 animate-shimmer" />
           </div>
         )}
       </div>
     </div>
   );
-}
+});
+
+export default DropZone;

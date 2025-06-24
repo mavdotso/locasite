@@ -1,15 +1,15 @@
 'use client';
 
 import React from 'react';
-import { PageData, ComponentData } from './types';
+import { PageData, ComponentData, BusinessData } from './types';
 import { allComponentConfigs } from './config/all-components';
 
 interface VisualEditorRendererProps {
   pageData: PageData;
-  business?: unknown;
+  business?: BusinessData;
 }
 
-function renderComponent(component: ComponentData, business?: unknown): React.ReactNode {
+function renderComponent(component: ComponentData, business?: BusinessData): React.ReactNode {
   const config = allComponentConfigs[component.type];
   
   if (!config) {

@@ -1,5 +1,10 @@
 // Type definitions for the visual editor
 
+import { Doc } from "@/convex/_generated/dataModel";
+
+// Business type alias for better type safety
+export type BusinessData = Doc<"businesses">;
+
 // Field type definitions
 export type FieldType = 
   | "text" 
@@ -81,7 +86,7 @@ export interface ComponentConfig {
   render: (
     props: Record<string, unknown>, 
     editMode?: boolean, 
-    business?: unknown, 
+    business?: BusinessData, 
     children?: React.ReactNode,
     onUpdate?: (newProps: Record<string, unknown>) => void
   ) => React.ReactNode;
@@ -90,7 +95,7 @@ export interface ComponentConfig {
   acceptsChildren?: boolean; // Whether this component can contain other components
   inline?: boolean; // Whether this is an inline element (for text flow)
   isTemplate?: boolean; // Whether this is a template that returns multiple blocks
-  template?: (business?: unknown) => ComponentTemplate[]; // Template definition
+  template?: (business?: BusinessData) => ComponentTemplate[]; // Template definition
 }
 
 // Template block structure

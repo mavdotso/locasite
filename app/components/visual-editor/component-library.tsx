@@ -275,22 +275,44 @@ export default function ComponentLibrary() {
     
     collectTypes(tree);
     
-    // Add remaining components in a "Components" section
-    const remainingComponents = Object.entries(componentConfigs)
-      .filter(([type]) => !addedTypes.has(type))
-      .map(([type, config]) => ({
-        label: formatComponentName(type),
-        componentType: type,
-        icon: config.icon
-      }));
+    // Add remaining components, organized by category
+    const templateComponents: TreeNode[] = [];
+    const sectionComponents: TreeNode[] = [];
     
-    if (remainingComponents.length > 0) {
+    Object.entries(componentConfigs).forEach(([type, config]) => {
+      if (!addedTypes.has(type)) {
+        const node = {
+          label: formatComponentName(type),
+          componentType: type,
+          icon: config.icon
+        };
+        
+        if (config.isTemplate) {
+          templateComponents.push(node);
+        } else if (type.includes('Section')) {
+          sectionComponents.push(node);
+        }
+      }
+    });
+    
+    if (templateComponents.length > 0) {
       tree.push({
-        label: "Components",
+        label: "Templates",
         icon: Layout,
-        children: remainingComponents
+        children: templateComponents,
+        count: templateComponents.length
       });
     }
+    
+    if (sectionComponents.length > 0) {
+      tree.push({
+        label: "Sections",
+        icon: Layout,
+        children: sectionComponents,
+        count: sectionComponents.length
+      });
+    }
+    
     return tree;
   }, []);
 

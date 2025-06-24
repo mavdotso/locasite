@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { ComponentData, PageData } from "./types";
 import { allComponentConfigs as componentConfigs } from "./config/all-components";
 import { useDragDrop } from "./drag-drop-provider";
@@ -26,7 +26,7 @@ interface PreviewPanelProps {
 }
 
 
-export default function PreviewPanel({
+const PreviewPanel = React.memo(function PreviewPanel({
   pageData,
   business,
   selectedComponentId,
@@ -61,7 +61,7 @@ export default function PreviewPanel({
     }
   };
 
-  const renderComponent = (component: ComponentData, _index: number): React.ReactNode => {
+  const renderComponent = useCallback((component: ComponentData, _index: number): React.ReactNode => {
     const config = componentConfigs[component.type];
     if (!config) return null;
 
@@ -151,7 +151,7 @@ export default function PreviewPanel({
     };
 
     return config.render(componentProps, isEditMode, business, children, handleUpdate);
-  };
+  }, [business, selectedComponentId, onSelectComponent, onRemoveComponent, onUpdateComponent, onDuplicateComponent, isEditMode]);
 
   const effectiveEditMode = isEditMode && !isPreviewMode;
 
@@ -301,4 +301,6 @@ export default function PreviewPanel({
       </div>
     </div>
   );
-}
+});
+
+export default PreviewPanel;

@@ -59,6 +59,8 @@ export default function VisualEditor({
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [showPublishDialog, setShowPublishDialog] = useState(false);
+  const [copiedComponent, setCopiedComponent] = useState<ComponentData | null>(null);
+  const [showStats, setShowStats] = useState(false);
 
   const updatePage = useMutation(api.pages.updatePage);
   const publishBusiness = useMutation(api.businesses.publish);
@@ -453,6 +455,48 @@ export default function VisualEditor({
   
   const selectedComponent = selectedComponentId ? findComponent(pageData.components, selectedComponentId) : null;
 
+  // Copy component
+  const handleCopyComponent = useCallback((component: ComponentData) => {
+    setCopiedComponent(component);
+    toast.success("Component copied to clipboard");
+  }, []);
+
+  // Paste component
+  const handlePasteComponent = useCallback(() => {
+    if (!copiedComponent) return;
+
+    const deepCopyComponent = (comp: ComponentData): ComponentData => {
+      return {
+        ...comp,
+        id: generateId(),
+        children: comp.children?.map(child => deepCopyComponent(child))
+      };
+    };
+
+    const newComponent = deepCopyComponent(copiedComponent);
+    handleAddComponent(newComponent.type, pageData.components.length, undefined, newComponent.props);
+    toast.success("Component pasted");
+  }, [copiedComponent, pageData.components.length, handleAddComponent]);
+
+  // Calculate stats
+  const calculateStats = useCallback(() => {
+    let totalComponents = 0;
+    const componentsByType: Record<string, number> = {};
+
+    const countComponents = (components: ComponentData[]) => {
+      components.forEach(comp => {
+        totalComponents++;
+        componentsByType[comp.type] = (componentsByType[comp.type] || 0) + 1;
+        if (comp.children) {
+          countComponents(comp.children);
+        }
+      });
+    };
+
+    countComponents(pageData.components);
+    return { totalComponents, componentsByType };
+  }, [pageData.components]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -476,11 +520,26 @@ export default function VisualEditor({
         e.preventDefault();
         setShowHelp(!showHelp);
       }
+      // Copy: Ctrl/Cmd + C
+      if ((e.ctrlKey || e.metaKey) && e.key === 'c' && selectedComponent) {
+        e.preventDefault();
+        handleCopyComponent(selectedComponent);
+      }
+      // Paste: Ctrl/Cmd + V
+      if ((e.ctrlKey || e.metaKey) && e.key === 'v' && copiedComponent) {
+        e.preventDefault();
+        handlePasteComponent();
+      }
+      // Stats: Ctrl/Cmd + I
+      if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
+        e.preventDefault();
+        setShowStats(!showStats);
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showHelp, handleRedo, handleSave, handleUndo]);
+  }, [showHelp, handleRedo, handleSave, handleUndo, selectedComponent, handleCopyComponent, copiedComponent, handlePasteComponent, showStats]);
 
   // Auto-save functionality
   useEffect(() => {
@@ -542,6 +601,9 @@ export default function VisualEditor({
                 )}
                 {autoSaveEnabled && lastSaved && !hasUnsavedChanges && (
                   <span>Saved</span>
+                )}
+                {copiedComponent && (
+                  <span className="text-primary">Component copied</span>
                 )}
               </div>
             </div>
@@ -648,6 +710,18 @@ export default function VisualEditor({
                 <span className="text-muted-foreground">Help</span>
                 <kbd className="px-2 py-0.5 bg-muted rounded text-xs">Ctrl+/</kbd>
               </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Copy</span>
+                <kbd className="px-2 py-0.5 bg-muted rounded text-xs">Ctrl+C</kbd>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Paste</span>
+                <kbd className="px-2 py-0.5 bg-muted rounded text-xs">Ctrl+V</kbd>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Stats</span>
+                <kbd className="px-2 py-0.5 bg-muted rounded text-xs">Ctrl+I</kbd>
+              </div>
             </div>
             <div className="mt-4 pt-3 border-t space-y-2">
               <p className="text-xs text-muted-foreground">
@@ -673,6 +747,48 @@ export default function VisualEditor({
             </div>
           </div>
         )}
+
+        {/* Stats Overlay */}
+        {showStats && (() => {
+          const stats = calculateStats();
+          return (
+            <div className="absolute top-16 right-4 z-50 bg-background border border-border/50 rounded-lg shadow-lg p-5 max-w-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold flex items-center gap-2 text-foreground">
+                  <Info className="h-4 w-4" />
+                  Page Statistics
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowStats(false)}
+                  className="h-7 w-7 p-0 hover:bg-muted"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <p className="text-sm font-medium">Total Components</p>
+                  <p className="text-2xl font-bold text-primary">{stats.totalComponents}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium mb-2">Components by Type</p>
+                  <div className="space-y-1">
+                    {Object.entries(stats.componentsByType)
+                      .sort(([,a], [,b]) => b - a)
+                      .map(([type, count]) => (
+                        <div key={type} className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">{type.replace(/Block$/, '')}</span>
+                          <span className="font-medium">{count}</span>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Main Content */}
         <div className="flex-1 flex overflow-hidden">
