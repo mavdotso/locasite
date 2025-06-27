@@ -1,10 +1,10 @@
 import { ComponentConfig } from "../types";
-import { 
-  TextBlock, 
+import {
+  TextBlock,
   ImageBlock,
   LogoBlock,
-  ButtonBlock, 
-  SpacerBlock, 
+  ButtonBlock,
+  SpacerBlock,
   DividerBlock,
   VideoBlock,
   IconBlock,
@@ -16,7 +16,8 @@ import {
   ListBlock,
   GalleryGridBlock,
   AlertBlock,
-  NavigationBlock
+  NavigationBlock,
+  ContactFormBlock,
 } from "../blocks/basic-blocks";
 import {
   SectionBlock,
@@ -24,7 +25,7 @@ import {
   CardBlock,
   AccordionBlock,
   TabsBlock,
-  ColumnContentBlock
+  ColumnContentBlock,
 } from "../blocks/container-blocks";
 import {
   HeaderBlock,
@@ -36,7 +37,7 @@ import {
   ContactBlock,
   TeamBlock,
   CTABlock,
-  FooterBlock
+  FooterBlock,
 } from "../blocks/business-blocks";
 import {
   HeaderSection,
@@ -52,7 +53,7 @@ import {
   TeamSection,
   FeaturesSection,
   CTABannerSection,
-  ServicesDetailedSection
+  ServicesDetailedSection,
 } from "../blocks/local-business-sections";
 
 // Combine all components
@@ -62,7 +63,7 @@ export const allComponentConfigs: Record<string, ComponentConfig> = {
   ColumnsBlock,
   ColumnContentBlock,
   CardBlock,
-  
+
   // Basic Content Blocks
   TextBlock,
   ImageBlock,
@@ -76,18 +77,19 @@ export const allComponentConfigs: Record<string, ComponentConfig> = {
   GalleryGridBlock,
   AlertBlock,
   NavigationBlock,
-  
+  ContactFormBlock,
+
   // Business-Specific Blocks
   BadgeBlock,
   ReviewStarsBlock,
   BusinessHoursBlock,
   SocialLinksBlock,
   PaymentMethodsBlock,
-  
+
   // Interactive Components
   AccordionBlock,
   TabsBlock,
-  
+
   // Business Templates (expand into full sections)
   HeaderBlock,
   HeroBlock,
@@ -99,7 +101,7 @@ export const allComponentConfigs: Record<string, ComponentConfig> = {
   TeamBlock,
   CTABlock,
   FooterBlock,
-  
+
   // Local Business Sections
   HeaderSection,
   OperatingHoursSection,
@@ -114,5 +116,5 @@ export const allComponentConfigs: Record<string, ComponentConfig> = {
   TeamSection,
   FeaturesSection,
   CTABannerSection,
-  ServicesDetailedSection
+  ServicesDetailedSection,
 };
