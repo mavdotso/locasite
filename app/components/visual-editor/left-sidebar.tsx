@@ -2,14 +2,10 @@
 
 import React, { useState } from "react";
 import { PageData, ComponentData } from "./types";
-import ComponentLibrary from "./component-library";
+import LazyComponentLibrary from "./lazy-component-library";
 import { cn } from "@/app/lib/utils";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
-import { 
-  ChevronDown,
-  FileText,
-  Layers
-} from "lucide-react";
+import { ChevronDown, FileText, Layers } from "lucide-react";
 import { allComponentConfigs as componentConfigs } from "./config/all-components";
 
 interface LeftSidebarProps {
@@ -27,27 +23,27 @@ interface ComponentItemProps {
   onToggleExpand: (id: string) => void;
 }
 
-function ComponentItem({ 
-  component, 
-  depth, 
-  selectedComponentId, 
+function ComponentItem({
+  component,
+  depth,
+  selectedComponentId,
   onSelectComponent,
   expandedComponents,
-  onToggleExpand 
+  onToggleExpand,
 }: ComponentItemProps) {
   const config = componentConfigs[component.type];
   const Icon = config?.icon || FileText;
   const label = component.type.replace(/Block$|Section$/, "");
   const hasChildren = component.children && component.children.length > 0;
   const isExpanded = expandedComponents.has(component.id);
-  
+
   return (
     <>
       <div
         className={cn(
           "flex items-center gap-1 px-2 py-1.5 rounded-md cursor-pointer transition-colors group",
           "hover:bg-muted",
-          selectedComponentId === component.id && "bg-accent/10"
+          selectedComponentId === component.id && "bg-accent/10",
         )}
         style={{ paddingLeft: `${8 + depth * 24}px` }}
         onClick={() => onSelectComponent(component.id)}
@@ -61,10 +57,10 @@ function ComponentItem({
             }}
             className="p-0.5 hover:bg-muted-foreground/10 rounded"
           >
-            <ChevronDown 
+            <ChevronDown
               className={cn(
                 "w-3 h-3 text-muted-foreground transition-transform",
-                !isExpanded && "-rotate-90"
+                !isExpanded && "-rotate-90",
               )}
             />
           </button>
@@ -73,10 +69,12 @@ function ComponentItem({
         <Icon className="w-4 h-4 text-muted-foreground flex-shrink-0" />
         <span className="text-sm flex-1 truncate">{label}</span>
         {hasChildren && (
-          <span className="text-xs text-muted-foreground">{component.children!.length}</span>
+          <span className="text-xs text-muted-foreground">
+            {component.children!.length}
+          </span>
         )}
       </div>
-      
+
       {hasChildren && isExpanded && (
         <>
           {component.children!.map((child) => (
@@ -99,13 +97,15 @@ function ComponentItem({
 export default function LeftSidebar({
   pageData,
   selectedComponentId,
-  onSelectComponent
+  onSelectComponent,
 }: LeftSidebarProps) {
   const [isStructureExpanded, setIsStructureExpanded] = useState(true);
-  const [expandedComponents, setExpandedComponents] = useState<Set<string>>(new Set());
-  
+  const [expandedComponents, setExpandedComponents] = useState<Set<string>>(
+    new Set(),
+  );
+
   const toggleComponentExpand = (id: string) => {
-    setExpandedComponents(prev => {
+    setExpandedComponents((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
         next.delete(id);
@@ -119,10 +119,12 @@ export default function LeftSidebar({
   return (
     <div className="h-full flex flex-col bg-background">
       {/* Page Structure Section (max 1/3 height) */}
-      <div className={cn(
-        "border-b border-border/50 transition-all duration-300",
-        isStructureExpanded ? "max-h-[33.333%]" : "h-auto"
-      )}>
+      <div
+        className={cn(
+          "border-b border-border/50 transition-all duration-300",
+          isStructureExpanded ? "max-h-[33.333%]" : "h-auto",
+        )}
+      >
         {/* Header */}
         <button
           type="button"
@@ -133,14 +135,14 @@ export default function LeftSidebar({
             <Layers className="w-4 h-4 text-muted-foreground" />
             <h3 className="font-semibold text-sm">Page Structure</h3>
           </div>
-          <ChevronDown 
+          <ChevronDown
             className={cn(
               "w-4 w-4 text-muted-foreground transition-transform duration-200",
-              !isStructureExpanded && "-rotate-90"
-            )} 
+              !isStructureExpanded && "-rotate-90",
+            )}
           />
         </button>
-        
+
         {/* Content */}
         {isStructureExpanded && (
           <ScrollArea className="h-full max-h-[calc(33.333vh-44px)]">
@@ -170,10 +172,10 @@ export default function LeftSidebar({
           </ScrollArea>
         )}
       </div>
-      
+
       {/* Component Library Section (remaining height) */}
       <div className="flex-1 min-h-0">
-        <ComponentLibrary />
+        <LazyComponentLibrary />
       </div>
     </div>
   );

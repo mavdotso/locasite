@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { ComponentData } from "./types";
 import { allComponentConfigs as componentConfigs } from "./config/all-components";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
@@ -14,7 +14,12 @@ import SelectField from "./fields/select-field";
 import NumberField from "./fields/number-field";
 import ArrayField from "./fields/array-field";
 import LayoutControls from "./layout-controls";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/app/components/ui/tabs";
 import { LayoutOptions, Field } from "./types";
 
 interface FieldEditorProps {
@@ -34,59 +39,102 @@ interface FieldSection {
 function getFieldSections(fields: Record<string, Field>): FieldSection[] {
   const sections: FieldSection[] = [];
   const fieldNames = Object.keys(fields);
-  
+
   // Content fields
-  const contentFields = fieldNames.filter(name => 
-    ['content', 'text', 'title', 'description', 'caption', 'label', 'subtext', 'message'].includes(name)
+  const contentFields = fieldNames.filter((name) =>
+    [
+      "content",
+      "text",
+      "title",
+      "description",
+      "caption",
+      "label",
+      "subtext",
+      "message",
+    ].includes(name),
   );
   if (contentFields.length > 0) {
     sections.push({ title: "Content", fields: contentFields });
   }
-  
+
   // Media fields
-  const mediaFields = fieldNames.filter(name => 
-    ['src', 'image', 'backgroundImage', 'logoImage', 'url', 'video'].includes(name)
+  const mediaFields = fieldNames.filter((name) =>
+    ["src", "image", "backgroundImage", "logoImage", "url", "video"].includes(
+      name,
+    ),
   );
   if (mediaFields.length > 0) {
     sections.push({ title: "Media", fields: mediaFields });
   }
-  
+
   // Style fields
-  const styleFields = fieldNames.filter(name => 
-    ['variant', 'style', 'size', 'color', 'backgroundColor', 'textColor', 'align', 'direction'].includes(name)
+  const styleFields = fieldNames.filter((name) =>
+    [
+      "variant",
+      "style",
+      "size",
+      "color",
+      "backgroundColor",
+      "textColor",
+      "align",
+      "direction",
+    ].includes(name),
   );
   if (styleFields.length > 0) {
     sections.push({ title: "Style", fields: styleFields });
   }
-  
+
   // Layout fields
-  const layoutFields = fieldNames.filter(name => 
-    ['width', 'height', 'padding', 'margin', 'gap', 'columns', 'fullWidth', 'aspectRatio'].includes(name)
+  const layoutFields = fieldNames.filter((name) =>
+    [
+      "width",
+      "height",
+      "padding",
+      "margin",
+      "gap",
+      "columns",
+      "fullWidth",
+      "aspectRatio",
+    ].includes(name),
   );
   if (layoutFields.length > 0) {
     sections.push({ title: "Layout", fields: layoutFields });
   }
-  
+
   // Other fields
-  const usedFields = new Set([...contentFields, ...mediaFields, ...styleFields, ...layoutFields]);
-  const otherFields = fieldNames.filter(name => !usedFields.has(name) && !fields[name].hidden);
+  const usedFields = new Set([
+    ...contentFields,
+    ...mediaFields,
+    ...styleFields,
+    ...layoutFields,
+  ]);
+  const otherFields = fieldNames.filter(
+    (name) => !usedFields.has(name) && !fields[name].hidden,
+  );
   if (otherFields.length > 0) {
     sections.push({ title: "Other", fields: otherFields });
   }
-  
+
   return sections;
 }
 
-export default function FieldEditor({ 
-  component, 
+const FieldEditor = React.memo(function FieldEditor({
+  component,
   onUpdate,
-  onUpdateLayout, 
+  onUpdateLayout,
   onClose,
-  businessId 
+  businessId,
 }: FieldEditorProps) {
   // Get config and sections before any conditional returns
-  const config = component ? componentConfigs[component.type] : null;
-  const fieldSections = config ? getFieldSections(config.fields) : [];
+  const config = useMemo(
+    () => (component ? componentConfigs[component.type] : null),
+    [component?.type],
+  );
+
+  const fieldSections = useMemo(
+    () => (config ? getFieldSections(config.fields) : []),
+    [config],
+  );
 
   if (!component) {
     return (
@@ -111,7 +159,7 @@ export default function FieldEditor({
   const handleFieldChange = (fieldName: string, value: unknown) => {
     onUpdate({
       ...component.props,
-      [fieldName]: value
+      [fieldName]: value,
     });
   };
 
@@ -125,7 +173,7 @@ export default function FieldEditor({
           <TextField
             key={fieldName}
             field={field}
-            value={value as string || ""}
+            value={(value as string) || ""}
             onChange={(val) => handleFieldChange(fieldName, val)}
           />
         );
@@ -135,7 +183,7 @@ export default function FieldEditor({
           <TextareaField
             key={fieldName}
             field={field}
-            value={value as string || ""}
+            value={(value as string) || ""}
             onChange={(val) => handleFieldChange(fieldName, val)}
           />
         );
@@ -145,7 +193,7 @@ export default function FieldEditor({
           <ImageField
             key={fieldName}
             field={field}
-            value={value as string || ""}
+            value={(value as string) || ""}
             onChange={(val) => handleFieldChange(fieldName, val)}
             businessId={businessId}
           />
@@ -156,7 +204,7 @@ export default function FieldEditor({
           <ColorField
             key={fieldName}
             field={field}
-            value={value as string || ""}
+            value={(value as string) || ""}
             onChange={(val) => handleFieldChange(fieldName, val)}
           />
         );
@@ -166,7 +214,7 @@ export default function FieldEditor({
           <SelectField
             key={fieldName}
             field={field}
-            value={value as string || ""}
+            value={(value as string) || ""}
             onChange={(val) => handleFieldChange(fieldName, val)}
           />
         );
@@ -176,7 +224,7 @@ export default function FieldEditor({
           <NumberField
             key={fieldName}
             field={field}
-            value={value as number || 0}
+            value={(value as number) || 0}
             onChange={(val) => handleFieldChange(fieldName, val)}
           />
         );
@@ -186,7 +234,7 @@ export default function FieldEditor({
           <ArrayField
             key={fieldName}
             field={field}
-            value={value as unknown[] || []}
+            value={(value as unknown[]) || []}
             onChange={(val) => handleFieldChange(fieldName, val)}
             businessId={businessId}
           />
@@ -218,12 +266,21 @@ export default function FieldEditor({
         </Button>
       </div>
 
-      <Tabs defaultValue="properties" className="flex-1 flex flex-col overflow-hidden">
+      <Tabs
+        defaultValue="properties"
+        className="flex-1 flex flex-col overflow-hidden"
+      >
         <TabsList className="w-full rounded-none border-b h-10 flex-shrink-0">
-          <TabsTrigger value="properties" className="flex-1 data-[state=active]:shadow-none">
+          <TabsTrigger
+            value="properties"
+            className="flex-1 data-[state=active]:shadow-none"
+          >
             Properties
           </TabsTrigger>
-          <TabsTrigger value="layout" className="flex-1 data-[state=active]:shadow-none">
+          <TabsTrigger
+            value="layout"
+            className="flex-1 data-[state=active]:shadow-none"
+          >
             Layout
           </TabsTrigger>
         </TabsList>
@@ -233,13 +290,14 @@ export default function FieldEditor({
             <div className="p-4 space-y-6">
               {fieldSections.map((section) => {
                 return (
-                  <div
-                    key={section.title}
-                    className="space-y-3"
-                  >
-                    <h4 className="text-sm font-medium text-muted-foreground">{section.title}</h4>
+                  <div key={section.title} className="space-y-3">
+                    <h4 className="text-sm font-medium text-muted-foreground">
+                      {section.title}
+                    </h4>
                     <div className="space-y-4">
-                      {section.fields.map(fieldName => renderField(fieldName))}
+                      {section.fields.map((fieldName) =>
+                        renderField(fieldName),
+                      )}
                     </div>
                   </div>
                 );
@@ -248,7 +306,10 @@ export default function FieldEditor({
           </ScrollArea>
         </TabsContent>
 
-        <TabsContent value="layout" className="flex-1 mt-0 overflow-hidden flex flex-col">
+        <TabsContent
+          value="layout"
+          className="flex-1 mt-0 overflow-hidden flex flex-col"
+        >
           <div className="flex-1 overflow-hidden">
             <LayoutControls
               layout={component.layout || {}}
@@ -260,4 +321,6 @@ export default function FieldEditor({
       </Tabs>
     </div>
   );
-}
+});
+
+export default FieldEditor;

@@ -1,12 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from "react";
-import {
-  PageData,
-  ComponentData,
-  LayoutOptions,
-  ComponentTemplate,
-} from "./types";
+import { PageData, ComponentData, ComponentTemplate } from "./types";
 import { DragDropProvider } from "./drag-drop-provider";
 import LeftSidebar from "./left-sidebar";
 import PreviewPanel from "./preview-panel";
@@ -39,6 +34,7 @@ import {
   TooltipTrigger,
 } from "@/app/components/ui/tooltip";
 import { PublishDialog } from "@/app/components/business/publish-dialog";
+import { useDebouncedCallback } from "./hooks/use-debounced-callback";
 
 interface VisualEditorProps {
   businessId: Id<"businesses">;
@@ -92,6 +88,29 @@ export default function VisualEditor({
   const publishBusiness = useMutation(api.businesses.publish);
   const unpublishBusiness = useMutation(api.businesses.unpublish);
   const domain = useQuery(api.domains.getByBusinessId, { businessId });
+
+  // Debounced auto-save function
+  const debouncedAutoSave = useDebouncedCallback(async (data: PageData) => {
+    if (!autoSaveEnabled || isSaving) return;
+
+    try {
+      setIsSaving(true);
+      if (onSave) {
+        await onSave(data);
+      } else {
+        await updatePage({
+          pageId,
+          content: JSON.stringify(data),
+        });
+      }
+      setLastSaved(new Date());
+      setHasUnsavedChanges(false);
+    } catch (error) {
+      console.error("Auto-save failed:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  }, 2000); // Auto-save after 2 seconds of inactivity
 
   // Mobile detection and responsive behavior
   useEffect(() => {
@@ -191,180 +210,12 @@ export default function VisualEditor({
 
         setPageData(newData);
         addToHistory(newData);
-        if (newComponents.length > 0) {
-          setSelectedComponentId(newComponents[0].id);
-        }
-        return;
+        setHasUnsavedChanges(true);
+        debouncedAutoSave(newData);
+        toast.success("Component duplicated");
       }
-
-      // Regular component addition
-      const defaultProps: Record<string, unknown> = {};
-      Object.entries(config.fields).forEach(([key, field]) => {
-        defaultProps[key] = field.defaultValue ?? "";
-      });
-
-      // Apply metadata values to props if they exist
-      if (metadata) {
-        Object.entries(metadata).forEach(([key, value]) => {
-          if (key in defaultProps) {
-            defaultProps[key] = value;
-          }
-        });
-      }
-
-      const newComponent: ComponentData = {
-        id: generateId(),
-        type,
-        props: defaultProps,
-        layout: {}, // Initialize with empty layout
-        parentId,
-        children: config.acceptsChildren ? [] : undefined,
-        ...(metadata ? { metadata } : {}),
-      };
-
-      let newData: PageData;
-
-      if (parentId) {
-        // Add to parent's children
-        const updateComponentChildren = (
-          components: ComponentData[],
-        ): ComponentData[] => {
-          return components.map((comp) => {
-            if (comp.id === parentId) {
-              return {
-                ...comp,
-                children: [
-                  ...(comp.children || []).slice(0, index),
-                  newComponent,
-                  ...(comp.children || []).slice(index),
-                ],
-              };
-            }
-            if (comp.children) {
-              return {
-                ...comp,
-                children: updateComponentChildren(comp.children),
-              };
-            }
-            return comp;
-          });
-        };
-
-        newData = {
-          ...pageData,
-          components: updateComponentChildren(pageData.components),
-        };
-      } else {
-        // Add to root level
-        newData = {
-          ...pageData,
-          components: [
-            ...pageData.components.slice(0, index),
-            newComponent,
-            ...pageData.components.slice(index),
-          ],
-        };
-      }
-
-      setPageData(newData);
-      addToHistory(newData);
-      setSelectedComponentId(newComponent.id);
     },
-    [pageData, addToHistory, business],
-  );
-
-  // Update component (handles nested components)
-  const handleUpdateComponent = useCallback(
-    (id: string, props: Record<string, unknown>) => {
-      const updateInComponents = (
-        components: ComponentData[],
-      ): ComponentData[] => {
-        return components.map((comp) => {
-          if (comp.id === id) {
-            // Special handling for ColumnsBlock when column count changes
-            if (
-              comp.type === "ColumnsBlock" &&
-              comp.props.columns !== props.columns &&
-              comp.children
-            ) {
-              const oldColumnCount = parseInt(
-                (comp.props.columns as string) || "2",
-              );
-              const newColumnCount = parseInt((props.columns as string) || "2");
-
-              // If column count changed, redistribute children and reset column widths
-              if (oldColumnCount !== newColumnCount) {
-                const redistributedChildren = comp.children.map(
-                  (child, index) => ({
-                    ...child,
-                    metadata: {
-                      ...child.metadata,
-                      columnIndex: index % newColumnCount,
-                    },
-                  }),
-                );
-
-                // Remove columnWidths from props when column count changes
-                const newProps = { ...props };
-                delete newProps.columnWidths;
-
-                return {
-                  ...comp,
-                  props: newProps,
-                  children: redistributedChildren,
-                };
-              }
-            }
-
-            return { ...comp, props };
-          }
-          if (comp.children) {
-            return { ...comp, children: updateInComponents(comp.children) };
-          }
-          return comp;
-        });
-      };
-
-      const newData = {
-        ...pageData,
-        components: updateInComponents(pageData.components),
-      };
-      setPageData(newData);
-      addToHistory(newData);
-      setHasUnsavedChanges(true);
-    },
-    [pageData, addToHistory],
-  );
-
-  // Update component layout (handles nested components)
-  const handleUpdateComponentLayout = useCallback(
-    (id: string, layout: LayoutOptions) => {
-      const updateLayoutInComponents = (
-        components: ComponentData[],
-      ): ComponentData[] => {
-        return components.map((comp) => {
-          if (comp.id === id) {
-            return { ...comp, layout };
-          }
-          if (comp.children) {
-            return {
-              ...comp,
-              children: updateLayoutInComponents(comp.children),
-            };
-          }
-          return comp;
-        });
-      };
-
-      const newData = {
-        ...pageData,
-        components: updateLayoutInComponents(pageData.components),
-      };
-      setPageData(newData);
-      addToHistory(newData);
-      setHasUnsavedChanges(true);
-    },
-    [pageData, addToHistory],
+    [pageData, addToHistory, debouncedAutoSave],
   );
 
   // Duplicate component (handles nested components)
@@ -418,6 +269,7 @@ export default function VisualEditor({
         setPageData(newData);
         addToHistory(newData);
         setHasUnsavedChanges(true);
+        debouncedAutoSave(newData);
         toast.success("Component duplicated");
       }
     },
@@ -450,12 +302,13 @@ export default function VisualEditor({
       setPageData(newData);
       addToHistory(newData);
       setHasUnsavedChanges(true);
+      debouncedAutoSave(newData);
 
       if (selectedComponentId === id) {
         setSelectedComponentId(null);
       }
     },
-    [pageData, selectedComponentId, addToHistory],
+    [pageData, selectedComponentId, addToHistory, debouncedAutoSave],
   );
 
   // Move component
