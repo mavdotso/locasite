@@ -6,12 +6,13 @@ import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
 import { Plus, X } from "lucide-react";
 import ImageField from "./image-field";
+import { Id } from "@/convex/_generated/dataModel";
 
 interface ArrayFieldProps {
   field: ArrayFieldType;
   value: unknown[];
   onChange: (value: unknown[]) => void;
-  businessId: string;
+  businessId: Id<"businesses">;
 }
 
 export default function ArrayField({ field, value, onChange, businessId }: ArrayFieldProps) {

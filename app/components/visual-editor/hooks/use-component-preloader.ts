@@ -86,7 +86,7 @@ export function useComponentPreloader(
     }, 1000); // Delay preload to not interfere with initial render
 
     return () => clearTimeout(preloadTimer);
-  }, [componentConfigs]);
+  }, []); // Remove componentConfigs dependency as it's stable
 
   // Preload specific component on hover
   const preloadComponent = (componentType: string) => {

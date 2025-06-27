@@ -16,7 +16,7 @@ interface ImageFieldProps {
   field: ImageFieldType;
   value: string;
   onChange: (value: string) => void;
-  businessId: string;
+  businessId: Id<"businesses">;
 }
 
 export default function ImageField({

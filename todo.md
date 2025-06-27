@@ -164,8 +164,3 @@
 - [ ] Document optimization techniques
 - [ ] Create developer guides for visual editor
 - [ ] Add inline documentation for complex components
-
-### Code Improvements
-
-- [ ] Move domain validation logic from convex/domains.ts to frontend
-- [ ] Implement nested component movement in preview-panel.tsx

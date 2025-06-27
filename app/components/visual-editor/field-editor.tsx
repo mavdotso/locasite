@@ -21,13 +21,14 @@ import {
   TabsTrigger,
 } from "@/app/components/ui/tabs";
 import { LayoutOptions, Field } from "./types";
+import { Id } from "@/convex/_generated/dataModel";
 
 interface FieldEditorProps {
   component: ComponentData | null;
   onUpdate: (props: Record<string, unknown>) => void;
   onUpdateLayout: (layout: LayoutOptions) => void;
   onClose: () => void;
-  businessId: string;
+  businessId: Id<"businesses">;
 }
 
 interface FieldSection {

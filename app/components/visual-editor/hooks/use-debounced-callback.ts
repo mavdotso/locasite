@@ -1,10 +1,16 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useEffect } from "react";
 
 export function useDebouncedCallback<T extends (...args: unknown[]) => unknown>(
   callback: T,
   delay: number,
 ): (...args: Parameters<T>) => void {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const callbackRef = useRef(callback);
+
+  // Update the callback ref when callback changes
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
 
   return useCallback(
     (...args: Parameters<T>) => {
@@ -13,10 +19,10 @@ export function useDebouncedCallback<T extends (...args: unknown[]) => unknown>(
       }
 
       timeoutRef.current = setTimeout(() => {
-        callback(...args);
+        callbackRef.current(...args);
       }, delay);
     },
-    [callback, delay],
+    [delay],
   );
 }
 
@@ -26,6 +32,12 @@ export function useThrottledCallback<T extends (...args: unknown[]) => unknown>(
 ): T {
   const lastCallRef = useRef<number>(0);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const callbackRef = useRef(callback);
+
+  // Update the callback ref when callback changes
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
 
   return useCallback(
     ((...args: Parameters<T>) => {
@@ -34,7 +46,7 @@ export function useThrottledCallback<T extends (...args: unknown[]) => unknown>(
 
       if (timeSinceLastCall >= delay) {
         lastCallRef.current = now;
-        callback(...args);
+        callbackRef.current(...args);
       } else {
         if (timeoutRef.current) {
           clearTimeout(timeoutRef.current);
@@ -42,10 +54,10 @@ export function useThrottledCallback<T extends (...args: unknown[]) => unknown>(
 
         timeoutRef.current = setTimeout(() => {
           lastCallRef.current = Date.now();
-          callback(...args);
+          callbackRef.current(...args);
         }, delay - timeSinceLastCall);
       }
     }) as T,
-    [callback, delay],
+    [delay],
   );
 }
