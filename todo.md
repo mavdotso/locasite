@@ -14,6 +14,15 @@
 - [ ] Create user library component for image storage
 - [ ] Create pre-made page templates for business types
 
+### Code Quality Fixes
+
+- [ ] Fix missing dependency 'debouncedAutoSave' in useCallback in editor.tsx
+- [ ] Resolve critical dependency warning in use-component-preloader.ts
+- [ ] Fix serializable props in image-field.tsx
+- [ ] Fix serializable props in left-sidebar.tsx
+- [ ] Fix serializable props in virtualized-media-grid.tsx
+- [ ] Fix serializable props in virtualized-component-list.tsx
+
 ### Google Business Profile API Integration
 
 - [ ] Set up OAuth flow with Google Business Profile API
@@ -78,13 +87,6 @@
 - [ ] Implement payment system
 - [ ] Save as template functionality
 - [ ] Version history with rollback
-
-### React Server Components Compliance
-
-- [ ] Fix serializable props in image-field.tsx
-- [ ] Fix serializable props in left-sidebar.tsx
-- [ ] Fix serializable props in virtualized-media-grid.tsx
-- [ ] Fix serializable props in virtualized-component-list.tsx
 
 ## 🟡 Medium Priority
 

@@ -13,11 +13,11 @@ const PRELOAD_COMPONENTS = [
 
 // Field components that should be preloaded
 const PRELOAD_FIELDS = [
-  "./fields/text-field",
-  "./fields/textarea-field",
-  "./fields/image-field",
-  "./fields/select-field",
-  "./fields/color-field",
+  "text-field",
+  "textarea-field",
+  "image-field",
+  "select-field",
+  "color-field",
 ];
 
 interface PreloadStatus {
@@ -56,16 +56,31 @@ export function useComponentPreloader(
         }
       });
 
-      // Preload field components
-      PRELOAD_FIELDS.forEach((fieldPath) => {
-        if (!preloadedRef.current.fields.has(fieldPath)) {
-          import(fieldPath)
-            .then(() => {
-              preloadedRef.current.fields.add(fieldPath);
-            })
-            .catch(() => {
-              // Ignore errors during preload
-            });
+      // Preload field components using static imports
+      PRELOAD_FIELDS.forEach(async (fieldName) => {
+        if (!preloadedRef.current.fields.has(fieldName)) {
+          try {
+            switch (fieldName) {
+              case "text-field":
+                await import("../fields/text-field");
+                break;
+              case "textarea-field":
+                await import("../fields/textarea-field");
+                break;
+              case "image-field":
+                await import("../fields/image-field");
+                break;
+              case "select-field":
+                await import("../fields/select-field");
+                break;
+              case "color-field":
+                await import("../fields/color-field");
+                break;
+            }
+            preloadedRef.current.fields.add(fieldName);
+          } catch {
+            // Ignore errors during preload
+          }
         }
       });
     }, 1000); // Delay preload to not interfere with initial render
