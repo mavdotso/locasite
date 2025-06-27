@@ -1,5 +1,6 @@
 import { ComponentConfig } from "../types";
 import {
+  // Basic Blocks
   TextBlock,
   ImageBlock,
   LogoBlock,
@@ -8,25 +9,19 @@ import {
   DividerBlock,
   VideoBlock,
   IconBlock,
-  BadgeBlock,
-  ReviewStarsBlock,
-  BusinessHoursBlock,
-  SocialLinksBlock,
-  PaymentMethodsBlock,
   ListBlock,
   GalleryGridBlock,
   AlertBlock,
   NavigationBlock,
   ContactFormBlock,
+  // Business-Specific Blocks
+  BadgeBlock,
+  ReviewStarsBlock,
+  BusinessHoursBlock,
+  SocialLinksBlock,
+  PaymentMethodsBlock,
 } from "../blocks/basic-blocks";
-import {
-  SectionBlock,
-  ColumnsBlock,
-  CardBlock,
-  AccordionBlock,
-  TabsBlock,
-  ColumnContentBlock,
-} from "../blocks/container-blocks";
+
 import {
   HeaderBlock,
   HeroBlock,
@@ -38,6 +33,7 @@ import {
   TeamBlock,
   CTABlock,
   FooterBlock,
+  BusinessPageTemplate,
 } from "../blocks/business-blocks";
 import {
   HeaderSection,
@@ -58,12 +54,6 @@ import {
 
 // Combine all components
 export const allComponentConfigs: Record<string, ComponentConfig> = {
-  // Layout Components (shown first)
-  SectionBlock,
-  ColumnsBlock,
-  ColumnContentBlock,
-  CardBlock,
-
   // Basic Content Blocks
   TextBlock,
   ImageBlock,
@@ -86,11 +76,8 @@ export const allComponentConfigs: Record<string, ComponentConfig> = {
   SocialLinksBlock,
   PaymentMethodsBlock,
 
-  // Interactive Components
-  AccordionBlock,
-  TabsBlock,
-
   // Business Templates (expand into full sections)
+  BusinessPageTemplate,
   HeaderBlock,
   HeroBlock,
   AboutBlock,
