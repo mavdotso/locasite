@@ -2748,8 +2748,512 @@ export const ServicesDetailedSection: ComponentConfig = {
   category: "Section"
 };
 
+// Hero Section - Main landing section with CTA
+export const HeroSection: ComponentConfig = {
+  fields: {
+    headline: {
+      type: "text",
+      label: "Headline",
+      defaultValue: "Welcome to Our Business"
+    },
+    subheadline: {
+      type: "textarea",
+      label: "Subheadline",
+      defaultValue: "Providing quality services to our community since 2020"
+    },
+    backgroundImage: {
+      type: "image",
+      label: "Background Image",
+      defaultValue: ""
+    },
+    overlayOpacity: {
+      type: "number",
+      label: "Overlay Opacity (0-100)",
+      defaultValue: 50,
+      min: 0,
+      max: 100
+    },
+    primaryButtonText: {
+      type: "text",
+      label: "Primary Button Text",
+      defaultValue: "Get Started"
+    },
+    primaryButtonLink: {
+      type: "text",
+      label: "Primary Button Link",
+      defaultValue: "#contact"
+    },
+    secondaryButtonText: {
+      type: "text",
+      label: "Secondary Button Text",
+      defaultValue: "Learn More"
+    },
+    secondaryButtonLink: {
+      type: "text",
+      label: "Secondary Button Link",
+      defaultValue: "#about"
+    },
+    showSecondaryButton: {
+      type: "select",
+      label: "Show Secondary Button",
+      defaultValue: "yes",
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" }
+      ]
+    },
+    alignment: {
+      type: "select",
+      label: "Content Alignment",
+      defaultValue: "center",
+      options: [
+        { value: "left", label: "Left" },
+        { value: "center", label: "Center" },
+        { value: "right", label: "Right" }
+      ]
+    },
+    height: {
+      type: "select",
+      label: "Section Height",
+      defaultValue: "large",
+      options: [
+        { value: "small", label: "Small (400px)" },
+        { value: "medium", label: "Medium (500px)" },
+        { value: "large", label: "Large (600px)" },
+        { value: "full", label: "Full Screen" }
+      ]
+    }
+  },
+  render: (props: Record<string, unknown>, _editMode, _business) => {
+    const headline = (props.headline as string) || "Welcome to Our Business";
+    const subheadline = (props.subheadline as string) || "";
+    const backgroundImage = props.backgroundImage as string;
+    const overlayOpacity = (props.overlayOpacity as number) || 50;
+    const primaryButtonText = (props.primaryButtonText as string) || "Get Started";
+    const primaryButtonLink = (props.primaryButtonLink as string) || "#contact";
+    const secondaryButtonText = (props.secondaryButtonText as string) || "Learn More";
+    const secondaryButtonLink = (props.secondaryButtonLink as string) || "#about";
+    const showSecondaryButton = props.showSecondaryButton === "yes";
+    const alignment = (props.alignment as string) || "center";
+    const height = (props.height as string) || "large";
+
+    const heightClasses: Record<string, string> = {
+      small: "h-[400px]",
+      medium: "h-[500px]",
+      large: "h-[600px]",
+      full: "h-screen"
+    };
+
+    const alignmentClasses: Record<string, string> = {
+      left: "text-left items-start",
+      center: "text-center items-center",
+      right: "text-right items-end"
+    };
+
+    return (
+      <div className={cn("relative flex items-center", heightClasses[height])}>
+        {backgroundImage && (
+          <>
+            <div className="absolute inset-0">
+              <Image
+                src={backgroundImage}
+                alt="Hero background"
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
+            <div 
+              className="absolute inset-0 bg-black"
+              style={{ opacity: overlayOpacity / 100 }}
+            />
+          </>
+        )}
+        
+        <div className="relative z-10 container mx-auto px-4">
+          <div className={cn("max-w-4xl", alignment === "center" && "mx-auto", alignmentClasses[alignment])}>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
+              {headline}
+            </h1>
+            {subheadline && (
+              <p className="text-xl md:text-2xl text-muted-foreground mb-8">
+                {subheadline}
+              </p>
+            )}
+            <div className={cn("flex gap-4", alignmentClasses[alignment])}>
+              <Button size="lg" asChild>
+                <a href={primaryButtonLink}>{primaryButtonText}</a>
+              </Button>
+              {showSecondaryButton && (
+                <Button size="lg" variant="outline" className="bg-white/10 text-white border-white hover:bg-white/20" asChild>
+                  <a href={secondaryButtonLink}>{secondaryButtonText}</a>
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  },
+  icon: ImageIcon,
+  category: "Section"
+};
+
+// About Section - Company introduction
+export const AboutSection: ComponentConfig = {
+  fields: {
+    title: {
+      type: "text",
+      label: "Section Title",
+      defaultValue: "About Us"
+    },
+    content: {
+      type: "textarea",
+      label: "About Content",
+      defaultValue: "We are a dedicated team committed to providing exceptional services to our customers."
+    },
+    image: {
+      type: "image",
+      label: "About Image",
+      defaultValue: ""
+    },
+    imagePosition: {
+      type: "select",
+      label: "Image Position",
+      defaultValue: "right",
+      options: [
+        { value: "left", label: "Left" },
+        { value: "right", label: "Right" }
+      ]
+    },
+    features: {
+      type: "array",
+      label: "Key Features",
+      defaultValue: [
+        "Professional Service",
+        "Experienced Team",
+        "Customer Satisfaction",
+        "Quality Guarantee"
+      ],
+      itemType: {
+        type: "text",
+        label: "Feature",
+        defaultValue: "Feature"
+      }
+    }
+  },
+  render: (props: Record<string, unknown>, _editMode, _business) => {
+    const title = (props.title as string) || "About Us";
+    const content = (props.content as string) || "";
+    const image = props.image as string;
+    const imagePosition = (props.imagePosition as string) || "right";
+    const features = (props.features as string[]) || [];
+
+    return (
+      <div className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className={cn("space-y-6", imagePosition === "right" && "md:order-1")}>
+              <h2 className="text-3xl font-bold">{title}</h2>
+              <p className="text-lg text-muted-foreground whitespace-pre-wrap">{content}</p>
+              {features.length > 0 && (
+                <ul className="space-y-3">
+                  {features.map((feature, index) => (
+                    <li key={index} className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className={cn(imagePosition === "left" && "md:order-1")}>
+              {image ? (
+                <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
+                  <Image
+                    src={image}
+                    alt={title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="aspect-[4/3] bg-muted rounded-lg flex items-center justify-center">
+                  <ImageIcon className="h-24 w-24 text-muted-foreground" />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  },
+  icon: Info,
+  category: "Section"
+};
+
+// Gallery Section - Image showcase
+export const GallerySection: ComponentConfig = {
+  fields: {
+    title: {
+      type: "text",
+      label: "Section Title",
+      defaultValue: "Our Gallery"
+    },
+    subtitle: {
+      type: "text",
+      label: "Section Subtitle",
+      defaultValue: "See our work in action"
+    },
+    images: {
+      type: "array",
+      label: "Gallery Images",
+      defaultValue: [],
+      itemType: {
+        type: "image",
+        label: "Image",
+        defaultValue: ""
+      },
+      maxItems: 12
+    },
+    layout: {
+      type: "select",
+      label: "Gallery Layout",
+      defaultValue: "grid",
+      options: [
+        { value: "grid", label: "Grid" },
+        { value: "masonry", label: "Masonry" },
+        { value: "carousel", label: "Carousel" }
+      ]
+    },
+    columns: {
+      type: "select",
+      label: "Columns (Desktop)",
+      defaultValue: "3",
+      options: [
+        { value: "2", label: "2 Columns" },
+        { value: "3", label: "3 Columns" },
+        { value: "4", label: "4 Columns" }
+      ]
+    }
+  },
+  render: (props: Record<string, unknown>, _editMode, _business) => {
+    const title = (props.title as string) || "Our Gallery";
+    const subtitle = (props.subtitle as string) || "";
+    const images = (props.images as string[]) || [];
+    // const layout = (props.layout as string) || "grid"; // TODO: Implement different layouts
+    const columns = (props.columns as string) || "3";
+
+    const columnClasses: Record<string, string> = {
+      "2": "md:grid-cols-2",
+      "3": "md:grid-cols-3",
+      "4": "md:grid-cols-4"
+    };
+
+    if (images.length === 0) {
+      return (
+        <div className="py-16">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl font-bold mb-4">{title}</h2>
+            <p className="text-muted-foreground">No images added yet. Add images to showcase your work.</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">{title}</h2>
+            {subtitle && <p className="text-lg text-muted-foreground">{subtitle}</p>}
+          </div>
+          
+          <div className={cn("grid gap-4", columnClasses[columns])}>
+            {images.map((image, index) => (
+              <div key={index} className="relative aspect-square rounded-lg overflow-hidden group">
+                <Image
+                  src={image}
+                  alt={`Gallery image ${index + 1}`}
+                  fill
+                  className="object-cover transition-transform group-hover:scale-110"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  },
+  icon: ImageIcon,
+  category: "Section"
+};
+
+// Contact Section - Contact information and form
+export const ContactSection: ComponentConfig = {
+  fields: {
+    title: {
+      type: "text",
+      label: "Section Title",
+      defaultValue: "Contact Us"
+    },
+    subtitle: {
+      type: "text",
+      label: "Section Subtitle",
+      defaultValue: "Get in touch with us today"
+    },
+    showForm: {
+      type: "select",
+      label: "Show Contact Form",
+      defaultValue: "yes",
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" }
+      ]
+    },
+    showMap: {
+      type: "select",
+      label: "Show Map",
+      defaultValue: "yes",
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" }
+      ]
+    },
+    layout: {
+      type: "select",
+      label: "Layout",
+      defaultValue: "split",
+      options: [
+        { value: "split", label: "Split (Form + Info)" },
+        { value: "stacked", label: "Stacked" },
+        { value: "centered", label: "Centered" }
+      ]
+    }
+  },
+  render: (props: Record<string, unknown>, _editMode, business) => {
+    const title = (props.title as string) || "Contact Us";
+    const subtitle = (props.subtitle as string) || "";
+    const showForm = props.showForm === "yes";
+    const showMap = props.showMap === "yes";
+    const layout = (props.layout as string) || "split";
+
+    const contactInfo = [
+      {
+        icon: MapPin,
+        label: "Address",
+        value: business?.address || "123 Main St, City, State 12345"
+      },
+      {
+        icon: Phone,
+        label: "Phone",
+        value: business?.phone || "(555) 123-4567"
+      },
+      {
+        icon: Mail,
+        label: "Email",
+        value: business?.email || "info@business.com"
+      },
+      {
+        icon: Clock,
+        label: "Hours",
+        value: "Mon-Fri: 9AM-6PM"
+      }
+    ];
+
+    if (layout === "split") {
+      return (
+        <div className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">{title}</h2>
+              {subtitle && <p className="text-lg text-muted-foreground">{subtitle}</p>}
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-12">
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-xl font-semibold mb-6">Get In Touch</h3>
+                  <div className="space-y-4">
+                    {contactInfo.map((item, index) => (
+                      <div key={index} className="flex items-start gap-4">
+                        <item.icon className="h-5 w-5 text-primary mt-1" />
+                        <div>
+                          <p className="font-medium">{item.label}</p>
+                          <p className="text-muted-foreground">{item.value}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {showMap && business?.address && (
+                  <div className="aspect-[4/3] bg-muted rounded-lg">
+                    <iframe
+                      src={`https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${encodeURIComponent(business.address)}`}
+                      width="100%"
+                      height="100%"
+                      className="rounded-lg"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+              </div>
+              
+              {showForm && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Send us a message</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <form className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <input
+                          type="text"
+                          placeholder="First Name"
+                          className="w-full px-4 py-2 border rounded-md"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Last Name"
+                          className="w-full px-4 py-2 border rounded-md"
+                        />
+                      </div>
+                      <input
+                        type="email"
+                        placeholder="Email"
+                        className="w-full px-4 py-2 border rounded-md"
+                      />
+                      <input
+                        type="tel"
+                        placeholder="Phone"
+                        className="w-full px-4 py-2 border rounded-md"
+                      />
+                      <textarea
+                        placeholder="Message"
+                        rows={4}
+                        className="w-full px-4 py-2 border rounded-md"
+                      />
+                      <Button type="submit" className="w-full">Send Message</Button>
+                    </form>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Add other layout variations as needed
+    return null;
+  },
+  icon: Mail,
+  category: "Section"
+};
+
 // Import additional icons
 import { 
   Users, Shield, Heart, Globe, CheckCircle, Wrench, Award, Zap,
-  ChevronRight, Megaphone, Briefcase, Mail, ChartBar, ImageIcon
+  ChevronRight, Megaphone, Briefcase, Mail, ChartBar, ImageIcon, Info, Phone
 } from "lucide-react";

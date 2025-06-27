@@ -58,6 +58,10 @@ import {
   FeaturesSection,
   CTABannerSection,
   ServicesDetailedSection,
+  HeroSection,
+  AboutSection,
+  GallerySection,
+  ContactSection,
 } from "../blocks/local-business-sections";
 
 // Combine all components
@@ -106,6 +110,10 @@ export const allComponentConfigs: Record<string, ComponentConfig> = {
 
   // Local Business Sections
   HeaderSection,
+  HeroSection,
+  AboutSection,
+  GallerySection,
+  ContactSection,
   OperatingHoursSection,
   LocationDirectionsSection,
   MenuPriceListSection,
