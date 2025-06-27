@@ -77,14 +77,11 @@ const ComponentItem = React.memo(
     } = data;
 
     const component = components[index];
-    if (!component) return null;
-
-    const config = componentConfigs[component.type];
+    const config = component ? componentConfigs[component.type] : null;
 
     const renderComponent = useCallback(
       (comp: ComponentData): React.ReactNode => {
         if (!config) return null;
-
         const componentProps = {
           ...comp.props,
           business,
@@ -185,14 +182,17 @@ const ComponentItem = React.memo(
       },
       [
         business,
-        selectedComponentId,
-        onSelectComponent,
-        onRemoveComponent,
-        onUpdateComponent,
-        onDuplicateComponent,
         isEditMode,
+        onSelectComponent,
+        onUpdateComponent,
+        config,
+        onRemoveComponent,
+        onDuplicateComponent,
+        selectedComponentId,
       ],
     );
+
+    if (!component) return null;
 
     return (
       <div style={style}>

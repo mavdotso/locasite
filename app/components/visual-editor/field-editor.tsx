@@ -128,7 +128,7 @@ const FieldEditor = React.memo(function FieldEditor({
   // Get config and sections before any conditional returns
   const config = useMemo(
     () => (component ? componentConfigs[component.type] : null),
-    [component?.type],
+    [component],
   );
 
   const fieldSections = useMemo(

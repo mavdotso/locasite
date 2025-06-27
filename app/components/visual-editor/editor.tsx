@@ -1,7 +1,12 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from "react";
-import { PageData, ComponentData, ComponentTemplate } from "./types";
+import {
+  PageData,
+  ComponentData,
+  ComponentTemplate,
+  LayoutOptions,
+} from "./types";
 import { DragDropProvider } from "./drag-drop-provider";
 import LeftSidebar from "./left-sidebar";
 import PreviewPanel from "./preview-panel";
@@ -89,28 +94,37 @@ export default function VisualEditor({
   const unpublishBusiness = useMutation(api.businesses.unpublish);
   const domain = useQuery(api.domains.getByBusinessId, { businessId });
 
-  // Debounced auto-save function
-  const debouncedAutoSave = useDebouncedCallback(async (data: PageData) => {
-    if (!autoSaveEnabled || isSaving) return;
+  // Auto-save callback
+  const autoSaveCallback = useCallback(
+    async (data: PageData) => {
+      if (!autoSaveEnabled || isSaving) return;
 
-    try {
-      setIsSaving(true);
-      if (onSave) {
-        await onSave(data);
-      } else {
-        await updatePage({
-          pageId,
-          content: JSON.stringify(data),
-        });
+      try {
+        setIsSaving(true);
+        if (onSave) {
+          await onSave(data);
+        } else {
+          await updatePage({
+            pageId,
+            content: JSON.stringify(data),
+          });
+        }
+        setLastSaved(new Date());
+        setHasUnsavedChanges(false);
+      } catch (error) {
+        console.error("Auto-save failed:", error);
+      } finally {
+        setIsSaving(false);
       }
-      setLastSaved(new Date());
-      setHasUnsavedChanges(false);
-    } catch (error) {
-      console.error("Auto-save failed:", error);
-    } finally {
-      setIsSaving(false);
-    }
-  }, 2000); // Auto-save after 2 seconds of inactivity
+    },
+    [autoSaveEnabled, isSaving, onSave, updatePage, pageId],
+  );
+
+  // Debounced auto-save function
+  const debouncedAutoSave = useDebouncedCallback(
+    autoSaveCallback as (...args: unknown[]) => unknown,
+    2000,
+  ); // Auto-save after 2 seconds of inactivity
 
   // Mobile detection and responsive behavior
   useEffect(() => {
@@ -144,16 +158,75 @@ export default function VisualEditor({
 
   // Generate unique ID
   const generateId = () =>
-    `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    `component-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+
+  // Update component props (handles nested components)
+  const handleUpdateComponent = useCallback(
+    (id: string, props: Record<string, unknown>) => {
+      const updateInComponents = (
+        components: ComponentData[],
+      ): ComponentData[] => {
+        return components.map((comp) => {
+          if (comp.id === id) {
+            return { ...comp, props: { ...comp.props, ...props } };
+          }
+          if (comp.children) {
+            return {
+              ...comp,
+              children: updateInComponents(comp.children),
+            };
+          }
+          return comp;
+        });
+      };
+
+      const newData = {
+        ...pageData,
+        components: updateInComponents(pageData.components),
+      };
+      setPageData(newData);
+      addToHistory(newData);
+      setHasUnsavedChanges(true);
+      debouncedAutoSave(newData);
+    },
+    [pageData, addToHistory, debouncedAutoSave],
+  );
+
+  // Update component layout (handles nested components)
+  const handleUpdateComponentLayout = useCallback(
+    (id: string, layout: LayoutOptions) => {
+      const updateInComponents = (
+        components: ComponentData[],
+      ): ComponentData[] => {
+        return components.map((comp) => {
+          if (comp.id === id) {
+            return { ...comp, layout: { ...comp.layout, ...layout } };
+          }
+          if (comp.children) {
+            return {
+              ...comp,
+              children: updateInComponents(comp.children),
+            };
+          }
+          return comp;
+        });
+      };
+
+      const newData = {
+        ...pageData,
+        components: updateInComponents(pageData.components),
+      };
+      setPageData(newData);
+      addToHistory(newData);
+      setHasUnsavedChanges(true);
+      debouncedAutoSave(newData);
+    },
+    [pageData, addToHistory, debouncedAutoSave],
+  );
 
   // Add component
   const handleAddComponent = useCallback(
-    (
-      type: string,
-      index: number,
-      parentId?: string,
-      metadata?: Record<string, unknown>,
-    ) => {
+    (type: string, index: number, parentId?: string) => {
       const config = componentConfigs[type];
       if (!config) return;
 
@@ -215,7 +288,7 @@ export default function VisualEditor({
         toast.success("Component duplicated");
       }
     },
-    [pageData, addToHistory, debouncedAutoSave],
+    [pageData, addToHistory, debouncedAutoSave, business],
   );
 
   // Duplicate component (handles nested components)
@@ -450,14 +523,16 @@ export default function VisualEditor({
     };
 
     const newComponent = deepCopyComponent(copiedComponent);
-    handleAddComponent(
-      newComponent.type,
-      pageData.components.length,
-      undefined,
-      newComponent.props,
-    );
+    const newData = {
+      ...pageData,
+      components: [...pageData.components, newComponent],
+    };
+    setPageData(newData);
+    addToHistory(newData);
+    setHasUnsavedChanges(true);
+    debouncedAutoSave(newData);
     toast.success("Component pasted");
-  }, [copiedComponent, pageData.components.length, handleAddComponent]);
+  }, [copiedComponent, pageData, addToHistory, debouncedAutoSave]);
 
   // Calculate stats
   const calculateStats = useCallback(() => {

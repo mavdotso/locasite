@@ -162,13 +162,14 @@ const LazyTreeItem = React.memo(function LazyTreeItem({
       },
     );
 
-    if (itemRef.current) {
-      observer.observe(itemRef.current);
+    const element = itemRef.current;
+    if (element) {
+      observer.observe(element);
     }
 
     return () => {
-      if (itemRef.current) {
-        observer.unobserve(itemRef.current);
+      if (element) {
+        observer.unobserve(element);
       }
     };
   }, [isVisible, isLoaded]);
