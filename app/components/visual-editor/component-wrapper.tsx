@@ -143,9 +143,7 @@ const ComponentWrapper = React.memo(function ComponentWrapper({
       role={isEditMode ? "button" : undefined}
       aria-label={`${component.type.replace(/Block$/, '')} component${isSelected ? ' (selected)' : ''}`}
       aria-selected={isEditMode ? isSelected : undefined}
-      style={{
-        cursor: isEditMode ? 'pointer' : 'default'
-      }}
+      style={layoutStyles}
     >
       {/* Component Controls */}
       <div className={cn(

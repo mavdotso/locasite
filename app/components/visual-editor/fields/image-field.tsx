@@ -132,12 +132,12 @@ export default function ImageField({
         </div>
       ) : (
         <div className="space-y-2">
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2">
             <Button
               variant="outline"
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-              className="flex-1"
+              className="w-full"
             >
               {isUploading ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -152,7 +152,7 @@ export default function ImageField({
               onSelect={handleMediaSelect}
               fileTypes={[field.accept || "image/*"]}
               trigger={
-                <Button variant="outline" className="flex-1">
+                <Button variant="outline" className="w-full">
                   <ImageIcon className="h-4 w-4 mr-2" />
                   Choose from Library
                 </Button>
