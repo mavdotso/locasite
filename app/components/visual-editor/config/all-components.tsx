@@ -23,6 +23,14 @@ import {
 } from "../blocks/basic-blocks";
 
 import {
+  SectionBlock,
+  ColumnsBlock,
+  CardBlock,
+  AccordionBlock,
+  TabsBlock,
+} from "../blocks/container-blocks";
+
+import {
   HeaderBlock,
   HeroBlock,
   AboutBlock,
@@ -54,6 +62,13 @@ import {
 
 // Combine all components
 export const allComponentConfigs: Record<string, ComponentConfig> = {
+  // Container Blocks
+  SectionBlock,
+  ColumnsBlock,
+  CardBlock,
+  AccordionBlock,
+  TabsBlock,
+
   // Basic Content Blocks
   TextBlock,
   ImageBlock,

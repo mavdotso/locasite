@@ -11,17 +11,17 @@ interface ResponsiveFrameProps {
 }
 
 // Inner component to handle iframe content with hooks
-function FrameInner({ 
-  children, 
-  doc, 
-  onReady
-}: { 
-  children: React.ReactNode; 
-  doc: Document | null | undefined; 
+function FrameInner({
+  children,
+  doc,
+  onReady,
+}: {
+  children: React.ReactNode;
+  doc: Document | null | undefined;
   onReady: () => void;
 }) {
   const [isReady, setIsReady] = useState(false);
-  
+
   useEffect(() => {
     if (!doc) return;
 
@@ -30,30 +30,31 @@ function FrameInner({
       try {
         // Copy CSS variables
         const rootStyles = window.getComputedStyle(document.documentElement);
-        const cssProps = Array.from(rootStyles)
-          .filter(prop => prop.startsWith('--'));
-        
+        const cssProps = Array.from(rootStyles).filter((prop) =>
+          prop.startsWith("--"),
+        );
+
         // Batch DOM updates
         requestAnimationFrame(() => {
-          cssProps.forEach(prop => {
+          cssProps.forEach((prop) => {
             doc.documentElement.style.setProperty(
               prop,
-              rootStyles.getPropertyValue(prop)
+              rootStyles.getPropertyValue(prop),
             );
           });
 
           // Copy dark mode class
-          if (document.documentElement.classList.contains('dark')) {
-            doc.documentElement.classList.add('dark');
+          if (document.documentElement.classList.contains("dark")) {
+            doc.documentElement.classList.add("dark");
           } else {
-            doc.documentElement.classList.remove('dark');
+            doc.documentElement.classList.remove("dark");
           }
 
           // Clear any background image
           if (doc.body) {
-            doc.body.style.backgroundImage = 'none';
+            doc.body.style.backgroundImage = "none";
           }
-          
+
           setIsReady(true);
           onReady();
         });
@@ -67,33 +68,47 @@ function FrameInner({
   }, [doc, onReady]);
 
   return (
-    <div className="min-h-screen" style={{ opacity: isReady ? 1 : 0, transition: 'opacity 0.2s' }}>
+    <div
+      className="min-h-screen"
+      style={{ opacity: isReady ? 1 : 0, transition: "opacity 0.2s" }}
+    >
       {children}
     </div>
   );
 }
 
-export default function ResponsiveFrame({ 
-  children, 
+export default function ResponsiveFrame({
+  children,
   width = "100%",
-  className
+  className,
 }: ResponsiveFrameProps) {
   const [frameKey] = useState(0);
   const [isFrameReady, setIsFrameReady] = useState(false);
   const mountedRef = useRef(true);
-  
+
   // Memoize initial content to prevent recreating on each render
   const initialContent = React.useMemo(() => {
-    const styles = Array.from(document.querySelectorAll('style'))
-      .map(style => `<style>${style.innerHTML}</style>`)
-      .join('\n');
-    
-    const links = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
-      .map(link => {
+    // Get all styles including Tailwind compiled styles
+    const styles = Array.from(document.querySelectorAll("style"))
+      .map((style) => `<style>${style.innerHTML}</style>`)
+      .join("\n");
+
+    // Get all stylesheets including Next.js compiled CSS
+    const links = Array.from(
+      document.querySelectorAll('link[rel="stylesheet"]'),
+    )
+      .map((link) => {
         const href = (link as HTMLLinkElement).href;
         return `<link rel="stylesheet" href="${href}">`;
       })
-      .join('\n');
+      .join("\n");
+
+    // In development, we can use Tailwind CDN for faster iteration
+    // In production, we rely on the compiled styles from Next.js
+    const tailwindScript =
+      process.env.NODE_ENV === "development"
+        ? '<script src="https://cdn.tailwindcss.com"></script>'
+        : "";
 
     return `
       <!DOCTYPE html>
@@ -102,7 +117,7 @@ export default function ResponsiveFrame({
           <base target="_parent">
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1">
-          <script src="https://cdn.tailwindcss.com"></script>
+          ${tailwindScript}
           ${links}
           ${styles}
           <style>
@@ -115,6 +130,8 @@ export default function ResponsiveFrame({
             * {
               box-sizing: border-box;
             }
+            /* Ensure Tailwind styles are applied */
+            @layer base, components, utilities;
           </style>
         </head>
         <body>
@@ -133,12 +150,15 @@ export default function ResponsiveFrame({
   }, []);
 
   // Handle width changes more smoothly
-  const frameStyle = React.useMemo(() => ({
-    width: width === "100%" ? "100%" : width,
-    maxWidth: width === "100%" ? "100%" : width,
-    height: "100%",
-    transition: "width 0.3s ease-out, max-width 0.3s ease-out"
-  }), [width]);
+  const frameStyle = React.useMemo(
+    () => ({
+      width: width === "100%" ? "100%" : width,
+      maxWidth: width === "100%" ? "100%" : width,
+      height: "100%",
+      transition: "width 0.3s ease-out, max-width 0.3s ease-out",
+    }),
+    [width],
+  );
 
   const handleReady = React.useCallback(() => {
     if (mountedRef.current) {
@@ -162,10 +182,7 @@ export default function ResponsiveFrame({
       >
         <FrameContextConsumer>
           {({ document: doc }) => (
-            <FrameInner 
-              doc={doc} 
-              onReady={handleReady}
-            >
+            <FrameInner doc={doc} onReady={handleReady}>
               {children}
             </FrameInner>
           )}
