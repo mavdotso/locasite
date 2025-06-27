@@ -40,6 +40,7 @@ import {
 } from "@/app/components/ui/tooltip";
 import { PublishDialog } from "@/app/components/business/publish-dialog";
 import { useDebouncedCallback } from "./hooks/use-debounced-callback";
+import { useComponentPreloader } from "./hooks/use-component-preloader";
 
 interface VisualEditorProps {
   businessId: Id<"businesses">;
@@ -94,6 +95,8 @@ export default function VisualEditor({
   const unpublishBusiness = useMutation(api.businesses.unpublish);
   const domain = useQuery(api.domains.getByBusinessId, { businessId });
 
+  // Preload commonly used components
+  useComponentPreloader(componentConfigs);
   // Auto-save callback
   const autoSaveCallback = useCallback(
     async (data: PageData) => {

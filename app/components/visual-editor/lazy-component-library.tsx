@@ -115,6 +115,17 @@ const componentTree: TreeNode[] = [
 ];
 
 // Lazy loaded tree item component
+// Define the tree node structure
+interface TreeNode {
+  label: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  children?: TreeNode[];
+  componentType?: string;
+  isAddAction?: boolean;
+  metadata?: Record<string, unknown>;
+  count?: number;
+}
+
 interface LazyTreeItemProps {
   node: TreeNode;
   level: number;
@@ -126,6 +137,7 @@ interface LazyTreeItemProps {
   isDragging: boolean;
   searchQuery: string;
   isVisible: boolean;
+  onHover?: (componentType: string) => void;
 }
 
 const LazyTreeItem = React.memo(function LazyTreeItem({
@@ -178,7 +190,7 @@ const LazyTreeItem = React.memo(function LazyTreeItem({
   const filteredChildren = useMemo(() => {
     if (!node.children || !searchQuery) return node.children;
 
-    return node.children.filter((child) => {
+    return node.children.filter((child: TreeNode) => {
       const searchText =
         `${child.label} ${child.componentType || ""}`.toLowerCase();
       return searchText.includes(searchQuery.toLowerCase());
