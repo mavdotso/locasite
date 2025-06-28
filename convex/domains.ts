@@ -131,6 +131,36 @@ export const getBySubdomain = query({
     }
 });
 
+// Get domain by domain name (handles both subdomains and custom domains)
+export const getByDomain = query({
+    args: { domain: v.string() },
+    handler: async (ctx, args) => {
+        const domain = args.domain.toLowerCase();
+        
+        // First check if it's a custom domain
+        const customDomain = await ctx.db
+            .query("domains")
+            .withIndex("by_custom_domain", q => q.eq("customDomain", domain))
+            .first();
+        
+        if (customDomain) {
+            return customDomain;
+        }
+        
+        // Check if it's a subdomain (extract subdomain from full domain)
+        const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
+        if (domain.endsWith(`.${rootDomain}`)) {
+            const subdomain = domain.replace(`.${rootDomain}`, "");
+            return await ctx.db
+                .query("domains")
+                .withIndex("by_subdomain", q => q.eq("subdomain", subdomain))
+                .first();
+        }
+        
+        return null;
+    }
+});
+
 
 export const list = query({
     handler: async (ctx) => {

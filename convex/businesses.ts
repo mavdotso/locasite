@@ -360,6 +360,16 @@ export const listByDomain = query({
     }
 });
 
+export const getByDomainId = query({
+    args: { domainId: v.id("domains") },
+    handler: async (ctx, args) => {
+        return await ctx.db
+            .query("businesses")
+            .withIndex("by_domainId", q => q.eq("domainId", args.domainId))
+            .first();
+    }
+});
+
 export const update = mutation({
     args: {
         id: v.id("businesses"),
