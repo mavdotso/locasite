@@ -370,6 +370,40 @@ export const getByDomainId = query({
     }
 });
 
+// Update Google Business auth data
+export const updateGoogleBusinessAuth = mutation({
+    args: {
+        businessId: v.id("businesses"),
+        googleBusinessAuth: v.object({
+            accessToken: v.string(),
+            refreshToken: v.string(),
+            expiresAt: v.number(),
+            accounts: v.array(
+                v.object({
+                    accountId: v.string(),
+                    accountName: v.string(),
+                    type: v.string(),
+                    verificationState: v.optional(v.string()),
+                })
+            ),
+        }),
+    },
+    handler: async (ctx, args) => {
+        const user = await getUserFromAuth(ctx);
+
+        // Verify ownership
+        await verifyBusinessOwnership(ctx, args.businessId, user._id);
+
+        // Update business with Google auth data
+        return await ctx.db.patch(args.businessId, {
+            googleBusinessAuth: {
+                ...args.googleBusinessAuth,
+                verificationStatus: "unverified"
+            }
+        });
+    }
+});
+
 export const update = mutation({
     args: {
         id: v.id("businesses"),

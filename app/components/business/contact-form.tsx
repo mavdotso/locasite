@@ -10,15 +10,18 @@ import { cn } from '@/app/lib/utils';
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { useEventTracking } from "@/hooks/use-analytics";
 
 interface BusinessContactFormProps {
     businessId: Id<"businesses">;
+    domainId?: Id<"domains">;
     title?: string;
     className?: string;
 }
 
-export default function BusinessContactForm({ businessId, title, className }: BusinessContactFormProps) {
+export default function BusinessContactForm({ businessId, domainId, title, className }: BusinessContactFormProps) {
     const sendMessage = useMutation(api.contactMessages.send);
+    const { trackFormSubmit, trackContact } = useEventTracking(businessId, domainId);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -44,6 +47,14 @@ export default function BusinessContactForm({ businessId, title, className }: Bu
                 phone: formData.phone || undefined,
                 message: formData.message
             });
+            
+            // Track analytics
+            trackFormSubmit("contact_form", {
+                name: formData.name,
+                email: formData.email,
+                hasPhone: !!formData.phone
+            });
+            trackContact("form", { email: formData.email });
             
             setFormStatus('success');
             

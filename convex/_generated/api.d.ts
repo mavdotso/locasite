@@ -9,6 +9,7 @@
  */
 
 import type * as aiContentGenerator from "../aiContentGenerator.js";
+import type * as analytics from "../analytics.js";
 import type * as applyBusinessTemplate from "../applyBusinessTemplate.js";
 import type * as auth from "../auth.js";
 import type * as businessClaims from "../businessClaims.js";
@@ -45,6 +46,7 @@ import type {
  */
 declare const fullApi: ApiFromModules<{
   aiContentGenerator: typeof aiContentGenerator;
+  analytics: typeof analytics;
   applyBusinessTemplate: typeof applyBusinessTemplate;
   auth: typeof auth;
   businessClaims: typeof businessClaims;

@@ -6,6 +6,7 @@ import { allComponentConfigs as componentConfigs } from '@/app/components/visual
 import { ComponentData } from '@/app/components/visual-editor/types';
 import BusinessPageContent from './business-page-content';
 import { Section } from '@/app/types/businesses';
+import { useAnalytics } from '@/hooks/use-analytics';
 
 interface BusinessPageRendererProps {
   business: Doc<'businesses'>;
@@ -16,6 +17,12 @@ export default function BusinessPageRenderer({
   business, 
   pageContent 
 }: BusinessPageRendererProps) {
+  // Initialize analytics tracking
+  useAnalytics({
+    businessId: business._id,
+    domainId: business.domainId,
+    enabled: true
+  });
   // Parse the page content
   let parsedContent: { components?: ComponentData[]; sections?: Section[] };
   try {

@@ -9,7 +9,7 @@ import BusinessInfo from "@/app/components/business/info";
 import BusinessAbout from "@/app/components/business/about";
 import BusinessGallery from "@/app/components/business/gallery";
 import BusinessReviews from "@/app/components/business/reviews";
-import BusinessContact from "@/app/components/business/contact";
+import BusinessContactWithAnalytics from "@/app/components/business/contact-with-analytics";
 import BusinessMap from "@/app/components/business/map";
 import BusinessContactForm from "@/app/components/business/contact-form";
 import { Section } from "@/app/types/businesses";
@@ -183,7 +183,9 @@ export default function BusinessPageContent({
             case "contact":
               return (
                 <div key={index} className={section.hidden ? 'hidden' : ''}>
-                  <BusinessContact
+                  <BusinessContactWithAnalytics
+                    businessId={business._id}
+                    domainId={business.domainId}
                     title={section.title}
                     subtitle={section.subtitle}
                     phone={business.phone}
@@ -203,7 +205,7 @@ export default function BusinessPageContent({
             case "contactForm":
               return (
                 <div key={index} className={section.hidden ? 'hidden' : ''}>
-                  <BusinessContactForm businessId={business._id} title={section.title} />
+                  <BusinessContactForm businessId={business._id} domainId={business.domainId} title={section.title} />
                 </div>
               );
             case "header":

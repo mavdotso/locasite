@@ -232,22 +232,47 @@ export default defineSchema({
             ),
           }),
         ),
-        specialOffers: v.optional(
+    specialOffers: v.optional(
+      v.object({
+        title: v.string(),
+        offers: v.array(
           v.object({
             title: v.string(),
-            offers: v.array(
-              v.object({
-                title: v.string(),
-                description: v.string(),
-                validUntil: v.string(),
-                code: v.optional(v.string()),
-              }),
-            ),
+            description: v.string(),
+            validUntil: v.string(),
+            code: v.optional(v.string()),
           }),
         ),
       }),
     ),
-  })
+  }),
+),
+    // Google Business Profile integration
+    googleBusinessAuth: v.optional(
+      v.object({
+        accessToken: v.string(),
+        refreshToken: v.string(),
+        expiresAt: v.number(),
+        accounts: v.array(
+          v.object({
+            accountId: v.string(),
+            accountName: v.string(),
+            type: v.string(),
+            verificationState: v.optional(v.string()),
+          }),
+        ),
+        selectedAccountId: v.optional(v.string()),
+        selectedLocationId: v.optional(v.string()),
+        verificationStatus: v.optional(
+          v.union(
+            v.literal("unverified"),
+            v.literal("pending"),
+            v.literal("verified"),
+            v.literal("failed")
+          )
+        ),
+      }),
+    ),  })
     .index("by_placeId", ["placeId"])
     .index("by_userId", ["userId"])
     .index("by_domainId", ["domainId"])
@@ -339,4 +364,120 @@ export default defineSchema({
     .index("by_file_type", ["fileType"])
     .index("by_created_at", ["createdAt"])
     .index("by_not_deleted", ["isDeleted"]),
+
+  // Analytics tables
+  visitors: defineTable({
+    // Visitor identification
+    visitorId: v.string(), // UUID generated client-side
+    firstSeen: v.number(),
+    lastSeen: v.number(),
+    
+    // Device information
+    userAgent: v.optional(v.string()),
+    deviceType: v.optional(v.union(v.literal("desktop"), v.literal("mobile"), v.literal("tablet"))),
+    browser: v.optional(v.string()),
+    os: v.optional(v.string()),
+    
+    // Location data (from IP)
+    country: v.optional(v.string()),
+    region: v.optional(v.string()),
+    city: v.optional(v.string()),
+    
+    // Referrer information
+    referrerDomain: v.optional(v.string()),
+    referrerPath: v.optional(v.string()),
+    utmSource: v.optional(v.string()),
+    utmMedium: v.optional(v.string()),
+    utmCampaign: v.optional(v.string()),
+  })
+    .index("by_visitor_id", ["visitorId"])
+    .index("by_first_seen", ["firstSeen"])
+    .index("by_last_seen", ["lastSeen"]),
+
+  pageViews: defineTable({
+    // Page view data
+    businessId: v.id("businesses"),
+    domainId: v.optional(v.id("domains")),
+    visitorId: v.string(),
+    sessionId: v.string(), // UUID for session tracking
+    
+    // Page information
+    path: v.string(),
+    title: v.optional(v.string()),
+    
+    // Timing
+    timestamp: v.number(),
+    timeOnPage: v.optional(v.number()), // in seconds
+    
+    // Interaction data
+    scrollDepth: v.optional(v.number()), // percentage 0-100
+    clicks: v.optional(v.number()),
+    
+    // Technical details
+    loadTime: v.optional(v.number()), // in milliseconds
+    screenWidth: v.optional(v.number()),
+    screenHeight: v.optional(v.number()),
+  })
+    .index("by_business", ["businessId"])
+    .index("by_domain", ["domainId"])
+    .index("by_visitor", ["visitorId"])
+    .index("by_session", ["sessionId"])
+    .index("by_timestamp", ["timestamp"])
+    .index("by_business_timestamp", ["businessId", "timestamp"]),
+
+  events: defineTable({
+    // Event tracking
+    businessId: v.id("businesses"),
+    visitorId: v.string(),
+    sessionId: v.string(),
+    
+    // Event details
+    eventType: v.string(), // e.g., "click", "form_submit", "scroll", "contact"
+    eventCategory: v.optional(v.string()), // e.g., "engagement", "conversion"
+    eventLabel: v.optional(v.string()),
+    eventValue: v.optional(v.number()),
+    
+    // Context
+    path: v.string(),
+    timestamp: v.number(),
+    
+    // Additional data
+    metadata: v.optional(v.any()), // JSON data for event-specific info
+  })
+    .index("by_business", ["businessId"])
+    .index("by_visitor", ["visitorId"])
+    .index("by_session", ["sessionId"])
+    .index("by_type", ["eventType"])
+    .index("by_timestamp", ["timestamp"])
+    .index("by_business_type", ["businessId", "eventType"])
+    .index("by_business_timestamp", ["businessId", "timestamp"]),
+
+  sessions: defineTable({
+    // Session tracking
+    sessionId: v.string(),
+    visitorId: v.string(),
+    businessId: v.id("businesses"),
+    
+    // Session timing
+    startTime: v.number(),
+    endTime: v.optional(v.number()),
+    duration: v.optional(v.number()), // in seconds
+    
+    // Session data
+    pageCount: v.number(),
+    eventCount: v.number(),
+    
+    // Entry/Exit pages
+    entryPage: v.string(),
+    exitPage: v.optional(v.string()),
+    
+    // Conversion tracking
+    hasConverted: v.boolean(),
+    conversionType: v.optional(v.string()), // e.g., "contact", "call", "direction"
+  })
+    .index("by_session_id", ["sessionId"])
+    .index("by_visitor", ["visitorId"])
+    .index("by_business", ["businessId"])
+    .index("by_start_time", ["startTime"])
+    .index("by_business_time", ["businessId", "startTime"]),
 });
