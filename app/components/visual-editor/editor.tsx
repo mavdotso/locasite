@@ -26,6 +26,7 @@ import {
   Menu,
   Layers,
   Settings,
+  Search,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
@@ -42,6 +43,7 @@ import { PublishDialog } from "@/app/components/business/publish-dialog";
 import { useDebouncedCallback } from "./hooks/use-debounced-callback";
 import { useComponentPreloader } from "./hooks/use-component-preloader";
 import TemplateSelector from "./template-selector";
+import SEOMetadataEditor from "./seo-metadata-editor";
 
 interface VisualEditorProps {
   businessId: Id<"businesses">;
@@ -49,6 +51,21 @@ interface VisualEditorProps {
   pageId: Id<"pages">;
   initialData?: PageData;
   onSave?: (data: PageData) => Promise<void>;
+}
+
+interface SEOMetadataState {
+  title: string;
+  description: string;
+  keywords: string[];
+  canonicalUrl: string;
+  ogTitle: string;
+  ogDescription: string;
+  ogImage: string;
+  ogType: string;
+  twitterCard: string;
+  robots: string;
+  author?: string;
+  structuredData: Record<string, unknown>;
 }
 
 export default function VisualEditor({
@@ -91,6 +108,20 @@ export default function VisualEditor({
     "components" | "canvas" | "properties"
   >("canvas");
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
+  const [showSEOEditor, setShowSEOEditor] = useState(false);
+  const [seoMetadata, setSeoMetadata] = useState<SEOMetadataState>({
+    title: pageData.title || "",
+    description: "",
+    keywords: [],
+    canonicalUrl: "",
+    ogTitle: "",
+    ogDescription: "",
+    ogImage: "",
+    ogType: "website",
+    twitterCard: "summary",
+    robots: "index,follow",
+    structuredData: {},
+  });
 
   const updatePage = useMutation(api.pages.updatePage);
   const publishBusiness = useMutation(api.businesses.publish);
@@ -697,6 +728,24 @@ export default function VisualEditor({
               </TooltipContent>
             </Tooltip>
 
+            {/* SEO Button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSEOEditor(true)}
+                  className="h-8 gap-1.5"
+                >
+                  <Search className="h-3.5 w-3.5" />
+                  <span className="text-xs">SEO</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Edit SEO metadata</p>
+              </TooltipContent>
+            </Tooltip>
+
             <div className="flex items-center gap-2">
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -1126,6 +1175,48 @@ export default function VisualEditor({
             toast.success("Template applied successfully!");
           }}
           currentPageHasContent={pageData.components.length > 0}
+        />
+
+        {/* SEO Metadata Editor */}
+        <SEOMetadataEditor
+          isOpen={showSEOEditor}
+          onClose={() => setShowSEOEditor(false)}
+          metadata={seoMetadata}
+          onSave={(newMetadata) => {
+            const updatedMetadata: SEOMetadataState = {
+              title: newMetadata.title,
+              description: newMetadata.description,
+              keywords: newMetadata.keywords,
+              canonicalUrl: newMetadata.canonicalUrl || "",
+              ogTitle: newMetadata.ogTitle || "",
+              ogDescription: newMetadata.ogDescription || "",
+              ogImage: newMetadata.ogImage || "",
+              ogType: newMetadata.ogType || "website",
+              twitterCard: newMetadata.twitterCard || "summary",
+              robots: newMetadata.robots || "index,follow",
+              author: newMetadata.author,
+              structuredData: newMetadata.structuredData || {},
+            };
+            setSeoMetadata(updatedMetadata);
+            // Update page title if changed
+            if (newMetadata.title !== pageData.title) {
+              const newPageData = { ...pageData, title: newMetadata.title };
+              setPageData(newPageData);
+              addToHistory(newPageData);
+              setHasUnsavedChanges(true);
+              debouncedAutoSave(newPageData);
+            }
+            toast.success("SEO settings updated!");
+          }}
+          businessData={{
+            name: business.name,
+            description: business.description || undefined,
+            address: business.address || undefined,
+            phone: business.phone || undefined,
+            email: business.email || undefined,
+            website: business.website || undefined,
+
+          }}
         />
       </DragDropProvider>
     </TooltipProvider>
