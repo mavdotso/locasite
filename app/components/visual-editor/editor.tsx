@@ -41,6 +41,7 @@ import {
 import { PublishDialog } from "@/app/components/business/publish-dialog";
 import { useDebouncedCallback } from "./hooks/use-debounced-callback";
 import { useComponentPreloader } from "./hooks/use-component-preloader";
+import TemplateSelector from "./template-selector";
 
 interface VisualEditorProps {
   businessId: Id<"businesses">;
@@ -89,6 +90,7 @@ export default function VisualEditor({
   const [mobileActivePanel, setMobileActivePanel] = useState<
     "components" | "canvas" | "properties"
   >("canvas");
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
 
   const updatePage = useMutation(api.pages.updatePage);
   const publishBusiness = useMutation(api.businesses.publish);
@@ -677,6 +679,24 @@ export default function VisualEditor({
               </div>
             </div>
 
+            {/* Template Button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowTemplateSelector(true)}
+                  className="h-8 gap-1.5"
+                >
+                  <Layers className="h-3.5 w-3.5" />
+                  <span className="text-xs">Templates</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Choose from pre-made templates</p>
+              </TooltipContent>
+            </Tooltip>
+
             <div className="flex items-center gap-2">
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -1092,6 +1112,20 @@ export default function VisualEditor({
             // Reload to update UI with published state
             window.location.reload();
           }}
+        />
+
+        {/* Template Selector */}
+        <TemplateSelector
+          isOpen={showTemplateSelector}
+          onClose={() => setShowTemplateSelector(false)}
+          onSelectTemplate={(template) => {
+            setPageData(template);
+            addToHistory(template);
+            setHasUnsavedChanges(true);
+            debouncedAutoSave(template);
+            toast.success("Template applied successfully!");
+          }}
+          currentPageHasContent={pageData.components.length > 0}
         />
       </DragDropProvider>
     </TooltipProvider>
