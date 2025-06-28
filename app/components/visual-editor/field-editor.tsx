@@ -22,6 +22,7 @@ import {
 } from "@/app/components/ui/tabs";
 import { LayoutOptions, Field } from "./types";
 import { Id } from "@/convex/_generated/dataModel";
+import { VariationSelector } from "./variation-selector";
 
 interface FieldEditorProps {
   component: ComponentData | null;
@@ -289,6 +290,26 @@ const FieldEditor = React.memo(function FieldEditor({
         <TabsContent value="properties" className="flex-1 mt-0 overflow-hidden">
           <ScrollArea className="h-full">
             <div className="p-4 space-y-6">
+              {/* Variation Selector */}
+              {config.variations && config.variations.length > 0 && (
+                <div className="space-y-3">
+                  <h4 className="text-sm font-medium text-muted-foreground">
+                    Style Variation
+                  </h4>
+                  <VariationSelector
+                    variations={config.variations}
+                    currentVariationId={component.props.variationId as string}
+                    onSelect={(variation) => {
+                      onUpdate({
+                        ...component.props,
+                        ...variation.defaultProps,
+                        variationId: variation.id
+                      });
+                    }}
+                  />
+                </div>
+              )}
+              
               {fieldSections.map((section) => {
                 return (
                   <div key={section.title} className="space-y-3">

@@ -10,7 +10,24 @@ import {
   Menu,
   Car,
   Star,
-  MessageSquare
+  MessageSquare,
+  Image as ImageIcon,
+  Award,
+  Zap,
+  Shield,
+  Heart,
+  Globe,
+  CheckCircle,
+  Wrench,
+
+  ChevronRight,
+  Megaphone,
+  Briefcase,
+  Mail,
+  ChartBar,
+  Info,
+  Phone,
+  Users
 } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
@@ -23,6 +40,8 @@ import {
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
 import Image from "next/image";
+import { heroVariations } from "./hero-variations";
+import { featureVariations } from "./feature-variations";
 
 // Type definitions for parsed data
 interface ReviewData {
@@ -156,7 +175,8 @@ export const HeaderSection: ComponentConfig = {
       </header>
     );
   },
-  category: "sections"
+  icon: Menu,
+  category: "Section"
 };
 
 // Operating Hours Section - Full schedule with holidays
@@ -2404,7 +2424,9 @@ export const FeaturesSection: ComponentConfig = {
     );
   },
   icon: Award,
-  category: "Section"
+  category: "Section",
+  variations: featureVariations,
+  variations: featureVariations
 };
 
 // CTA Banner Section - Multiple call-to-action variations
@@ -2896,7 +2918,8 @@ export const HeroSection: ComponentConfig = {
     );
   },
   icon: ImageIcon,
-  category: "Section"
+  category: "Section",
+  variations: heroVariations
 };
 
 // About Section - Company introduction
@@ -3252,8 +3275,3 @@ export const ContactSection: ComponentConfig = {
   category: "Section"
 };
 
-// Import additional icons
-import { 
-  Users, Shield, Heart, Globe, CheckCircle, Wrench, Award, Zap,
-  ChevronRight, Megaphone, Briefcase, Mail, ChartBar, ImageIcon, Info, Phone
-} from "lucide-react";

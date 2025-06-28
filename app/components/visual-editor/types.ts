@@ -79,6 +79,22 @@ export type Field =
   | NumberField 
   | ArrayField;
 
+// Component variation definition
+export interface ComponentVariation {
+  id: string;
+  name: string;
+  description?: string;
+  preview?: string; // Preview image URL
+  defaultProps: Record<string, unknown>;
+  render?: (
+    props: Record<string, unknown>, 
+    editMode?: boolean, 
+    business?: BusinessData, 
+    children?: React.ReactNode,
+    onUpdate?: (newProps: Record<string, unknown>) => void
+  ) => React.ReactNode;
+}
+
 // Component definition
 export interface ComponentConfig {
   fields: Record<string, Field>;
@@ -96,6 +112,7 @@ export interface ComponentConfig {
   inline?: boolean; // Whether this is an inline element (for text flow)
   isTemplate?: boolean; // Whether this is a template that returns multiple blocks
   template?: (business?: BusinessData) => ComponentTemplate[]; // Template definition
+  variations?: ComponentVariation[]; // Available style variations
 }
 
 // Template block structure
