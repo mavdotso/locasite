@@ -347,9 +347,9 @@ export default function LazyComponentLibrary() {
   }, [searchQuery]);
 
   return (
-    <div className="h-full flex flex-col bg-background">
+    <div className="h-full flex flex-col bg-background overflow-hidden">
       {/* Header */}
-      <div className="p-4 border-b border-border/50">
+      <div className="p-4 border-b border-border/50 flex-shrink-0">
         <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
           <Plus className="w-4 h-4 text-muted-foreground" />
           Add Components
@@ -368,7 +368,7 @@ export default function LazyComponentLibrary() {
       </div>
 
       {/* Component Tree */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 overflow-hidden">
         <div className="p-2 space-y-1">
           {filteredTree.length > 0 ? (
             filteredTree.map((category, index) => (
