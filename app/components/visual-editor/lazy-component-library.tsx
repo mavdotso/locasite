@@ -217,7 +217,7 @@ const LazyTreeItem = React.memo(function LazyTreeItem({
     return (
       <div
         ref={itemRef}
-        className="flex items-center gap-2 px-3 py-2 animate-pulse"
+        className="flex items-center gap-2 px-3 py-2 opacity-30"
         style={{ paddingLeft: `${12 + level * 16}px` }}
       >
         <div className="w-4 h-4 bg-muted rounded"></div>
@@ -227,10 +227,16 @@ const LazyTreeItem = React.memo(function LazyTreeItem({
   }
 
   return (
-    <div ref={itemRef}>
+    <div
+      ref={itemRef}
+      className={cn(
+        "transition-opacity duration-300",
+        isLoaded ? "opacity-100" : "opacity-0",
+      )}
+    >
       <div
         className={cn(
-          "flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer transition-all duration-200 group",
+          "flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer transition-colors duration-200 group",
           "hover:bg-muted/50",
           node.componentType && "hover:bg-accent/10",
           isDragging && "opacity-50",
