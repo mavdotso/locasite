@@ -99,7 +99,7 @@ export default function LeftSidebar({
   selectedComponentId,
   onSelectComponent,
 }: LeftSidebarProps) {
-  const [isStructureExpanded, setIsStructureExpanded] = useState(true);
+  const [isStructureExpanded, setIsStructureExpanded] = useState(false);
   const [expandedComponents, setExpandedComponents] = useState<Set<string>>(
     new Set(),
   );
@@ -118,18 +118,18 @@ export default function LeftSidebar({
 
   return (
     <div className="h-full flex flex-col bg-background">
-      {/* Page Structure Section (max 1/3 height) */}
+      {/* Page Structure Section */}
       <div
         className={cn(
-          "border-b border-border/50 transition-all duration-300",
-          isStructureExpanded ? "max-h-[33.333%]" : "h-auto",
+          "border-b border-border/50 transition-all duration-300 flex-shrink-0",
+          isStructureExpanded ? "max-h-[33.333%] flex flex-col" : "h-auto",
         )}
       >
         {/* Header */}
         <button
           type="button"
           onClick={() => setIsStructureExpanded(!isStructureExpanded)}
-          className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors"
+          className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors flex-shrink-0"
         >
           <div className="flex items-center gap-2">
             <Layers className="w-4 h-4 text-muted-foreground" />
@@ -145,7 +145,7 @@ export default function LeftSidebar({
 
         {/* Content */}
         {isStructureExpanded && (
-          <ScrollArea className="h-full max-h-[calc(33.333vh-44px)]">
+          <ScrollArea className="flex-1 overflow-hidden">
             <div className="p-2 pb-4">
               {pageData.components.length > 0 ? (
                 <div className="space-y-0.5">
