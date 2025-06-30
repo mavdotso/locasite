@@ -21,17 +21,14 @@ import {
   HelpCircle,
   Info,
   X,
-  Globe,
-  Lock,
   Menu,
   Layers,
   Settings,
-  Search,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import {
   Tooltip,
@@ -43,7 +40,7 @@ import { PublishDialog } from "@/app/components/business/publish-dialog";
 import { useDebouncedCallback } from "./hooks/use-debounced-callback";
 import { useComponentPreloader } from "./hooks/use-component-preloader";
 import TemplateSelector from "./template-selector";
-import SEOMetadataEditor from "./seo-metadata-editor";
+import PageSettingsSidebar from "./page-settings-sidebar";
 
 interface VisualEditorProps {
   businessId: Id<"businesses">;
@@ -97,7 +94,6 @@ export default function VisualEditor({
   });
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [isPublishing, setIsPublishing] = useState(false);
   const [showPublishDialog, setShowPublishDialog] = useState(false);
   const [copiedComponent, setCopiedComponent] = useState<ComponentData | null>(
     null,
@@ -108,7 +104,7 @@ export default function VisualEditor({
     "components" | "canvas" | "properties"
   >("canvas");
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
-  const [showSEOEditor, setShowSEOEditor] = useState(false);
+  const [showPageSettings, setShowPageSettings] = useState(false);
   const [seoMetadata, setSeoMetadata] = useState<SEOMetadataState>({
     title: pageData.title || "",
     description: "",
@@ -124,9 +120,6 @@ export default function VisualEditor({
   });
 
   const updatePage = useMutation(api.pages.updatePage);
-  const publishBusiness = useMutation(api.businesses.publish);
-  const unpublishBusiness = useMutation(api.businesses.unpublish);
-  const domain = useQuery(api.domains.getByBusinessId, { businessId });
 
   // Preload commonly used components
   useComponentPreloader(componentConfigs);
@@ -520,47 +513,6 @@ export default function VisualEditor({
     }
   }, [pageId, pageData, onSave, updatePage]);
 
-  // Handle publish/unpublish
-  const handlePublish = useCallback(async () => {
-    try {
-      if (business.isPublished) {
-        setIsPublishing(true);
-        await unpublishBusiness({ businessId });
-        toast.success("Website unpublished successfully");
-        setIsPublishing(false);
-      } else {
-        // Save any pending changes first
-        if (hasUnsavedChanges) {
-          await handleSave();
-        }
-
-        // If no domain exists, show domain selection dialog
-        if (!domain) {
-          setShowPublishDialog(true);
-        } else {
-          setIsPublishing(true);
-          await publishBusiness({ businessId });
-          toast.success("Website published successfully!");
-          setIsPublishing(false);
-        }
-      }
-    } catch {
-      // Handle publish error silently
-      toast.error(
-        business.isPublished ? "Failed to unpublish" : "Failed to publish",
-      );
-      setIsPublishing(false);
-    }
-  }, [
-    business.isPublished,
-    businessId,
-    publishBusiness,
-    unpublishBusiness,
-    hasUnsavedChanges,
-    handleSave,
-    domain,
-  ]);
-
   // Undo/Redo
   const canUndo = historyIndex > 0;
   const canRedo = historyIndex < history.length - 1;
@@ -770,42 +722,6 @@ export default function VisualEditor({
               </div>
             </div>
 
-            {/* Template Button */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowTemplateSelector(true)}
-                  className="h-8 gap-1.5"
-                >
-                  <Layers className="h-3.5 w-3.5" />
-                  <span className="text-xs">Templates</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Choose from pre-made templates</p>
-              </TooltipContent>
-            </Tooltip>
-
-            {/* SEO Button */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowSEOEditor(true)}
-                  className="h-8 gap-1.5"
-                >
-                  <Search className="h-3.5 w-3.5" />
-                  <span className="text-xs">SEO</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Edit SEO metadata</p>
-              </TooltipContent>
-            </Tooltip>
-
             <div className="flex items-center gap-2">
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -845,36 +761,21 @@ export default function VisualEditor({
                 </TooltipContent>
               </Tooltip>
 
+              {/* Page Settings Button */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
+                    variant="outline"
                     size="sm"
-                    variant={business.isPublished ? "destructive" : "default"}
-                    onClick={handlePublish}
-                    disabled={isPublishing}
+                    onClick={() => setShowPageSettings(true)}
                     className="h-8 gap-1.5"
                   >
-                    {isPublishing ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : business.isPublished ? (
-                      <>
-                        <Lock className="h-3.5 w-3.5" />
-                        <span className="text-xs">Unpublish</span>
-                      </>
-                    ) : (
-                      <>
-                        <Globe className="h-3.5 w-3.5" />
-                        <span className="text-xs">Publish</span>
-                      </>
-                    )}
+                    <Settings className="h-3.5 w-3.5" />
+                    <span className="text-xs">Page Settings</span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>
-                    {business.isPublished
-                      ? "Unpublish website"
-                      : "Make website public"}
-                  </p>
+                  <p>Domain, SEO & Publishing Settings</p>
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -1033,6 +934,7 @@ export default function VisualEditor({
                   pageData={pageData}
                   selectedComponentId={selectedComponentId}
                   onSelectComponent={setSelectedComponentId}
+                  onOpenTemplates={() => setShowTemplateSelector(true)}
                 />
               </div>
 
@@ -1133,6 +1035,7 @@ export default function VisualEditor({
                         setSelectedComponentId(id);
                         if (id) setMobileActivePanel("properties");
                       }}
+                      onOpenTemplates={() => setShowTemplateSelector(true)}
                     />
                   </div>
                 )}
@@ -1217,7 +1120,6 @@ export default function VisualEditor({
           open={showPublishDialog}
           onOpenChange={setShowPublishDialog}
           onPublishComplete={() => {
-            setIsPublishing(false);
             // Reload to update UI with published state
             window.location.reload();
           }}
@@ -1237,12 +1139,14 @@ export default function VisualEditor({
           currentPageHasContent={pageData.components.length > 0}
         />
 
-        {/* SEO Metadata Editor */}
-        <SEOMetadataEditor
-          isOpen={showSEOEditor}
-          onClose={() => setShowSEOEditor(false)}
+        {/* Page Settings Sidebar */}
+        <PageSettingsSidebar
+          businessId={businessId}
+          business={business}
+          pageId={pageId}
           metadata={seoMetadata}
-          onSave={(newMetadata) => {
+          isOpen={showPageSettings}
+          onMetadataChange={(newMetadata) => {
             const updatedMetadata: SEOMetadataState = {
               title: newMetadata.title,
               description: newMetadata.description,
@@ -1266,16 +1170,8 @@ export default function VisualEditor({
               setHasUnsavedChanges(true);
               debouncedAutoSave(newPageData);
             }
-            toast.success("SEO settings updated!");
           }}
-          businessData={{
-            name: business.name,
-            description: business.description || undefined,
-            address: business.address || undefined,
-            phone: business.phone || undefined,
-            email: business.email || undefined,
-            website: business.website || undefined,
-          }}
+          onClose={() => setShowPageSettings(false)}
         />
       </DragDropProvider>
     </TooltipProvider>

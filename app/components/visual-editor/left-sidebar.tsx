@@ -12,6 +12,7 @@ interface LeftSidebarProps {
   pageData: PageData;
   selectedComponentId: string | null;
   onSelectComponent: (id: string) => void;
+  onOpenTemplates?: () => void;
 }
 
 interface ComponentItemProps {
@@ -98,6 +99,7 @@ export default function LeftSidebar({
   pageData,
   selectedComponentId,
   onSelectComponent,
+  onOpenTemplates,
 }: LeftSidebarProps) {
   const [isStructureExpanded, setIsStructureExpanded] = useState(false);
   const [expandedComponents, setExpandedComponents] = useState<Set<string>>(
@@ -175,7 +177,7 @@ export default function LeftSidebar({
 
       {/* Component Library Section (remaining height) */}
       <div className="flex-1 min-h-0">
-        <LazyComponentLibrary />
+        <LazyComponentLibrary onOpenTemplates={onOpenTemplates} />
       </div>
     </div>
   );

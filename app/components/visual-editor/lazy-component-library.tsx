@@ -25,7 +25,9 @@ import {
   Plus,
   Columns,
   GripVertical,
+  Layers,
 } from "lucide-react";
+import { Button } from "@/app/components/ui/button";
 
 // Define the hierarchical structure
 interface TreeNode {
@@ -309,7 +311,13 @@ const LazyTreeItem = React.memo(function LazyTreeItem({
   );
 });
 
-export default function LazyComponentLibrary() {
+interface LazyComponentLibraryProps {
+  onOpenTemplates?: () => void;
+}
+
+export default function LazyComponentLibrary({
+  onOpenTemplates,
+}: LazyComponentLibraryProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const { startDrag, isDragging } = useDragDrop();
 
@@ -371,6 +379,19 @@ export default function LazyComponentLibrary() {
             className="pl-9 h-8 text-sm"
           />
         </div>
+
+        {/* Templates Button */}
+        {onOpenTemplates && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onOpenTemplates}
+            className="w-full mt-3 justify-start gap-2"
+          >
+            <Layers className="w-4 h-4" />
+            Browse Templates
+          </Button>
+        )}
       </div>
 
       {/* Component Tree */}
