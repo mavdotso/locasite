@@ -321,7 +321,67 @@ export default function VisualEditor({
         addToHistory(newData);
         setHasUnsavedChanges(true);
         debouncedAutoSave(newData);
-        toast.success("Component duplicated");
+        toast.success("Template added successfully");
+      } else {
+        // Handle regular component
+        const newComponent: ComponentData = {
+          id: generateId(),
+          type,
+          props: config.defaultProps || {},
+          layout: {},
+          parentId,
+        };
+
+        let newData: PageData;
+
+        if (parentId) {
+          // Add to parent component's children
+          const addToParent = (
+            components: ComponentData[],
+          ): ComponentData[] => {
+            return components.map((comp) => {
+              if (comp.id === parentId) {
+                const children = comp.children || [];
+                return {
+                  ...comp,
+                  children: [
+                    ...children.slice(0, index),
+                    newComponent,
+                    ...children.slice(index),
+                  ],
+                };
+              }
+              if (comp.children) {
+                return {
+                  ...comp,
+                  children: addToParent(comp.children),
+                };
+              }
+              return comp;
+            });
+          };
+
+          newData = {
+            ...pageData,
+            components: addToParent(pageData.components),
+          };
+        } else {
+          // Add to root level
+          newData = {
+            ...pageData,
+            components: [
+              ...pageData.components.slice(0, index),
+              newComponent,
+              ...pageData.components.slice(index),
+            ],
+          };
+        }
+
+        setPageData(newData);
+        addToHistory(newData);
+        setHasUnsavedChanges(true);
+        debouncedAutoSave(newData);
+        toast.success("Component added");
       }
     },
     [pageData, addToHistory, debouncedAutoSave, business],
@@ -1215,7 +1275,6 @@ export default function VisualEditor({
             phone: business.phone || undefined,
             email: business.email || undefined,
             website: business.website || undefined,
-
           }}
         />
       </DragDropProvider>
