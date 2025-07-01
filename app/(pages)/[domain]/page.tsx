@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { api } from "@/convex/_generated/api";
-import BusinessPageRenderer from "@/app/components/business/business-page-renderer";
+import BusinessPageRendererV2 from "@/app/components/business/business-page-renderer-v2";
 import { Metadata } from "next";
 import { fetchQuery } from "convex/nextjs";
 
@@ -10,7 +10,9 @@ interface PageProps {
   }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   try {
     const { domain: businessDomain } = await params;
 
@@ -39,19 +41,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const businessData = business[0];
 
     const businessName = domain.name || businessData.name || "Business";
-    const businessDescription = businessData.description || 
-      `${businessName} - Located at ${businessData.address}. ${businessData.hours ? 'Visit us today!' : 'Contact us for more information.'}`;
-    
+    const businessDescription =
+      businessData.description ||
+      `${businessName} - Located at ${businessData.address}. ${businessData.hours ? "Visit us today!" : "Contact us for more information."}`;
+
     return {
       title: businessName,
       description: businessDescription,
       keywords: [
         businessName,
         "local business",
-        businessData.address?.split(',').slice(-2).join(',').trim() || "local",
+        businessData.address?.split(",").slice(-2).join(",").trim() || "local",
         "business",
         "local business",
-        ...(businessData.description?.split(' ').slice(0, 5) || [])
+        ...(businessData.description?.split(" ").slice(0, 5) || []),
       ],
       openGraph: {
         type: "website",
@@ -60,37 +63,44 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         siteName: "Locasite",
         title: businessName,
         description: businessDescription,
-        images: businessData.photos?.slice(0, 4).map((photo: string, index: number) => ({
-          url: photo,
-          width: 1200,
-          height: 630,
-          alt: `${businessName} - Photo ${index + 1}`,
-        })) || [
+        images: businessData.photos
+          ?.slice(0, 4)
+          .map((photo: string, index: number) => ({
+            url: photo,
+            width: 1200,
+            height: 630,
+            alt: `${businessName} - Photo ${index + 1}`,
+          })) || [
           {
             url: "/default-business-og.png",
-            width: 1200, 
+            width: 1200,
             height: 630,
             alt: businessName,
-          }
+          },
         ],
       },
       twitter: {
         card: "summary_large_image",
         title: businessName,
         description: businessDescription,
-        images: businessData.photos?.[0] ? [businessData.photos[0]] : ["/default-business-og.png"],
+        images: businessData.photos?.[0]
+          ? [businessData.photos[0]]
+          : ["/default-business-og.png"],
       },
       alternates: {
         canonical: `/${businessDomain}`,
       },
       other: {
-        ...(businessData.address?.includes(',') && {
-          "geo.region": businessData.address.split(',').slice(-2, -1)[0]?.trim()
+        ...(businessData.address?.includes(",") && {
+          "geo.region": businessData.address
+            .split(",")
+            .slice(-2, -1)[0]
+            ?.trim(),
         }),
         ...(businessData.address && {
-          "geo.placename": businessData.address.split(',')[0]?.trim()
+          "geo.placename": businessData.address.split(",")[0]?.trim(),
         }),
-      }
+      },
     };
   } catch (error) {
     console.error("Error generating metadata:", error);
@@ -101,7 +111,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function BusinessPage({ params }: PageProps) {
-
   const { domain: businessDomain } = await params;
 
   try {
@@ -124,7 +133,7 @@ export default async function BusinessPage({ params }: PageProps) {
       const allPages = await fetchQuery(api.pages.listByDomain, {
         domainId: domain._id,
       });
-      
+
       if (allPages && allPages.length > 0) {
         page = allPages[0];
       }
@@ -144,12 +153,12 @@ export default async function BusinessPage({ params }: PageProps) {
     }
 
     const businessData = business[0];
-    
+
     // Check if business is published
     if (!businessData.isPublished) {
       notFound();
     }
-    
+
     // Content parsing is now handled by BusinessPageRenderer
     if (!page.content) {
       return (
@@ -159,7 +168,6 @@ export default async function BusinessPage({ params }: PageProps) {
         </div>
       );
     }
-
 
     return (
       <div className="flex flex-col min-h-screen">
@@ -171,10 +179,11 @@ export default async function BusinessPage({ params }: PageProps) {
                   Are you the owner of this business?
                 </p>
                 <p className="text-xs text-amber-600">
-                  Claim your business to manage information and respond to customers
+                  Claim your business to manage information and respond to
+                  customers
                 </p>
               </div>
-              <a 
+              <a
                 href={`/${businessDomain}/claim/${businessData._id}`}
                 className="px-4 py-2 text-sm font-medium text-white transition-colors rounded-md bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
               >
@@ -182,9 +191,9 @@ export default async function BusinessPage({ params }: PageProps) {
               </a>
             </div>
           </div>
-        )} 
+        )}
 
-        <BusinessPageRenderer 
+        <BusinessPageRendererV2
           business={businessData}
           pageContent={page?.content || JSON.stringify({ sections: [] })}
         />
@@ -196,4 +205,3 @@ export default async function BusinessPage({ params }: PageProps) {
     notFound();
   }
 }
-

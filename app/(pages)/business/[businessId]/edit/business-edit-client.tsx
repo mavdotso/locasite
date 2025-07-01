@@ -4,24 +4,16 @@ import { notFound, useRouter } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { VisualEditor } from "@/app/components/visual-editor/core/editor-loader";
-import type { PageData } from "@/app/types/visual-editor";
+import { SimpleEditor } from "@/app/components/simple-builder/core/simple-editor";
+import type {
+  SimplePageData,
+  SectionInstance,
+} from "@/app/components/simple-builder/types/simple-builder";
+import { getVariationById } from "@/app/components/simple-builder/sections/section-variations";
+import { getPresetByType } from "@/app/components/simple-builder/sections/business-presets";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect } from "react";
-
-interface Section {
-  type: string;
-  hidden?: boolean;
-  title?: string;
-  subtitle?: string;
-  content?: string;
-  image?: string;
-  images?: string[];
-  buttonText?: string;
-  buttonLink?: string;
-  [key: string]: unknown;
-}
 
 export default function BusinessEditClient({
   businessId,
@@ -88,59 +80,125 @@ export default function BusinessEditClient({
   // Get the single page or create initial data
   const page = pages?.[0];
 
-  let initialData: PageData = {
+  // Generate unique ID
+  const generateId = () => Math.random().toString(36).substring(2, 9);
+
+  // Create initial data for Simple Mode
+  let initialData: SimplePageData = {
+    id: page?._id || generateId(),
+    businessId: business._id,
     title: business?.name || "Welcome",
-    components: [],
+    sections: [],
   };
 
+  // Try to parse existing page content
   if (page?.content) {
     try {
       const parsed = JSON.parse(page.content);
 
-      // Convert from section-based format to component-based format
-      if (parsed.sections) {
+      // Check if it's already in Simple Mode format
+      if (parsed.mode === "simple" && parsed.sections) {
         initialData = {
-          title: parsed.title || business?.name || "Welcome",
-          components: parsed.sections.map(
-            (section: Section, index: number) => ({
-              id: `component-${index}`,
-              type: mapSectionTypeToComponent(section.type),
-              props: mapSectionPropsToComponentProps(section),
-            }),
-          ),
+          id: page._id,
+          businessId: business._id,
+          title: parsed.title || business.name || "Welcome",
+          sections: parsed.sections,
+          theme: parsed.theme,
         };
-      } else if (parsed.components) {
-        initialData = parsed;
+      } else {
+        // If no content or it's in Pro mode, create default sections based on business type
+        const businessType = detectBusinessType(business);
+        const preset = getPresetByType(businessType);
+
+        if (preset) {
+          // Apply preset sections
+          initialData.sections = preset.sections
+            .map((sectionConfig, index) => {
+              const variation = getVariationById(sectionConfig.variationId);
+              if (!variation) return null;
+
+              return {
+                id: generateId(),
+                variationId: sectionConfig.variationId,
+                order: index,
+                data: JSON.parse(JSON.stringify(variation.template)), // Deep clone
+              } as SectionInstance;
+            })
+            .filter(Boolean) as SectionInstance[];
+
+          initialData.theme = preset.theme;
+        } else {
+          // Default sections if no preset matches
+          initialData.sections = [
+            {
+              id: generateId(),
+              variationId: "hero-center-bg",
+              order: 0,
+              data: getVariationById("hero-center-bg")!.template,
+            },
+            {
+              id: generateId(),
+              variationId: "about-text-image",
+              order: 1,
+              data: getVariationById("about-text-image")!.template,
+            },
+            {
+              id: generateId(),
+              variationId: "services-3-column",
+              order: 2,
+              data: getVariationById("services-3-column")!.template,
+            },
+            {
+              id: generateId(),
+              variationId: "contact-form-map",
+              order: 3,
+              data: getVariationById("contact-form-map")!.template,
+            },
+          ];
+        }
       }
     } catch (e) {
       console.error("Failed to parse page content", e);
     }
   }
 
-  const handleSave = async (data: PageData) => {
+  const handleSave = async (data: SimplePageData) => {
     try {
+      // Add mode to the data
+      const pageData = {
+        mode: "simple" as const,
+        title: data.title,
+        sections: data.sections,
+        theme: data.theme,
+      };
+
       if (page) {
         await updatePage({
           pageId: page._id,
-          content: JSON.stringify(data),
+          content: JSON.stringify(pageData),
         });
+        toast.success("Page saved successfully");
       } else if (domain) {
         // Create default page first if no page exists
         await createDefaultPages({
           domainId: domain._id,
           businessId: businessId,
         });
-        // Note: After creating default pages, user needs to refresh to see them
         toast.info(
           "Default pages created. Please refresh to continue editing.",
         );
       }
-      // Remove the toast here as the editor already shows a toast
-      // Remove the redirect - stay on the edit page
     } catch (error) {
       console.error("Error saving page:", error);
       toast.error("Failed to save page");
     }
+  };
+
+  const handlePublish = async (data: SimplePageData) => {
+    // For now, publish is the same as save
+    // In the future, you might want to add a published flag
+    await handleSave(data);
+    toast.success("Page published successfully");
   };
 
   if (!domain || !pages) {
@@ -159,154 +217,109 @@ export default function BusinessEditClient({
     );
   }
 
+  // Prepare business data for template variables
+  const businessData = {
+    businessName: business.name,
+    businessAddress: business.address,
+    businessPhone: business.phone,
+    businessEmail: business.email,
+    businessDescription: business.description,
+    businessHours: business.hours,
+    businessWebsite: business.website,
+  };
+
   return (
-    <VisualEditor
-      businessId={businessId}
-      business={business}
-      pageId={page?._id || ("temp-id" as Id<"pages">)}
+    <SimpleEditor
       initialData={initialData}
+      businessData={businessData}
       onSave={handleSave}
+      onPublish={handlePublish}
     />
   );
 }
 
-// Helper functions to map between old section format and new component format
-function mapSectionTypeToComponent(sectionType: string): string {
-  const typeMap: Record<string, string> = {
-    hero: "HeroBlock",
-    about: "AboutBlock",
-    gallery: "GalleryBlock",
-    reviews: "TestimonialsBlock",
-    contact: "ContactBlock",
-    contactForm: "ContactBlock",
-    info: "ContactBlock",
-    map: "ContactBlock",
-    hours: "ContactBlock",
-    services: "ServicesBlock",
-    whyChooseUs: "ServicesBlock",
-  };
-  return typeMap[sectionType] || sectionType;
-}
+// Helper function to detect business type from business data
+function detectBusinessType(business: {
+  category?: string;
+  description?: string;
+  name?: string;
+}):
+  | "restaurant"
+  | "salon"
+  | "medical"
+  | "professional"
+  | "retail"
+  | "automotive" {
+  const category = business.category?.toLowerCase() || "";
+  const description = business.description?.toLowerCase() || "";
+  const name = business.name?.toLowerCase() || "";
 
-function mapSectionPropsToComponentProps(
-  section: Section,
-): Record<string, unknown> {
-  const { type, ...props } = section;
-
-  // Map specific section properties to component props
-  switch (type) {
-    case "hero":
-      return {
-        title: props.title || "",
-        subtitle: props.subtitle || "",
-        backgroundImage: props.image || "",
-        overlayOpacity: 0.5,
-        height: "large",
-        buttons: props.buttonText
-          ? [
-              {
-                text: props.buttonText || "Get Started",
-                link: props.buttonLink || "#contact",
-                variant: "default",
-              },
-            ]
-          : [],
-      };
-
-    case "about":
-      return {
-        title: "About Us",
-        content: props.content || "",
-        image: "",
-        imagePosition: "right",
-        backgroundColor: "default",
-      };
-
-    case "gallery":
-      return {
-        title: "Photo Gallery",
-        layout: "grid",
-        columns: 3,
-        images: (props.images || []).map((img: string) => ({
-          url: img,
-          caption: "",
-        })),
-      };
-
-    case "reviews":
-      return {
-        title: "What Our Customers Say",
-        layout: "grid",
-        testimonials: (
-          (
-            props as {
-              items?: Array<{ reviewer: string; text: string; rating: number }>;
-            }
-          ).items || []
-        ).map((review) => ({
-          name: review.reviewer || "Customer",
-          role: "",
-          content: review.text || "",
-          rating: review.rating || 5,
-          image: "",
-        })),
-      };
-
-    case "contact":
-    case "contactForm":
-    case "info":
-    case "map":
-    case "hours":
-      return {
-        title: props.title || "Get in Touch",
-        subtitle: props.subtitle || "We'd love to hear from you",
-        showPhone: "yes",
-        showEmail: "yes",
-        showAddress: "yes",
-        showHours: type === "hours" ? "yes" : "no",
-        showMap: type === "map" ? "yes" : "no",
-      };
-
-    case "services":
-      return {
-        title: props.title || "Our Services",
-        subtitle: "What we offer",
-        layout: "grid3",
-        services: (
-          (
-            props as {
-              items?: Array<{
-                name?: string;
-                title?: string;
-                description?: string;
-                price?: string;
-              }>;
-            }
-          ).items || []
-        ).map((service) => ({
-          icon: "briefcase",
-          title: service.name || service.title || "Service",
-          description: service.description || "",
-          price: service.price || "",
-        })),
-      };
-
-    case "whyChooseUs":
-      return {
-        title: props.title || "Why Choose Us",
-        subtitle: "",
-        layout: "grid2",
-        services: ((props as { points?: string[] }).points || []).map(
-          (point: string) => ({
-            icon: "check",
-            title: point,
-            description: "",
-            price: "",
-          }),
-        ),
-      };
-
-    default:
-      return props;
+  // Check for restaurant keywords
+  if (
+    category.includes("restaurant") ||
+    category.includes("food") ||
+    category.includes("cafe") ||
+    description.includes("restaurant") ||
+    description.includes("dining") ||
+    name.includes("restaurant") ||
+    name.includes("cafe")
+  ) {
+    return "restaurant";
   }
+
+  // Check for salon/beauty keywords
+  if (
+    category.includes("salon") ||
+    category.includes("beauty") ||
+    category.includes("spa") ||
+    description.includes("salon") ||
+    description.includes("beauty") ||
+    name.includes("salon") ||
+    name.includes("spa")
+  ) {
+    return "salon";
+  }
+
+  // Check for medical keywords
+  if (
+    category.includes("medical") ||
+    category.includes("health") ||
+    category.includes("clinic") ||
+    category.includes("doctor") ||
+    description.includes("medical") ||
+    description.includes("clinic") ||
+    name.includes("clinic") ||
+    name.includes("medical")
+  ) {
+    return "medical";
+  }
+
+  // Check for automotive keywords
+  if (
+    category.includes("auto") ||
+    category.includes("car") ||
+    category.includes("mechanic") ||
+    description.includes("auto") ||
+    description.includes("car repair") ||
+    name.includes("auto") ||
+    name.includes("garage")
+  ) {
+    return "automotive";
+  }
+
+  // Check for retail keywords
+  if (
+    category.includes("shop") ||
+    category.includes("store") ||
+    category.includes("retail") ||
+    description.includes("shop") ||
+    description.includes("store") ||
+    name.includes("shop") ||
+    name.includes("store")
+  ) {
+    return "retail";
+  }
+
+  // Default to professional services
+  return "professional";
 }
