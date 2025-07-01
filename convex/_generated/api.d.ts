@@ -14,11 +14,13 @@ import type * as applyBusinessTemplate from "../applyBusinessTemplate.js";
 import type * as auth from "../auth.js";
 import type * as businessClaims from "../businessClaims.js";
 import type * as businesses from "../businesses.js";
+import type * as businessesActions from "../businessesActions.js";
 import type * as contactMessages from "../contactMessages.js";
 import type * as domains from "../domains.js";
 import type * as http from "../http.js";
 import type * as lib_businessDescriptions from "../lib/businessDescriptions.js";
 import type * as lib_helpers from "../lib/helpers.js";
+import type * as lib_imageStorage from "../lib/imageStorage.js";
 import type * as lib_scrape from "../lib/scrape.js";
 import type * as lib_themePresets from "../lib/themePresets.js";
 import type * as lib_themeSchema from "../lib/themeSchema.js";
@@ -29,6 +31,7 @@ import type * as pages from "../pages.js";
 import type * as regenerateAI from "../regenerateAI.js";
 import type * as reviewFilter from "../reviewFilter.js";
 import type * as storage from "../storage.js";
+import type * as storeBusinessImages from "../storeBusinessImages.js";
 import type * as themes from "../themes.js";
 
 import type {
@@ -51,11 +54,13 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   businessClaims: typeof businessClaims;
   businesses: typeof businesses;
+  businessesActions: typeof businessesActions;
   contactMessages: typeof contactMessages;
   domains: typeof domains;
   http: typeof http;
   "lib/businessDescriptions": typeof lib_businessDescriptions;
   "lib/helpers": typeof lib_helpers;
+  "lib/imageStorage": typeof lib_imageStorage;
   "lib/scrape": typeof lib_scrape;
   "lib/themePresets": typeof lib_themePresets;
   "lib/themeSchema": typeof lib_themeSchema;
@@ -66,6 +71,7 @@ declare const fullApi: ApiFromModules<{
   regenerateAI: typeof regenerateAI;
   reviewFilter: typeof reviewFilter;
   storage: typeof storage;
+  storeBusinessImages: typeof storeBusinessImages;
   themes: typeof themes;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
