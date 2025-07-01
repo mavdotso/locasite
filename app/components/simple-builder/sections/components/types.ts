@@ -16,6 +16,16 @@ export interface HeroContentUpdate extends BaseContentUpdate {
   imageAlt?: string;
 }
 
+export interface HeaderContentUpdate {
+  logo: string;
+  logoAlt: string;
+  menuItems: Array<{ label: string; link: string; enabled?: boolean }>;
+  showButton?: boolean;
+  buttonText?: string;
+  buttonLink?: string;
+  [key: string]: unknown;
+}
+
 export interface AboutContentUpdate extends BaseContentUpdate {
   content?: string;
   image?: string;

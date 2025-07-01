@@ -9,7 +9,7 @@ import {
 import { SectionRenderer } from "../sections/section-renderer";
 import { SectionSelector } from "./section-selector";
 import { PageSettingsSidebar } from "../ui/page-settings-sidebar-enhanced";
-import { SectionSettingsSidebar } from "../ui/section-settings-sidebar";
+import { SectionSettingsSidebarEnhanced } from "../ui/section-settings-sidebar-enhanced";
 import { getVariationById } from "../sections/section-variations";
 import { cn } from "@/app/lib/utils";
 import { Button } from "@/app/components/ui/button";
@@ -526,11 +526,16 @@ export function SimpleEditor({
 
       {/* Section Settings Sidebar */}
       {selectedSection && (
-        <SectionSettingsSidebar
+        <SectionSettingsSidebarEnhanced
           isOpen={isSectionSettingsOpen}
           onClose={() => setIsSectionSettingsOpen(false)}
           sectionData={selectedSection.data}
           variationId={selectedSection.variationId}
+          pageSections={pageData.sections.map((s) => ({
+            id: s.id,
+            type: s.variationId,
+            content: s.data.content,
+          }))}
           onUpdate={(newData) =>
             handleUpdateSection(selectedSection.id, newData)
           }

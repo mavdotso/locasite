@@ -5,6 +5,7 @@ import { SimpleComponentData } from "../types/simple-builder";
 import { cn } from "@/app/lib/utils";
 
 // Import section components
+import { HeaderSection } from "./components/header-section";
 import { HeroSection } from "./components/hero-section";
 import { AboutSection } from "./components/about-section";
 import { ServicesSection } from "./components/services-section";
@@ -21,6 +22,11 @@ interface SectionRendererProps {
 // Map of section types to their components
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sectionComponents: Record<string, React.ComponentType<any>> = {
+  // Header variations
+  "header-classic": HeaderSection,
+  "header-centered": HeaderSection,
+  "header-minimal": HeaderSection,
+
   // Hero variations
   "hero-section": HeroSection,
   "hero-split": HeroSection,

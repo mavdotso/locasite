@@ -3,6 +3,90 @@ import { SectionVariation, SectionCategory } from "../types/simple-builder";
 // Helper function to generate unique IDs
 const generateId = () => Math.random().toString(36).substring(2, 9);
 
+// Header Section Variations
+export const headerVariations: SectionVariation[] = [
+  {
+    id: "header-classic",
+    name: "Classic Header",
+    description: "Logo on left, menu in center, optional button on right",
+    category: "header",
+    template: {
+      id: generateId(),
+      type: "header-classic",
+      content: {
+        logo: "/api/placeholder/150/50",
+        logoAlt: "Company Logo",
+        menuItems: [
+          { label: "Home", link: "#home" },
+          { label: "About", link: "#about" },
+          { label: "Services", link: "#services" },
+          { label: "Contact", link: "#contact" },
+        ],
+        showButton: true,
+        buttonText: "Get Started",
+        buttonLink: "#contact",
+      },
+      style: {
+        backgroundColor: "#ffffff",
+        padding: "1rem 2rem",
+      },
+    },
+    editableFields: ["content.logo", "content.menuItems", "content.buttonText"],
+  },
+  {
+    id: "header-centered",
+    name: "Centered Header",
+    description: "Logo centered above menu, optional button",
+    category: "header",
+    template: {
+      id: generateId(),
+      type: "header-centered",
+      content: {
+        logo: "/api/placeholder/150/50",
+        logoAlt: "Company Logo",
+        menuItems: [
+          { label: "Home", link: "#home", enabled: true },
+          { label: "About", link: "#about", enabled: true },
+          { label: "Services", link: "#services", enabled: true },
+          { label: "Contact", link: "#contact", enabled: true },
+        ],
+        showButton: false,
+      },
+      style: {
+        backgroundColor: "#ffffff",
+        padding: "1.5rem 2rem",
+        textAlign: "center",
+      },
+    },
+    editableFields: ["content.logo", "content.menuItems"],
+  },
+  {
+    id: "header-minimal",
+    name: "Minimal Header",
+    description: "Logo and hamburger menu for mobile-first design",
+    category: "header",
+    template: {
+      id: generateId(),
+      type: "header-minimal",
+      content: {
+        logo: "/api/placeholder/120/40",
+        logoAlt: "Company Logo",
+        menuItems: [
+          { label: "Home", link: "#home" },
+          { label: "About", link: "#about" },
+          { label: "Services", link: "#services" },
+          { label: "Contact", link: "#contact" },
+        ],
+      },
+      style: {
+        backgroundColor: "transparent",
+        padding: "1rem 2rem",
+      },
+    },
+    editableFields: ["content.logo", "content.menuItems"],
+  },
+];
+
 // Hero Section Variations
 export const heroVariations: SectionVariation[] = [
   {
@@ -487,6 +571,7 @@ export const contactVariations: SectionVariation[] = [
 
 // Export all variations
 export const allSectionVariations: SectionVariation[] = [
+  ...headerVariations,
   ...heroVariations,
   ...aboutVariations,
   ...servicesVariations,

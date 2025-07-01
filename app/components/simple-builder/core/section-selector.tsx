@@ -11,6 +11,7 @@ interface SectionSelectorProps {
 }
 
 const categories: { id: SectionCategory; label: string; icon: string }[] = [
+  { id: "header", label: "Header", icon: "🔝" },
   { id: "hero", label: "Hero", icon: "🏠" },
   { id: "about", label: "About", icon: "📝" },
   { id: "services", label: "Services", icon: "⚡" },

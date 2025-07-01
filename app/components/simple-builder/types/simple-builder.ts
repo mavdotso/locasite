@@ -2,6 +2,7 @@
 
 // Section categories for the simple builder
 export type SectionCategory =
+  | "header"
   | "hero"
   | "about"
   | "services"
