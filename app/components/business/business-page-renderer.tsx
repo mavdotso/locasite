@@ -22,11 +22,11 @@ export default function BusinessPageRenderer({
   pageContent,
   mode,
 }: BusinessPageRendererProps) {
-  // Initialize analytics tracking
+  // Initialize analytics tracking (disabled for preview mode)
   useAnalytics({
     businessId: business._id,
     domainId: business.domainId,
-    enabled: true,
+    enabled: business._id !== "preview",
   });
 
   // Parse the page content

@@ -62,60 +62,78 @@ export default function BusinessLivePreview({
     sections: [
       {
         id: "hero-1",
-        type: "hero",
+        variationId: "hero-section",
         order: 0,
         data: {
-          title: businessData.name,
-          subtitle: businessData.description || "Welcome to our business",
-          backgroundImage: businessData.photos?.[0] || "",
-          ctaText: "Contact Us",
-          ctaLink: "#contact",
-          overlayOpacity: 50,
-          height: "large",
+          id: "hero-1",
+          type: "hero-section",
+          content: {
+            title: businessData.name,
+            subtitle: businessData.description || "Welcome to our business",
+            backgroundImage: businessData.photos?.[0] || undefined,
+            ctaText: "Contact Us",
+            ctaLink: "#contact",
+            overlay: true,
+            overlayOpacity: 50,
+          },
         },
       },
       {
         id: "about-1",
-        type: "about",
+        variationId: "about-section",
         order: 1,
         data: {
-          title: "About Us",
-          content:
-            businessData.description ||
-            `Welcome to ${businessData.name}. We are dedicated to providing excellent service to our customers.`,
-          image: businessData.photos?.[1] || "",
-          imagePosition: "right",
-          features: [],
+          id: "about-1",
+          type: "about-section",
+          content: {
+            title: "About Us",
+            content:
+              businessData.description ||
+              `Welcome to ${businessData.name}. We are dedicated to providing excellent service to our customers.`,
+            image: businessData.photos?.[1] || undefined,
+            imagePosition: "right",
+            features: [],
+          },
         },
       },
       {
         id: "gallery-1",
-        type: "gallery",
+        variationId: "gallery-grid",
         order: 2,
         data: {
-          title: "Gallery",
-          images:
-            businessData.photos?.slice(0, 6).map((photo, index) => ({
-              url: photo,
-              alt: `${businessData.name} image ${index + 1}`,
-              caption: "",
-            })) || [],
-          columns: 3,
+          id: "gallery-1",
+          type: "gallery-grid",
+          content: {
+            title: "Gallery",
+            images:
+              businessData.photos
+                ?.filter((photo) => photo && photo.trim() !== "")
+                .slice(0, 6)
+                .map((photo, index) => ({
+                  src: photo,
+                  alt: `${businessData.name} image ${index + 1}`,
+                })) || [],
+            columns: 3,
+          },
         },
       },
       {
         id: "contact-1",
-        type: "contact",
+        variationId: "contact-form-map",
         order: 3,
         data: {
-          title: "Contact Us",
-          address: businessData.address,
-          phone: businessData.phone,
-          email: "",
-          hours: businessData.hours,
-          mapUrl: `https://maps.google.com/?q=${encodeURIComponent(businessData.address)}`,
-          showMap: true,
-          showForm: true,
+          id: "contact-1",
+          type: "contact-form-map",
+          content: {
+            title: "Contact Us",
+            address: businessData.address,
+            phone: businessData.phone,
+            email: "",
+            hours: businessData.hours,
+            mapUrl: `https://maps.google.com/?q=${encodeURIComponent(businessData.address)}`,
+            showMap: true,
+            showForm: true,
+          },
         },
       },
     ],
