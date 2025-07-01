@@ -1,4 +1,4 @@
-import { LayoutOptions } from "../types";
+import { LayoutOptions } from "../core/types";
 import { cn } from "@/app/lib/utils";
 import React from "react";
 
@@ -96,7 +96,9 @@ export function getLayoutClasses(layout?: LayoutOptions): string {
   return cn(...classes);
 }
 
-export function getBackgroundStyle(layout?: LayoutOptions): React.CSSProperties {
+export function getBackgroundStyle(
+  layout?: LayoutOptions,
+): React.CSSProperties {
   if (!layout?.background) return {};
 
   const { type, value } = layout.background;
@@ -111,7 +113,7 @@ export function getBackgroundStyle(layout?: LayoutOptions): React.CSSProperties 
         backgroundImage: `url(${value})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
-        backgroundRepeat: "no-repeat"
+        backgroundRepeat: "no-repeat",
       };
     default:
       return {};
@@ -125,5 +127,5 @@ export const defaultLayout: LayoutOptions = {
   gap: "medium",
   padding: "medium",
   margin: "none",
-  fullWidth: true
+  fullWidth: true,
 };

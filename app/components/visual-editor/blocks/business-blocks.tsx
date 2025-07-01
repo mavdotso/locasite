@@ -1,4 +1,4 @@
-import { ComponentConfig } from "../types";
+import { ComponentConfig } from "../core/types";
 import {
   Sparkles,
   Info,

@@ -1,9 +1,7 @@
 {
   "ignoreDependencies": [],
   "ignoreWorkspaces": [],
-  "ignore": [
-    "app/components/ui/**"
-  ],
+  "ignore": ["app/components/ui/**", "**/*radix*", "**/radix/**"],
   "ignoreBinaries": [],
   "ignoreExportsUsedInFile": true
 }

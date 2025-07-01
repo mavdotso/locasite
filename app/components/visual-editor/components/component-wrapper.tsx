@@ -1,17 +1,17 @@
 "use client";
 
 import React from "react";
-import { ComponentData } from "./types";
-import { useDragDrop } from "./drag-drop-provider";
+import { ComponentData } from "../core/types";
+import { useDragDrop } from "../drag-drop/drag-drop-provider";
 import { cn } from "@/app/lib/utils";
 import { Button } from "@/app/components/ui/button";
-import { getLayoutStyles } from "./utils/layout-styles";
-import { 
-  ChevronUp, 
-  ChevronDown, 
-  Trash2, 
+import { getLayoutStyles } from "../utils/layout-styles";
+import {
+  ChevronUp,
+  ChevronDown,
+  Trash2,
   GripVertical,
-  Copy
+  Copy,
 } from "lucide-react";
 import {
   Tooltip,
@@ -44,7 +44,7 @@ const ComponentWrapper = React.memo(function ComponentWrapper({
   canMoveUp,
   canMoveDown,
   children,
-  isNested = false
+  isNested = false,
 }: ComponentWrapperProps) {
   const { startDrag } = useDragDrop();
   const wrapperRef = React.useRef<HTMLDivElement>(null);
@@ -56,60 +56,75 @@ const ComponentWrapper = React.memo(function ComponentWrapper({
     }
   }, [isSelected]);
 
-  const handleKeyDown = React.useCallback((e: React.KeyboardEvent) => {
-    if (!isEditMode || !isSelected) return;
+  const handleKeyDown = React.useCallback(
+    (e: React.KeyboardEvent) => {
+      if (!isEditMode || !isSelected) return;
 
-    switch (e.key) {
-      case 'ArrowUp':
-        if (e.altKey && canMoveUp) {
-          e.preventDefault();
-          onMove('up');
-        }
-        break;
-      case 'ArrowDown':
-        if (e.altKey && canMoveDown) {
-          e.preventDefault();
-          onMove('down');
-        }
-        break;
-      case 'Delete':
-      case 'Backspace':
-        if (e.metaKey || e.ctrlKey) {
-          e.preventDefault();
-          onRemove();
-        }
-        break;
-      case 'd':
-        if ((e.metaKey || e.ctrlKey) && onDuplicate) {
-          e.preventDefault();
-          onDuplicate();
-        }
-        break;
-    }
-  }, [isEditMode, isSelected, canMoveUp, canMoveDown, onMove, onRemove, onDuplicate]);
+      switch (e.key) {
+        case "ArrowUp":
+          if (e.altKey && canMoveUp) {
+            e.preventDefault();
+            onMove("up");
+          }
+          break;
+        case "ArrowDown":
+          if (e.altKey && canMoveDown) {
+            e.preventDefault();
+            onMove("down");
+          }
+          break;
+        case "Delete":
+        case "Backspace":
+          if (e.metaKey || e.ctrlKey) {
+            e.preventDefault();
+            onRemove();
+          }
+          break;
+        case "d":
+          if ((e.metaKey || e.ctrlKey) && onDuplicate) {
+            e.preventDefault();
+            onDuplicate();
+          }
+          break;
+      }
+    },
+    [
+      isEditMode,
+      isSelected,
+      canMoveUp,
+      canMoveDown,
+      onMove,
+      onRemove,
+      onDuplicate,
+    ],
+  );
 
   const handleDragStart = (e: React.DragEvent) => {
     e.stopPropagation();
-    const target = e.currentTarget.closest('.group') as HTMLElement;
-    startDrag({
-      type: "existing-component",
-      component
-    }, target);
-    
+    const target = e.currentTarget.closest(".group") as HTMLElement;
+    startDrag(
+      {
+        type: "existing-component",
+        component,
+      },
+      target,
+    );
+
     // Create custom drag preview
-    const dragPreview = document.createElement('div');
-    dragPreview.className = 'fixed pointer-events-none z-50 bg-background border-2 border-primary rounded-lg shadow-xl p-3 opacity-90';
+    const dragPreview = document.createElement("div");
+    dragPreview.className =
+      "fixed pointer-events-none z-50 bg-background border-2 border-primary rounded-lg shadow-xl p-3 opacity-90";
     dragPreview.innerHTML = `
       <div class="flex items-center gap-2">
         <div class="w-2 h-2 bg-primary rounded-full"></div>
-        <span class="text-sm font-medium">${component.type.replace(/Block$/, '')}</span>
+        <span class="text-sm font-medium">${component.type.replace(/Block$/, "")}</span>
       </div>
     `;
-    dragPreview.style.position = 'absolute';
-    dragPreview.style.top = '-9999px';
+    dragPreview.style.position = "absolute";
+    dragPreview.style.top = "-9999px";
     document.body.appendChild(dragPreview);
     e.dataTransfer.setDragImage(dragPreview, 0, 0);
-    
+
     setTimeout(() => {
       document.body.removeChild(dragPreview);
     }, 0);
@@ -118,11 +133,7 @@ const ComponentWrapper = React.memo(function ComponentWrapper({
   const layoutStyles = getLayoutStyles(component.layout);
 
   if (!isEditMode) {
-    return (
-      <div style={layoutStyles}>
-        {children}
-      </div>
-    );
+    return <div style={layoutStyles}>{children}</div>;
   }
 
   return (
@@ -132,7 +143,7 @@ const ComponentWrapper = React.memo(function ComponentWrapper({
         "relative group transition-all duration-200",
         isSelected && "ring-2 ring-primary ring-offset-2",
         "hover:ring-2 hover:ring-primary/30 hover:ring-offset-1",
-        "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+        "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
       )}
       onClick={(e) => {
         e.stopPropagation();
@@ -141,17 +152,21 @@ const ComponentWrapper = React.memo(function ComponentWrapper({
       onKeyDown={handleKeyDown}
       tabIndex={isEditMode ? 0 : -1}
       role={isEditMode ? "button" : undefined}
-      aria-label={`${component.type.replace(/Block$/, '')} component${isSelected ? ' (selected)' : ''}`}
+      aria-label={`${component.type.replace(/Block$/, "")} component${isSelected ? " (selected)" : ""}`}
       aria-selected={isEditMode ? isSelected : undefined}
       style={layoutStyles}
     >
       {/* Component Controls */}
-      <div className={cn(
-        "absolute -top-10 right-2 z-10",
-        "flex items-center gap-1 bg-background border rounded-lg p-1",
-        "transition-all duration-200",
-        isSelected ? "opacity-100 -translate-y-1 pointer-events-auto" : "opacity-0 pointer-events-none"
-      )}>
+      <div
+        className={cn(
+          "absolute -top-10 right-2 z-10",
+          "flex items-center gap-1 bg-background border rounded-lg p-1",
+          "transition-all duration-200",
+          isSelected
+            ? "opacity-100 -translate-y-1 pointer-events-auto"
+            : "opacity-0 pointer-events-none",
+        )}
+      >
         {/* Drag Handle */}
         <Tooltip>
           <TooltipTrigger asChild>
@@ -160,7 +175,10 @@ const ComponentWrapper = React.memo(function ComponentWrapper({
               onDragStart={handleDragStart}
               className="cursor-move p-1.5 hover:bg-muted rounded transition-colors touch-none select-none"
             >
-              <GripVertical className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" aria-hidden="true" />
+              <GripVertical
+                className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors"
+                aria-hidden="true"
+              />
             </div>
           </TooltipTrigger>
           <TooltipContent>
@@ -169,49 +187,51 @@ const ComponentWrapper = React.memo(function ComponentWrapper({
         </Tooltip>
 
         {/* Move Buttons - only show for Sections and Columns */}
-        {!isNested && (component.type === 'SectionBlock' || component.type === 'ColumnsBlock') && (
-          <>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onMove("up");
-                  }}
-                  disabled={!canMoveUp}
-                  className="h-8 w-8 p-0 transition-all hover:bg-primary/10"
-                >
-                  <ChevronUp className="w-4 h-4" aria-hidden="true" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Move up</p>
-              </TooltipContent>
-            </Tooltip>
-            
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onMove("down");
-                  }}
-                  disabled={!canMoveDown}
-                  className="h-8 w-8 p-0 transition-all hover:bg-primary/10"
-                >
-                  <ChevronDown className="w-4 h-4" aria-hidden="true" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Move down</p>
-              </TooltipContent>
-            </Tooltip>
-          </>
-        )}
+        {!isNested &&
+          (component.type === "SectionBlock" ||
+            component.type === "ColumnsBlock") && (
+            <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMove("up");
+                    }}
+                    disabled={!canMoveUp}
+                    className="h-8 w-8 p-0 transition-all hover:bg-primary/10"
+                  >
+                    <ChevronUp className="w-4 h-4" aria-hidden="true" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Move up</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMove("down");
+                    }}
+                    disabled={!canMoveDown}
+                    className="h-8 w-8 p-0 transition-all hover:bg-primary/10"
+                  >
+                    <ChevronDown className="w-4 h-4" aria-hidden="true" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Move down</p>
+                </TooltipContent>
+              </Tooltip>
+            </>
+          )}
 
         {/* Duplicate Button */}
         {onDuplicate && (

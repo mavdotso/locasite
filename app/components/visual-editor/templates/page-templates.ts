@@ -1,4 +1,4 @@
-import { PageData } from "../types";
+import { PageData } from "../core/types";
 
 // Helper function to generate unique IDs
 const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -17,20 +17,21 @@ export const restaurantTemplate: PageData = {
           "Menu|#menu",
           "About|#about",
           "Gallery|#gallery",
-          "Contact|#contact"
+          "Contact|#contact",
         ],
         showCtaButton: "yes",
         ctaButtonLabel: "Reserve Table",
-        ctaButtonHref: "tel:"
+        ctaButtonHref: "tel:",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
       type: "HeroSection",
       props: {
         headline: "Welcome to Your Restaurant",
-        subheadline: "Experience authentic cuisine in a warm, inviting atmosphere",
+        subheadline:
+          "Experience authentic cuisine in a warm, inviting atmosphere",
         backgroundImage: "",
         overlayOpacity: 60,
         primaryButtonText: "View Menu",
@@ -39,26 +40,27 @@ export const restaurantTemplate: PageData = {
         secondaryButtonLink: "#contact",
         showSecondaryButton: "yes",
         alignment: "center",
-        height: "large"
+        height: "large",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
       type: "AboutSection",
       props: {
         title: "Our Story",
-        content: "Founded in 2020, we've been serving delicious, authentic cuisine made with fresh, locally-sourced ingredients. Our passion for food and commitment to excellence has made us a favorite dining destination.",
+        content:
+          "Founded in 2020, we've been serving delicious, authentic cuisine made with fresh, locally-sourced ingredients. Our passion for food and commitment to excellence has made us a favorite dining destination.",
         image: "",
         imagePosition: "right",
         features: [
           "Fresh, Local Ingredients",
           "Authentic Recipes",
           "Warm Atmosphere",
-          "Excellent Service"
-        ]
+          "Excellent Service",
+        ],
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -70,7 +72,7 @@ export const restaurantTemplate: PageData = {
           "Appetizers|Starters to share",
           "Main Courses|Signature dishes",
           "Desserts|Sweet endings",
-          "Beverages|Drinks & cocktails"
+          "Beverages|Drinks & cocktails",
         ],
         items: [
           "Appetizers|Spring Rolls|Fresh vegetables wrapped in rice paper|$8.99",
@@ -78,13 +80,13 @@ export const restaurantTemplate: PageData = {
           "Main Courses|Grilled Salmon|With seasonal vegetables|$24.99",
           "Main Courses|Pasta Primavera|Fresh pasta with garden vegetables|$18.99",
           "Desserts|Chocolate Lava Cake|Warm chocolate cake with vanilla ice cream|$8.99",
-          "Beverages|House Wine|Red or White|$7.99"
+          "Beverages|House Wine|Red or White|$7.99",
         ],
         layout: "grid",
         showPrices: "yes",
-        showDescriptions: "yes"
+        showDescriptions: "yes",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -94,9 +96,9 @@ export const restaurantTemplate: PageData = {
         subtitle: "A glimpse into our restaurant",
         images: [],
         layout: "grid",
-        columns: "3"
+        columns: "3",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -112,9 +114,9 @@ export const restaurantTemplate: PageData = {
         saturdayHours: "11:00 AM - 11:00 PM",
         sundayHours: "12:00 PM - 9:00 PM",
         showSpecialHours: "no",
-        layout: "centered"
+        layout: "centered",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -124,11 +126,11 @@ export const restaurantTemplate: PageData = {
         subtitle: "Reserve your table today",
         showForm: "yes",
         showMap: "yes",
-        layout: "split"
+        layout: "split",
       },
-      layout: {}
-    }
-  ]
+      layout: {},
+    },
+  ],
 };
 
 // Salon/Spa Template
@@ -145,13 +147,13 @@ export const salonTemplate: PageData = {
           "Services|#services",
           "About|#about",
           "Gallery|#gallery",
-          "Contact|#contact"
+          "Contact|#contact",
         ],
         showCtaButton: "yes",
         ctaButtonLabel: "Book Now",
-        ctaButtonHref: "tel:"
+        ctaButtonHref: "tel:",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -167,9 +169,9 @@ export const salonTemplate: PageData = {
         secondaryButtonLink: "#services",
         showSecondaryButton: "yes",
         alignment: "center",
-        height: "large"
+        height: "large",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -183,14 +185,14 @@ export const salonTemplate: PageData = {
           "Massage Therapy|Swedish, deep tissue, hot stone|From $90|60 min",
           "Nail Services|Manicures, pedicures, nail art|From $35|45 min",
           "Body Treatments|Wraps, scrubs, and detox treatments|From $120|90 min",
-          "Makeup Services|Special occasion and bridal makeup|From $75|60 min"
+          "Makeup Services|Special occasion and bridal makeup|From $75|60 min",
         ],
         layout: "cards",
         showPrices: "yes",
         showDuration: "yes",
-        showBookingButton: "yes"
+        showBookingButton: "yes",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -202,12 +204,12 @@ export const salonTemplate: PageData = {
           "Jane Smith|Master Stylist|15 years of experience in hair design|",
           "Maria Garcia|Esthetician|Skincare specialist with holistic approach|",
           "Sarah Johnson|Massage Therapist|Certified in multiple massage techniques|",
-          "Emily Chen|Nail Artist|Creative nail designs and treatments|"
+          "Emily Chen|Nail Artist|Creative nail designs and treatments|",
         ],
         layout: "grid",
-        showSocial: "no"
+        showSocial: "no",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -218,12 +220,12 @@ export const salonTemplate: PageData = {
         offers: [
           "New Client Special|20% off your first visit|Valid for all services|WELCOME20",
           "Package Deal|Buy 5 treatments, get 1 free|For any service|PACKAGE6",
-          "Refer a Friend|Both get $20 off|When they book their first service|REFER20"
+          "Refer a Friend|Both get $20 off|When they book their first service|REFER20",
         ],
         layout: "cards",
-        showCodes: "yes"
+        showCodes: "yes",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -232,9 +234,9 @@ export const salonTemplate: PageData = {
         title: "Transformations",
         subtitle: "See the amazing results",
         comparisons: [],
-        layout: "grid"
+        layout: "grid",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -244,11 +246,11 @@ export const salonTemplate: PageData = {
         subtitle: "Start your journey to beauty and wellness",
         showForm: "yes",
         showMap: "yes",
-        layout: "split"
+        layout: "split",
       },
-      layout: {}
-    }
-  ]
+      layout: {},
+    },
+  ],
 };
 
 // Medical/Dental Clinic Template
@@ -265,13 +267,13 @@ export const clinicTemplate: PageData = {
           "Services|#services",
           "About|#about",
           "Our Team|#team",
-          "Contact|#contact"
+          "Contact|#contact",
         ],
         showCtaButton: "yes",
         ctaButtonLabel: "Emergency: Call Now",
-        ctaButtonHref: "tel:"
+        ctaButtonHref: "tel:",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -287,9 +289,9 @@ export const clinicTemplate: PageData = {
         secondaryButtonLink: "#services",
         showSecondaryButton: "yes",
         alignment: "left",
-        height: "medium"
+        height: "medium",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -303,12 +305,12 @@ export const clinicTemplate: PageData = {
           "Comprehensive Care|From preventive care to specialized treatments",
           "Insurance Accepted|We work with most major insurance providers",
           "Same-Day Appointments|Urgent care available when you need it",
-          "Patient-Centered|Your health and comfort are our top priorities"
+          "Patient-Centered|Your health and comfort are our top priorities",
         ],
         layout: "grid",
-        showIcons: "yes"
+        showIcons: "yes",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -322,14 +324,14 @@ export const clinicTemplate: PageData = {
           "Women's Health|Gynecology and reproductive health|Varies|45 min",
           "Cardiology|Heart health screening and treatment|Varies|60 min",
           "Dermatology|Skin conditions and cosmetic treatments|From $150|45 min",
-          "Laboratory Services|Blood work and diagnostic testing|Varies|15 min"
+          "Laboratory Services|Blood work and diagnostic testing|Varies|15 min",
         ],
         layout: "list",
         showPrices: "yes",
         showDuration: "yes",
-        showBookingButton: "yes"
+        showBookingButton: "yes",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -341,12 +343,12 @@ export const clinicTemplate: PageData = {
           "Dr. John Smith|Chief Medical Officer|Internal Medicine, 20 years experience|",
           "Dr. Sarah Johnson|Pediatrician|Specialized in child healthcare|",
           "Dr. Michael Chen|Cardiologist|Heart health specialist|",
-          "Dr. Emily Davis|Dermatologist|Skin care and treatment expert|"
+          "Dr. Emily Davis|Dermatologist|Skin care and treatment expert|",
         ],
         layout: "grid",
-        showSocial: "no"
+        showSocial: "no",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -359,10 +361,10 @@ export const clinicTemplate: PageData = {
           "Do you offer same-day appointments?|Yes, we reserve slots for urgent care and same-day appointments. Call us for availability.",
           "What should I bring to my first visit?|Please bring your ID, insurance card, list of current medications, and any relevant medical records.",
           "Do you offer telemedicine?|Yes, we offer virtual consultations for appropriate conditions. Ask about our telehealth options.",
-          "What are your payment options?|We accept insurance, credit cards, and offer payment plans for qualifying patients."
-        ]
+          "What are your payment options?|We accept insurance, credit cards, and offer payment plans for qualifying patients.",
+        ],
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -372,11 +374,11 @@ export const clinicTemplate: PageData = {
         subtitle: "We're here to help you stay healthy",
         showForm: "yes",
         showMap: "yes",
-        layout: "split"
+        layout: "split",
       },
-      layout: {}
-    }
-  ]
+      layout: {},
+    },
+  ],
 };
 
 // Auto Repair Shop Template
@@ -393,13 +395,13 @@ export const autoRepairTemplate: PageData = {
           "Services|#services",
           "About|#about",
           "Reviews|#reviews",
-          "Contact|#contact"
+          "Contact|#contact",
         ],
         showCtaButton: "yes",
         ctaButtonLabel: "Get Quote",
-        ctaButtonHref: "tel:"
+        ctaButtonHref: "tel:",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -415,9 +417,9 @@ export const autoRepairTemplate: PageData = {
         secondaryButtonLink: "#contact",
         showSecondaryButton: "yes",
         alignment: "center",
-        height: "large"
+        height: "large",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -428,11 +430,11 @@ export const autoRepairTemplate: PageData = {
           "15+|Years Experience|Serving our community",
           "10,000+|Happy Customers|And counting",
           "100%|Satisfaction|Guaranteed work",
-          "24/7|Emergency Service|Always available"
+          "24/7|Emergency Service|Always available",
         ],
-        backgroundColor: "primary"
+        backgroundColor: "primary",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -446,14 +448,14 @@ export const autoRepairTemplate: PageData = {
           "Engine Diagnostics|Computer diagnostics to identify issues|$89.99|1 hour",
           "Tire Services|Rotation, balancing, and replacement|From $25|45 min",
           "AC Service|Keep cool with our AC repair and recharge|From $129.99|1.5 hours",
-          "Transmission Service|Fluid change and transmission repair|From $179.99|3 hours"
+          "Transmission Service|Fluid change and transmission repair|From $179.99|3 hours",
         ],
         layout: "cards",
         showPrices: "yes",
         showDuration: "yes",
-        showBookingButton: "yes"
+        showBookingButton: "yes",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -466,12 +468,12 @@ export const autoRepairTemplate: PageData = {
           "2|Free Inspection|We diagnose the issue and provide a detailed quote",
           "3|Approval & Repair|With your approval, our certified mechanics get to work",
           "4|Quality Check|We test everything to ensure it's working perfectly",
-          "5|Pick Up|Your car is ready, cleaned and running great!"
+          "5|Pick Up|Your car is ready, cleaned and running great!",
         ],
         layout: "horizontal",
-        showConnectors: "yes"
+        showConnectors: "yes",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -483,12 +485,12 @@ export const autoRepairTemplate: PageData = {
           "John D.|5|Best auto shop in town! Honest, fair pricing, and excellent work. They fixed my car's AC in no time.|2024-01-15",
           "Sarah M.|5|I've been coming here for years. They always take great care of my car and never try to upsell unnecessary services.|2024-01-20",
           "Mike R.|5|Emergency brake repair on a Sunday - these guys saved the day! Professional and reasonably priced.|2024-01-25",
-          "Lisa K.|5|Finally found a mechanic I can trust. They explain everything clearly and their prices are very fair.|2024-02-01"
+          "Lisa K.|5|Finally found a mechanic I can trust. They explain everything clearly and their prices are very fair.|2024-02-01",
         ],
         layout: "carousel",
-        showDate: "yes"
+        showDate: "yes",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -501,9 +503,9 @@ export const autoRepairTemplate: PageData = {
         secondaryButtonText: "Call Now",
         secondaryButtonLink: "tel:",
         showSecondaryButton: "yes",
-        backgroundType: "gradient"
+        backgroundType: "gradient",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -513,11 +515,11 @@ export const autoRepairTemplate: PageData = {
         subtitle: "Drop by or schedule your service today",
         showForm: "yes",
         showMap: "yes",
-        layout: "split"
+        layout: "split",
       },
-      layout: {}
-    }
-  ]
+      layout: {},
+    },
+  ],
 };
 
 // Real Estate Agency Template
@@ -534,13 +536,13 @@ export const realEstateTemplate: PageData = {
           "Properties|#properties",
           "About|#about",
           "Agents|#agents",
-          "Contact|#contact"
+          "Contact|#contact",
         ],
         showCtaButton: "yes",
         ctaButtonLabel: "List Your Property",
-        ctaButtonHref: "#contact"
+        ctaButtonHref: "#contact",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -556,9 +558,9 @@ export const realEstateTemplate: PageData = {
         secondaryButtonLink: "#contact",
         showSecondaryButton: "yes",
         alignment: "center",
-        height: "large"
+        height: "large",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -572,12 +574,12 @@ export const realEstateTemplate: PageData = {
           "Full Service|From listing to closing, we handle everything",
           "Marketing Power|Professional photos, virtual tours, and targeted advertising",
           "Negotiation Skills|Get the best deal whether buying or selling",
-          "24/7 Support|Always available when you need us"
+          "24/7 Support|Always available when you need us",
         ],
         layout: "grid",
-        showIcons: "yes"
+        showIcons: "yes",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -588,11 +590,11 @@ export const realEstateTemplate: PageData = {
           "500+|Properties Sold|In the last 5 years",
           "98%|Client Satisfaction|Based on reviews",
           "14|Average Days|To sell a property",
-          "$2M+|Saved for Clients|Through expert negotiation"
+          "$2M+|Saved for Clients|Through expert negotiation",
         ],
-        backgroundColor: "default"
+        backgroundColor: "default",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -604,12 +606,12 @@ export const realEstateTemplate: PageData = {
           "Jane Smith|Principal Broker|15 years experience, specializing in luxury homes|",
           "John Davis|Senior Agent|First-time buyer specialist with 10 years experience|",
           "Maria Garcia|Listing Specialist|Expert in home staging and marketing|",
-          "David Chen|Commercial Agent|Commercial and investment properties expert|"
+          "David Chen|Commercial Agent|Commercial and investment properties expert|",
         ],
         layout: "grid",
-        showSocial: "yes"
+        showSocial: "yes",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -622,12 +624,12 @@ export const realEstateTemplate: PageData = {
           "2|Market Analysis|Determine the optimal listing price",
           "3|Prepare & Stage|Get your home ready to attract buyers",
           "4|Marketing Campaign|Professional photos, listings, and showings",
-          "5|Negotiate & Close|We handle all negotiations and paperwork"
+          "5|Negotiate & Close|We handle all negotiations and paperwork",
         ],
         layout: "vertical",
-        showConnectors: "yes"
+        showConnectors: "yes",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -639,12 +641,12 @@ export const realEstateTemplate: PageData = {
           "Sarah M.|5|Jane helped us find our dream home in just 2 weeks! Her knowledge of the area was invaluable.|2024-01-10",
           "Robert K.|5|Sold our house for 10% over asking price. The marketing strategy was brilliant!|2024-01-15",
           "Emily L.|5|First-time buyer here - John made the process so easy and stress-free. Highly recommend!|2024-01-20",
-          "Michael P.|5|Professional, responsive, and got us an amazing deal. Couldn't be happier!|2024-01-25"
+          "Michael P.|5|Professional, responsive, and got us an amazing deal. Couldn't be happier!|2024-01-25",
         ],
         layout: "grid",
-        showDate: "yes"
+        showDate: "yes",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -657,9 +659,9 @@ export const realEstateTemplate: PageData = {
         secondaryButtonText: "Browse Listings",
         secondaryButtonLink: "#properties",
         showSecondaryButton: "yes",
-        backgroundType: "image"
+        backgroundType: "image",
       },
-      layout: {}
+      layout: {},
     },
     {
       id: generateId(),
@@ -669,11 +671,11 @@ export const realEstateTemplate: PageData = {
         subtitle: "Contact us for a free consultation",
         showForm: "yes",
         showMap: "yes",
-        layout: "split"
+        layout: "split",
       },
-      layout: {}
-    }
-  ]
+      layout: {},
+    },
+  ],
 };
 
 // Template registry
@@ -682,7 +684,7 @@ export const pageTemplates = {
   salon: salonTemplate,
   clinic: clinicTemplate,
   autoRepair: autoRepairTemplate,
-  realEstate: realEstateTemplate
+  realEstate: realEstateTemplate,
 };
 
 // Template metadata for UI
@@ -692,34 +694,34 @@ export const templateMetadata = [
     name: "Restaurant",
     description: "Perfect for restaurants, cafes, and food establishments",
     icon: "🍽️",
-    category: "Food & Dining"
+    category: "Food & Dining",
   },
   {
     id: "salon",
     name: "Salon & Spa",
     description: "Ideal for beauty salons, spas, and wellness centers",
     icon: "💆‍♀️",
-    category: "Beauty & Wellness"
+    category: "Beauty & Wellness",
   },
   {
     id: "clinic",
     name: "Medical Clinic",
     description: "Designed for medical clinics, dental offices, and healthcare",
     icon: "🏥",
-    category: "Healthcare"
+    category: "Healthcare",
   },
   {
     id: "autoRepair",
     name: "Auto Repair",
     description: "Built for auto repair shops and car service centers",
     icon: "🚗",
-    category: "Automotive"
+    category: "Automotive",
   },
   {
     id: "realEstate",
     name: "Real Estate",
     description: "Tailored for real estate agencies and property management",
     icon: "🏠",
-    category: "Real Estate"
-  }
+    category: "Real Estate",
+  },
 ];

@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useSearchParams } from "next/navigation";
-import { BusinessVerification } from "@/app/components/business-verification";
+import { BusinessVerification } from "@/app/components/common/business-verification";
 import { Id } from "@/convex/_generated/dataModel";
 import { useEffect } from "react";
 import { toast } from "sonner";

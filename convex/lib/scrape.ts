@@ -93,7 +93,6 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
       `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(businessName)}&inputtype=textquery&fields=place_id,name,formatted_address&key=${apiKey}`
     );
 
-    console.log(findPlaceResponse)
 
     if (!findPlaceResponse.data.candidates || findPlaceResponse.data.candidates.length === 0) {
       return new Response(

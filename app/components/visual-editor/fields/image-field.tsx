@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { ImageField as ImageFieldType } from "../types";
+import { ImageField as ImageFieldType } from "../core/types";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
 import { Upload, X, Loader2, ImageIcon } from "lucide-react";
@@ -10,7 +10,7 @@ import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 import { Id } from "@/convex/_generated/dataModel";
 import Image from "next/image";
-import MediaLibrary from "../media-library";
+import MediaLibrary from "../library/media-library";
 
 interface ImageFieldProps {
   field: ImageFieldType;

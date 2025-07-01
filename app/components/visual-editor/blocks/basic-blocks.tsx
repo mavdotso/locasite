@@ -1,5 +1,5 @@
 import React from "react";
-import { ComponentConfig, BusinessData } from "../types";
+import { ComponentConfig, BusinessData } from "../core/types";
 import {
   Type,
   Square,

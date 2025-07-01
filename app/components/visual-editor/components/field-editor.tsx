@@ -1,28 +1,28 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { ComponentData } from "./types";
-import { allComponentConfigs as componentConfigs } from "./config/all-components";
+import { ComponentData } from "../core/types";
+import { allComponentConfigs as componentConfigs } from "../config/all-components";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
 import { X } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
-import TextField from "./fields/text-field";
-import TextareaField from "./fields/textarea-field";
-import ImageField from "./fields/image-field";
-import ColorField from "./fields/color-field";
-import SelectField from "./fields/select-field";
-import NumberField from "./fields/number-field";
-import ArrayField from "./fields/array-field";
-import LayoutControls from "./layout-controls";
+import TextField from "../fields/text-field";
+import TextareaField from "../fields/textarea-field";
+import ImageField from "../fields/image-field";
+import ColorField from "../fields/color-field";
+import SelectField from "../fields/select-field";
+import NumberField from "../fields/number-field";
+import ArrayField from "../fields/array-field";
+import LayoutControls from "../ui/layout-controls";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/app/components/ui/tabs";
-import { LayoutOptions, Field } from "./types";
+import { LayoutOptions, Field } from "../core/types";
 import { Id } from "@/convex/_generated/dataModel";
-import { VariationSelector } from "./variation-selector";
+import { VariationSelector } from "../library/variation-selector";
 
 interface FieldEditorProps {
   component: ComponentData | null;
@@ -303,13 +303,13 @@ const FieldEditor = React.memo(function FieldEditor({
                       onUpdate({
                         ...component.props,
                         ...variation.defaultProps,
-                        variationId: variation.id
+                        variationId: variation.id,
                       });
                     }}
                   />
                 </div>
               )}
-              
+
               {fieldSections.map((section) => {
                 return (
                   <div key={section.title} className="space-y-3">

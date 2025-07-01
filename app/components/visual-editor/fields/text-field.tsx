@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { TextField as TextFieldType } from "../types";
+import { TextField as TextFieldType } from "../core/types";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 

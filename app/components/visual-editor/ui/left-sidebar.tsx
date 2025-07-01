@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { PageData, ComponentData } from "./types";
-import LazyComponentLibrary from "./lazy-component-library";
+import { PageData, ComponentData } from "../core/types";
+import ComponentLibrary from "../library/component-library";
 import { cn } from "@/app/lib/utils";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
 import { ChevronDown, FileText, Layers } from "lucide-react";
-import { allComponentConfigs as componentConfigs } from "./config/all-components";
+import { allComponentConfigs as componentConfigs } from "../config/all-components";
 
 interface LeftSidebarProps {
   pageData: PageData;
@@ -177,7 +177,7 @@ export default function LeftSidebar({
 
       {/* Component Library Section (remaining height) */}
       <div className="flex-1 min-h-0">
-        <LazyComponentLibrary onOpenTemplates={onOpenTemplates} />
+        <ComponentLibrary onOpenTemplates={onOpenTemplates} />
       </div>
     </div>
   );

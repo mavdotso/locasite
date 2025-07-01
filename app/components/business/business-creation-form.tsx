@@ -20,7 +20,7 @@ import {
   Globe
 } from 'lucide-react';
 import { toast } from 'sonner';
-import BusinessPreviewCard from '../business-preview-card';
+import BusinessPreviewCard from '../common/business-preview-card';
 
 interface BusinessCreationFormProps {
   onSuccess?: (businessId: string) => void;

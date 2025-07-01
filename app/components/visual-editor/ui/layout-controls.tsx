@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { LayoutOptions } from "./types";
+import { LayoutOptions } from "../core/types";
 import { Label } from "@/app/components/ui/label";
 import { Input } from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";

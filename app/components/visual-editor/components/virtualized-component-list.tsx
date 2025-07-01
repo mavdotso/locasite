@@ -2,12 +2,12 @@
 
 import React, { useMemo, useCallback } from "react";
 import { FixedSizeList as List } from "react-window";
-import { ComponentData, PageData } from "./types";
-import { allComponentConfigs as componentConfigs } from "./config/all-components";
+import { ComponentData, PageData } from "../core/types";
+import { allComponentConfigs as componentConfigs } from "../config/all-components";
 import ComponentWrapper from "./component-wrapper";
-import DropZone from "./drop-zone";
-import NestedDropZone from "./nested-drop-zone";
-import ColumnsDropZone from "./columns-drop-zone";
+import DropZone from "../drag-drop/drop-zone";
+import NestedDropZone from "../drag-drop/nested-drop-zone";
+import ColumnsDropZone from "../drag-drop/columns-drop-zone";
 import { Doc } from "@/convex/_generated/dataModel";
 
 interface VirtualizedComponentListProps {

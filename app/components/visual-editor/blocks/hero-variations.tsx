@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@/app/components/ui/button";
-import { ComponentVariation } from "../types";
+import { ComponentVariation } from "../core/types";
 
 // Hero Variation 1: Classic Center
 export const heroClassicCenter: ComponentVariation = {

@@ -1,14 +1,14 @@
 "use client";
 
 import React from "react";
-import { ComponentData } from "./types";
-import { allComponentConfigs as componentConfigs } from "./config/all-components";
-import ComponentWrapper from "./component-wrapper";
+import { ComponentData } from "../core/types";
+import { allComponentConfigs as componentConfigs } from "../config/all-components";
+import ComponentWrapper from "../components/component-wrapper";
 import DropZone from "./drop-zone";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useDragDrop } from "./drag-drop-provider";
 import NestedDropZone from "./nested-drop-zone";
-import ResizableColumns from "./resizable-columns";
+import ResizableColumns from "../components/resizable-columns";
 
 interface ColumnsDropZoneProps {
   component: ComponentData;
@@ -17,7 +17,12 @@ interface ColumnsDropZoneProps {
   onSelectComponent: (id: string | null) => void;
   onUpdateComponent: (id: string, props: Record<string, unknown>) => void;
   onRemoveComponent: (id: string) => void;
-  onAddComponent: (type: string, index: number, parentId?: string, metadata?: Record<string, unknown>) => void;
+  onAddComponent: (
+    type: string,
+    index: number,
+    parentId?: string,
+    metadata?: Record<string, unknown>,
+  ) => void;
   onDuplicateComponent?: (id: string) => void;
   isEditMode: boolean;
   onMove?: (direction: "up" | "down") => void;
@@ -37,14 +42,14 @@ export default function ColumnsDropZone({
   isEditMode,
   onMove,
   canMoveUp = false,
-  canMoveDown = false
+  canMoveDown = false,
 }: ColumnsDropZoneProps) {
   const { draggedItem } = useDragDrop();
   const config = componentConfigs[component.type];
-  
+
   // Get column count from props
   const columnCount = parseInt((component.props.columns as string) || "2");
-  
+
   if (!config || component.type !== "ColumnsBlock") {
     // Fallback to regular NestedDropZone if not a columns block
     return (
@@ -67,54 +72,59 @@ export default function ColumnsDropZone({
 
   const handleDropInColumn = (columnIndex: number, dropIndex: number) => {
     if (!draggedItem) return;
-    
+
     if (draggedItem.type === "new-component" && draggedItem.componentType) {
       // Calculate the actual index considering all columns
       const actualIndex = calculateActualIndex(columnIndex, dropIndex);
-      
+
       // Add metadata to track which column this component belongs to
-      onAddComponent(
-        draggedItem.componentType, 
-        actualIndex, 
-        component.id,
-        { columnIndex, ...(draggedItem.metadata || {}) }
-      );
+      onAddComponent(draggedItem.componentType, actualIndex, component.id, {
+        columnIndex,
+        ...(draggedItem.metadata || {}),
+      });
     }
   };
 
   // Calculate the actual index in the full children array
-  const calculateActualIndex = (columnIndex: number, dropIndex: number): number => {
+  const calculateActualIndex = (
+    columnIndex: number,
+    dropIndex: number,
+  ): number => {
     if (!component.children) return dropIndex;
-    
+
     // Get all children with their metadata preserved
     const allChildren = component.children.map((child, idx) => ({
       child,
       originalIndex: idx,
-      columnIndex: child.metadata?.columnIndex ?? idx % columnCount
+      columnIndex: child.metadata?.columnIndex ?? idx % columnCount,
     }));
-    
+
     // Filter children in the target column
     const targetColumnChildren = allChildren
-      .filter(item => item.columnIndex === columnIndex)
+      .filter((item) => item.columnIndex === columnIndex)
       .sort((a, b) => a.originalIndex - b.originalIndex);
-    
+
     if (dropIndex === 0) {
       // Insert at the beginning of the column
-      return targetColumnChildren.length > 0 ? targetColumnChildren[0].originalIndex : 0;
+      return targetColumnChildren.length > 0
+        ? targetColumnChildren[0].originalIndex
+        : 0;
     } else if (dropIndex >= targetColumnChildren.length) {
       // Insert at the end of the column
       if (targetColumnChildren.length === 0) {
         // Empty column - find the right position
         for (let i = 0; i < component.children.length; i++) {
-          const childCol = component.children[i].metadata?.columnIndex ?? i % columnCount;
-          if (typeof childCol === 'number' && childCol > columnIndex) {
+          const childCol =
+            component.children[i].metadata?.columnIndex ?? i % columnCount;
+          if (typeof childCol === "number" && childCol > columnIndex) {
             return i;
           }
         }
         return component.children.length;
       }
       // After the last item in this column
-      const lastItemIndex = targetColumnChildren[targetColumnChildren.length - 1].originalIndex;
+      const lastItemIndex =
+        targetColumnChildren[targetColumnChildren.length - 1].originalIndex;
       return lastItemIndex + 1;
     } else {
       // Insert between items
@@ -122,26 +132,30 @@ export default function ColumnsDropZone({
     }
   };
 
-
   // Build the columns structure directly instead of using renderComponent
   // because ColumnsBlock's render expects raw children, not pre-distributed
   const columnsContent = (() => {
-    const columnContents: React.ReactNode[][] = Array(columnCount).fill(null).map(() => []);
-    
+    const columnContents: React.ReactNode[][] = Array(columnCount)
+      .fill(null)
+      .map(() => []);
+
     // Distribute children to columns based on metadata
     if (component.children) {
       component.children.forEach((child, index) => {
         // Get columnIndex from metadata, ensuring it's valid for current column count
         let columnIndex = child.metadata?.columnIndex as number | undefined;
-        
+
         // If columnIndex is undefined or out of bounds, redistribute
         if (columnIndex === undefined || columnIndex >= columnCount) {
           columnIndex = index % columnCount;
         }
-        
+
         // Ensure columnIndex is within bounds
-        const safeColumnIndex = Math.min(Math.max(0, columnIndex), columnCount - 1);
-        
+        const safeColumnIndex = Math.min(
+          Math.max(0, columnIndex),
+          columnCount - 1,
+        );
+
         const childNode = (
           <React.Fragment key={child.id}>
             <NestedDropZone
@@ -155,7 +169,7 @@ export default function ColumnsDropZone({
               onDuplicateComponent={onDuplicateComponent}
               isEditMode={isEditMode}
             />
-            
+
             {/* Drop zone after each child */}
             {isEditMode && (
               <DropZone
@@ -166,23 +180,25 @@ export default function ColumnsDropZone({
             )}
           </React.Fragment>
         );
-        
+
         columnContents[safeColumnIndex].push(childNode);
       });
     }
-    
-    
+
     // Create the columns layout directly
-    const gap = component.props.gap as string || "medium";
-    const stackOnMobile = component.props.stackOnMobile as string || "yes";
-    const direction = component.props.direction as string || "row";
+    const gap = (component.props.gap as string) || "medium";
+    const stackOnMobile = (component.props.stackOnMobile as string) || "yes";
+    const direction = (component.props.direction as string) || "row";
     const columnWidths = component.props.columnWidths as number[] | undefined;
     const isVertical = direction === "col";
-    
+
     const handleColumnWidthsChange = (widths: number[]) => {
-      onUpdateComponent(component.id, { ...component.props, columnWidths: widths });
+      onUpdateComponent(component.id, {
+        ...component.props,
+        columnWidths: widths,
+      });
     };
-    
+
     // For vertical layout
     if (isVertical) {
       return (
@@ -202,7 +218,9 @@ export default function ColumnsDropZone({
               {/* Show placeholder if column is empty */}
               {isEditMode && colChildren.length === 0 && (
                 <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">
-                  <p className="text-sm text-muted-foreground">Column {colIndex + 1}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Column {colIndex + 1}
+                  </p>
                 </div>
               )}
             </div>
@@ -210,7 +228,7 @@ export default function ColumnsDropZone({
         </div>
       );
     }
-    
+
     // For horizontal layout, use ResizableColumns
     return (
       <ResizableColumns
@@ -223,7 +241,10 @@ export default function ColumnsDropZone({
         isEditMode={isEditMode}
       >
         {columnContents.map((colChildren, colIndex) => (
-          <div key={`col-${colIndex}-of-${columnCount}`} className="column-drop-zone relative">
+          <div
+            key={`col-${colIndex}-of-${columnCount}`}
+            className="column-drop-zone relative"
+          >
             {colChildren.length === 0 && isEditMode ? (
               // Empty column - entire area is droppable
               <div
@@ -239,7 +260,9 @@ export default function ColumnsDropZone({
                 }}
               >
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <p className="text-sm text-muted-foreground">Drop items here</p>
+                  <p className="text-sm text-muted-foreground">
+                    Drop items here
+                  </p>
                 </div>
               </div>
             ) : (
@@ -270,7 +293,11 @@ export default function ColumnsDropZone({
       onSelect={() => onSelectComponent(component.id)}
       onRemove={() => onRemoveComponent(component.id)}
       onMove={onMove || (() => {})}
-      onDuplicate={onDuplicateComponent ? () => onDuplicateComponent(component.id) : undefined}
+      onDuplicate={
+        onDuplicateComponent
+          ? () => onDuplicateComponent(component.id)
+          : undefined
+      }
       canMoveUp={canMoveUp}
       canMoveDown={canMoveDown}
     >

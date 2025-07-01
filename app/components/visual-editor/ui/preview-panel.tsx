@@ -1,17 +1,17 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { ComponentData, PageData } from "./types";
-import { allComponentConfigs as componentConfigs } from "./config/all-components";
-import { useDragDrop } from "./drag-drop-provider";
-import DropZone from "./drop-zone";
-import ComponentWrapper from "./component-wrapper";
+import { ComponentData, PageData } from "../core/types";
+import { allComponentConfigs as componentConfigs } from "../config/all-components";
+import { useDragDrop } from "../drag-drop/drag-drop-provider";
+import DropZone from "../drag-drop/drop-zone";
+import ComponentWrapper from "../components/component-wrapper";
 import { Doc } from "@/convex/_generated/dataModel";
-import NestedDropZone from "./nested-drop-zone";
-import ColumnsDropZone from "./columns-drop-zone";
+import NestedDropZone from "../drag-drop/nested-drop-zone";
+import ColumnsDropZone from "../drag-drop/columns-drop-zone";
 import CanvasControls, { DeviceSize, deviceSizes } from "./canvas-controls";
-import ResponsiveFrame from "./responsive-frame-stable";
-import VirtualizedComponentList from "./virtualized-component-list";
+import ResponsiveFrame from "../components/responsive-frame";
+import VirtualizedComponentList from "../components/virtualized-component-list";
 
 interface PreviewPanelProps {
   pageData: PageData;

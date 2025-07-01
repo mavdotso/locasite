@@ -1,7 +1,14 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react";
-import { DragItem } from "./types";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  ReactNode,
+} from "react";
+import { DragItem } from "../core/types";
 
 interface DragDropContextValue {
   isDragging: boolean;
@@ -13,7 +20,9 @@ interface DragDropContextValue {
   setDropTarget: (id: string | null) => void;
 }
 
-const DragDropContext = createContext<DragDropContextValue | undefined>(undefined);
+const DragDropContext = createContext<DragDropContextValue | undefined>(
+  undefined,
+);
 
 export function useDragDrop() {
   const context = useContext(DragDropContext);
@@ -31,7 +40,9 @@ export function DragDropProvider({ children }: DragDropProviderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [draggedItem, setDraggedItem] = useState<DragItem | null>(null);
   const [dropTargetId, setDropTargetId] = useState<string | null>(null);
-  const [draggedElement, setDraggedElement] = useState<HTMLElement | null>(null);
+  const [draggedElement, setDraggedElement] = useState<HTMLElement | null>(
+    null,
+  );
 
   const startDrag = useCallback((item: DragItem, element?: HTMLElement) => {
     setDraggedItem(item);
@@ -39,13 +50,13 @@ export function DragDropProvider({ children }: DragDropProviderProps) {
     if (element) {
       setDraggedElement(element);
       // Add dragging class for visual feedback
-      element.classList.add('opacity-50');
+      element.classList.add("opacity-50");
     }
   }, []);
 
   const endDrag = useCallback(() => {
     if (draggedElement) {
-      draggedElement.classList.remove('opacity-50');
+      draggedElement.classList.remove("opacity-50");
       setDraggedElement(null);
     }
     setDraggedItem(null);
@@ -56,7 +67,7 @@ export function DragDropProvider({ children }: DragDropProviderProps) {
   const setDropTarget = useCallback((id: string | null) => {
     setDropTargetId(id);
   }, []);
-  
+
   // Add global drag end listener to handle edge cases
   useEffect(() => {
     const handleDragEnd = () => {
@@ -64,24 +75,24 @@ export function DragDropProvider({ children }: DragDropProviderProps) {
         endDrag();
       }
     };
-    
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isDragging) {
+      if (e.key === "Escape" && isDragging) {
         endDrag();
       }
     };
-    
-    document.addEventListener('dragend', handleDragEnd);
-    document.addEventListener('keydown', handleKeyDown);
-    
+
+    document.addEventListener("dragend", handleDragEnd);
+    document.addEventListener("keydown", handleKeyDown);
+
     return () => {
-      document.removeEventListener('dragend', handleDragEnd);
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("dragend", handleDragEnd);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isDragging, endDrag]);
 
   return (
-    <DragDropContext.Provider 
+    <DragDropContext.Provider
       value={{
         isDragging,
         draggedItem,
@@ -89,7 +100,7 @@ export function DragDropProvider({ children }: DragDropProviderProps) {
         draggedElement,
         startDrag,
         endDrag,
-        setDropTarget
+        setDropTarget,
       }}
     >
       {children}

@@ -8,7 +8,7 @@ import React, {
   useCallback,
 } from "react";
 
-import { useDragDrop } from "./drag-drop-provider";
+import { useDragDrop } from "../drag-drop/drag-drop-provider";
 import { cn } from "@/app/lib/utils";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
 import { Input } from "@/app/components/ui/input";
@@ -311,13 +311,13 @@ const LazyTreeItem = React.memo(function LazyTreeItem({
   );
 });
 
-interface LazyComponentLibraryProps {
+interface ComponentLibraryProps {
   onOpenTemplates?: () => void;
 }
 
-export default function LazyComponentLibrary({
+export default function ComponentLibrary({
   onOpenTemplates,
-}: LazyComponentLibraryProps) {
+}: ComponentLibraryProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const { startDrag, isDragging } = useDragDrop();
 

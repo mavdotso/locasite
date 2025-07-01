@@ -7,11 +7,11 @@ import {
   ComponentTemplate,
   LayoutOptions,
 } from "./types";
-import { DragDropProvider } from "./drag-drop-provider";
-import LeftSidebar from "./left-sidebar";
-import PreviewPanel from "./preview-panel";
-import FieldEditor from "./field-editor";
-import { allComponentConfigs as componentConfigs } from "./config/all-components";
+import { DragDropProvider } from "../drag-drop/drag-drop-provider";
+import LeftSidebar from "../ui/left-sidebar";
+import PreviewPanel from "../ui/preview-panel";
+import FieldEditor from "../components/field-editor";
+import { allComponentConfigs as componentConfigs } from "../config/all-components";
 import { Button } from "@/app/components/ui/button";
 import {
   Save,
@@ -37,10 +37,10 @@ import {
   TooltipTrigger,
 } from "@/app/components/ui/tooltip";
 import { PublishDialog } from "@/app/components/business/publish-dialog";
-import { useDebouncedCallback } from "./hooks/use-debounced-callback";
-import { useComponentPreloader } from "./hooks/use-component-preloader";
-import TemplateSelector from "./template-selector";
-import PageSettingsSidebar from "./page-settings-sidebar";
+import { useDebouncedCallback } from "../hooks/use-debounced-callback";
+import { useComponentPreloader } from "../hooks/use-component-preloader";
+import TemplateSelector from "../library/template-selector";
+import PageSettingsSidebar from "../ui/page-settings-sidebar";
 
 interface VisualEditorProps {
   businessId: Id<"businesses">;
@@ -435,7 +435,7 @@ export default function VisualEditor({
         toast.success("Component duplicated");
       }
     },
-    [pageData, addToHistory],
+    [pageData, addToHistory, debouncedAutoSave],
   );
 
   // Remove component (handles nested components)

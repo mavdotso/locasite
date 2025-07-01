@@ -3,7 +3,7 @@
 import React from 'react';
 import { Doc } from '@/convex/_generated/dataModel';
 import { allComponentConfigs as componentConfigs } from '@/app/components/visual-editor/config/all-components';
-import { ComponentData } from '@/app/components/visual-editor/types';
+import { ComponentData } from '@/app/components/visual-editor/core/types';
 import BusinessPageContent from './business-page-content';
 import { Section } from '@/app/types/businesses';
 import { useAnalytics } from '@/hooks/use-analytics';

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { ComponentConfig } from "../types";
+import { ComponentConfig } from "../core/types";
 import { Doc } from "@/convex/_generated/dataModel";
 
 // Common components that should be preloaded
@@ -86,7 +86,7 @@ export function useComponentPreloader(
     }, 1000); // Delay preload to not interfere with initial render
 
     return () => clearTimeout(preloadTimer);
-  }, []); // Remove componentConfigs dependency as it's stable
+  }, [componentConfigs]); // Include componentConfigs dependency
 
   // Preload specific component on hover
   const preloadComponent = (componentType: string) => {

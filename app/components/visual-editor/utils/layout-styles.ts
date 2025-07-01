@@ -1,4 +1,4 @@
-import { LayoutOptions } from "../types";
+import { LayoutOptions } from "../core/types";
 
 export function getLayoutStyles(layout?: LayoutOptions): React.CSSProperties {
   if (!layout) return {};
@@ -38,35 +38,38 @@ export function getLayoutStyles(layout?: LayoutOptions): React.CSSProperties {
     styles.backgroundSize = "cover";
     styles.backgroundPosition = "center";
   }
-  
+
   if (layout.borderWidth && layout.borderStyle !== "none") {
     styles.borderWidth = layout.borderWidth;
     styles.borderStyle = layout.borderStyle || "solid";
     styles.borderColor = layout.borderColor || "#000000";
   }
-  
+
   if (layout.borderRadius) styles.borderRadius = layout.borderRadius;
   if (layout.opacity !== undefined) styles.opacity = layout.opacity;
-  if (layout.mixBlendMode) styles.mixBlendMode = layout.mixBlendMode as React.CSSProperties["mixBlendMode"];
+  if (layout.mixBlendMode)
+    styles.mixBlendMode =
+      layout.mixBlendMode as React.CSSProperties["mixBlendMode"];
 
   // Typography properties
   if (layout.fontFamily) styles.fontFamily = layout.fontFamily;
   if (layout.fontSize) styles.fontSize = layout.fontSize;
   if (layout.fontWeight) {
     const weightMap: Record<string, string> = {
-      "Thin": "100",
-      "Light": "300",
-      "Regular": "400",
-      "Medium": "500",
-      "Semibold": "600",
-      "Bold": "700",
-      "Black": "900"
+      Thin: "100",
+      Light: "300",
+      Regular: "400",
+      Medium: "500",
+      Semibold: "600",
+      Bold: "700",
+      Black: "900",
     };
     styles.fontWeight = weightMap[layout.fontWeight] || layout.fontWeight;
   }
   if (layout.fontStyle) styles.fontStyle = layout.fontStyle;
   if (layout.textDecoration) styles.textDecoration = layout.textDecoration;
-  if (layout.textAlign) styles.textAlign = layout.textAlign as React.CSSProperties["textAlign"];
+  if (layout.textAlign)
+    styles.textAlign = layout.textAlign as React.CSSProperties["textAlign"];
   if (layout.lineHeight) styles.lineHeight = layout.lineHeight;
   if (layout.letterSpacing) styles.letterSpacing = layout.letterSpacing;
 
@@ -77,24 +80,28 @@ export function getLayoutStyles(layout?: LayoutOptions): React.CSSProperties {
   }
   if (!layout.alignItems && layout.align) {
     const alignMap: Record<string, React.CSSProperties["alignItems"]> = {
-      "start": "flex-start",
-      "center": "center",
-      "end": "flex-end",
-      "stretch": "stretch",
-      "baseline": "baseline"
+      start: "flex-start",
+      center: "center",
+      end: "flex-end",
+      stretch: "stretch",
+      baseline: "baseline",
     };
-    styles.alignItems = alignMap[layout.align] || layout.align as React.CSSProperties["alignItems"];
+    styles.alignItems =
+      alignMap[layout.align] ||
+      (layout.align as React.CSSProperties["alignItems"]);
   }
   if (!layout.justifyContent && layout.justify) {
     const justifyMap: Record<string, React.CSSProperties["justifyContent"]> = {
-      "start": "flex-start",
-      "center": "center",
-      "end": "flex-end",
-      "between": "space-between",
-      "around": "space-around",
-      "evenly": "space-evenly"
+      start: "flex-start",
+      center: "center",
+      end: "flex-end",
+      between: "space-between",
+      around: "space-around",
+      evenly: "space-evenly",
     };
-    styles.justifyContent = justifyMap[layout.justify] || layout.justify as React.CSSProperties["justifyContent"];
+    styles.justifyContent =
+      justifyMap[layout.justify] ||
+      (layout.justify as React.CSSProperties["justifyContent"]);
   }
 
   return styles;

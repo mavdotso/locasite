@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { ComponentData } from "./types";
-import { allComponentConfigs as componentConfigs } from "./config/all-components";
-import ComponentWrapper from "./component-wrapper";
+import { ComponentData } from "../core/types";
+import { allComponentConfigs as componentConfigs } from "../config/all-components";
+import ComponentWrapper from "../components/component-wrapper";
 import DropZone from "./drop-zone";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useDragDrop } from "./drag-drop-provider";
@@ -15,7 +15,12 @@ interface NestedDropZoneProps {
   onSelectComponent: (id: string | null) => void;
   onUpdateComponent: (id: string, props: Record<string, unknown>) => void;
   onRemoveComponent: (id: string) => void;
-  onAddComponent: (type: string, index: number, parentId?: string, metadata?: Record<string, unknown>) => void;
+  onAddComponent: (
+    type: string,
+    index: number,
+    parentId?: string,
+    metadata?: Record<string, unknown>,
+  ) => void;
   onDuplicateComponent?: (id: string) => void;
   isEditMode: boolean;
   onMove?: (direction: "up" | "down") => void;
@@ -35,7 +40,7 @@ export default function NestedDropZone({
   isEditMode,
   onMove,
   canMoveUp = false,
-  canMoveDown = false
+  canMoveDown = false,
 }: NestedDropZoneProps) {
   const { draggedItem } = useDragDrop();
   const config = componentConfigs[component.type];
@@ -43,9 +48,14 @@ export default function NestedDropZone({
 
   const handleDropInChild = (index: number) => {
     if (!draggedItem) return;
-    
+
     if (draggedItem.type === "new-component" && draggedItem.componentType) {
-      onAddComponent(draggedItem.componentType, index, component.id, draggedItem.metadata);
+      onAddComponent(
+        draggedItem.componentType,
+        index,
+        component.id,
+        draggedItem.metadata,
+      );
     }
   };
 
@@ -53,7 +63,7 @@ export default function NestedDropZone({
   let children: React.ReactNode = null;
   if (config.acceptsChildren) {
     const childComponents = component.children || [];
-    
+
     children = (
       <>
         {/* Initial drop zone */}
@@ -65,14 +75,14 @@ export default function NestedDropZone({
             showAlways={childComponents.length === 0}
           />
         )}
-        
+
         {childComponents.map((child, childIndex) => {
           // Use ColumnsDropZone for ColumnsBlock children
-          if (child.type === 'ColumnsBlock') {
+          if (child.type === "ColumnsBlock") {
             // eslint-disable-next-line @typescript-eslint/no-require-imports
-            const ColumnsDropZone = require('./columns-drop-zone').default;
+            const ColumnsDropZone = require("./columns-drop-zone").default;
             return (
-              <React.Fragment key={`${child.id}-${child.props.columns || '2'}`}>
+              <React.Fragment key={`${child.id}-${child.props.columns || "2"}`}>
                 <ColumnsDropZone
                   component={child}
                   business={business}
@@ -84,7 +94,7 @@ export default function NestedDropZone({
                   onDuplicateComponent={onDuplicateComponent}
                   isEditMode={isEditMode}
                 />
-                
+
                 {/* Drop zone after each child */}
                 {isEditMode && (
                   <DropZone
@@ -96,7 +106,7 @@ export default function NestedDropZone({
               </React.Fragment>
             );
           }
-          
+
           // Regular nested component
           return (
             <React.Fragment key={child.id}>
@@ -111,7 +121,7 @@ export default function NestedDropZone({
                 onDuplicateComponent={onDuplicateComponent}
                 isEditMode={isEditMode}
               />
-              
+
               {/* Drop zone after each child */}
               {isEditMode && (
                 <DropZone
@@ -134,7 +144,7 @@ export default function NestedDropZone({
 
   const componentProps = {
     ...component.props,
-    business
+    business,
   };
 
   return (
@@ -145,11 +155,21 @@ export default function NestedDropZone({
       onSelect={() => onSelectComponent(component.id)}
       onRemove={() => onRemoveComponent(component.id)}
       onMove={onMove || (() => {})}
-      onDuplicate={onDuplicateComponent ? () => onDuplicateComponent(component.id) : undefined}
+      onDuplicate={
+        onDuplicateComponent
+          ? () => onDuplicateComponent(component.id)
+          : undefined
+      }
       canMoveUp={canMoveUp}
       canMoveDown={canMoveDown}
     >
-      {config.render(componentProps, isEditMode, business, children, handleUpdate)}
+      {config.render(
+        componentProps,
+        isEditMode,
+        business,
+        children,
+        handleUpdate,
+      )}
     </ComponentWrapper>
   );
 }

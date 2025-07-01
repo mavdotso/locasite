@@ -48,7 +48,6 @@ export const createDefaultPages = mutation({
             .first();
 
         if (existingPage) {
-            console.log("Pages already exist for this domain");
             return { pageId: existingPage._id };
         }
 

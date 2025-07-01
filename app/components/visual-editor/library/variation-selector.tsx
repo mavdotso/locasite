@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ComponentVariation } from "./types";
+import { ComponentVariation } from "../core/types";
 import { Button } from "@/app/components/ui/button";
 import {
   Dialog,
@@ -26,13 +26,15 @@ export function VariationSelector({
   variations,
   currentVariationId,
   onSelect,
-  trigger
+  trigger,
 }: VariationSelectorProps) {
   const [open, setOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState(currentVariationId || variations[0]?.id);
+  const [selectedId, setSelectedId] = useState(
+    currentVariationId || variations[0]?.id,
+  );
 
   const handleSelect = () => {
-    const variation = variations.find(v => v.id === selectedId);
+    const variation = variations.find((v) => v.id === selectedId);
     if (variation) {
       onSelect(variation);
       setOpen(false);
@@ -98,7 +100,7 @@ export function VariationSelector({
                           {variation.description}
                         </p>
                       )}
-                      
+
                       {/* Preview */}
                       {variation.preview ? (
                         <div className="mt-3 rounded-md overflow-hidden border">
@@ -124,9 +126,7 @@ export function VariationSelector({
             <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSelect}>
-              Apply Style
-            </Button>
+            <Button onClick={handleSelect}>Apply Style</Button>
           </div>
         </DialogContent>
       </Dialog>

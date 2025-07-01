@@ -1,5 +1,5 @@
 import React from "react";
-import { ComponentConfig } from "../types";
+import { ComponentConfig } from "../core/types";
 import {
   Clock,
   MapPin,

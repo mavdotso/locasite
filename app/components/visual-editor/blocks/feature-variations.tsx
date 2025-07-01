@@ -1,5 +1,5 @@
 import React from "react";
-import { ComponentVariation } from "../types";
+import { ComponentVariation } from "../core/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { CheckCircle, Zap, Shield, Users, Target, Sparkles } from "lucide-react";
 
