@@ -6,7 +6,7 @@ import {
   ComponentData,
   ComponentTemplate,
   LayoutOptions,
-} from "./types";
+} from "@/app/types/visual-editor";
 import { DragDropProvider } from "../drag-drop/drag-drop-provider";
 import LeftSidebar from "../ui/left-sidebar";
 import PreviewPanel from "../ui/preview-panel";
@@ -37,8 +37,8 @@ import {
   TooltipTrigger,
 } from "@/app/components/ui/tooltip";
 import { PublishDialog } from "@/app/components/business/publish-dialog";
-import { useDebouncedCallback } from "../hooks/use-debounced-callback";
-import { useComponentPreloader } from "../hooks/use-component-preloader";
+import { useDebouncedCallback } from "@/app/hooks/use-debounced-callback";
+import { useComponentPreloader } from "@/app/hooks/use-component-preloader";
 import TemplateSelector from "../library/template-selector";
 import PageSettingsSidebar from "../ui/page-settings-sidebar";
 

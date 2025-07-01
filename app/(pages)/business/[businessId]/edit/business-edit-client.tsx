@@ -5,7 +5,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { VisualEditor } from "@/app/components/visual-editor/core/editor-loader";
-import type { PageData } from "@/app/components/visual-editor/core/types";
+import type { PageData } from "@/app/types/visual-editor";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect } from "react";

@@ -1,4 +1,4 @@
-import { LayoutOptions } from "../core/types";
+import { LayoutOptions } from "@/app/types/visual-editor";
 
 export function getLayoutStyles(layout?: LayoutOptions): React.CSSProperties {
   if (!layout) return {};

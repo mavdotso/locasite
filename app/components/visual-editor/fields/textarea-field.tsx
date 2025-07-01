@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { TextareaField as TextareaFieldType } from "../core/types";
+import { TextareaField as TextareaFieldType } from "@/app/types/visual-editor";
 import { Textarea } from "@/app/components/ui/textarea";
 import { Label } from "@/app/components/ui/label";
 

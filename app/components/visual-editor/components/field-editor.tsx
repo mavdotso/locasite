@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { ComponentData } from "../core/types";
+import { ComponentData } from "@/app/types/visual-editor";
 import { allComponentConfigs as componentConfigs } from "../config/all-components";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
 import { X } from "lucide-react";
@@ -20,7 +20,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/app/components/ui/tabs";
-import { LayoutOptions, Field } from "../core/types";
+import { LayoutOptions, Field } from "@/app/types/visual-editor";
 import { Id } from "@/convex/_generated/dataModel";
 import { VariationSelector } from "../library/variation-selector";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ComponentVariation } from "../core/types";
+import { ComponentVariation } from "@/app/types/visual-editor";
 import { Button } from "@/app/components/ui/button";
 import {
   Dialog,

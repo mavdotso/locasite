@@ -1,4 +1,4 @@
-import { ComponentConfig } from "../core/types";
+import { ComponentConfig } from "@/app/types/visual-editor";
 import {
   Sparkles,
   Info,

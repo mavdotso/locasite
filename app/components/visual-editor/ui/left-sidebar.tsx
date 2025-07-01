@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { PageData, ComponentData } from "../core/types";
+import { PageData, ComponentData } from "@/app/types/visual-editor";
 import ComponentLibrary from "../library/component-library";
 import { cn } from "@/app/lib/utils";
 import { ScrollArea } from "@/app/components/ui/scroll-area";

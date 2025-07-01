@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { exchangeCodeForTokens, getBusinessAccounts } from '@/lib/google-business-oauth';
+import { exchangeCodeForTokens, getBusinessAccounts } from '@/app/lib/google-business-oauth';
 import { api } from '@/convex/_generated/api';
 import { fetchMutation } from 'convex/nextjs';
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ColorField as ColorFieldType } from "../core/types";
+import { ColorField as ColorFieldType } from "@/app/types/visual-editor";
 import { Label } from "@/app/components/ui/label";
 import { Input } from "@/app/components/ui/input";
 import { cn } from "@/app/lib/utils";

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { ComponentConfig } from "../core/types";
+import { ComponentConfig } from "@/app/types/visual-editor";
 import { Doc } from "@/convex/_generated/dataModel";
 
 // Common components that should be preloaded
@@ -62,19 +62,29 @@ export function useComponentPreloader(
           try {
             switch (fieldName) {
               case "text-field":
-                await import("../fields/text-field");
+                await import(
+                  "@/app/components/visual-editor/fields/text-field"
+                );
                 break;
               case "textarea-field":
-                await import("../fields/textarea-field");
+                await import(
+                  "@/app/components/visual-editor/fields/textarea-field"
+                );
                 break;
               case "image-field":
-                await import("../fields/image-field");
+                await import(
+                  "@/app/components/visual-editor/fields/image-field"
+                );
                 break;
               case "select-field":
-                await import("../fields/select-field");
+                await import(
+                  "@/app/components/visual-editor/fields/select-field"
+                );
                 break;
               case "color-field":
-                await import("../fields/color-field");
+                await import(
+                  "@/app/components/visual-editor/fields/color-field"
+                );
                 break;
             }
             preloadedRef.current.fields.add(fieldName);

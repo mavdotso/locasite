@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ComponentData } from "../core/types";
+import { ComponentData } from "@/app/types/visual-editor";
 import { allComponentConfigs as componentConfigs } from "../config/all-components";
 import ComponentWrapper from "../components/component-wrapper";
 import DropZone from "./drop-zone";

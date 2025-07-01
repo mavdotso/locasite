@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { NumberField as NumberFieldType } from "../core/types";
+import { NumberField as NumberFieldType } from "@/app/types/visual-editor";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { Slider } from "@/app/components/ui/slider";

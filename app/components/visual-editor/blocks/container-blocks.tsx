@@ -1,5 +1,5 @@
 import React from "react";
-import { ComponentConfig } from "../core/types";
+import { ComponentConfig } from "@/app/types/visual-editor";
 import { Box, Columns, CreditCard, ChevronDown, Layout } from "lucide-react";
 import { cn } from "@/app/lib/utils";
 import {

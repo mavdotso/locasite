@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { ImageField as ImageFieldType } from "../core/types";
+import { ImageField as ImageFieldType } from "@/app/types/visual-editor";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
 import { Upload, X, Loader2, ImageIcon } from "lucide-react";

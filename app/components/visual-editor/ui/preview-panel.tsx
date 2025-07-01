@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { ComponentData, PageData } from "../core/types";
+import { ComponentData, PageData } from "@/app/types/visual-editor";
 import { allComponentConfigs as componentConfigs } from "../config/all-components";
 import { useDragDrop } from "../drag-drop/drag-drop-provider";
 import DropZone from "../drag-drop/drop-zone";

@@ -8,7 +8,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { DragItem } from "../core/types";
+import { DragItem } from "@/app/types/visual-editor";
 
 interface DragDropContextValue {
   isDragging: boolean;

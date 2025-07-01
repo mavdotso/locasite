@@ -3,8 +3,8 @@
 import React from "react";
 import { Doc } from "@/convex/_generated/dataModel";
 import { allComponentConfigs as componentConfigs } from "@/app/components/visual-editor/config/all-components";
-import { ComponentData } from "@/app/components/visual-editor/core/types";
-import { useAnalytics } from "@/hooks/use-analytics";
+import { ComponentData } from "@/app/types/visual-editor";
+import { useAnalytics } from "@/app/hooks/use-analytics";
 
 interface BusinessPageRendererProps {
   business: Doc<"businesses">;

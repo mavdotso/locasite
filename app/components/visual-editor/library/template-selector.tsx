@@ -18,7 +18,7 @@ import {
 import { Badge } from "@/app/components/ui/badge";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
 import { templateMetadata, pageTemplates } from "../templates/page-templates";
-import { PageData } from "../core/types";
+import { PageData } from "@/app/types/visual-editor";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/app/components/ui/alert";
 

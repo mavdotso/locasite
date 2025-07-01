@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import { ComponentData } from "../core/types";
+import { ComponentData } from "@/app/types/visual-editor";
 import { useDragDrop } from "../drag-drop/drag-drop-provider";
 import { cn } from "@/app/lib/utils";
 import { Button } from "@/app/components/ui/button";
-import { getLayoutStyles } from "../utils/layout-styles";
+import { getLayoutStyles } from "@/app/lib/layout-styles";
 import {
   ChevronUp,
   ChevronDown,

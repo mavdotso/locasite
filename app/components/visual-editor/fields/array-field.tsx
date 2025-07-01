@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ArrayField as ArrayFieldType } from "../core/types";
+import { ArrayField as ArrayFieldType } from "@/app/types/visual-editor";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
 import { Plus, X } from "lucide-react";

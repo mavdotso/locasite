@@ -1,4 +1,4 @@
-import { LayoutOptions } from "../core/types";
+import { LayoutOptions } from "@/app/types/visual-editor";
 import { cn } from "@/app/lib/utils";
 import React from "react";
 

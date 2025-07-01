@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Analytics } from "@/lib/analytics";
+import { Analytics } from "@/app/lib/analytics";
 import { Id } from "@/convex/_generated/dataModel";
 
 interface UseAnalyticsOptions {

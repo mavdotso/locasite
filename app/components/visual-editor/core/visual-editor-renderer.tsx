@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { PageData, ComponentData, BusinessData } from "./types";
+import { PageData, ComponentData, BusinessData } from "@/app/types/visual-editor";
 import { allComponentConfigs } from "../config/all-components";
 
 interface VisualEditorRendererProps {

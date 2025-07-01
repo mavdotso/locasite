@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getGoogleBusinessAuthUrl } from '@/lib/google-business-oauth';
+import { getGoogleBusinessAuthUrl } from '@/app/lib/google-business-oauth';
 
 export async function GET(request: NextRequest) {
   try {

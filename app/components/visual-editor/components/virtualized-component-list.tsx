@@ -2,7 +2,7 @@
 
 import React, { useMemo, useCallback } from "react";
 import { FixedSizeList as List } from "react-window";
-import { ComponentData, PageData } from "../core/types";
+import { ComponentData, PageData } from "@/app/types/visual-editor";
 import { allComponentConfigs as componentConfigs } from "../config/all-components";
 import ComponentWrapper from "./component-wrapper";
 import DropZone from "../drag-drop/drop-zone";

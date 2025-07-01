@@ -1,5 +1,5 @@
 import React from "react";
-import { ComponentConfig, BusinessData } from "../core/types";
+import { ComponentConfig, BusinessData } from "@/app/types/visual-editor";
 import {
   Type,
   Square,

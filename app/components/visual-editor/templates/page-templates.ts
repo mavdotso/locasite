@@ -1,4 +1,4 @@
-import { PageData } from "../core/types";
+import { PageData } from "@/app/types/visual-editor";
 
 // Helper function to generate unique IDs
 const generateId = () => Math.random().toString(36).substr(2, 9);
