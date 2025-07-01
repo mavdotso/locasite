@@ -49,19 +49,16 @@ export interface SectionInstance {
 
 // Simple page data structure
 export interface SimplePageData {
-  id: string;
-  businessId: string;
   title: string;
+  pageTitle?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
   sections: SectionInstance[];
-  theme?: SimpleTheme;
-  metadata?: {
-    createdAt?: number;
-    updatedAt?: number;
-    publishedAt?: number;
-    seoTitle?: string;
-    seoDescription?: string;
-    seoKeywords?: string;
-  };
+  theme: SimpleTheme;
 }
 
 // Simple theme definition

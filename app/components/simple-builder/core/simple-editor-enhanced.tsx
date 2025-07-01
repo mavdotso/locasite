@@ -8,7 +8,7 @@ import {
 } from "../types/simple-builder";
 import { SectionRenderer } from "../sections/section-renderer";
 import { SectionSelector } from "./section-selector";
-import { PageSettingsSidebar } from "../ui/page-settings-sidebar";
+import { PageSettingsSidebar } from "../ui/page-settings-sidebar-enhanced";
 import { SectionSettingsSidebar } from "../ui/section-settings-sidebar";
 import { getVariationById } from "../sections/section-variations";
 import { cn } from "@/app/lib/utils";
@@ -28,9 +28,13 @@ import {
 
 interface SimpleEditorProps {
   initialData: SimplePageData;
-  businessData?: Record<string, unknown>;
+  businessData?: Record<string, string>;
   domain?: string;
-  onSave: (data: SimplePageData) => void;
+  isPublished?: boolean;
+  businessId?: string;
+  business?: Record<string, unknown>;
+  pageId?: string;
+  onSave?: (data: SimplePageData) => void;
   onPublish?: (data: SimplePageData) => void;
 }
 
@@ -38,6 +42,7 @@ export function SimpleEditor({
   initialData,
   businessData,
   domain,
+  isPublished = false,
   onSave,
   onPublish,
 }: SimpleEditorProps) {
@@ -172,31 +177,11 @@ export function SimpleEditor({
     [],
   );
 
-  // Update page settings
-  const handleUpdatePageSettings = useCallback(
-    (settings: {
-      pageTitle?: string;
-      seoTitle?: string;
-      seoDescription?: string;
-      seoKeywords?: string;
-    }) => {
-      setPageData((prev) => ({
-        ...prev,
-        title: settings.pageTitle || prev.title,
-        metadata: {
-          ...prev.metadata,
-          seoTitle: settings.seoTitle,
-          seoDescription: settings.seoDescription,
-          seoKeywords: settings.seoKeywords,
-        },
-      }));
-    },
-    [],
-  );
-
   // Save changes
   const handleSave = useCallback(() => {
-    onSave(pageData);
+    if (onSave) {
+      onSave(pageData);
+    }
   }, [pageData, onSave]);
 
   // Publish changes
@@ -210,9 +195,6 @@ export function SimpleEditor({
   const selectedSection = pageData.sections.find(
     (s) => s.id === selectedSectionId,
   );
-
-  // Preview URL
-  const previewUrl = domain ? `/${domain}` : "#";
 
   return (
     <div className="simple-editor h-screen flex flex-col">
@@ -247,19 +229,6 @@ export function SimpleEditor({
                 {isPreviewMode ? "Edit" : "Preview"}
               </Button>
 
-              {domain && (
-                <Button variant="outline" size="sm" asChild>
-                  <a
-                    href={previewUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Eye className="h-4 w-4 mr-2" />
-                    View Site
-                  </a>
-                </Button>
-              )}
-
               <div className="h-6 w-px bg-border" />
 
               <Button
@@ -276,10 +245,11 @@ export function SimpleEditor({
                 <Button
                   onClick={handlePublish}
                   size="sm"
+                  variant={isPublished ? "secondary" : "default"}
                   className="flex items-center gap-2"
                 >
                   <Rocket className="h-4 w-4" />
-                  Publish
+                  {isPublished ? "Update" : "Publish"}
                 </Button>
               )}
             </div>
@@ -537,12 +507,21 @@ export function SimpleEditor({
       <PageSettingsSidebar
         isOpen={isPageSettingsOpen}
         onClose={() => setIsPageSettingsOpen(false)}
-        pageTitle={pageData.title}
+        pageTitle={pageData.pageTitle || "Untitled Page"}
         domain={domain}
-        seoTitle={pageData.metadata?.seoTitle as string}
-        seoDescription={pageData.metadata?.seoDescription as string}
-        seoKeywords={pageData.metadata?.seoKeywords as string}
-        onUpdate={handleUpdatePageSettings}
+        seoTitle={pageData.seoTitle}
+        seoDescription={pageData.seoDescription}
+        seoKeywords={pageData.seoKeywords}
+        ogTitle={pageData.ogTitle}
+        ogDescription={pageData.ogDescription}
+        ogImage={pageData.ogImage}
+        isPublished={isPublished}
+        onUpdate={(settings) => {
+          setPageData((prev) => ({
+            ...prev,
+            ...settings,
+          }));
+        }}
       />
 
       {/* Section Settings Sidebar */}

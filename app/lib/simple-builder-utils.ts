@@ -252,18 +252,25 @@ export function createSimplePageFromPreset(
   // This would typically use the business presets
   // For now, return a basic structure
   return {
-    id: generateId(),
-    businessId,
     title: (businessData?.name as string) || "New Page",
     sections: [],
-    metadata: {
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+    theme: {
+      colors: {
+        primary: "#000000",
+        secondary: "#666666",
+        accent: "#0066cc",
+        background: "#ffffff",
+        text: "#333333",
+        muted: "#f5f5f5",
+      },
+      fonts: {
+        heading: "Inter",
+        body: "Inter",
+      },
+      spacing: {
+        section: "80px",
+        element: "40px",
+      },
     },
   };
-}
-
-// Helper function to generate unique IDs
-function generateId(): string {
-  return Math.random().toString(36).substring(2, 9);
 }

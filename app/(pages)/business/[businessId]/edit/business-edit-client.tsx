@@ -35,6 +35,7 @@ export default function BusinessEditClient({
   );
   const updatePage = useMutation(api.pages.updatePage);
   const createDefaultPages = useMutation(api.pages.createDefaultPages);
+  const publishBusiness = useMutation(api.businesses.publish);
 
   // Handle authentication
   useEffect(() => {
@@ -85,10 +86,26 @@ export default function BusinessEditClient({
 
   // Create initial data for Simple Mode
   let initialData: SimplePageData = {
-    id: page?._id || generateId(),
-    businessId: business._id,
     title: business?.name || "Welcome",
     sections: [],
+    theme: {
+      colors: {
+        primary: "#000000",
+        secondary: "#666666",
+        accent: "#0066cc",
+        background: "#ffffff",
+        text: "#333333",
+        muted: "#f5f5f5",
+      },
+      fonts: {
+        heading: "Inter",
+        body: "Inter",
+      },
+      spacing: {
+        section: "80px",
+        element: "40px",
+      },
+    },
   };
 
   // Try to parse existing page content
@@ -99,11 +116,9 @@ export default function BusinessEditClient({
       // Check if it's already in Simple Mode format
       if (parsed.mode === "simple" && parsed.sections) {
         initialData = {
-          id: page._id,
-          businessId: business._id,
           title: parsed.title || business.name || "Welcome",
           sections: parsed.sections,
-          theme: parsed.theme,
+          theme: parsed.theme || initialData.theme,
         };
       } else {
         // If no content or it's in Pro mode, create default sections based on business type
@@ -195,10 +210,38 @@ export default function BusinessEditClient({
   };
 
   const handlePublish = async (data: SimplePageData) => {
-    // For now, publish is the same as save
-    // In the future, you might want to add a published flag
-    await handleSave(data);
-    toast.success("Page published successfully");
+    try {
+      const pageData = {
+        sections: data.sections,
+        theme: data.theme,
+      };
+
+      if (page) {
+        await updatePage({
+          pageId: page._id,
+          content: JSON.stringify(pageData),
+        });
+
+        // Update business publish status
+        if (business && !business.isPublished) {
+          await publishBusiness({ businessId: businessId });
+        }
+
+        toast.success("Page published successfully");
+      } else if (domain) {
+        // Create default page first if no page exists
+        await createDefaultPages({
+          domainId: domain._id,
+          businessId: businessId,
+        });
+        toast.info(
+          "Default pages created. Please refresh to continue editing.",
+        );
+      }
+    } catch (error) {
+      console.error("Error publishing page:", error);
+      toast.error("Failed to publish page");
+    }
   };
 
   if (!domain || !pages) {
@@ -221,11 +264,11 @@ export default function BusinessEditClient({
   const businessData = {
     businessName: business.name,
     businessAddress: business.address,
-    businessPhone: business.phone,
-    businessEmail: business.email,
-    businessDescription: business.description,
-    businessHours: business.hours,
-    businessWebsite: business.website,
+    businessPhone: business.phone || "",
+    businessEmail: business.email || "",
+    businessDescription: business.description || "",
+    businessHours: business.hours.join(", "),
+    businessWebsite: business.website || "",
   };
 
   return (
@@ -233,6 +276,7 @@ export default function BusinessEditClient({
       initialData={initialData}
       businessData={businessData}
       domain={domain?.subdomain}
+      isPublished={business.isPublished}
       onSave={handleSave}
       onPublish={handlePublish}
     />
