@@ -1,6 +1,6 @@
 import React from "react";
-import { ComponentConfig } from "../types";
-import { 
+import { ComponentConfig } from "@/app/types/visual-editor";
+import {
   Clock,
   MapPin,
   Calendar,
@@ -10,10 +10,31 @@ import {
   Menu,
   Car,
   Star,
-  MessageSquare
+  MessageSquare,
+  Image as ImageIcon,
+  Award,
+  Zap,
+  Shield,
+  Heart,
+  Globe,
+  CheckCircle,
+  Wrench,
+  ChevronRight,
+  Megaphone,
+  Briefcase,
+  Mail,
+  ChartBar,
+  Info,
+  Phone,
+  Users,
 } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/app/components/ui/card";
 import { cn } from "@/app/lib/utils";
 import { Doc } from "@/convex/_generated/dataModel";
 import {
@@ -23,6 +44,8 @@ import {
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
 import Image from "next/image";
+import { heroVariations } from "./hero-variations";
+import { featureVariations } from "./feature-variations";
 
 // Type definitions for parsed data
 interface ReviewData {
@@ -38,12 +61,12 @@ export const HeaderSection: ComponentConfig = {
     logoText: {
       type: "text",
       label: "Business Name",
-      defaultValue: "Your Business"
+      defaultValue: "Your Business",
     },
     logoUrl: {
       type: "image",
       label: "Logo Image (optional)",
-      defaultValue: ""
+      defaultValue: "",
     },
     menuItems: {
       type: "array",
@@ -51,16 +74,16 @@ export const HeaderSection: ComponentConfig = {
       defaultValue: [
         "Home|#",
         "About|#about",
-        "Services|#services", 
+        "Services|#services",
         "Gallery|#gallery",
         "Reviews|#reviews",
-        "Contact|#contact"
+        "Contact|#contact",
       ],
       itemType: {
         type: "text",
         label: "Menu Item (Label|Link)",
-        defaultValue: "Home|#"
-      }
+        defaultValue: "Home|#",
+      },
     },
     showCtaButton: {
       type: "select",
@@ -68,19 +91,19 @@ export const HeaderSection: ComponentConfig = {
       defaultValue: "yes",
       options: [
         { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
+        { value: "no", label: "No" },
+      ],
     },
     ctaButtonLabel: {
       type: "text",
       label: "CTA Button Text",
-      defaultValue: "Call Now"
+      defaultValue: "Call Now",
     },
     ctaButtonHref: {
       type: "text",
       label: "CTA Button Link",
-      defaultValue: "tel:"
-    }
+      defaultValue: "tel:",
+    },
   },
   render: (props: Record<string, unknown>, _editMode, _business) => {
     const logoText = (props.logoText as string) || "Your Business";
@@ -89,11 +112,11 @@ export const HeaderSection: ComponentConfig = {
     const showCtaButton = props.showCtaButton === "yes";
     const ctaButtonLabel = (props.ctaButtonLabel as string) || "Call Now";
     const ctaButtonHref = (props.ctaButtonHref as string) || "tel:";
-    
+
     // Parse menu items from "Label|Link" format
-    const menuItems = menuItemsRaw.map(item => {
-      const [label, href] = item.split('|');
-      return { label: label || 'Menu Item', href: href || '#' };
+    const menuItems = menuItemsRaw.map((item) => {
+      const [label, href] = item.split("|");
+      return { label: label || "Menu Item", href: href || "#" };
     });
 
     // Simple static header without state for now
@@ -104,19 +127,21 @@ export const HeaderSection: ComponentConfig = {
             {/* Logo */}
             <div className="flex items-center">
               {logoUrl ? (
-                <Image 
-                  src={logoUrl} 
-                  alt={logoText} 
-                  width={32} 
-                  height={32} 
-                  className="h-8 w-auto" 
+                <Image
+                  src={logoUrl}
+                  alt={logoText}
+                  width={32}
+                  height={32}
+                  className="h-8 w-auto"
                 />
               ) : (
                 <div className="flex items-center">
                   <div className="w-8 h-8 bg-primary text-primary-foreground rounded-md flex items-center justify-center font-bold text-sm mr-2">
                     {logoText.charAt(0)}
                   </div>
-                  <span className="font-bold text-lg text-foreground">{logoText}</span>
+                  <span className="font-bold text-lg text-foreground">
+                    {logoText}
+                  </span>
                 </div>
               )}
             </div>
@@ -134,9 +159,7 @@ export const HeaderSection: ComponentConfig = {
               ))}
               {showCtaButton && (
                 <Button size="sm" className="ml-4" asChild>
-                  <a href={ctaButtonHref}>
-                    {ctaButtonLabel}
-                  </a>
+                  <a href={ctaButtonHref}>{ctaButtonLabel}</a>
                 </Button>
               )}
             </nav>
@@ -145,9 +168,7 @@ export const HeaderSection: ComponentConfig = {
             <div className="md:hidden">
               {showCtaButton && (
                 <Button size="sm" asChild>
-                  <a href={ctaButtonHref}>
-                    {ctaButtonLabel}
-                  </a>
+                  <a href={ctaButtonHref}>{ctaButtonLabel}</a>
                 </Button>
               )}
             </div>
@@ -156,7 +177,8 @@ export const HeaderSection: ComponentConfig = {
       </header>
     );
   },
-  category: "sections"
+  icon: Menu,
+  category: "Section",
 };
 
 // Operating Hours Section - Full schedule with holidays
@@ -165,7 +187,7 @@ export const OperatingHoursSection: ComponentConfig = {
     title: {
       type: "text",
       label: "Section Title",
-      defaultValue: "Business Hours"
+      defaultValue: "Business Hours",
     },
     showSpecialHours: {
       type: "select",
@@ -173,22 +195,22 @@ export const OperatingHoursSection: ComponentConfig = {
       defaultValue: "yes",
       options: [
         { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
+        { value: "no", label: "No" },
+      ],
     },
     specialHours: {
       type: "array",
       label: "Special Hours",
       defaultValue: [
         { date: "December 25", hours: "Closed - Christmas" },
-        { date: "January 1", hours: "10:00 AM - 4:00 PM" }
+        { date: "January 1", hours: "10:00 AM - 4:00 PM" },
       ],
       itemType: {
         type: "text",
         label: "Special Day",
-        defaultValue: "December 25|Closed - Christmas"
+        defaultValue: "December 25|Closed - Christmas",
       },
-      maxItems: 10
+      maxItems: 10,
     },
     layout: {
       type: "select",
@@ -197,37 +219,52 @@ export const OperatingHoursSection: ComponentConfig = {
       options: [
         { value: "card", label: "Card" },
         { value: "simple", label: "Simple" },
-        { value: "split", label: "Split View" }
-      ]
-    }
+        { value: "split", label: "Split View" },
+      ],
+    },
   },
   render: (props, _editMode, business) => {
-    const { title, showSpecialHours, specialHours = [], layout } = props as {
+    const {
+      title,
+      showSpecialHours,
+      specialHours = [],
+      layout,
+    } = props as {
       title?: string;
       showSpecialHours?: string;
       specialHours?: Array<{ date: string; hours: string } | string>;
       layout?: string;
     };
     const businessData = business as Doc<"businesses"> | undefined;
-    
-    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+    const days = [
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+      "sunday",
+    ];
     const today = days[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
-    
+
     // Parse special hours
-    const specialHoursData = specialHours.map(sh => {
-      if (typeof sh === 'string') {
-        const [date, hours] = sh.split('|');
+    const specialHoursData = specialHours.map((sh) => {
+      if (typeof sh === "string") {
+        const [date, hours] = sh.split("|");
         return { date, hours };
       }
       return sh;
     });
-    
+
     // Parse hours from array format to object format
     const parseHoursArray = (hoursArray?: string[]) => {
       if (!hoursArray || !Array.isArray(hoursArray)) return {};
       const hoursObj: Record<string, string> = {};
-      hoursArray.forEach(hourStr => {
-        const dayMatch = hourStr.match(/^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday):\s*(.+)$/i);
+      hoursArray.forEach((hourStr) => {
+        const dayMatch = hourStr.match(
+          /^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday):\s*(.+)$/i,
+        );
         if (dayMatch) {
           const day = dayMatch[1].toLowerCase();
           const hours = dayMatch[2];
@@ -236,36 +273,38 @@ export const OperatingHoursSection: ComponentConfig = {
       });
       return hoursObj;
     };
-    
+
     const hoursObj = parseHoursArray(businessData?.hours);
-    
+
     const isOpen = () => {
       const currentHours = hoursObj[today];
-      return currentHours && currentHours.toLowerCase() !== 'closed';
+      return currentHours && currentHours.toLowerCase() !== "closed";
     };
-    
-    if (layout === 'simple') {
+
+    if (layout === "simple") {
       return (
         <div className="py-16">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold mb-8">{title || "Business Hours"}</h2>
+            <h2 className="text-3xl font-bold mb-8">
+              {title || "Business Hours"}
+            </h2>
             <div className="max-w-2xl">
               <div className="space-y-3">
-                {days.map(day => (
-                  <div 
+                {days.map((day) => (
+                  <div
                     key={day}
                     className={cn(
                       "flex justify-between py-3 border-b",
-                      day === today && "font-medium text-primary"
+                      day === today && "font-medium text-primary",
                     )}
                   >
                     <span className="capitalize">{day}</span>
-                    <span>{hoursObj[day] || 'Closed'}</span>
+                    <span>{hoursObj[day] || "Closed"}</span>
                   </div>
                 ))}
               </div>
-              
-              {showSpecialHours === 'yes' && specialHoursData.length > 0 && (
+
+              {showSpecialHours === "yes" && specialHoursData.length > 0 && (
                 <div className="mt-8">
                   <h3 className="font-semibold mb-4">Special Hours</h3>
                   <div className="space-y-2">
@@ -283,12 +322,14 @@ export const OperatingHoursSection: ComponentConfig = {
         </div>
       );
     }
-    
-    if (layout === 'split') {
+
+    if (layout === "split") {
       return (
         <div className="py-16 bg-muted/30">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold mb-8 text-center">{title || "Business Hours"}</h2>
+            <h2 className="text-3xl font-bold mb-8 text-center">
+              {title || "Business Hours"}
+            </h2>
             <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               <div>
                 <h3 className="font-semibold mb-4 flex items-center gap-2">
@@ -296,38 +337,43 @@ export const OperatingHoursSection: ComponentConfig = {
                   Regular Hours
                 </h3>
                 <div className="space-y-2">
-                  {days.map(day => (
-                    <div 
+                  {days.map((day) => (
+                    <div
                       key={day}
                       className={cn(
                         "flex justify-between py-2",
-                        day === today && "bg-primary/10 px-3 rounded font-medium"
+                        day === today &&
+                          "bg-primary/10 px-3 rounded font-medium",
                       )}
                     >
                       <span className="capitalize">{day}</span>
-                      <span>{hoursObj[day] || 'Closed'}</span>
+                      <span>{hoursObj[day] || "Closed"}</span>
                     </div>
                   ))}
                 </div>
               </div>
-              
+
               <div>
                 <div className="mb-6">
-                  <div className={cn(
-                    "inline-flex items-center gap-2 px-4 py-2 rounded-full font-medium",
-                    isOpen() 
-                      ? "bg-green-100 text-green-700" 
-                      : "bg-red-100 text-red-700"
-                  )}>
-                    <div className={cn(
-                      "w-2 h-2 rounded-full",
-                      isOpen() ? "bg-green-600" : "bg-red-600"
-                    )} />
-                    {isOpen() ? 'Open Now' : 'Closed'}
+                  <div
+                    className={cn(
+                      "inline-flex items-center gap-2 px-4 py-2 rounded-full font-medium",
+                      isOpen()
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700",
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "w-2 h-2 rounded-full",
+                        isOpen() ? "bg-green-600" : "bg-red-600",
+                      )}
+                    />
+                    {isOpen() ? "Open Now" : "Closed"}
                   </div>
                 </div>
-                
-                {showSpecialHours === 'yes' && specialHoursData.length > 0 && (
+
+                {showSpecialHours === "yes" && specialHoursData.length > 0 && (
                   <div>
                     <h3 className="font-semibold mb-4 flex items-center gap-2">
                       <Calendar className="w-5 h-5" />
@@ -335,9 +381,14 @@ export const OperatingHoursSection: ComponentConfig = {
                     </h3>
                     <div className="space-y-2">
                       {specialHoursData.map((sh, index) => (
-                        <div key={index} className="bg-background p-3 rounded-lg">
+                        <div
+                          key={index}
+                          className="bg-background p-3 rounded-lg"
+                        >
                           <div className="font-medium">{sh.date}</div>
-                          <div className="text-sm text-muted-foreground">{sh.hours}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {sh.hours}
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -349,7 +400,7 @@ export const OperatingHoursSection: ComponentConfig = {
         </div>
       );
     }
-    
+
     // Card layout (default)
     return (
       <div className="py-16">
@@ -359,13 +410,15 @@ export const OperatingHoursSection: ComponentConfig = {
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span>{title || "Business Hours"}</span>
-                  <div className={cn(
-                    "text-sm px-3 py-1 rounded-full font-medium",
-                    isOpen() 
-                      ? "bg-green-100 text-green-700" 
-                      : "bg-red-100 text-red-700"
-                  )}>
-                    {isOpen() ? 'Open Now' : 'Closed'}
+                  <div
+                    className={cn(
+                      "text-sm px-3 py-1 rounded-full font-medium",
+                      isOpen()
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700",
+                    )}
+                  >
+                    {isOpen() ? "Open Now" : "Closed"}
                   </div>
                 </CardTitle>
               </CardHeader>
@@ -374,34 +427,39 @@ export const OperatingHoursSection: ComponentConfig = {
                   <div>
                     <h4 className="font-medium mb-4">Regular Hours</h4>
                     <div className="space-y-2">
-                      {days.map(day => (
-                        <div 
+                      {days.map((day) => (
+                        <div
                           key={day}
                           className={cn(
                             "flex justify-between py-1",
-                            day === today && "font-medium text-primary"
+                            day === today && "font-medium text-primary",
                           )}
                         >
                           <span className="capitalize">{day}</span>
-                          <span>{hoursObj[day] || 'Closed'}</span>
+                          <span>{hoursObj[day] || "Closed"}</span>
                         </div>
                       ))}
                     </div>
                   </div>
-                  
-                  {showSpecialHours === 'yes' && specialHoursData.length > 0 && (
-                    <div>
-                      <h4 className="font-medium mb-4">Special Hours</h4>
-                      <div className="space-y-3">
-                        {specialHoursData.map((sh, index) => (
-                          <div key={index} className="bg-muted p-3 rounded">
-                            <div className="font-medium text-sm">{sh.date}</div>
-                            <div className="text-sm text-muted-foreground">{sh.hours}</div>
-                          </div>
-                        ))}
+
+                  {showSpecialHours === "yes" &&
+                    specialHoursData.length > 0 && (
+                      <div>
+                        <h4 className="font-medium mb-4">Special Hours</h4>
+                        <div className="space-y-3">
+                          {specialHoursData.map((sh, index) => (
+                            <div key={index} className="bg-muted p-3 rounded">
+                              <div className="font-medium text-sm">
+                                {sh.date}
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {sh.hours}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                 </div>
               </CardContent>
             </Card>
@@ -411,7 +469,7 @@ export const OperatingHoursSection: ComponentConfig = {
     );
   },
   icon: Clock,
-  category: "Section"
+  category: "Section",
 };
 
 // Location/Directions Section
@@ -420,7 +478,7 @@ export const LocationDirectionsSection: ComponentConfig = {
     title: {
       type: "text",
       label: "Section Title",
-      defaultValue: "Find Us"
+      defaultValue: "Find Us",
     },
     showMap: {
       type: "select",
@@ -428,8 +486,8 @@ export const LocationDirectionsSection: ComponentConfig = {
       defaultValue: "yes",
       options: [
         { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
+        { value: "no", label: "No" },
+      ],
     },
     showDirections: {
       type: "select",
@@ -437,31 +495,34 @@ export const LocationDirectionsSection: ComponentConfig = {
       defaultValue: "yes",
       options: [
         { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
+        { value: "no", label: "No" },
+      ],
     },
     parkingInfo: {
       type: "textarea",
       label: "Parking Information",
       defaultValue: "Free parking available in lot behind building",
-      rows: 2
+      rows: 2,
     },
     landmarks: {
       type: "array",
       label: "Nearby Landmarks",
-      defaultValue: [
-        "Next to Starbucks",
-        "Across from City Hall"
-      ],
+      defaultValue: ["Next to Starbucks", "Across from City Hall"],
       itemType: {
         type: "text",
-        label: "Landmark"
+        label: "Landmark",
       },
-      maxItems: 5
-    }
+      maxItems: 5,
+    },
   },
   render: (props, editMode, business) => {
-    const { title, showMap, showDirections, parkingInfo, landmarks = [] } = props as {
+    const {
+      title,
+      showMap,
+      showDirections,
+      parkingInfo,
+      landmarks = [],
+    } = props as {
       title?: string;
       showMap?: string;
       showDirections?: string;
@@ -469,12 +530,14 @@ export const LocationDirectionsSection: ComponentConfig = {
       landmarks?: string[];
     };
     const businessData = business as Doc<"businesses"> | undefined;
-    
+
     return (
       <div className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">{title || "Find Us"}</h2>
-          
+          <h2 className="text-3xl font-bold text-center mb-12">
+            {title || "Find Us"}
+          </h2>
+
           <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
             {showMap === "yes" && businessData?.address && (
               <div className="rounded-lg overflow-hidden shadow-lg">
@@ -485,7 +548,7 @@ export const LocationDirectionsSection: ComponentConfig = {
                 />
               </div>
             )}
-            
+
             <div className="space-y-6">
               <Card>
                 <CardContent className="p-6">
@@ -498,14 +561,21 @@ export const LocationDirectionsSection: ComponentConfig = {
                           {businessData?.address || "Address not available"}
                         </p>
                         {showDirections === "yes" && businessData?.address && (
-                          <Button 
-                            size="sm" 
-                            className="mt-2" 
+                          <Button
+                            size="sm"
+                            className="mt-2"
                             asChild={!editMode}
-                            onClick={editMode ? (e) => { e.preventDefault(); e.stopPropagation(); } : undefined}
+                            onClick={
+                              editMode
+                                ? (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                  }
+                                : undefined
+                            }
                           >
                             {!editMode ? (
-                              <a 
+                              <a
                                 href={`https://maps.google.com/?q=${encodeURIComponent(businessData.address)}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -519,7 +589,7 @@ export const LocationDirectionsSection: ComponentConfig = {
                         )}
                       </div>
                     </div>
-                    
+
                     {parkingInfo && (
                       <div className="flex items-start gap-3">
                         <Car className="w-5 h-5 text-primary mt-0.5" />
@@ -529,12 +599,14 @@ export const LocationDirectionsSection: ComponentConfig = {
                         </div>
                       </div>
                     )}
-                    
+
                     {landmarks.length > 0 && (
                       <div className="flex items-start gap-3">
                         <Map className="w-5 h-5 text-primary mt-0.5" />
                         <div>
-                          <h3 className="font-semibold mb-1">Nearby Landmarks</h3>
+                          <h3 className="font-semibold mb-1">
+                            Nearby Landmarks
+                          </h3>
                           <ul className="text-muted-foreground space-y-1">
                             {landmarks.map((landmark, index) => (
                               <li key={index}>• {landmark}</li>
@@ -553,7 +625,7 @@ export const LocationDirectionsSection: ComponentConfig = {
     );
   },
   icon: MapPin,
-  category: "Section"
+  category: "Section",
 };
 
 // Menu/Price List Section
@@ -562,12 +634,12 @@ export const MenuPriceListSection: ComponentConfig = {
     title: {
       type: "text",
       label: "Section Title",
-      defaultValue: "Our Menu"
+      defaultValue: "Our Menu",
     },
     subtitle: {
       type: "text",
       label: "Subtitle",
-      defaultValue: ""
+      defaultValue: "",
     },
     categories: {
       type: "array",
@@ -576,16 +648,24 @@ export const MenuPriceListSection: ComponentConfig = {
         {
           name: "Main Dishes",
           items: [
-            { name: "Grilled Salmon", description: "Fresh Atlantic salmon", price: "$24.99" },
-            { name: "Chicken Parmesan", description: "Classic Italian dish", price: "$18.99" }
-          ]
-        }
+            {
+              name: "Grilled Salmon",
+              description: "Fresh Atlantic salmon",
+              price: "$24.99",
+            },
+            {
+              name: "Chicken Parmesan",
+              description: "Classic Italian dish",
+              price: "$18.99",
+            },
+          ],
+        },
       ],
       itemType: {
         type: "text",
-        label: "Category"
+        label: "Category",
       },
-      maxItems: 10
+      maxItems: 10,
     },
     layout: {
       type: "select",
@@ -594,8 +674,8 @@ export const MenuPriceListSection: ComponentConfig = {
       options: [
         { value: "columns", label: "Columns" },
         { value: "tabs", label: "Tabs" },
-        { value: "accordion", label: "Accordion" }
-      ]
+        { value: "accordion", label: "Accordion" },
+      ],
     },
     showDescriptions: {
       type: "select",
@@ -603,68 +683,88 @@ export const MenuPriceListSection: ComponentConfig = {
       defaultValue: "yes",
       options: [
         { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
-    }
+        { value: "no", label: "No" },
+      ],
+    },
   },
   render: (props) => {
-    const { title, subtitle, categories = [], layout, showDescriptions } = props as {
+    const {
+      title,
+      subtitle,
+      categories = [],
+      layout,
+      showDescriptions,
+    } = props as {
       title?: string;
       subtitle?: string;
       categories?: Array<string | Record<string, unknown>>;
       layout?: string;
       showDescriptions?: string;
     };
-    
+
     // Parse categories - handle both structured and string formats
     interface MenuItem {
       name: string;
       description?: string;
       price: string;
     }
-    
+
     interface Category {
       name: string;
       items?: MenuItem[];
     }
-    
-    const categoryData: Category[] = categories.map(cat => {
-      if (typeof cat === 'string') {
+
+    const categoryData: Category[] = categories.map((cat) => {
+      if (typeof cat === "string") {
         // Format: "Category Name|Item1:Desc1:$10,Item2:Desc2:$15"
-        const [name, ...itemStrings] = cat.split('|');
-        const items = itemStrings.join('|').split(',').map(itemStr => {
-          const [itemName, description, price] = itemStr.split(':');
-          return { name: itemName, description, price };
-        });
+        const [name, ...itemStrings] = cat.split("|");
+        const items = itemStrings
+          .join("|")
+          .split(",")
+          .map((itemStr) => {
+            const [itemName, description, price] = itemStr.split(":");
+            return { name: itemName, description, price };
+          });
         return { name, items };
       }
       return cat as unknown as Category;
     });
-    
-    if (layout === 'tabs') {
+
+    if (layout === "tabs") {
       return (
         <div className="py-16">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">{title}</h2>
-              {subtitle && <p className="text-lg text-muted-foreground">{subtitle}</p>}
+              {subtitle && (
+                <p className="text-lg text-muted-foreground">{subtitle}</p>
+              )}
             </div>
-            
+
             {/* Tabs would go here - simplified for this example */}
             <div className="max-w-4xl mx-auto">
               {categoryData.map((category, catIndex) => (
                 <div key={catIndex} className="mb-8">
-                  <h3 className="text-2xl font-semibold mb-4">{category.name}</h3>
+                  <h3 className="text-2xl font-semibold mb-4">
+                    {category.name}
+                  </h3>
                   <div className="space-y-4">
                     {category.items?.map((item, itemIndex) => (
-                      <div key={itemIndex} className="flex justify-between items-start gap-4">
+                      <div
+                        key={itemIndex}
+                        className="flex justify-between items-start gap-4"
+                      >
                         <div className="flex-1">
                           <h4 className="font-medium">{item.name}</h4>
-                          {showDescriptions === 'yes' && item.description && (
-                            <p className="text-sm text-muted-foreground">{item.description}</p>
+                          {showDescriptions === "yes" && item.description && (
+                            <p className="text-sm text-muted-foreground">
+                              {item.description}
+                            </p>
                           )}
                         </div>
-                        <span className="font-semibold text-primary">{item.price}</span>
+                        <span className="font-semibold text-primary">
+                          {item.price}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -675,32 +775,44 @@ export const MenuPriceListSection: ComponentConfig = {
         </div>
       );
     }
-    
-    if (layout === 'accordion') {
+
+    if (layout === "accordion") {
       return (
         <div className="py-16">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">{title}</h2>
-              {subtitle && <p className="text-lg text-muted-foreground">{subtitle}</p>}
+              {subtitle && (
+                <p className="text-lg text-muted-foreground">{subtitle}</p>
+              )}
             </div>
-            
+
             <div className="max-w-3xl mx-auto">
               <Accordion type="single" collapsible className="w-full">
                 {categoryData.map((category, catIndex) => (
                   <AccordionItem key={catIndex} value={`category-${catIndex}`}>
-                    <AccordionTrigger className="text-lg">{category.name}</AccordionTrigger>
+                    <AccordionTrigger className="text-lg">
+                      {category.name}
+                    </AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-4 pt-4">
                         {category.items?.map((item, itemIndex) => (
-                          <div key={itemIndex} className="flex justify-between items-start gap-4">
+                          <div
+                            key={itemIndex}
+                            className="flex justify-between items-start gap-4"
+                          >
                             <div className="flex-1">
                               <h4 className="font-medium">{item.name}</h4>
-                              {showDescriptions === 'yes' && item.description && (
-                                <p className="text-sm text-muted-foreground">{item.description}</p>
-                              )}
+                              {showDescriptions === "yes" &&
+                                item.description && (
+                                  <p className="text-sm text-muted-foreground">
+                                    {item.description}
+                                  </p>
+                                )}
                             </div>
-                            <span className="font-semibold text-primary">{item.price}</span>
+                            <span className="font-semibold text-primary">
+                              {item.price}
+                            </span>
                           </div>
                         ))}
                       </div>
@@ -713,16 +825,18 @@ export const MenuPriceListSection: ComponentConfig = {
         </div>
       );
     }
-    
+
     // Columns layout (default)
     return (
       <div className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">{title}</h2>
-            {subtitle && <p className="text-lg text-muted-foreground">{subtitle}</p>}
+            {subtitle && (
+              <p className="text-lg text-muted-foreground">{subtitle}</p>
+            )}
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {categoryData.map((category, catIndex) => (
               <Card key={catIndex}>
@@ -732,13 +846,20 @@ export const MenuPriceListSection: ComponentConfig = {
                 <CardContent>
                   <div className="space-y-4">
                     {category.items?.map((item, itemIndex) => (
-                      <div key={itemIndex} className="border-b last:border-0 pb-4 last:pb-0">
+                      <div
+                        key={itemIndex}
+                        className="border-b last:border-0 pb-4 last:pb-0"
+                      >
                         <div className="flex justify-between items-start gap-2">
                           <h4 className="font-medium">{item.name}</h4>
-                          <span className="font-semibold text-primary whitespace-nowrap">{item.price}</span>
+                          <span className="font-semibold text-primary whitespace-nowrap">
+                            {item.price}
+                          </span>
                         </div>
-                        {showDescriptions === 'yes' && item.description && (
-                          <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+                        {showDescriptions === "yes" && item.description && (
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {item.description}
+                          </p>
                         )}
                       </div>
                     ))}
@@ -752,7 +873,7 @@ export const MenuPriceListSection: ComponentConfig = {
     );
   },
   icon: Menu,
-  category: "Section"
+  category: "Section",
 };
 
 // Special Offers Section
@@ -761,7 +882,7 @@ export const SpecialOffersSection: ComponentConfig = {
     title: {
       type: "text",
       label: "Section Title",
-      defaultValue: "Special Offers"
+      defaultValue: "Special Offers",
     },
     offers: {
       type: "array",
@@ -771,15 +892,15 @@ export const SpecialOffersSection: ComponentConfig = {
           title: "Happy Hour",
           description: "50% off all appetizers",
           validUntil: "Every day 3-6 PM",
-          code: ""
-        }
+          code: "",
+        },
       ],
       itemType: {
         type: "text",
         label: "Offer",
-        defaultValue: "Happy Hour|50% off appetizers|Every day 3-6 PM|"
+        defaultValue: "Happy Hour|50% off appetizers|Every day 3-6 PM|",
       },
-      maxItems: 6
+      maxItems: 6,
     },
     layout: {
       type: "select",
@@ -788,17 +909,21 @@ export const SpecialOffersSection: ComponentConfig = {
       options: [
         { value: "grid", label: "Grid" },
         { value: "banner", label: "Banner" },
-        { value: "carousel", label: "Carousel" }
-      ]
-    }
+        { value: "carousel", label: "Carousel" },
+      ],
+    },
   },
   render: (props) => {
-    const { title, offers = [], layout } = props as {
+    const {
+      title,
+      offers = [],
+      layout,
+    } = props as {
       title?: string;
       offers?: Array<string | Record<string, unknown>>;
       layout?: string;
     };
-    
+
     // Parse offers
     interface Offer {
       title: string;
@@ -806,27 +931,34 @@ export const SpecialOffersSection: ComponentConfig = {
       validUntil: string;
       code?: string;
     }
-    
-    const offerData: Offer[] = offers.map(offer => {
-      if (typeof offer === 'string') {
-        const [offerTitle, description, validUntil, code] = offer.split('|');
+
+    const offerData: Offer[] = offers.map((offer) => {
+      if (typeof offer === "string") {
+        const [offerTitle, description, validUntil, code] = offer.split("|");
         return { title: offerTitle, description, validUntil, code };
       }
       return offer as unknown as Offer;
     });
-    
-    if (layout === 'banner') {
+
+    if (layout === "banner") {
       return (
         <div className="py-16 bg-primary/10">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold text-center mb-8">{title}</h2>
             <div className="space-y-4 max-w-4xl mx-auto">
               {offerData.map((offer, index) => (
-                <div key={index} className="bg-background rounded-lg p-6 shadow-lg">
+                <div
+                  key={index}
+                  className="bg-background rounded-lg p-6 shadow-lg"
+                >
                   <div className="flex items-center justify-between flex-wrap gap-4">
                     <div className="flex-1">
-                      <h3 className="text-xl font-semibold mb-2">{offer.title}</h3>
-                      <p className="text-muted-foreground mb-2">{offer.description}</p>
+                      <h3 className="text-xl font-semibold mb-2">
+                        {offer.title}
+                      </h3>
+                      <p className="text-muted-foreground mb-2">
+                        {offer.description}
+                      </p>
                       <p className="text-sm font-medium">{offer.validUntil}</p>
                     </div>
                     {offer.code && (
@@ -842,7 +974,7 @@ export const SpecialOffersSection: ComponentConfig = {
         </div>
       );
     }
-    
+
     // Grid layout (default)
     return (
       <div className="py-16">
@@ -850,7 +982,10 @@ export const SpecialOffersSection: ComponentConfig = {
           <h2 className="text-3xl font-bold text-center mb-12">{title}</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {offerData.map((offer, index) => (
-              <Card key={index} className="relative overflow-hidden hover:shadow-lg transition-shadow">
+              <Card
+                key={index}
+                className="relative overflow-hidden hover:shadow-lg transition-shadow"
+              >
                 <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-sm font-medium">
                   <Tag className="w-4 h-4 inline mr-1" />
                   Special
@@ -859,7 +994,9 @@ export const SpecialOffersSection: ComponentConfig = {
                   <CardTitle>{offer.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground mb-4">{offer.description}</p>
+                  <p className="text-muted-foreground mb-4">
+                    {offer.description}
+                  </p>
                   <div className="space-y-2">
                     <p className="text-sm font-medium">{offer.validUntil}</p>
                     {offer.code && (
@@ -877,7 +1014,7 @@ export const SpecialOffersSection: ComponentConfig = {
     );
   },
   icon: Tag,
-  category: "Section"
+  category: "Section",
 };
 
 // FAQ Section
@@ -886,7 +1023,7 @@ export const FAQSection: ComponentConfig = {
     title: {
       type: "text",
       label: "Section Title",
-      defaultValue: "Frequently Asked Questions"
+      defaultValue: "Frequently Asked Questions",
     },
     faqs: {
       type: "array",
@@ -894,19 +1031,21 @@ export const FAQSection: ComponentConfig = {
       defaultValue: [
         {
           question: "What are your payment options?",
-          answer: "We accept cash, all major credit cards, and mobile payments."
+          answer:
+            "We accept cash, all major credit cards, and mobile payments.",
         },
         {
           question: "Do you offer delivery?",
-          answer: "Yes, we offer delivery within a 5-mile radius through our partners."
-        }
+          answer:
+            "Yes, we offer delivery within a 5-mile radius through our partners.",
+        },
       ],
       itemType: {
         type: "text",
         label: "FAQ",
-        defaultValue: "Question here?|Answer here."
+        defaultValue: "Question here?|Answer here.",
       },
-      maxItems: 20
+      maxItems: 20,
     },
     layout: {
       type: "select",
@@ -915,32 +1054,36 @@ export const FAQSection: ComponentConfig = {
       options: [
         { value: "accordion", label: "Accordion" },
         { value: "cards", label: "Cards" },
-        { value: "simple", label: "Simple List" }
-      ]
-    }
+        { value: "simple", label: "Simple List" },
+      ],
+    },
   },
   render: (props) => {
-    const { title, faqs = [], layout } = props as {
+    const {
+      title,
+      faqs = [],
+      layout,
+    } = props as {
       title?: string;
       faqs?: Array<string | Record<string, unknown>>;
       layout?: string;
     };
-    
+
     // Parse FAQs
     interface FAQ {
       question: string;
       answer: string;
     }
-    
-    const faqData: FAQ[] = faqs.map(faq => {
-      if (typeof faq === 'string') {
-        const [question, answer] = faq.split('|');
+
+    const faqData: FAQ[] = faqs.map((faq) => {
+      if (typeof faq === "string") {
+        const [question, answer] = faq.split("|");
         return { question, answer };
       }
       return faq as unknown as FAQ;
     });
-    
-    if (layout === 'cards') {
+
+    if (layout === "cards") {
       return (
         <div className="py-16 bg-muted/30">
           <div className="container mx-auto px-4">
@@ -964,8 +1107,8 @@ export const FAQSection: ComponentConfig = {
         </div>
       );
     }
-    
-    if (layout === 'simple') {
+
+    if (layout === "simple") {
       return (
         <div className="py-16">
           <div className="container mx-auto px-4">
@@ -982,7 +1125,7 @@ export const FAQSection: ComponentConfig = {
         </div>
       );
     }
-    
+
     // Accordion layout (default)
     return (
       <div className="py-16">
@@ -995,9 +1138,7 @@ export const FAQSection: ComponentConfig = {
                   <AccordionTrigger className="text-left">
                     {faq.question}
                   </AccordionTrigger>
-                  <AccordionContent>
-                    {faq.answer}
-                  </AccordionContent>
+                  <AccordionContent>{faq.answer}</AccordionContent>
                 </AccordionItem>
               ))}
             </Accordion>
@@ -1007,7 +1148,7 @@ export const FAQSection: ComponentConfig = {
     );
   },
   icon: HelpCircle,
-  category: "Section"
+  category: "Section",
 };
 
 // Google Reviews Section
@@ -1016,7 +1157,7 @@ export const GoogleReviewsSection: ComponentConfig = {
     title: {
       type: "text",
       label: "Section Title",
-      defaultValue: "What Our Customers Say"
+      defaultValue: "What Our Customers Say",
     },
     showRating: {
       type: "select",
@@ -1024,8 +1165,8 @@ export const GoogleReviewsSection: ComponentConfig = {
       defaultValue: "yes",
       options: [
         { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
+        { value: "no", label: "No" },
+      ],
     },
     reviewSource: {
       type: "select",
@@ -1035,8 +1176,8 @@ export const GoogleReviewsSection: ComponentConfig = {
         { value: "google", label: "Google Reviews Only" },
         { value: "ai", label: "AI Generated Only" },
         { value: "mixed", label: "Mixed (Google + AI)" },
-        { value: "custom", label: "Custom Reviews" }
-      ]
+        { value: "custom", label: "Custom Reviews" },
+      ],
     },
     layout: {
       type: "select",
@@ -1046,8 +1187,8 @@ export const GoogleReviewsSection: ComponentConfig = {
         { value: "grid", label: "Grid" },
         { value: "carousel", label: "Carousel" },
         { value: "featured", label: "Featured + List" },
-        { value: "masonry", label: "Masonry" }
-      ]
+        { value: "masonry", label: "Masonry" },
+      ],
     },
     reviewsPerRow: {
       type: "select",
@@ -1056,15 +1197,15 @@ export const GoogleReviewsSection: ComponentConfig = {
       options: [
         { value: "2", label: "2" },
         { value: "3", label: "3" },
-        { value: "4", label: "4" }
-      ]
+        { value: "4", label: "4" },
+      ],
     },
     maxReviews: {
       type: "number",
       label: "Maximum Reviews to Show",
       defaultValue: 6,
       min: 1,
-      max: 20
+      max: 20,
     },
     rating: {
       type: "number",
@@ -1073,14 +1214,14 @@ export const GoogleReviewsSection: ComponentConfig = {
       min: 0,
       max: 5,
       step: 0.1,
-      showSlider: true
+      showSlider: true,
     },
     totalReviews: {
       type: "number",
       label: "Total Reviews Override",
       defaultValue: 127,
       min: 0,
-      max: 9999
+      max: 9999,
     },
     reviews: {
       type: "array",
@@ -1090,33 +1231,33 @@ export const GoogleReviewsSection: ComponentConfig = {
           author: "John D.",
           rating: 5,
           text: "Excellent service! Highly recommend to everyone.",
-          date: "2 weeks ago"
+          date: "2 weeks ago",
         },
         {
           author: "Sarah M.",
           rating: 5,
           text: "Professional and friendly staff. Will definitely come back!",
-          date: "1 month ago"
+          date: "1 month ago",
         },
         {
           author: "Mike R.",
           rating: 4,
           text: "Great experience overall. Very satisfied with the results.",
-          date: "1 month ago"
-        }
+          date: "1 month ago",
+        },
       ],
       itemType: {
         type: "text",
         label: "Review",
-        defaultValue: "John D.|5|Great service!|2 weeks ago"
+        defaultValue: "John D.|5|Great service!|2 weeks ago",
       },
-      maxItems: 20
+      maxItems: 20,
     },
     googleBusinessUrl: {
       type: "text",
       label: "Google Business Profile URL",
       defaultValue: "",
-      placeholder: "https://g.page/your-business"
+      placeholder: "https://g.page/your-business",
     },
     showDate: {
       type: "select",
@@ -1124,8 +1265,8 @@ export const GoogleReviewsSection: ComponentConfig = {
       defaultValue: "yes",
       options: [
         { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
+        { value: "no", label: "No" },
+      ],
     },
     showAuthorImage: {
       type: "select",
@@ -1133,24 +1274,24 @@ export const GoogleReviewsSection: ComponentConfig = {
       defaultValue: "no",
       options: [
         { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
-    }
+        { value: "no", label: "No" },
+      ],
+    },
   },
   render: (props, editMode, business) => {
-    const { 
-      title, 
-      showRating, 
+    const {
+      title,
+      showRating,
       reviewSource,
       layout = "grid",
       reviewsPerRow = "3",
       maxReviews = 6,
-      rating, 
-      totalReviews, 
-      reviews = [], 
+      rating,
+      totalReviews,
+      reviews = [],
       googleBusinessUrl,
       showDate = "yes",
-      showAuthorImage = "no"
+      showAuthorImage = "no",
     } = props as {
       title?: string;
       showRating?: string;
@@ -1165,73 +1306,77 @@ export const GoogleReviewsSection: ComponentConfig = {
       showDate?: string;
       showAuthorImage?: string;
     };
-    
+
     const businessData = business as Doc<"businesses"> | undefined;
-    
+
     // Gather reviews based on source
     let displayReviews: ReviewData[] = [];
     let actualRating = rating || 4.8;
     let actualTotalReviews = totalReviews || 0;
-    
+
     // Get Google reviews from business data
-    const googleReviews: ReviewData[] = businessData?.reviews?.map(r => {
-      const rAsRecord = r as Record<string, unknown>;
-      
-      // Use the actual review text field based on the data structure
-      // Try multiple possible field names for the review text
-      const reviewText = rAsRecord.textValue || 
-                        rAsRecord.review_text || 
-                        rAsRecord.content || 
-                        rAsRecord.description || 
-                        r.text || 
-                        'No review text found';
-      
-      return {
-        author: String(r.reviewer || 'Anonymous'),
-        rating: parseInt(String(r.rating)) || 5,
-        text: String(reviewText),
-        date: "Google Review"
-      };
-    }) || [];
-    
+    const googleReviews: ReviewData[] =
+      businessData?.reviews?.map((r) => {
+        const rAsRecord = r as Record<string, unknown>;
+
+        // Use the actual review text field based on the data structure
+        // Try multiple possible field names for the review text
+        const reviewText =
+          rAsRecord.textValue ||
+          rAsRecord.review_text ||
+          rAsRecord.content ||
+          rAsRecord.description ||
+          r.text ||
+          "No review text found";
+
+        return {
+          author: String(r.reviewer || "Anonymous"),
+          rating: parseInt(String(r.rating)) || 5,
+          text: String(reviewText),
+          date: "Google Review",
+        };
+      }) || [];
+
     // Get AI generated testimonials
-    const aiTestimonials: ReviewData[] = businessData?.aiGeneratedContent?.testimonials?.items?.map(t => ({
-      author: t.name,
-      rating: t.rating,
-      text: t.text,
-      date: t.date || t.location || "Verified Customer"
-    })) || [];
-    
+    const aiTestimonials: ReviewData[] =
+      businessData?.aiGeneratedContent?.testimonials?.items?.map((t) => ({
+        author: t.name,
+        rating: t.rating,
+        text: t.text,
+        date: t.date || t.location || "Verified Customer",
+      })) || [];
+
     // Parse custom reviews
-    const customReviews: ReviewData[] = reviews.map(review => {
-      if (typeof review === 'string') {
-        const [author, reviewRating, text, date] = review.split('|');
-        return { 
-          author: author || '', 
-          rating: parseInt(reviewRating || '5'), 
-          text: text || '', 
-          date: date || '' 
+    const customReviews: ReviewData[] = reviews.map((review) => {
+      if (typeof review === "string") {
+        const [author, reviewRating, text, date] = review.split("|");
+        return {
+          author: author || "",
+          rating: parseInt(reviewRating || "5"),
+          text: text || "",
+          date: date || "",
         };
       }
-      
+
       const obj = review as Record<string, unknown>;
-      
+
       // Try multiple possible field names for custom review text, similar to Google reviews
-      const reviewText = obj.textValue || 
-                        obj.text || 
-                        obj.content || 
-                        obj.description || 
-                        obj.review_text || 
-                        'No custom review text found';
-      
+      const reviewText =
+        obj.textValue ||
+        obj.text ||
+        obj.content ||
+        obj.description ||
+        obj.review_text ||
+        "No custom review text found";
+
       return {
-        author: String(obj.author || obj.reviewer || ''),
+        author: String(obj.author || obj.reviewer || ""),
         rating: Number(obj.rating || 5),
         text: String(reviewText),
-        date: String(obj.date || '')
+        date: String(obj.date || ""),
       };
     });
-    
+
     // Select reviews based on source
     switch (reviewSource) {
       case "google":
@@ -1246,7 +1391,11 @@ export const GoogleReviewsSection: ComponentConfig = {
         // Interleave Google and AI reviews
         // const maxEach = Math.ceil(maxReviews / 2);
         displayReviews = [];
-        for (let i = 0; i < Math.max(googleReviews.length, aiTestimonials.length); i++) {
+        for (
+          let i = 0;
+          i < Math.max(googleReviews.length, aiTestimonials.length);
+          i++
+        ) {
           if (i < googleReviews.length && displayReviews.length < maxReviews) {
             displayReviews.push(googleReviews[i]);
           }
@@ -1255,17 +1404,18 @@ export const GoogleReviewsSection: ComponentConfig = {
           }
         }
         actualRating = businessData?.rating || rating || 4.8;
-        actualTotalReviews = (googleReviews.length + aiTestimonials.length) || totalReviews || 0;
+        actualTotalReviews =
+          googleReviews.length + aiTestimonials.length || totalReviews || 0;
         break;
       case "custom":
       default:
         displayReviews = customReviews;
         break;
     }
-    
+
     // Limit to maxReviews
     displayReviews = displayReviews.slice(0, maxReviews);
-    
+
     const renderStars = (starRating: number) => {
       return (
         <div className="flex">
@@ -1274,31 +1424,34 @@ export const GoogleReviewsSection: ComponentConfig = {
               key={i}
               className={cn(
                 "w-4 h-4",
-                i < starRating 
-                  ? "text-yellow-400 fill-yellow-400" 
-                  : "text-muted-foreground/30"
+                i < starRating
+                  ? "text-yellow-400 fill-yellow-400"
+                  : "text-muted-foreground/30",
               )}
             />
           ))}
         </div>
       );
     };
-    
+
     // Render based on layout
-    const gridColsClass = reviewsPerRow === "2" ? "md:grid-cols-2" : 
-                         reviewsPerRow === "4" ? "md:grid-cols-2 lg:grid-cols-4" : 
-                         "md:grid-cols-2 lg:grid-cols-3";
-    
+    const gridColsClass =
+      reviewsPerRow === "2"
+        ? "md:grid-cols-2"
+        : reviewsPerRow === "4"
+          ? "md:grid-cols-2 lg:grid-cols-4"
+          : "md:grid-cols-2 lg:grid-cols-3";
+
     if (layout === "featured" && displayReviews.length > 0) {
       const featuredReview = displayReviews[0];
       const otherReviews = displayReviews.slice(1);
-      
+
       return (
         <div className="py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">{title}</h2>
-              {showRating === 'yes' && (
+              {showRating === "yes" && (
                 <div className="flex flex-col items-center gap-4">
                   <div className="flex items-center gap-3">
                     <div className="flex">
@@ -1307,14 +1460,16 @@ export const GoogleReviewsSection: ComponentConfig = {
                           key={i}
                           className={cn(
                             "w-8 h-8",
-                            i < Math.floor(actualRating) 
-                              ? "text-yellow-400 fill-yellow-400" 
-                              : "text-muted-foreground/30"
+                            i < Math.floor(actualRating)
+                              ? "text-yellow-400 fill-yellow-400"
+                              : "text-muted-foreground/30",
                           )}
                         />
                       ))}
                     </div>
-                    <span className="text-3xl font-bold">{actualRating.toFixed(1)}</span>
+                    <span className="text-3xl font-bold">
+                      {actualRating.toFixed(1)}
+                    </span>
                   </div>
                   <p className="text-muted-foreground">
                     Based on {actualTotalReviews} Reviews
@@ -1322,7 +1477,7 @@ export const GoogleReviewsSection: ComponentConfig = {
                 </div>
               )}
             </div>
-            
+
             {/* Featured Review */}
             <div className="max-w-4xl mx-auto mb-12">
               <Card className="shadow-lg">
@@ -1337,38 +1492,53 @@ export const GoogleReviewsSection: ComponentConfig = {
                         </div>
                       )}
                       <div>
-                        <p className="font-semibold text-lg">{featuredReview.author}</p>
+                        <p className="font-semibold text-lg">
+                          {featuredReview.author}
+                        </p>
                         {showDate === "yes" && (
-                          <p className="text-sm text-muted-foreground">{featuredReview.date}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {featuredReview.date}
+                          </p>
                         )}
                       </div>
                     </div>
                     {renderStars(featuredReview.rating)}
                   </div>
                   <p className="text-lg leading-relaxed">
-                    {typeof featuredReview.text === 'string' ? featuredReview.text : String(featuredReview.text || 'No review text')}
+                    {typeof featuredReview.text === "string"
+                      ? featuredReview.text
+                      : String(featuredReview.text || "No review text")}
                   </p>
                 </CardContent>
               </Card>
             </div>
-            
+
             {/* Other Reviews */}
             {otherReviews.length > 0 && (
-              <div className={cn("grid gap-6 max-w-6xl mx-auto", gridColsClass)}>
+              <div
+                className={cn("grid gap-6 max-w-6xl mx-auto", gridColsClass)}
+              >
                 {otherReviews.map((review, index) => (
-                  <Card key={index} className="hover:shadow-lg transition-shadow">
+                  <Card
+                    key={index}
+                    className="hover:shadow-lg transition-shadow"
+                  >
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
                           <p className="font-semibold">{review.author}</p>
                           {showDate === "yes" && (
-                            <p className="text-sm text-muted-foreground">{review.date}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {review.date}
+                            </p>
                           )}
                         </div>
                         {renderStars(review.rating)}
                       </div>
                       <p className="text-muted-foreground line-clamp-3">
-                        {typeof review.text === 'string' ? review.text : String(review.text || 'No review text')}
+                        {typeof review.text === "string"
+                          ? review.text
+                          : String(review.text || "No review text")}
                       </p>
                     </CardContent>
                   </Card>
@@ -1379,15 +1549,15 @@ export const GoogleReviewsSection: ComponentConfig = {
         </div>
       );
     }
-    
+
     // Default grid layout
     return (
       <div className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">{title}</h2>
-            
-            {showRating === 'yes' && (
+
+            {showRating === "yes" && (
               <div className="flex flex-col items-center gap-4">
                 <div className="flex items-center gap-3">
                   <div className="flex">
@@ -1396,14 +1566,16 @@ export const GoogleReviewsSection: ComponentConfig = {
                         key={i}
                         className={cn(
                           "w-8 h-8",
-                          i < Math.floor(actualRating) 
-                            ? "text-yellow-400 fill-yellow-400" 
-                            : "text-muted-foreground/30"
+                          i < Math.floor(actualRating)
+                            ? "text-yellow-400 fill-yellow-400"
+                            : "text-muted-foreground/30",
                         )}
                       />
                     ))}
                   </div>
-                  <span className="text-3xl font-bold">{actualRating.toFixed(1)}</span>
+                  <span className="text-3xl font-bold">
+                    {actualRating.toFixed(1)}
+                  </span>
                 </div>
                 <p className="text-muted-foreground">
                   Based on {actualTotalReviews} Reviews
@@ -1422,16 +1594,16 @@ export const GoogleReviewsSection: ComponentConfig = {
               </div>
             )}
           </div>
-          
+
           <div className={cn("grid gap-6 max-w-6xl mx-auto", gridColsClass)}>
             {displayReviews.map((review, index) => (
-              <Card 
-                key={index} 
+              <Card
+                key={index}
                 className="hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
                 style={{
                   animationDelay: `${index * 100}ms`,
-                  animation: 'fadeInUp 0.6s ease-out forwards',
-                  opacity: 0
+                  animation: "fadeInUp 0.6s ease-out forwards",
+                  opacity: 0,
                 }}
               >
                 <CardContent className="p-6">
@@ -1448,7 +1620,9 @@ export const GoogleReviewsSection: ComponentConfig = {
                         <div>
                           <p className="font-semibold">{review.author}</p>
                           {showDate === "yes" && (
-                            <p className="text-sm text-muted-foreground">{review.date}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {review.date}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -1456,21 +1630,34 @@ export const GoogleReviewsSection: ComponentConfig = {
                     {renderStars(review.rating)}
                   </div>
                   <p className="text-muted-foreground leading-relaxed">
-                    {typeof review.text === 'string' ? review.text : String(review.text || 'No review text')}
+                    {typeof review.text === "string"
+                      ? review.text
+                      : String(review.text || "No review text")}
                   </p>
                 </CardContent>
               </Card>
             ))}
           </div>
-          
+
           {googleBusinessUrl && (
             <div className="text-center mt-8">
-              <Button 
+              <Button
                 asChild={!editMode}
-                onClick={editMode ? (e) => { e.preventDefault(); e.stopPropagation(); } : undefined}
+                onClick={
+                  editMode
+                    ? (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }
+                    : undefined
+                }
               >
                 {!editMode ? (
-                  <a href={googleBusinessUrl} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={googleBusinessUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <MessageSquare className="w-4 h-4 mr-2" />
                     Read All Reviews on Google
                   </a>
@@ -1488,7 +1675,7 @@ export const GoogleReviewsSection: ComponentConfig = {
     );
   },
   icon: Star,
-  category: "Section"
+  category: "Section",
 };
 
 // Before/After Gallery Section
@@ -1497,12 +1684,12 @@ export const BeforeAfterSection: ComponentConfig = {
     title: {
       type: "text",
       label: "Section Title",
-      defaultValue: "Our Work"
+      defaultValue: "Our Work",
     },
     subtitle: {
       type: "text",
       label: "Subtitle",
-      defaultValue: "See the transformation we deliver"
+      defaultValue: "See the transformation we deliver",
     },
     items: {
       type: "array",
@@ -1511,22 +1698,27 @@ export const BeforeAfterSection: ComponentConfig = {
         {
           title: "Kitchen Renovation",
           description: "Complete kitchen transformation",
-          beforeImage: "https://images.unsplash.com/photo-1556911220-bff31c812dba",
-          afterImage: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136"
+          beforeImage:
+            "https://images.unsplash.com/photo-1556911220-bff31c812dba",
+          afterImage:
+            "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136",
         },
         {
           title: "Bathroom Remodel",
           description: "Modern bathroom upgrade",
-          beforeImage: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14",
-          afterImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d"
-        }
+          beforeImage:
+            "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14",
+          afterImage:
+            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
+        },
       ],
       itemType: {
         type: "text",
         label: "Before/After Item",
-        defaultValue: "Project Title|Description|before-image-url|after-image-url"
+        defaultValue:
+          "Project Title|Description|before-image-url|after-image-url",
       },
-      maxItems: 10
+      maxItems: 10,
     },
     layout: {
       type: "select",
@@ -1535,8 +1727,8 @@ export const BeforeAfterSection: ComponentConfig = {
       options: [
         { value: "slider", label: "Slider Comparison" },
         { value: "side-by-side", label: "Side by Side" },
-        { value: "grid", label: "Grid Layout" }
-      ]
+        { value: "grid", label: "Grid Layout" },
+      ],
     },
     showLabels: {
       type: "select",
@@ -1544,19 +1736,25 @@ export const BeforeAfterSection: ComponentConfig = {
       defaultValue: "yes",
       options: [
         { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
-    }
+        { value: "no", label: "No" },
+      ],
+    },
   },
   render: (props, _editMode, _business) => {
-    const { title, subtitle, items = [], layout, showLabels } = props as {
+    const {
+      title,
+      subtitle,
+      items = [],
+      layout,
+      showLabels,
+    } = props as {
       title?: string;
       subtitle?: string;
       items?: Array<string | Record<string, unknown>>;
       layout?: string;
       showLabels?: string;
     };
-    
+
     // Parse items
     interface BeforeAfterItem {
       title: string;
@@ -1564,23 +1762,25 @@ export const BeforeAfterSection: ComponentConfig = {
       beforeImage: string;
       afterImage: string;
     }
-    
-    const beforeAfterData: BeforeAfterItem[] = items.map(item => {
-      if (typeof item === 'string') {
-        const [title, description, beforeImage, afterImage] = item.split('|');
+
+    const beforeAfterData: BeforeAfterItem[] = items.map((item) => {
+      if (typeof item === "string") {
+        const [title, description, beforeImage, afterImage] = item.split("|");
         return { title, description, beforeImage, afterImage };
       }
       return item as unknown as BeforeAfterItem;
     });
-    
+
     return (
       <div className="py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">{title}</h2>
-            {subtitle && <p className="text-lg text-muted-foreground">{subtitle}</p>}
+            {subtitle && (
+              <p className="text-lg text-muted-foreground">{subtitle}</p>
+            )}
           </div>
-          
+
           {layout === "grid" ? (
             <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
               {beforeAfterData.map((item, index) => (
@@ -1628,7 +1828,9 @@ export const BeforeAfterSection: ComponentConfig = {
                   <CardHeader>
                     <CardTitle>{item.title}</CardTitle>
                     {item.description && (
-                      <p className="text-muted-foreground">{item.description}</p>
+                      <p className="text-muted-foreground">
+                        {item.description}
+                      </p>
                     )}
                   </CardHeader>
                   <CardContent className="p-0">
@@ -1672,7 +1874,7 @@ export const BeforeAfterSection: ComponentConfig = {
     );
   },
   icon: ImageIcon,
-  category: "Section"
+  category: "Section",
 };
 
 // Process Timeline Section
@@ -1681,12 +1883,12 @@ export const ProcessTimelineSection: ComponentConfig = {
     title: {
       type: "text",
       label: "Section Title",
-      defaultValue: "How We Work"
+      defaultValue: "How We Work",
     },
     subtitle: {
       type: "text",
       label: "Subtitle",
-      defaultValue: "Our proven process delivers results"
+      defaultValue: "Our proven process delivers results",
     },
     steps: {
       type: "array",
@@ -1696,33 +1898,33 @@ export const ProcessTimelineSection: ComponentConfig = {
           number: "01",
           title: "Initial Consultation",
           description: "We meet to understand your needs and vision",
-          icon: "chat"
+          icon: "chat",
         },
         {
           number: "02",
           title: "Planning & Design",
           description: "Create detailed plans and get your approval",
-          icon: "planning"
+          icon: "planning",
         },
         {
           number: "03",
           title: "Implementation",
           description: "Execute the project with precision and care",
-          icon: "tools"
+          icon: "tools",
         },
         {
           number: "04",
           title: "Final Review",
           description: "Ensure everything meets your expectations",
-          icon: "check"
-        }
+          icon: "check",
+        },
       ],
       itemType: {
         type: "text",
         label: "Process Step",
-        defaultValue: "01|Step Title|Step description|icon"
+        defaultValue: "01|Step Title|Step description|icon",
       },
-      maxItems: 8
+      maxItems: 8,
     },
     layout: {
       type: "select",
@@ -1731,8 +1933,8 @@ export const ProcessTimelineSection: ComponentConfig = {
       options: [
         { value: "timeline", label: "Timeline" },
         { value: "cards", label: "Cards" },
-        { value: "vertical", label: "Vertical List" }
-      ]
+        { value: "vertical", label: "Vertical List" },
+      ],
     },
     showConnectors: {
       type: "select",
@@ -1740,19 +1942,25 @@ export const ProcessTimelineSection: ComponentConfig = {
       defaultValue: "yes",
       options: [
         { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
-    }
+        { value: "no", label: "No" },
+      ],
+    },
   },
   render: (props) => {
-    const { title, subtitle, steps = [], layout, showConnectors } = props as {
+    const {
+      title,
+      subtitle,
+      steps = [],
+      layout,
+      showConnectors,
+    } = props as {
       title?: string;
       subtitle?: string;
       steps?: Array<string | Record<string, unknown>>;
       layout?: string;
       showConnectors?: string;
     };
-    
+
     // Parse steps
     interface ProcessStep {
       number: string;
@@ -1760,37 +1968,44 @@ export const ProcessTimelineSection: ComponentConfig = {
       description: string;
       icon?: string;
     }
-    
-    const processSteps: ProcessStep[] = steps.map(step => {
-      if (typeof step === 'string') {
-        const [number, title, description, icon] = step.split('|');
+
+    const processSteps: ProcessStep[] = steps.map((step) => {
+      if (typeof step === "string") {
+        const [number, title, description, icon] = step.split("|");
         return { number, title, description, icon };
       }
       return step as unknown as ProcessStep;
     });
-    
+
     if (layout === "cards") {
       return (
         <div className="py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">{title}</h2>
-              {subtitle && <p className="text-lg text-muted-foreground">{subtitle}</p>}
+              {subtitle && (
+                <p className="text-lg text-muted-foreground">{subtitle}</p>
+              )}
             </div>
-            
+
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
               {processSteps.map((step, index) => (
                 <div key={index} className="relative">
-                  {showConnectors === "yes" && index < processSteps.length - 1 && (
-                    <div className="hidden lg:block absolute top-1/3 left-full w-full h-0.5 bg-border -z-10" />
-                  )}
+                  {showConnectors === "yes" &&
+                    index < processSteps.length - 1 && (
+                      <div className="hidden lg:block absolute top-1/3 left-full w-full h-0.5 bg-border -z-10" />
+                    )}
                   <Card className="relative h-full hover:shadow-lg transition-shadow">
                     <CardHeader>
-                      <div className="text-4xl font-bold text-primary mb-2">{step.number}</div>
+                      <div className="text-4xl font-bold text-primary mb-2">
+                        {step.number}
+                      </div>
                       <CardTitle className="text-lg">{step.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-muted-foreground">{step.description}</p>
+                      <p className="text-muted-foreground">
+                        {step.description}
+                      </p>
                     </CardContent>
                   </Card>
                 </div>
@@ -1800,16 +2015,18 @@ export const ProcessTimelineSection: ComponentConfig = {
         </div>
       );
     }
-    
+
     if (layout === "vertical") {
       return (
         <div className="py-16">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">{title}</h2>
-              {subtitle && <p className="text-lg text-muted-foreground">{subtitle}</p>}
+              {subtitle && (
+                <p className="text-lg text-muted-foreground">{subtitle}</p>
+              )}
             </div>
-            
+
             <div className="max-w-3xl mx-auto">
               {processSteps.map((step, index) => (
                 <div key={index} className="flex gap-8 mb-8 last:mb-0">
@@ -1817,9 +2034,10 @@ export const ProcessTimelineSection: ComponentConfig = {
                     <div className="w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xl font-bold">
                       {step.number}
                     </div>
-                    {showConnectors === "yes" && index < processSteps.length - 1 && (
-                      <div className="w-0.5 h-full bg-border mt-4" />
-                    )}
+                    {showConnectors === "yes" &&
+                      index < processSteps.length - 1 && (
+                        <div className="w-0.5 h-full bg-border mt-4" />
+                      )}
                   </div>
                   <div className="flex-1 pb-8">
                     <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
@@ -1832,28 +2050,32 @@ export const ProcessTimelineSection: ComponentConfig = {
         </div>
       );
     }
-    
+
     // Timeline layout (default)
     return (
       <div className="py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">{title}</h2>
-            {subtitle && <p className="text-lg text-muted-foreground">{subtitle}</p>}
+            {subtitle && (
+              <p className="text-lg text-muted-foreground">{subtitle}</p>
+            )}
           </div>
-          
+
           <div className="max-w-6xl mx-auto">
             <div className="relative">
               {showConnectors === "yes" && (
                 <div className="absolute top-16 left-0 right-0 h-0.5 bg-border hidden md:block" />
               )}
-              
+
               <div className="grid md:grid-cols-4 gap-8">
                 {processSteps.map((step, index) => (
                   <div key={index} className="relative text-center">
                     <div className="relative inline-flex">
                       <div className="w-32 h-32 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                        <span className="text-3xl font-bold text-primary">{step.number}</span>
+                        <span className="text-3xl font-bold text-primary">
+                          {step.number}
+                        </span>
                       </div>
                     </div>
                     <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
@@ -1868,11 +2090,21 @@ export const ProcessTimelineSection: ComponentConfig = {
     );
   },
   icon: () => (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+    <svg
+      className="w-5 h-5"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M9 5l7 7-7 7"
+      />
     </svg>
   ),
-  category: "Section"
+  category: "Section",
 };
 
 // Stats Counter Section
@@ -1881,12 +2113,12 @@ export const StatsCounterSection: ComponentConfig = {
     title: {
       type: "text",
       label: "Section Title",
-      defaultValue: "By The Numbers"
+      defaultValue: "By The Numbers",
     },
     subtitle: {
       type: "text",
       label: "Subtitle",
-      defaultValue: "Our achievements speak for themselves"
+      defaultValue: "Our achievements speak for themselves",
     },
     stats: {
       type: "array",
@@ -1896,33 +2128,33 @@ export const StatsCounterSection: ComponentConfig = {
           number: "500+",
           label: "Happy Customers",
           suffix: "",
-          icon: "users"
+          icon: "users",
         },
         {
           number: "10",
           label: "Years Experience",
           suffix: "+",
-          icon: "calendar"
+          icon: "calendar",
         },
         {
           number: "98",
           label: "Customer Satisfaction",
           suffix: "%",
-          icon: "star"
+          icon: "star",
         },
         {
           number: "24/7",
           label: "Support Available",
           suffix: "",
-          icon: "support"
-        }
+          icon: "support",
+        },
       ],
       itemType: {
         type: "text",
         label: "Statistic",
-        defaultValue: "100|Label|+|icon"
+        defaultValue: "100|Label|+|icon",
       },
-      maxItems: 6
+      maxItems: 6,
     },
     layout: {
       type: "select",
@@ -1931,8 +2163,8 @@ export const StatsCounterSection: ComponentConfig = {
       options: [
         { value: "grid", label: "Grid" },
         { value: "inline", label: "Inline" },
-        { value: "stacked", label: "Stacked" }
-      ]
+        { value: "stacked", label: "Stacked" },
+      ],
     },
     showIcons: {
       type: "select",
@@ -1940,8 +2172,8 @@ export const StatsCounterSection: ComponentConfig = {
       defaultValue: "yes",
       options: [
         { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
+        { value: "no", label: "No" },
+      ],
     },
     backgroundColor: {
       type: "select",
@@ -1950,12 +2182,19 @@ export const StatsCounterSection: ComponentConfig = {
       options: [
         { value: "primary", label: "Primary Color" },
         { value: "muted", label: "Muted" },
-        { value: "default", label: "Default" }
-      ]
-    }
+        { value: "default", label: "Default" },
+      ],
+    },
   },
   render: (props) => {
-    const { title, subtitle, stats = [], layout, showIcons, backgroundColor } = props as {
+    const {
+      title,
+      subtitle,
+      stats = [],
+      layout,
+      showIcons,
+      backgroundColor,
+    } = props as {
       title?: string;
       subtitle?: string;
       stats?: Array<string | Record<string, unknown>>;
@@ -1963,7 +2202,7 @@ export const StatsCounterSection: ComponentConfig = {
       showIcons?: string;
       backgroundColor?: string;
     };
-    
+
     // Parse stats
     interface Stat {
       number: string;
@@ -1971,47 +2210,87 @@ export const StatsCounterSection: ComponentConfig = {
       suffix?: string;
       icon?: string;
     }
-    
-    const statsData: Stat[] = stats.map(stat => {
-      if (typeof stat === 'string') {
-        const [number, label, suffix, icon] = stat.split('|');
-        return { number, label, suffix: suffix || '', icon };
+
+    const statsData: Stat[] = stats.map((stat) => {
+      if (typeof stat === "string") {
+        const [number, label, suffix, icon] = stat.split("|");
+        return { number, label, suffix: suffix || "", icon };
       }
       return stat as unknown as Stat;
     });
-    
-    const bgClass = backgroundColor === "primary" ? "bg-primary text-primary-foreground" :
-                   backgroundColor === "muted" ? "bg-muted" : "";
-    
-    const textColorClass = backgroundColor === "primary" ? "text-primary-foreground" : "";
-    
+
+    const bgClass =
+      backgroundColor === "primary"
+        ? "bg-primary text-primary-foreground"
+        : backgroundColor === "muted"
+          ? "bg-muted"
+          : "";
+
+    const textColorClass =
+      backgroundColor === "primary" ? "text-primary-foreground" : "";
+
     return (
       <div className={cn("py-16", bgClass)}>
         <div className="container mx-auto px-4">
           {(title || subtitle) && (
             <div className="text-center mb-12">
-              {title && <h2 className={cn("text-3xl font-bold mb-4", textColorClass)}>{title}</h2>}
-              {subtitle && <p className={cn("text-lg", backgroundColor === "primary" ? "text-primary-foreground/90" : "text-muted-foreground")}>{subtitle}</p>}
+              {title && (
+                <h2 className={cn("text-3xl font-bold mb-4", textColorClass)}>
+                  {title}
+                </h2>
+              )}
+              {subtitle && (
+                <p
+                  className={cn(
+                    "text-lg",
+                    backgroundColor === "primary"
+                      ? "text-primary-foreground/90"
+                      : "text-muted-foreground",
+                  )}
+                >
+                  {subtitle}
+                </p>
+              )}
             </div>
           )}
-          
+
           {layout === "inline" ? (
             <div className="flex flex-wrap justify-center gap-8 md:gap-16 max-w-5xl mx-auto">
               {statsData.map((stat, index) => (
                 <div key={index} className="text-center">
                   {showIcons === "yes" && stat.icon && (
-                    <div className={cn("w-12 h-12 rounded-full flex items-center justify-center mb-3 mx-auto", 
-                      backgroundColor === "primary" ? "bg-primary-foreground/20" : "bg-primary/10"
-                    )}>
-                      <Users className={cn("w-6 h-6", backgroundColor === "primary" ? "text-primary-foreground" : "text-primary")} />
+                    <div
+                      className={cn(
+                        "w-12 h-12 rounded-full flex items-center justify-center mb-3 mx-auto",
+                        backgroundColor === "primary"
+                          ? "bg-primary-foreground/20"
+                          : "bg-primary/10",
+                      )}
+                    >
+                      <Users
+                        className={cn(
+                          "w-6 h-6",
+                          backgroundColor === "primary"
+                            ? "text-primary-foreground"
+                            : "text-primary",
+                        )}
+                      />
                     </div>
                   )}
-                  <div className={cn("text-4xl font-bold mb-1", textColorClass)}>
-                    {stat.number}{stat.suffix}
+                  <div
+                    className={cn("text-4xl font-bold mb-1", textColorClass)}
+                  >
+                    {stat.number}
+                    {stat.suffix}
                   </div>
-                  <div className={cn("text-sm font-medium", 
-                    backgroundColor === "primary" ? "text-primary-foreground/80" : "text-muted-foreground"
-                  )}>
+                  <div
+                    className={cn(
+                      "text-sm font-medium",
+                      backgroundColor === "primary"
+                        ? "text-primary-foreground/80"
+                        : "text-muted-foreground",
+                    )}
+                  >
                     {stat.label}
                   </div>
                 </div>
@@ -2020,47 +2299,91 @@ export const StatsCounterSection: ComponentConfig = {
           ) : layout === "stacked" ? (
             <div className="max-w-2xl mx-auto space-y-6">
               {statsData.map((stat, index) => (
-                <div key={index} className={cn(
-                  "flex items-center justify-between p-6 rounded-lg",
-                  backgroundColor === "primary" ? "bg-primary-foreground/10" : "bg-background border"
-                )}>
+                <div
+                  key={index}
+                  className={cn(
+                    "flex items-center justify-between p-6 rounded-lg",
+                    backgroundColor === "primary"
+                      ? "bg-primary-foreground/10"
+                      : "bg-background border",
+                  )}
+                >
                   <div className="flex items-center gap-4">
                     {showIcons === "yes" && stat.icon && (
-                      <div className={cn("w-12 h-12 rounded-full flex items-center justify-center",
-                        backgroundColor === "primary" ? "bg-primary-foreground/20" : "bg-primary/10"
-                      )}>
-                        <Users className={cn("w-6 h-6", backgroundColor === "primary" ? "text-primary-foreground" : "text-primary")} />
+                      <div
+                        className={cn(
+                          "w-12 h-12 rounded-full flex items-center justify-center",
+                          backgroundColor === "primary"
+                            ? "bg-primary-foreground/20"
+                            : "bg-primary/10",
+                        )}
+                      >
+                        <Users
+                          className={cn(
+                            "w-6 h-6",
+                            backgroundColor === "primary"
+                              ? "text-primary-foreground"
+                              : "text-primary",
+                          )}
+                        />
                       </div>
                     )}
-                    <div className={cn("font-medium", textColorClass)}>{stat.label}</div>
+                    <div className={cn("font-medium", textColorClass)}>
+                      {stat.label}
+                    </div>
                   </div>
                   <div className={cn("text-3xl font-bold", textColorClass)}>
-                    {stat.number}{stat.suffix}
+                    {stat.number}
+                    {stat.suffix}
                   </div>
                 </div>
               ))}
             </div>
           ) : (
             // Grid layout (default)
-            <div className={cn(
-              "grid gap-8 max-w-5xl mx-auto",
-              statsData.length === 3 ? "md:grid-cols-3" : "md:grid-cols-2 lg:grid-cols-4"
-            )}>
+            <div
+              className={cn(
+                "grid gap-8 max-w-5xl mx-auto",
+                statsData.length === 3
+                  ? "md:grid-cols-3"
+                  : "md:grid-cols-2 lg:grid-cols-4",
+              )}
+            >
               {statsData.map((stat, index) => (
                 <div key={index} className="text-center">
                   {showIcons === "yes" && stat.icon && (
-                    <div className={cn("w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto",
-                      backgroundColor === "primary" ? "bg-primary-foreground/20" : "bg-primary/10"
-                    )}>
-                      <Users className={cn("w-8 h-8", backgroundColor === "primary" ? "text-primary-foreground" : "text-primary")} />
+                    <div
+                      className={cn(
+                        "w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto",
+                        backgroundColor === "primary"
+                          ? "bg-primary-foreground/20"
+                          : "bg-primary/10",
+                      )}
+                    >
+                      <Users
+                        className={cn(
+                          "w-8 h-8",
+                          backgroundColor === "primary"
+                            ? "text-primary-foreground"
+                            : "text-primary",
+                        )}
+                      />
                     </div>
                   )}
-                  <div className={cn("text-5xl font-bold mb-2", textColorClass)}>
-                    {stat.number}{stat.suffix}
+                  <div
+                    className={cn("text-5xl font-bold mb-2", textColorClass)}
+                  >
+                    {stat.number}
+                    {stat.suffix}
                   </div>
-                  <div className={cn("text-lg font-medium",
-                    backgroundColor === "primary" ? "text-primary-foreground/80" : "text-muted-foreground"
-                  )}>
+                  <div
+                    className={cn(
+                      "text-lg font-medium",
+                      backgroundColor === "primary"
+                        ? "text-primary-foreground/80"
+                        : "text-muted-foreground",
+                    )}
+                  >
                     {stat.label}
                   </div>
                 </div>
@@ -2072,11 +2395,21 @@ export const StatsCounterSection: ComponentConfig = {
     );
   },
   icon: () => (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+    <svg
+      className="w-5 h-5"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+      />
     </svg>
   ),
-  category: "Section"
+  category: "Section",
 };
 
 // Team Section - Professional staff profiles
@@ -2085,12 +2418,12 @@ export const TeamSection: ComponentConfig = {
     title: {
       type: "text",
       label: "Section Title",
-      defaultValue: "Meet Our Team"
+      defaultValue: "Meet Our Team",
     },
     subtitle: {
       type: "text",
       label: "Subtitle",
-      defaultValue: "Experienced professionals dedicated to your success"
+      defaultValue: "Experienced professionals dedicated to your success",
     },
     layout: {
       type: "select",
@@ -2099,8 +2432,8 @@ export const TeamSection: ComponentConfig = {
       options: [
         { value: "grid", label: "Grid" },
         { value: "carousel", label: "Carousel" },
-        { value: "featured", label: "Featured + Grid" }
-      ]
+        { value: "featured", label: "Featured + Grid" },
+      ],
     },
     showSocial: {
       type: "select",
@@ -2108,8 +2441,8 @@ export const TeamSection: ComponentConfig = {
       defaultValue: "no",
       options: [
         { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
+        { value: "no", label: "No" },
+      ],
     },
     teamSize: {
       type: "select",
@@ -2118,60 +2451,78 @@ export const TeamSection: ComponentConfig = {
       options: [
         { value: "2", label: "2" },
         { value: "3", label: "3" },
-        { value: "4", label: "4" }
-      ]
-    }
+        { value: "4", label: "4" },
+      ],
+    },
   },
   render: (props, editMode, business) => {
-    const { title, subtitle, showSocial, teamSize = "3" } = props as {
+    const {
+      title,
+      subtitle,
+      showSocial,
+      teamSize = "3",
+    } = props as {
       title?: string;
       subtitle?: string;
       showSocial?: string;
       teamSize?: string;
     };
     const businessData = business as Doc<"businesses"> | undefined;
-    
+
     // Get team data from AI generated content or use defaults
     const teamData = businessData?.aiGeneratedContent?.team?.members || [
       {
         name: "John Smith",
         role: "Founder & CEO",
         bio: "With over 20 years of experience in the industry, John leads our team with passion and expertise.",
-        expertise: ["Leadership", "Strategy", "Customer Relations"]
+        expertise: ["Leadership", "Strategy", "Customer Relations"],
       },
       {
         name: "Sarah Johnson",
         role: "Operations Manager",
         bio: "Sarah ensures smooth operations and exceptional service delivery for all our clients.",
-        expertise: ["Operations", "Quality Control", "Team Management"]
+        expertise: ["Operations", "Quality Control", "Team Management"],
       },
       {
         name: "Michael Chen",
         role: "Lead Specialist",
         bio: "Michael brings technical excellence and innovation to every project he handles.",
-        expertise: ["Technical Skills", "Problem Solving", "Innovation"]
-      }
+        expertise: ["Technical Skills", "Problem Solving", "Innovation"],
+      },
     ];
-    
-    const gridCols = teamSize === "2" ? "md:grid-cols-2" : 
-                    teamSize === "4" ? "md:grid-cols-2 lg:grid-cols-4" : 
-                    "md:grid-cols-2 lg:grid-cols-3";
-    
+
+    const gridCols =
+      teamSize === "2"
+        ? "md:grid-cols-2"
+        : teamSize === "4"
+          ? "md:grid-cols-2 lg:grid-cols-4"
+          : "md:grid-cols-2 lg:grid-cols-3";
+
     return (
       <div className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">{title}</h2>
-            {subtitle && <p className="text-lg text-muted-foreground max-w-3xl mx-auto">{subtitle}</p>}
+            {subtitle && (
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+                {subtitle}
+              </p>
+            )}
           </div>
-          
+
           <div className={cn("grid gap-8 max-w-6xl mx-auto", gridCols)}>
             {teamData.map((member, index) => (
-              <Card key={index} className="overflow-hidden hover:shadow-lg transition-all duration-300">
+              <Card
+                key={index}
+                className="overflow-hidden hover:shadow-lg transition-all duration-300"
+              >
                 <div className="aspect-square bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
                   <div className="w-32 h-32 rounded-full bg-primary/20 flex items-center justify-center">
                     <span className="text-4xl font-bold text-primary">
-                      {member.name.split(' ').map(n => n[0]).join('')}
+                      {member.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
                     </span>
                   </div>
                 </div>
@@ -2179,11 +2530,11 @@ export const TeamSection: ComponentConfig = {
                   <h3 className="text-xl font-semibold mb-1">{member.name}</h3>
                   <p className="text-primary font-medium mb-3">{member.role}</p>
                   <p className="text-muted-foreground mb-4">{member.bio}</p>
-                  
+
                   {member.expertise && member.expertise.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {member.expertise.map((skill, skillIndex) => (
-                        <span 
+                        <span
                           key={skillIndex}
                           className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full"
                         >
@@ -2192,12 +2543,16 @@ export const TeamSection: ComponentConfig = {
                       ))}
                     </div>
                   )}
-                  
+
                   {showSocial === "yes" && (
                     <div className="flex gap-3 mt-4 pt-4 border-t">
                       <Button size="icon" variant="ghost" className="h-8 w-8">
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                        <svg
+                          className="w-4 h-4"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
                         </svg>
                       </Button>
                       <Button size="icon" variant="ghost" className="h-8 w-8">
@@ -2214,7 +2569,7 @@ export const TeamSection: ComponentConfig = {
     );
   },
   icon: Users,
-  category: "Section"
+  category: "Section",
 };
 
 // Features Grid Section - Professional feature showcase
@@ -2223,12 +2578,12 @@ export const FeaturesSection: ComponentConfig = {
     title: {
       type: "text",
       label: "Section Title",
-      defaultValue: "Why Choose Us"
+      defaultValue: "Why Choose Us",
     },
     subtitle: {
       type: "text",
       label: "Subtitle",
-      defaultValue: "Key advantages that set us apart"
+      defaultValue: "Key advantages that set us apart",
     },
     layout: {
       type: "select",
@@ -2237,8 +2592,8 @@ export const FeaturesSection: ComponentConfig = {
       options: [
         { value: "grid", label: "Grid with Icons" },
         { value: "alternating", label: "Alternating Rows" },
-        { value: "centered", label: "Centered Cards" }
-      ]
+        { value: "centered", label: "Centered Cards" },
+      ],
     },
     iconStyle: {
       type: "select",
@@ -2247,8 +2602,8 @@ export const FeaturesSection: ComponentConfig = {
       options: [
         { value: "circle", label: "Circle Background" },
         { value: "square", label: "Square Background" },
-        { value: "none", label: "No Background" }
-      ]
+        { value: "none", label: "No Background" },
+      ],
     },
     columns: {
       type: "select",
@@ -2257,12 +2612,18 @@ export const FeaturesSection: ComponentConfig = {
       options: [
         { value: "2", label: "2 Columns" },
         { value: "3", label: "3 Columns" },
-        { value: "4", label: "4 Columns" }
-      ]
-    }
+        { value: "4", label: "4 Columns" },
+      ],
+    },
   },
   render: (props, editMode, business) => {
-    const { title, subtitle, layout, iconStyle, columns = "3" } = props as {
+    const {
+      title,
+      subtitle,
+      layout,
+      iconStyle,
+      columns = "3",
+    } = props as {
       title?: string;
       subtitle?: string;
       layout?: string;
@@ -2270,46 +2631,53 @@ export const FeaturesSection: ComponentConfig = {
       columns?: string;
     };
     const businessData = business as Doc<"businesses"> | undefined;
-    
+
     // Get features from AI generated content or use defaults
     const features = businessData?.aiGeneratedContent?.features?.items || [
       {
         title: "Expert Team",
-        description: "Our skilled professionals bring years of experience to every project.",
-        icon: "users"
+        description:
+          "Our skilled professionals bring years of experience to every project.",
+        icon: "users",
       },
       {
         title: "Quality Service",
         description: "We maintain the highest standards in everything we do.",
-        icon: "star"
+        icon: "star",
       },
       {
         title: "Fast Response",
         description: "Quick turnaround times without compromising on quality.",
-        icon: "zap"
+        icon: "zap",
       },
       {
         title: "Best Value",
         description: "Competitive pricing with exceptional service delivery.",
-        icon: "award"
+        icon: "award",
       },
       {
         title: "24/7 Support",
         description: "Always available when you need us most.",
-        icon: "clock"
+        icon: "clock",
       },
       {
         title: "Guaranteed Results",
         description: "Your satisfaction is our top priority.",
-        icon: "shield"
-      }
+        icon: "shield",
+      },
     ];
-    
-    const gridCols = columns === "2" ? "md:grid-cols-2" :
-                    columns === "4" ? "md:grid-cols-2 lg:grid-cols-4" :
-                    "md:grid-cols-2 lg:grid-cols-3";
-    
-    const iconComponents: Record<string, React.ComponentType<{ className?: string }>> = {
+
+    const gridCols =
+      columns === "2"
+        ? "md:grid-cols-2"
+        : columns === "4"
+          ? "md:grid-cols-2 lg:grid-cols-4"
+          : "md:grid-cols-2 lg:grid-cols-3";
+
+    const iconComponents: Record<
+      string,
+      React.ComponentType<{ className?: string }>
+    > = {
       users: Users,
       star: Star,
       zap: Zap,
@@ -2319,40 +2687,57 @@ export const FeaturesSection: ComponentConfig = {
       heart: Heart,
       globe: Globe,
       check: CheckCircle,
-      tool: Wrench
+      tool: Wrench,
     };
-    
-    const iconBgClass = iconStyle === "circle" ? "rounded-full" :
-                       iconStyle === "square" ? "rounded-lg" : "";
-    
+
+    const iconBgClass =
+      iconStyle === "circle"
+        ? "rounded-full"
+        : iconStyle === "square"
+          ? "rounded-lg"
+          : "";
+
     if (layout === "alternating") {
       return (
         <div className="py-16">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">{title}</h2>
-              {subtitle && <p className="text-lg text-muted-foreground max-w-3xl mx-auto">{subtitle}</p>}
+              {subtitle && (
+                <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+                  {subtitle}
+                </p>
+              )}
             </div>
-            
+
             <div className="space-y-16 max-w-5xl mx-auto">
               {features.map((feature, index) => {
                 const IconComponent = iconComponents[feature.icon] || Star;
                 const isEven = index % 2 === 0;
-                
+
                 return (
-                  <div key={index} className={cn(
-                    "flex flex-col md:flex-row items-center gap-8",
-                    !isEven && "md:flex-row-reverse"
-                  )}>
+                  <div
+                    key={index}
+                    className={cn(
+                      "flex flex-col md:flex-row items-center gap-8",
+                      !isEven && "md:flex-row-reverse",
+                    )}
+                  >
                     <div className="flex-1">
-                      <div className={cn(
-                        "w-20 h-20 bg-primary/10 flex items-center justify-center mb-4",
-                        iconBgClass
-                      )}>
+                      <div
+                        className={cn(
+                          "w-20 h-20 bg-primary/10 flex items-center justify-center mb-4",
+                          iconBgClass,
+                        )}
+                      >
                         <IconComponent className="w-10 h-10 text-primary" />
                       </div>
-                      <h3 className="text-2xl font-semibold mb-3">{feature.title}</h3>
-                      <p className="text-muted-foreground text-lg">{feature.description}</p>
+                      <h3 className="text-2xl font-semibold mb-3">
+                        {feature.title}
+                      </h3>
+                      <p className="text-muted-foreground text-lg">
+                        {feature.description}
+                      </p>
                     </div>
                     <div className="flex-1">
                       <div className="bg-muted rounded-lg h-64 flex items-center justify-center">
@@ -2367,32 +2752,42 @@ export const FeaturesSection: ComponentConfig = {
         </div>
       );
     }
-    
+
     // Default grid layout
     return (
       <div className="py-16 bg-gradient-to-b from-background to-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">{title}</h2>
-            {subtitle && <p className="text-lg text-muted-foreground max-w-3xl mx-auto">{subtitle}</p>}
+            {subtitle && (
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+                {subtitle}
+              </p>
+            )}
           </div>
-          
+
           <div className={cn("grid gap-8 max-w-6xl mx-auto", gridCols)}>
             {features.map((feature, index) => {
               const IconComponent = iconComponents[feature.icon] || Star;
-              
+
               return (
                 <div key={index} className="group">
                   <Card className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                     <CardContent className="p-6">
-                      <div className={cn(
-                        "w-16 h-16 bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors",
-                        iconBgClass
-                      )}>
+                      <div
+                        className={cn(
+                          "w-16 h-16 bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors",
+                          iconBgClass,
+                        )}
+                      >
                         <IconComponent className="w-8 h-8 text-primary" />
                       </div>
-                      <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-                      <p className="text-muted-foreground">{feature.description}</p>
+                      <h3 className="text-xl font-semibold mb-3">
+                        {feature.title}
+                      </h3>
+                      <p className="text-muted-foreground">
+                        {feature.description}
+                      </p>
                     </CardContent>
                   </Card>
                 </div>
@@ -2404,7 +2799,8 @@ export const FeaturesSection: ComponentConfig = {
     );
   },
   icon: Award,
-  category: "Section"
+  category: "Section",
+  variations: featureVariations,
 };
 
 // CTA Banner Section - Multiple call-to-action variations
@@ -2413,22 +2809,22 @@ export const CTABannerSection: ComponentConfig = {
     title: {
       type: "text",
       label: "Headline",
-      defaultValue: "Ready to Get Started?"
+      defaultValue: "Ready to Get Started?",
     },
     subtitle: {
       type: "text",
       label: "Subheadline",
-      defaultValue: "Join thousands of satisfied customers today"
+      defaultValue: "Join thousands of satisfied customers today",
     },
     primaryButtonText: {
       type: "text",
       label: "Primary Button Text",
-      defaultValue: "Get Started"
+      defaultValue: "Get Started",
     },
     secondaryButtonText: {
       type: "text",
       label: "Secondary Button Text",
-      defaultValue: "Learn More"
+      defaultValue: "Learn More",
     },
     layout: {
       type: "select",
@@ -2438,13 +2834,13 @@ export const CTABannerSection: ComponentConfig = {
         { value: "centered", label: "Centered" },
         { value: "split", label: "Split Screen" },
         { value: "gradient", label: "Gradient Background" },
-        { value: "pattern", label: "Pattern Background" }
-      ]
+        { value: "pattern", label: "Pattern Background" },
+      ],
     },
     urgencyText: {
       type: "text",
       label: "Urgency Text",
-      defaultValue: "Limited time offer - Act now!"
+      defaultValue: "Limited time offer - Act now!",
     },
     showPhone: {
       type: "select",
@@ -2452,19 +2848,19 @@ export const CTABannerSection: ComponentConfig = {
       defaultValue: "yes",
       options: [
         { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
-    }
+        { value: "no", label: "No" },
+      ],
+    },
   },
   render: (props, editMode, business) => {
-    const { 
-      title, 
-      subtitle, 
-      primaryButtonText, 
-      secondaryButtonText, 
-      layout, 
+    const {
+      title,
+      subtitle,
+      primaryButtonText,
+      secondaryButtonText,
+      layout,
       urgencyText,
-      showPhone 
+      showPhone,
     } = props as {
       title?: string;
       subtitle?: string;
@@ -2475,73 +2871,124 @@ export const CTABannerSection: ComponentConfig = {
       showPhone?: string;
     };
     const businessData = business as Doc<"businesses"> | undefined;
-    
-    const bgClass = layout === "gradient" ? "bg-gradient-to-r from-primary to-primary/80" :
-                   layout === "pattern" ? "bg-primary relative overflow-hidden" :
-                   "bg-primary";
-    
+
+    const bgClass =
+      layout === "gradient"
+        ? "bg-gradient-to-r from-primary to-primary/80"
+        : layout === "pattern"
+          ? "bg-primary relative overflow-hidden"
+          : "bg-primary";
+
     const textColor = "text-primary-foreground";
-    
+
     return (
       <div className={cn("py-16", bgClass)}>
         {layout === "pattern" && (
           <div className="absolute inset-0 opacity-10">
-            <div className="absolute inset-0" style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            }} />
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+              }}
+            />
           </div>
         )}
-        
+
         <div className="container mx-auto px-4 relative z-10">
-          <div className={cn(
-            "max-w-4xl mx-auto",
-            layout === "split" ? "grid md:grid-cols-2 gap-8 items-center" : "text-center"
-          )}>
+          <div
+            className={cn(
+              "max-w-4xl mx-auto",
+              layout === "split"
+                ? "grid md:grid-cols-2 gap-8 items-center"
+                : "text-center",
+            )}
+          >
             <div>
-              <h2 className={cn("text-3xl md:text-4xl font-bold mb-4", textColor)}>
+              <h2
+                className={cn("text-3xl md:text-4xl font-bold mb-4", textColor)}
+              >
                 {title}
               </h2>
-              <p className={cn("text-lg md:text-xl mb-6", textColor, "opacity-90")}>
+              <p
+                className={cn(
+                  "text-lg md:text-xl mb-6",
+                  textColor,
+                  "opacity-90",
+                )}
+              >
                 {subtitle}
               </p>
               {urgencyText && (
-                <p className={cn("text-sm font-medium mb-6", textColor, "opacity-80")}>
+                <p
+                  className={cn(
+                    "text-sm font-medium mb-6",
+                    textColor,
+                    "opacity-80",
+                  )}
+                >
                   <Clock className="w-4 h-4 inline mr-1" />
                   {urgencyText}
                 </p>
               )}
             </div>
-            
-            <div className={cn(
-              "flex flex-col sm:flex-row gap-4",
-              layout === "split" ? "" : "justify-center"
-            )}>
-              <Button 
-                size="lg" 
+
+            <div
+              className={cn(
+                "flex flex-col sm:flex-row gap-4",
+                layout === "split" ? "" : "justify-center",
+              )}
+            >
+              <Button
+                size="lg"
                 variant="secondary"
                 className="font-semibold"
-                onClick={editMode ? (e) => { e.preventDefault(); e.stopPropagation(); } : undefined}
+                onClick={
+                  editMode
+                    ? (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }
+                    : undefined
+                }
               >
                 {primaryButtonText}
               </Button>
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 variant="outline"
-                className={cn("font-semibold", textColor, "border-current hover:bg-white/10")}
-                onClick={editMode ? (e) => { e.preventDefault(); e.stopPropagation(); } : undefined}
+                className={cn(
+                  "font-semibold",
+                  textColor,
+                  "border-current hover:bg-white/10",
+                )}
+                onClick={
+                  editMode
+                    ? (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }
+                    : undefined
+                }
               >
                 {secondaryButtonText}
               </Button>
             </div>
           </div>
-          
+
           {showPhone === "yes" && businessData?.phone && (
             <div className={cn("text-center mt-8", textColor)}>
               <p className="text-sm opacity-80">Or call us directly:</p>
-              <a 
-                href={`tel:${businessData.phone}`} 
+              <a
+                href={`tel:${businessData.phone}`}
                 className={cn("text-2xl font-bold hover:underline", textColor)}
-                onClick={editMode ? (e) => { e.preventDefault(); e.stopPropagation(); } : undefined}
+                onClick={
+                  editMode
+                    ? (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }
+                    : undefined
+                }
               >
                 {businessData.phone}
               </a>
@@ -2552,7 +2999,7 @@ export const CTABannerSection: ComponentConfig = {
     );
   },
   icon: Megaphone,
-  category: "Section"
+  category: "Section",
 };
 
 // Services Detailed Section - Comprehensive service showcase
@@ -2561,12 +3008,12 @@ export const ServicesDetailedSection: ComponentConfig = {
     title: {
       type: "text",
       label: "Section Title",
-      defaultValue: "Our Services"
+      defaultValue: "Our Services",
     },
     subtitle: {
       type: "text",
       label: "Subtitle",
-      defaultValue: "Comprehensive solutions tailored to your needs"
+      defaultValue: "Comprehensive solutions tailored to your needs",
     },
     layout: {
       type: "select",
@@ -2575,8 +3022,8 @@ export const ServicesDetailedSection: ComponentConfig = {
       options: [
         { value: "cards", label: "Card Grid" },
         { value: "list", label: "Detailed List" },
-        { value: "tabs", label: "Tabbed View" }
-      ]
+        { value: "tabs", label: "Tabbed View" },
+      ],
     },
     showFeatures: {
       type: "select",
@@ -2584,8 +3031,8 @@ export const ServicesDetailedSection: ComponentConfig = {
       defaultValue: "yes",
       options: [
         { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
+        { value: "no", label: "No" },
+      ],
     },
     showPricing: {
       type: "select",
@@ -2593,9 +3040,9 @@ export const ServicesDetailedSection: ComponentConfig = {
       defaultValue: "no",
       options: [
         { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
-    }
+        { value: "no", label: "No" },
+      ],
+    },
   },
   render: (props, editMode, business) => {
     const { title, subtitle, layout, showFeatures, showPricing } = props as {
@@ -2606,30 +3053,36 @@ export const ServicesDetailedSection: ComponentConfig = {
       showPricing?: string;
     };
     const businessData = business as Doc<"businesses"> | undefined;
-    
+
     // Get services from AI generated content
     const services = businessData?.aiGeneratedContent?.services?.items || [
       {
         title: "Premium Service",
-        description: "Our flagship offering with comprehensive features and dedicated support.",
+        description:
+          "Our flagship offering with comprehensive features and dedicated support.",
         icon: "star",
-        features: ["Feature 1", "Feature 2", "Feature 3", "Feature 4"]
+        features: ["Feature 1", "Feature 2", "Feature 3", "Feature 4"],
       },
       {
         title: "Standard Service",
-        description: "Perfect for most needs with essential features and reliable performance.",
+        description:
+          "Perfect for most needs with essential features and reliable performance.",
         icon: "check",
-        features: ["Feature 1", "Feature 2", "Feature 3"]
+        features: ["Feature 1", "Feature 2", "Feature 3"],
       },
       {
         title: "Basic Service",
-        description: "Entry-level option with core functionality at an affordable price.",
+        description:
+          "Entry-level option with core functionality at an affordable price.",
         icon: "zap",
-        features: ["Feature 1", "Feature 2"]
-      }
+        features: ["Feature 1", "Feature 2"],
+      },
     ];
-    
-    const iconComponents: Record<string, React.ComponentType<{ className?: string }>> = {
+
+    const iconComponents: Record<
+      string,
+      React.ComponentType<{ className?: string }>
+    > = {
       star: Star,
       check: CheckCircle,
       zap: Zap,
@@ -2637,24 +3090,32 @@ export const ServicesDetailedSection: ComponentConfig = {
       tool: Wrench,
       users: Users,
       clock: Clock,
-      chart: ChartBar
+      chart: ChartBar,
     };
-    
+
     if (layout === "list") {
       return (
         <div className="py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">{title}</h2>
-              {subtitle && <p className="text-lg text-muted-foreground max-w-3xl mx-auto">{subtitle}</p>}
+              {subtitle && (
+                <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+                  {subtitle}
+                </p>
+              )}
             </div>
-            
+
             <div className="max-w-4xl mx-auto space-y-8">
               {services.map((service, index) => {
-                const IconComponent = iconComponents[service.icon || 'star'] || Star;
-                
+                const IconComponent =
+                  iconComponents[service.icon || "star"] || Star;
+
                 return (
-                  <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <Card
+                    key={index}
+                    className="overflow-hidden hover:shadow-lg transition-shadow"
+                  >
                     <CardContent className="p-0">
                       <div className="flex flex-col md:flex-row">
                         <div className="md:w-1/3 bg-primary/5 p-8 flex items-center justify-center">
@@ -2663,20 +3124,27 @@ export const ServicesDetailedSection: ComponentConfig = {
                           </div>
                         </div>
                         <div className="flex-1 p-8">
-                          <h3 className="text-2xl font-semibold mb-3">{service.title}</h3>
-                          <p className="text-muted-foreground mb-4">{service.description}</p>
-                          
+                          <h3 className="text-2xl font-semibold mb-3">
+                            {service.title}
+                          </h3>
+                          <p className="text-muted-foreground mb-4">
+                            {service.description}
+                          </p>
+
                           {showFeatures === "yes" && service.features && (
                             <div className="space-y-2 mb-4">
                               {service.features.map((feature, fIndex) => (
-                                <div key={fIndex} className="flex items-center gap-2">
+                                <div
+                                  key={fIndex}
+                                  className="flex items-center gap-2"
+                                >
                                   <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
                                   <span className="text-sm">{feature}</span>
                                 </div>
                               ))}
                             </div>
                           )}
-                          
+
                           <Button className="mt-4">
                             Learn More
                             <ChevronRight className="w-4 h-4 ml-1" />
@@ -2692,22 +3160,30 @@ export const ServicesDetailedSection: ComponentConfig = {
         </div>
       );
     }
-    
+
     // Default card grid layout
     return (
       <div className="py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">{title}</h2>
-            {subtitle && <p className="text-lg text-muted-foreground max-w-3xl mx-auto">{subtitle}</p>}
+            {subtitle && (
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+                {subtitle}
+              </p>
+            )}
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {services.map((service, index) => {
-              const IconComponent = iconComponents[service.icon || 'star'] || Star;
-              
+              const IconComponent =
+                iconComponents[service.icon || "star"] || Star;
+
               return (
-                <Card key={index} className="relative overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <Card
+                  key={index}
+                  className="relative overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                >
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16" />
                   <CardHeader>
                     <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
@@ -2716,8 +3192,10 @@ export const ServicesDetailedSection: ComponentConfig = {
                     <CardTitle className="text-xl">{service.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground mb-4">{service.description}</p>
-                    
+                    <p className="text-muted-foreground mb-4">
+                      {service.description}
+                    </p>
+
                     {showFeatures === "yes" && service.features && (
                       <ul className="space-y-2 mb-4">
                         {service.features.map((feature, fIndex) => (
@@ -2728,10 +3206,12 @@ export const ServicesDetailedSection: ComponentConfig = {
                         ))}
                       </ul>
                     )}
-                    
+
                     {showPricing === "yes" && (
                       <div className="pt-4 border-t">
-                        <p className="text-sm text-muted-foreground">Starting from</p>
+                        <p className="text-sm text-muted-foreground">
+                          Starting from
+                        </p>
                         <p className="text-2xl font-bold text-primary">$99</p>
                       </div>
                     )}
@@ -2745,11 +3225,543 @@ export const ServicesDetailedSection: ComponentConfig = {
     );
   },
   icon: Briefcase,
-  category: "Section"
+  category: "Section",
 };
 
-// Import additional icons
-import { 
-  Users, Shield, Heart, Globe, CheckCircle, Wrench, Award, Zap,
-  ChevronRight, Megaphone, Briefcase, Mail, ChartBar, ImageIcon
-} from "lucide-react";
+// Hero Section - Main landing section with CTA
+export const HeroSection: ComponentConfig = {
+  fields: {
+    headline: {
+      type: "text",
+      label: "Headline",
+      defaultValue: "Welcome to Our Business",
+    },
+    subheadline: {
+      type: "textarea",
+      label: "Subheadline",
+      defaultValue: "Providing quality services to our community since 2020",
+    },
+    backgroundImage: {
+      type: "image",
+      label: "Background Image",
+      defaultValue: "",
+    },
+    overlayOpacity: {
+      type: "number",
+      label: "Overlay Opacity (0-100)",
+      defaultValue: 50,
+      min: 0,
+      max: 100,
+    },
+    primaryButtonText: {
+      type: "text",
+      label: "Primary Button Text",
+      defaultValue: "Get Started",
+    },
+    primaryButtonLink: {
+      type: "text",
+      label: "Primary Button Link",
+      defaultValue: "#contact",
+    },
+    secondaryButtonText: {
+      type: "text",
+      label: "Secondary Button Text",
+      defaultValue: "Learn More",
+    },
+    secondaryButtonLink: {
+      type: "text",
+      label: "Secondary Button Link",
+      defaultValue: "#about",
+    },
+    showSecondaryButton: {
+      type: "select",
+      label: "Show Secondary Button",
+      defaultValue: "yes",
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" },
+      ],
+    },
+    alignment: {
+      type: "select",
+      label: "Content Alignment",
+      defaultValue: "center",
+      options: [
+        { value: "left", label: "Left" },
+        { value: "center", label: "Center" },
+        { value: "right", label: "Right" },
+      ],
+    },
+    height: {
+      type: "select",
+      label: "Section Height",
+      defaultValue: "large",
+      options: [
+        { value: "small", label: "Small (400px)" },
+        { value: "medium", label: "Medium (500px)" },
+        { value: "large", label: "Large (600px)" },
+        { value: "full", label: "Full Screen" },
+      ],
+    },
+  },
+  render: (props: Record<string, unknown>, _editMode, _business) => {
+    const headline = (props.headline as string) || "Welcome to Our Business";
+    const subheadline = (props.subheadline as string) || "";
+    const backgroundImage = props.backgroundImage as string;
+    const overlayOpacity = (props.overlayOpacity as number) || 50;
+    const primaryButtonText =
+      (props.primaryButtonText as string) || "Get Started";
+    const primaryButtonLink = (props.primaryButtonLink as string) || "#contact";
+    const secondaryButtonText =
+      (props.secondaryButtonText as string) || "Learn More";
+    const secondaryButtonLink =
+      (props.secondaryButtonLink as string) || "#about";
+    const showSecondaryButton = props.showSecondaryButton === "yes";
+    const alignment = (props.alignment as string) || "center";
+    const height = (props.height as string) || "large";
+
+    const heightClasses: Record<string, string> = {
+      small: "h-[400px]",
+      medium: "h-[500px]",
+      large: "h-[600px]",
+      full: "h-screen",
+    };
+
+    const alignmentClasses: Record<string, string> = {
+      left: "text-left items-start",
+      center: "text-center items-center",
+      right: "text-right items-end",
+    };
+
+    return (
+      <div className={cn("relative flex items-center", heightClasses[height])}>
+        {backgroundImage && (
+          <>
+            <div className="absolute inset-0">
+              <Image
+                src={backgroundImage}
+                alt="Hero background"
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
+            <div
+              className="absolute inset-0 bg-black"
+              style={{ opacity: overlayOpacity / 100 }}
+            />
+          </>
+        )}
+
+        <div className="relative z-10 container mx-auto px-4">
+          <div
+            className={cn(
+              "max-w-4xl",
+              alignment === "center" && "mx-auto",
+              alignmentClasses[alignment],
+            )}
+          >
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
+              {headline}
+            </h1>
+            {subheadline && (
+              <p className="text-xl md:text-2xl text-muted-foreground mb-8">
+                {subheadline}
+              </p>
+            )}
+            <div className={cn("flex gap-4", alignmentClasses[alignment])}>
+              <Button size="lg" asChild>
+                <a href={primaryButtonLink}>{primaryButtonText}</a>
+              </Button>
+              {showSecondaryButton && (
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="bg-white/10 text-white border-white hover:bg-white/20"
+                  asChild
+                >
+                  <a href={secondaryButtonLink}>{secondaryButtonText}</a>
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  },
+  icon: ImageIcon,
+  category: "Section",
+  variations: heroVariations,
+};
+
+// About Section - Company introduction
+export const AboutSection: ComponentConfig = {
+  fields: {
+    title: {
+      type: "text",
+      label: "Section Title",
+      defaultValue: "About Us",
+    },
+    content: {
+      type: "textarea",
+      label: "About Content",
+      defaultValue:
+        "We are a dedicated team committed to providing exceptional services to our customers.",
+    },
+    image: {
+      type: "image",
+      label: "About Image",
+      defaultValue: "",
+    },
+    imagePosition: {
+      type: "select",
+      label: "Image Position",
+      defaultValue: "right",
+      options: [
+        { value: "left", label: "Left" },
+        { value: "right", label: "Right" },
+      ],
+    },
+    features: {
+      type: "array",
+      label: "Key Features",
+      defaultValue: [
+        "Professional Service",
+        "Experienced Team",
+        "Customer Satisfaction",
+        "Quality Guarantee",
+      ],
+      itemType: {
+        type: "text",
+        label: "Feature",
+        defaultValue: "Feature",
+      },
+    },
+  },
+  render: (props: Record<string, unknown>, _editMode, _business) => {
+    const title = (props.title as string) || "About Us";
+    const content = (props.content as string) || "";
+    const image = props.image as string;
+    const imagePosition = (props.imagePosition as string) || "right";
+    const features = (props.features as string[]) || [];
+
+    return (
+      <div className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div
+              className={cn(
+                "space-y-6",
+                imagePosition === "right" && "md:order-1",
+              )}
+            >
+              <h2 className="text-3xl font-bold">{title}</h2>
+              <p className="text-lg text-muted-foreground whitespace-pre-wrap">
+                {content}
+              </p>
+              {features.length > 0 && (
+                <ul className="space-y-3">
+                  {features.map((feature, index) => (
+                    <li key={index} className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className={cn(imagePosition === "left" && "md:order-1")}>
+              {image ? (
+                <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
+                  <Image
+                    src={image}
+                    alt={title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="aspect-[4/3] bg-muted rounded-lg flex items-center justify-center">
+                  <ImageIcon className="h-24 w-24 text-muted-foreground" />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  },
+  icon: Info,
+  category: "Section",
+};
+
+// Gallery Section - Image showcase
+export const GallerySection: ComponentConfig = {
+  fields: {
+    title: {
+      type: "text",
+      label: "Section Title",
+      defaultValue: "Our Gallery",
+    },
+    subtitle: {
+      type: "text",
+      label: "Section Subtitle",
+      defaultValue: "See our work in action",
+    },
+    images: {
+      type: "array",
+      label: "Gallery Images",
+      defaultValue: [],
+      itemType: {
+        type: "image",
+        label: "Image",
+        defaultValue: "",
+      },
+      maxItems: 12,
+    },
+    layout: {
+      type: "select",
+      label: "Gallery Layout",
+      defaultValue: "grid",
+      options: [
+        { value: "grid", label: "Grid" },
+        { value: "masonry", label: "Masonry" },
+        { value: "carousel", label: "Carousel" },
+      ],
+    },
+    columns: {
+      type: "select",
+      label: "Columns (Desktop)",
+      defaultValue: "3",
+      options: [
+        { value: "2", label: "2 Columns" },
+        { value: "3", label: "3 Columns" },
+        { value: "4", label: "4 Columns" },
+      ],
+    },
+  },
+  render: (props: Record<string, unknown>, _editMode, _business) => {
+    const title = (props.title as string) || "Our Gallery";
+    const subtitle = (props.subtitle as string) || "";
+    const images = (props.images as string[]) || [];
+    // const layout = (props.layout as string) || "grid"; // TODO: Implement different layouts
+    const columns = (props.columns as string) || "3";
+
+    const columnClasses: Record<string, string> = {
+      "2": "md:grid-cols-2",
+      "3": "md:grid-cols-3",
+      "4": "md:grid-cols-4",
+    };
+
+    if (images.length === 0) {
+      return (
+        <div className="py-16">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl font-bold mb-4">{title}</h2>
+            <p className="text-muted-foreground">
+              No images added yet. Add images to showcase your work.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">{title}</h2>
+            {subtitle && (
+              <p className="text-lg text-muted-foreground">{subtitle}</p>
+            )}
+          </div>
+
+          <div className={cn("grid gap-4", columnClasses[columns])}>
+            {images.map((image, index) => (
+              <div
+                key={index}
+                className="relative aspect-square rounded-lg overflow-hidden group"
+              >
+                <Image
+                  src={image}
+                  alt={`Gallery image ${index + 1}`}
+                  fill
+                  className="object-cover transition-transform group-hover:scale-110"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  },
+  icon: ImageIcon,
+  category: "Section",
+};
+
+// Contact Section - Contact information and form
+export const ContactSection: ComponentConfig = {
+  fields: {
+    title: {
+      type: "text",
+      label: "Section Title",
+      defaultValue: "Contact Us",
+    },
+    subtitle: {
+      type: "text",
+      label: "Section Subtitle",
+      defaultValue: "Get in touch with us today",
+    },
+    showForm: {
+      type: "select",
+      label: "Show Contact Form",
+      defaultValue: "yes",
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" },
+      ],
+    },
+    showMap: {
+      type: "select",
+      label: "Show Map",
+      defaultValue: "yes",
+      options: [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" },
+      ],
+    },
+    layout: {
+      type: "select",
+      label: "Layout",
+      defaultValue: "split",
+      options: [
+        { value: "split", label: "Split (Form + Info)" },
+        { value: "stacked", label: "Stacked" },
+        { value: "centered", label: "Centered" },
+      ],
+    },
+  },
+  render: (props: Record<string, unknown>, _editMode, business) => {
+    const title = (props.title as string) || "Contact Us";
+    const subtitle = (props.subtitle as string) || "";
+    const showForm = props.showForm === "yes";
+    const showMap = props.showMap === "yes";
+    const layout = (props.layout as string) || "split";
+
+    const contactInfo = [
+      {
+        icon: MapPin,
+        label: "Address",
+        value: business?.address || "123 Main St, City, State 12345",
+      },
+      {
+        icon: Phone,
+        label: "Phone",
+        value: business?.phone || "(555) 123-4567",
+      },
+      {
+        icon: Mail,
+        label: "Email",
+        value: business?.email || "info@business.com",
+      },
+      {
+        icon: Clock,
+        label: "Hours",
+        value: "Mon-Fri: 9AM-6PM",
+      },
+    ];
+
+    if (layout === "split") {
+      return (
+        <div className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">{title}</h2>
+              {subtitle && (
+                <p className="text-lg text-muted-foreground">{subtitle}</p>
+              )}
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-12">
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-xl font-semibold mb-6">Get In Touch</h3>
+                  <div className="space-y-4">
+                    {contactInfo.map((item, index) => (
+                      <div key={index} className="flex items-start gap-4">
+                        <item.icon className="h-5 w-5 text-primary mt-1" />
+                        <div>
+                          <p className="font-medium">{item.label}</p>
+                          <p className="text-muted-foreground">{item.value}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {showMap && business?.address && (
+                  <div className="aspect-[4/3] bg-muted rounded-lg">
+                    <iframe
+                      src={`https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${encodeURIComponent(business.address)}`}
+                      width="100%"
+                      height="100%"
+                      className="rounded-lg"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {showForm && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Send us a message</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <form className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <input
+                          type="text"
+                          placeholder="First Name"
+                          className="w-full px-4 py-2 border rounded-md"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Last Name"
+                          className="w-full px-4 py-2 border rounded-md"
+                        />
+                      </div>
+                      <input
+                        type="email"
+                        placeholder="Email"
+                        className="w-full px-4 py-2 border rounded-md"
+                      />
+                      <input
+                        type="tel"
+                        placeholder="Phone"
+                        className="w-full px-4 py-2 border rounded-md"
+                      />
+                      <textarea
+                        placeholder="Message"
+                        rows={4}
+                        className="w-full px-4 py-2 border rounded-md"
+                      />
+                      <Button type="submit" className="w-full">
+                        Send Message
+                      </Button>
+                    </form>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Add other layout variations as needed
+    return null;
+  },
+  icon: Mail,
+  category: "Section",
+};

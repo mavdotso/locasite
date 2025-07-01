@@ -9,6 +9,7 @@
  */
 
 import type * as aiContentGenerator from "../aiContentGenerator.js";
+import type * as analytics from "../analytics.js";
 import type * as applyBusinessTemplate from "../applyBusinessTemplate.js";
 import type * as auth from "../auth.js";
 import type * as businessClaims from "../businessClaims.js";
@@ -23,6 +24,7 @@ import type * as lib_themePresets from "../lib/themePresets.js";
 import type * as lib_themeSchema from "../lib/themeSchema.js";
 import type * as lib_themeSuggestions from "../lib/themeSuggestions.js";
 import type * as lib_types from "../lib/types.js";
+import type * as mediaLibrary from "../mediaLibrary.js";
 import type * as pages from "../pages.js";
 import type * as regenerateAI from "../regenerateAI.js";
 import type * as reviewFilter from "../reviewFilter.js";
@@ -44,6 +46,7 @@ import type {
  */
 declare const fullApi: ApiFromModules<{
   aiContentGenerator: typeof aiContentGenerator;
+  analytics: typeof analytics;
   applyBusinessTemplate: typeof applyBusinessTemplate;
   auth: typeof auth;
   businessClaims: typeof businessClaims;
@@ -58,6 +61,7 @@ declare const fullApi: ApiFromModules<{
   "lib/themeSchema": typeof lib_themeSchema;
   "lib/themeSuggestions": typeof lib_themeSuggestions;
   "lib/types": typeof lib_types;
+  mediaLibrary: typeof mediaLibrary;
   pages: typeof pages;
   regenerateAI: typeof regenerateAI;
   reviewFilter: typeof reviewFilter;

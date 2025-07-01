@@ -1,31 +1,35 @@
-import { ComponentConfig } from "../types";
-import { 
-  TextBlock, 
+import { ComponentConfig } from "@/app/types/visual-editor";
+import {
+  // Basic Blocks
+  TextBlock,
   ImageBlock,
   LogoBlock,
-  ButtonBlock, 
-  SpacerBlock, 
+  ButtonBlock,
+  SpacerBlock,
   DividerBlock,
   VideoBlock,
   IconBlock,
+  ListBlock,
+  GalleryGridBlock,
+  AlertBlock,
+  NavigationBlock,
+  ContactFormBlock,
+  // Business-Specific Blocks
   BadgeBlock,
   ReviewStarsBlock,
   BusinessHoursBlock,
   SocialLinksBlock,
   PaymentMethodsBlock,
-  ListBlock,
-  GalleryGridBlock,
-  AlertBlock,
-  NavigationBlock
 } from "../blocks/basic-blocks";
+
 import {
   SectionBlock,
   ColumnsBlock,
   CardBlock,
   AccordionBlock,
   TabsBlock,
-  ColumnContentBlock
 } from "../blocks/container-blocks";
+
 import {
   HeaderBlock,
   HeroBlock,
@@ -36,7 +40,8 @@ import {
   ContactBlock,
   TeamBlock,
   CTABlock,
-  FooterBlock
+  FooterBlock,
+  BusinessPageTemplate,
 } from "../blocks/business-blocks";
 import {
   HeaderSection,
@@ -52,17 +57,22 @@ import {
   TeamSection,
   FeaturesSection,
   CTABannerSection,
-  ServicesDetailedSection
+  ServicesDetailedSection,
+  HeroSection,
+  AboutSection,
+  GallerySection,
+  ContactSection,
 } from "../blocks/local-business-sections";
 
 // Combine all components
 export const allComponentConfigs: Record<string, ComponentConfig> = {
-  // Layout Components (shown first)
+  // Container Blocks
   SectionBlock,
   ColumnsBlock,
-  ColumnContentBlock,
   CardBlock,
-  
+  AccordionBlock,
+  TabsBlock,
+
   // Basic Content Blocks
   TextBlock,
   ImageBlock,
@@ -76,19 +86,17 @@ export const allComponentConfigs: Record<string, ComponentConfig> = {
   GalleryGridBlock,
   AlertBlock,
   NavigationBlock,
-  
+  ContactFormBlock,
+
   // Business-Specific Blocks
   BadgeBlock,
   ReviewStarsBlock,
   BusinessHoursBlock,
   SocialLinksBlock,
   PaymentMethodsBlock,
-  
-  // Interactive Components
-  AccordionBlock,
-  TabsBlock,
-  
+
   // Business Templates (expand into full sections)
+  BusinessPageTemplate,
   HeaderBlock,
   HeroBlock,
   AboutBlock,
@@ -99,9 +107,13 @@ export const allComponentConfigs: Record<string, ComponentConfig> = {
   TeamBlock,
   CTABlock,
   FooterBlock,
-  
+
   // Local Business Sections
   HeaderSection,
+  HeroSection,
+  AboutSection,
+  GallerySection,
+  ContactSection,
   OperatingHoursSection,
   LocationDirectionsSection,
   MenuPriceListSection,
@@ -114,5 +126,5 @@ export const allComponentConfigs: Record<string, ComponentConfig> = {
   TeamSection,
   FeaturesSection,
   CTABannerSection,
-  ServicesDetailedSection
+  ServicesDetailedSection,
 };

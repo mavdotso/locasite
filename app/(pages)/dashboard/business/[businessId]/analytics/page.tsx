@@ -2,10 +2,10 @@ import { redirect } from "next/navigation";
 import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
-import { ArrowLeft, BarChart3, Eye, MousePointer, Clock } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import AnalyticsClient from "./analytics-client";
 
 interface AnalyticsPageProps {
   params: Promise<{
@@ -50,88 +50,13 @@ export default async function BusinessAnalyticsPage({ params }: AnalyticsPagePro
       </div>
 
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">{business.name} - Analytics</h1>
+        <h1 className="text-3xl font-bold">{business.name}</h1>
         <p className="text-muted-foreground mt-2">
-          Website performance and visitor insights
+          Analytics & Performance
         </p>
       </div>
 
-      {/* Placeholder Analytics Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Views</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">
-              All-time page views
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Unique Visitors</CardTitle>
-            <MousePointer className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">
-              Unique site visitors
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Session</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0:00</div>
-            <p className="text-xs text-muted-foreground">
-              Average time on site
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Bounce Rate</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0%</div>
-            <p className="text-xs text-muted-foreground">
-              Single page sessions
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>Analytics Coming Soon</CardTitle>
-          <CardDescription>
-            Detailed analytics and insights for your business website will be available here.
-            We&apos;re working on bringing you comprehensive visitor data, traffic sources, and engagement metrics.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-sm text-muted-foreground">
-            <p>Upcoming features:</p>
-            <ul className="list-disc list-inside mt-2 space-y-1">
-              <li>Real-time visitor tracking</li>
-              <li>Traffic source analysis</li>
-              <li>Page performance metrics</li>
-              <li>Conversion tracking</li>
-              <li>Custom reports and exports</li>
-            </ul>
-          </div>
-        </CardContent>
-      </Card>
+      <AnalyticsClient businessId={businessIdTyped} />
     </div>
   );
 }

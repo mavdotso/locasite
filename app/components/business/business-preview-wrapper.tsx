@@ -3,7 +3,7 @@
 import { Preloaded, usePreloadedQuery, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { VisualEditorRenderer } from "@/app/components/visual-editor/visual-editor-renderer";
+import { VisualEditorRenderer } from "@/app/components/visual-editor/core/visual-editor-renderer";
 // Using simple loading div instead of skeleton
 
 interface BusinessPreviewWrapperProps {

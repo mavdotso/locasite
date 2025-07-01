@@ -46,6 +46,19 @@ function extractSubdomain(request: NextRequest): string | null {
 export default async function middleware(request: NextRequest, event: NextFetchEvent) {
     const { pathname } = request.nextUrl;
     const subdomain = extractSubdomain(request);
+    const host = request.headers.get("host") || "";
+    const hostname = host.split(":")[0];
+    const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
+
+    // Handle sitemap.xml and robots.txt for custom domains
+    if (!subdomain && hostname !== rootDomain && hostname !== `www.${rootDomain}`) {
+        if (pathname === "/sitemap.xml") {
+            return NextResponse.rewrite(new URL(`/api/sitemap/${hostname}`, request.url));
+        }
+        if (pathname === "/robots.txt") {
+            return NextResponse.rewrite(new URL(`/api/robots/${hostname}`, request.url));
+        }
+    }
 
     // Handle subdomain routing BEFORE auth middleware
     if (subdomain) {
@@ -77,7 +90,15 @@ export default async function middleware(request: NextRequest, event: NextFetchE
             return NextResponse.next();
         }
 
-        // For any path on a business subdomain, rewrite to /[subdomain]/...
+        // Handle sitemap.xml and robots.txt specially
+        if (pathname === "/sitemap.xml") {
+            return NextResponse.rewrite(new URL(`/api/sitemap/${subdomain}`, request.url));
+        }
+        if (pathname === "/robots.txt") {
+            return NextResponse.rewrite(new URL(`/api/robots/${subdomain}`, request.url));
+        }
+
+        // For any other path on a business subdomain, rewrite to /[subdomain]/...
         const rewritePath = `/${subdomain}${pathname}`;
         return NextResponse.rewrite(new URL(rewritePath, request.url));
     }

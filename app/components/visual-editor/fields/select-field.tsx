@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { SelectField as SelectFieldType } from "../types";
+import { SelectField as SelectFieldType } from "@/app/types/visual-editor";
 import { Label } from "@/app/components/ui/label";
 import {
   Select,

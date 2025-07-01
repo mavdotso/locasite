@@ -1,22 +1,27 @@
 import React from "react";
-import { ComponentConfig } from "../types";
-import { 
-  Box,
-  Columns,
-  CreditCard,
-  ChevronDown,
-  Layout
-} from "lucide-react";
+import { ComponentConfig } from "@/app/types/visual-editor";
+import { Box, Columns, CreditCard, ChevronDown, Layout } from "lucide-react";
 import { cn } from "@/app/lib/utils";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/app/components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/app/components/ui/tabs";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
-import ResizableColumns from "../resizable-columns";
+import ResizableColumns from "../components/resizable-columns";
 
 // Section Block - Main container for other blocks with background options
 export const SectionBlock: ComponentConfig = {
@@ -28,8 +33,8 @@ export const SectionBlock: ComponentConfig = {
       options: [
         { value: "full", label: "Full Width" },
         { value: "container", label: "Container" },
-        { value: "narrow", label: "Narrow" }
-      ]
+        { value: "narrow", label: "Narrow" },
+      ],
     },
     verticalPadding: {
       type: "select",
@@ -40,8 +45,8 @@ export const SectionBlock: ComponentConfig = {
         { value: "small", label: "Small" },
         { value: "medium", label: "Medium" },
         { value: "large", label: "Large" },
-        { value: "xlarge", label: "Extra Large" }
-      ]
+        { value: "xlarge", label: "Extra Large" },
+      ],
     },
     mobileVerticalPadding: {
       type: "select",
@@ -52,8 +57,8 @@ export const SectionBlock: ComponentConfig = {
         { value: "none", label: "None" },
         { value: "small", label: "Small" },
         { value: "medium", label: "Medium" },
-        { value: "large", label: "Large" }
-      ]
+        { value: "large", label: "Large" },
+      ],
     },
     backgroundColor: {
       type: "select",
@@ -66,13 +71,13 @@ export const SectionBlock: ComponentConfig = {
         { value: "primary", label: "Primary" },
         { value: "secondary", label: "Secondary" },
         { value: "accent", label: "Accent" },
-        { value: "transparent", label: "Transparent" }
-      ]
+        { value: "transparent", label: "Transparent" },
+      ],
     },
     backgroundImage: {
       type: "image",
       label: "Background Image",
-      accept: "image/*"
+      accept: "image/*",
     },
     backgroundImageStyle: {
       type: "select",
@@ -81,8 +86,8 @@ export const SectionBlock: ComponentConfig = {
       options: [
         { value: "cover", label: "Cover" },
         { value: "contain", label: "Contain" },
-        { value: "fixed", label: "Fixed" }
-      ]
+        { value: "fixed", label: "Fixed" },
+      ],
     },
     overlayOpacity: {
       type: "number",
@@ -91,18 +96,18 @@ export const SectionBlock: ComponentConfig = {
       min: 0,
       max: 0.9,
       step: 0.1,
-      showSlider: true
-    }
+      showSlider: true,
+    },
   },
   render: (props, editMode, _business, children, _onUpdate) => {
-    const { 
-      width, 
+    const {
+      width,
       verticalPadding,
-      mobileVerticalPadding, 
-      backgroundColor, 
-      backgroundImage, 
+      mobileVerticalPadding,
+      backgroundColor,
+      backgroundImage,
       backgroundImageStyle,
-      overlayOpacity 
+      overlayOpacity,
     } = props as {
       width?: string;
       verticalPadding?: string;
@@ -112,33 +117,42 @@ export const SectionBlock: ComponentConfig = {
       backgroundImageStyle?: string;
       overlayOpacity?: number;
     };
-    
+
     const widthClasses = {
       full: "w-full",
       container: "container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl",
-      narrow: "max-w-4xl mx-auto px-4 sm:px-6"
+      narrow: "max-w-4xl mx-auto px-4 sm:px-6",
     };
-    
+
     const paddingClassesDesktop = {
       none: "",
       small: "sm:py-8",
       medium: "sm:py-16",
       large: "sm:py-24",
-      xlarge: "sm:py-32"
+      xlarge: "sm:py-32",
     };
-    
+
     const paddingClassesMobile = {
       none: "",
       small: "py-4",
       medium: "py-8",
       large: "py-12",
-      xlarge: "py-16"
+      xlarge: "py-16",
     };
-    
-    const effectiveMobilePadding = mobileVerticalPadding === 'same' ? verticalPadding : mobileVerticalPadding;
-    const desktopPadding = paddingClassesDesktop[verticalPadding as keyof typeof paddingClassesDesktop] || paddingClassesDesktop.medium;
-    const mobilePadding = paddingClassesMobile[effectiveMobilePadding as keyof typeof paddingClassesMobile] || paddingClassesMobile.medium;
-    
+
+    const effectiveMobilePadding =
+      mobileVerticalPadding === "same"
+        ? verticalPadding
+        : mobileVerticalPadding;
+    const desktopPadding =
+      paddingClassesDesktop[
+        verticalPadding as keyof typeof paddingClassesDesktop
+      ] || paddingClassesDesktop.medium;
+    const mobilePadding =
+      paddingClassesMobile[
+        effectiveMobilePadding as keyof typeof paddingClassesMobile
+      ] || paddingClassesMobile.medium;
+
     const bgColorClasses = {
       default: "",
       muted: "bg-muted",
@@ -146,40 +160,49 @@ export const SectionBlock: ComponentConfig = {
       primary: "bg-primary text-primary-foreground",
       secondary: "bg-secondary text-secondary-foreground",
       accent: "bg-accent text-accent-foreground",
-      transparent: "bg-transparent"
+      transparent: "bg-transparent",
     };
-    
-    const bgImageStyles = backgroundImage ? {
-      backgroundImage: `url(${backgroundImage})`,
-      backgroundSize: backgroundImageStyle === "contain" ? "contain" : "cover",
-      backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
-      backgroundAttachment: backgroundImageStyle === "fixed" ? "fixed" : "scroll"
-    } : {};
-    
+
+    const bgImageStyles = backgroundImage
+      ? {
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize:
+            backgroundImageStyle === "contain" ? "contain" : "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundAttachment:
+            backgroundImageStyle === "fixed" ? "fixed" : "scroll",
+        }
+      : {};
+
     return (
-      <section 
+      <section
         className={cn(
           "relative",
           bgColorClasses[backgroundColor as keyof typeof bgColorClasses] || "",
-          editMode && "min-h-[100px]"
+          editMode && "min-h-[100px]",
         )}
         style={bgImageStyles}
       >
-        {backgroundImage && overlayOpacity !== undefined && overlayOpacity > 0 && (
-          <div 
-            className="absolute inset-0 bg-background" 
-            style={{ opacity: overlayOpacity }}
-          />
-        )}
-        <div className={cn(
-          "relative",
-          widthClasses[width as keyof typeof widthClasses] || widthClasses.container,
-          mobilePadding,
-          desktopPadding
-        )}>
+        {backgroundImage &&
+          overlayOpacity !== undefined &&
+          overlayOpacity > 0 && (
+            <div
+              className="absolute inset-0 bg-background"
+              style={{ opacity: overlayOpacity }}
+            />
+          )}
+        <div
+          className={cn(
+            "relative",
+            widthClasses[width as keyof typeof widthClasses] ||
+              widthClasses.container,
+            mobilePadding,
+            desktopPadding,
+          )}
+        >
           {editMode && !children ? (
-            <div 
+            <div
               className="relative min-h-[100px] border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/10 transition-colors hover:bg-muted/20"
               onDragOver={(e) => {
                 e.preventDefault();
@@ -204,7 +227,7 @@ export const SectionBlock: ComponentConfig = {
   },
   icon: Box,
   category: "Basic",
-  acceptsChildren: true
+  acceptsChildren: true,
 };
 
 // Columns Block - Multi-column layouts
@@ -217,8 +240,8 @@ export const ColumnsBlock: ComponentConfig = {
       options: [
         { value: "2", label: "2 Columns" },
         { value: "3", label: "3 Columns" },
-        { value: "4", label: "4 Columns" }
-      ]
+        { value: "4", label: "4 Columns" },
+      ],
     },
     mobileColumns: {
       type: "select",
@@ -227,8 +250,8 @@ export const ColumnsBlock: ComponentConfig = {
       options: [
         { value: "1", label: "1 Column (Stack)" },
         { value: "2", label: "2 Columns" },
-        { value: "same", label: "Same as Desktop" }
-      ]
+        { value: "same", label: "Same as Desktop" },
+      ],
     },
     tabletColumns: {
       type: "select",
@@ -238,8 +261,8 @@ export const ColumnsBlock: ComponentConfig = {
         { value: "1", label: "1 Column" },
         { value: "2", label: "2 Columns" },
         { value: "3", label: "3 Columns" },
-        { value: "same", label: "Same as Desktop" }
-      ]
+        { value: "same", label: "Same as Desktop" },
+      ],
     },
     columnWidths: {
       type: "array",
@@ -247,9 +270,9 @@ export const ColumnsBlock: ComponentConfig = {
       defaultValue: [],
       itemType: {
         type: "number",
-        label: "Width"
+        label: "Width",
       },
-      hidden: true // Hidden from UI, managed by resize handles
+      hidden: true, // Hidden from UI, managed by resize handles
     },
     gap: {
       type: "select",
@@ -259,8 +282,8 @@ export const ColumnsBlock: ComponentConfig = {
         { value: "none", label: "None" },
         { value: "small", label: "Small" },
         { value: "medium", label: "Medium" },
-        { value: "large", label: "Large" }
-      ]
+        { value: "large", label: "Large" },
+      ],
     },
     direction: {
       type: "select",
@@ -268,8 +291,8 @@ export const ColumnsBlock: ComponentConfig = {
       defaultValue: "row",
       options: [
         { value: "row", label: "Row (Horizontal)" },
-        { value: "col", label: "Column (Vertical)" }
-      ]
+        { value: "col", label: "Column (Vertical)" },
+      ],
     },
     mobileGap: {
       type: "select",
@@ -279,8 +302,8 @@ export const ColumnsBlock: ComponentConfig = {
         { value: "none", label: "None" },
         { value: "small", label: "Small" },
         { value: "medium", label: "Medium" },
-        { value: "large", label: "Large" }
-      ]
+        { value: "large", label: "Large" },
+      ],
     },
     reverseOnMobile: {
       type: "select",
@@ -288,8 +311,8 @@ export const ColumnsBlock: ComponentConfig = {
       defaultValue: "no",
       options: [
         { value: "yes", label: "Yes" },
-        { value: "no", label: "No" }
-      ]
+        { value: "no", label: "No" },
+      ],
     },
     verticalAlign: {
       type: "select",
@@ -298,28 +321,28 @@ export const ColumnsBlock: ComponentConfig = {
       options: [
         { value: "top", label: "Top" },
         { value: "center", label: "Center" },
-        { value: "bottom", label: "Bottom" }
-      ]
+        { value: "bottom", label: "Bottom" },
+      ],
     },
     minHeight: {
       type: "text",
       label: "Minimum Height",
       defaultValue: "100px",
-      placeholder: "e.g. 100px, 50vh, 0"
-    }
+      placeholder: "e.g. 100px, 50vh, 0",
+    },
   },
   render: (props, editMode, _business, children, onUpdate) => {
-    const { 
-      columns, 
-      mobileColumns, 
-      tabletColumns, 
-      gap, 
+    const {
+      columns,
+      mobileColumns,
+      tabletColumns,
+      gap,
       mobileGap,
-      direction, 
-      columnWidths, 
-      verticalAlign, 
+      direction,
+      columnWidths,
+      verticalAlign,
       minHeight,
-      reverseOnMobile 
+      reverseOnMobile,
     } = props as {
       columns?: string;
       mobileColumns?: string;
@@ -328,39 +351,36 @@ export const ColumnsBlock: ComponentConfig = {
       mobileGap?: string;
       direction?: string;
       columnWidths?: number[];
-      verticalAlign?: 'top' | 'center' | 'bottom';
+      verticalAlign?: "top" | "center" | "bottom";
       minHeight?: string;
       reverseOnMobile?: string;
     };
-    
+
     const columnCount = parseInt(columns || "2");
     const isVertical = direction === "col";
-    
+
     const handleColumnWidthsChange = (widths: number[]) => {
       if (onUpdate) {
         onUpdate({ columnWidths: widths });
       }
     };
-    
+
     const childrenArray = React.Children.toArray(children);
-    
+
     // Check if we have pre-distributed columns by looking for column-content divs
-    const isPreDistributed = childrenArray.length > 0 && 
-      childrenArray.every(child => {
+    const isPreDistributed =
+      childrenArray.length > 0 &&
+      childrenArray.every((child) => {
         const el = child as React.ReactElement<{ className?: string }>;
-        return el?.props?.className === 'column-content';
+        return el?.props?.className === "column-content";
       });
-    
+
     if (isPreDistributed) {
       // Children are already distributed into columns by PreviewPanel or BusinessPageRenderer
       if (isVertical) {
-        return (
-          <div className="flex flex-col gap-6">
-            {childrenArray}
-          </div>
-        );
+        return <div className="flex flex-col gap-6">{childrenArray}</div>;
       }
-      
+
       return (
         <ResizableColumns
           columnCount={columnCount}
@@ -377,22 +397,37 @@ export const ColumnsBlock: ComponentConfig = {
         >
           {childrenArray.map((colContent, colIndex) => (
             <div key={colIndex} className="column-drop-zone overflow-hidden">
-              {(colContent as React.ReactElement<{ children?: React.ReactNode }>).props.children}
-              {editMode && !(colContent as React.ReactElement<{ children?: React.ReactNode }>).props.children && (
-                <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">
-                  <p className="text-sm text-muted-foreground">Column {colIndex + 1}</p>
-                </div>
-              )}
+              {
+                (
+                  colContent as React.ReactElement<{
+                    children?: React.ReactNode;
+                  }>
+                ).props.children
+              }
+              {editMode &&
+                !(
+                  colContent as React.ReactElement<{
+                    children?: React.ReactNode;
+                  }>
+                ).props.children && (
+                  <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">
+                    <p className="text-sm text-muted-foreground">
+                      Column {colIndex + 1}
+                    </p>
+                  </div>
+                )}
             </div>
           ))}
         </ResizableColumns>
       );
     }
-    
+
     // This path should not be reached if BusinessPageRenderer is working correctly
     // It's only used for direct children without pre-distribution
-    const columnContents: React.ReactNode[][] = Array(columnCount).fill(null).map(() => []);
-    
+    const columnContents: React.ReactNode[][] = Array(columnCount)
+      .fill(null)
+      .map(() => []);
+
     // Distribute children to columns
     childrenArray.forEach((child, index) => {
       // For vertical layout, all children go in one column
@@ -404,7 +439,7 @@ export const ColumnsBlock: ComponentConfig = {
         columnContents[columnIndex].push(child);
       }
     });
-    
+
     // For vertical layout, use flex
     if (isVertical) {
       return (
@@ -414,7 +449,9 @@ export const ColumnsBlock: ComponentConfig = {
               {colChildren}
               {editMode && colChildren.length === 0 && (
                 <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">
-                  <p className="text-sm text-muted-foreground">Column {colIndex + 1}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Column {colIndex + 1}
+                  </p>
                 </div>
               )}
             </div>
@@ -422,7 +459,7 @@ export const ColumnsBlock: ComponentConfig = {
         </div>
       );
     }
-    
+
     // For horizontal layout, use ResizableColumns
     return (
       <ResizableColumns
@@ -443,7 +480,9 @@ export const ColumnsBlock: ComponentConfig = {
             {colChildren}
             {editMode && colChildren.length === 0 && (
               <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">
-                <p className="text-sm text-muted-foreground">Column {colIndex + 1}</p>
+                <p className="text-sm text-muted-foreground">
+                  Column {colIndex + 1}
+                </p>
               </div>
             )}
           </div>
@@ -453,9 +492,8 @@ export const ColumnsBlock: ComponentConfig = {
   },
   icon: Columns,
   category: "Basic",
-  acceptsChildren: true
+  acceptsChildren: true,
 };
-
 
 // Card Block - Content card with header
 export const CardBlock: ComponentConfig = {
@@ -463,13 +501,13 @@ export const CardBlock: ComponentConfig = {
     title: {
       type: "text",
       label: "Card Title",
-      defaultValue: "Card Title"
+      defaultValue: "Card Title",
     },
     description: {
       type: "textarea",
       label: "Card Description",
       defaultValue: "",
-      rows: 2
+      rows: 2,
     },
     variant: {
       type: "select",
@@ -478,9 +516,9 @@ export const CardBlock: ComponentConfig = {
       options: [
         { value: "default", label: "Default" },
         { value: "outline", label: "Outline" },
-        { value: "ghost", label: "Ghost" }
-      ]
-    }
+        { value: "ghost", label: "Ghost" },
+      ],
+    },
   },
   render: (props, editMode, _business, children, _onUpdate) => {
     const { title, description, variant } = props as {
@@ -488,15 +526,17 @@ export const CardBlock: ComponentConfig = {
       description?: string;
       variant?: string;
     };
-    
+
     const variantClasses = {
       default: "",
       outline: "border-2",
-      ghost: "border-0 shadow-none"
+      ghost: "border-0 shadow-none",
     };
-    
+
     return (
-      <Card className={variantClasses[variant as keyof typeof variantClasses] || ""}>
+      <Card
+        className={variantClasses[variant as keyof typeof variantClasses] || ""}
+      >
         {(title || description) && (
           <CardHeader>
             {title && <CardTitle>{title}</CardTitle>}
@@ -504,20 +544,21 @@ export const CardBlock: ComponentConfig = {
           </CardHeader>
         )}
         <CardContent>
-          {children || (
-            editMode && (
+          {children ||
+            (editMode && (
               <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg">
-                <p className="text-sm text-muted-foreground">Drop content here</p>
+                <p className="text-sm text-muted-foreground">
+                  Drop content here
+                </p>
               </div>
-            )
-          )}
+            ))}
         </CardContent>
       </Card>
     );
   },
   icon: CreditCard,
   category: "Basic",
-  acceptsChildren: true
+  acceptsChildren: true,
 };
 
 // Accordion Block - Expandable content sections
@@ -528,13 +569,13 @@ export const AccordionBlock: ComponentConfig = {
       label: "Accordion Items",
       defaultValue: [
         { title: "Section 1", content: "Content for section 1" },
-        { title: "Section 2", content: "Content for section 2" }
+        { title: "Section 2", content: "Content for section 2" },
       ],
       itemType: {
         type: "text",
-        label: "Item"
+        label: "Item",
       },
-      maxItems: 10
+      maxItems: 10,
     },
     type: {
       type: "select",
@@ -542,28 +583,29 @@ export const AccordionBlock: ComponentConfig = {
       defaultValue: "single",
       options: [
         { value: "single", label: "Single (one open at a time)" },
-        { value: "multiple", label: "Multiple (many can be open)" }
-      ]
-    }
+        { value: "multiple", label: "Multiple (many can be open)" },
+      ],
+    },
   },
   render: (props, _editMode, _business, _children, _onUpdate) => {
     const { items, type } = props as {
       items?: Array<{ title: string; content: string } | string>;
       type?: string;
     };
-    
+
     const accordionItems = items || [];
-    
+
     return (
       <Accordion type={type as "single" | "multiple"} className="w-full">
         {accordionItems.map((item, index) => {
           // Handle both object and string formats
-          const itemData = typeof item === 'string' ? { title: item, content: '' } : item;
+          const itemData =
+            typeof item === "string" ? { title: item, content: "" } : item;
           return (
             <AccordionItem key={index} value={`item-${index}`}>
               <AccordionTrigger>{itemData.title}</AccordionTrigger>
               <AccordionContent>
-                {itemData.content || 'Content goes here'}
+                {itemData.content || "Content goes here"}
               </AccordionContent>
             </AccordionItem>
           );
@@ -572,7 +614,7 @@ export const AccordionBlock: ComponentConfig = {
     );
   },
   icon: ChevronDown,
-  category: "Basic"
+  category: "Basic",
 };
 
 // Tabs Block - Tabbed content
@@ -583,22 +625,22 @@ export const TabsBlock: ComponentConfig = {
       label: "Tabs",
       defaultValue: [
         { label: "Tab 1", content: "Content for tab 1" },
-        { label: "Tab 2", content: "Content for tab 2" }
+        { label: "Tab 2", content: "Content for tab 2" },
       ],
       itemType: {
         type: "text",
-        label: "Tab"
+        label: "Tab",
       },
-      maxItems: 6
-    }
+      maxItems: 6,
+    },
   },
   render: (props, editMode, _business, children, _onUpdate) => {
     const { tabs } = props as {
       tabs?: Array<{ label: string; content: string }>;
     };
-    
+
     const tabItems = tabs || [];
-    
+
     return (
       <Tabs defaultValue="tab-0" className="w-full">
         <TabsList className="w-full justify-start">
@@ -611,15 +653,16 @@ export const TabsBlock: ComponentConfig = {
         {tabItems.map((tab, index) => (
           <TabsContent key={index} value={`tab-${index}`}>
             <div className="pt-4">
-              {(Array.isArray(children) ? children[index] : null) || (
-                editMode ? (
+              {(Array.isArray(children) ? children[index] : null) ||
+                (editMode ? (
                   <div className="flex items-center justify-center h-24 border-2 border-dashed border-muted-foreground/30 rounded-lg">
-                    <p className="text-sm text-muted-foreground">Content for {tab.label}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Content for {tab.label}
+                    </p>
                   </div>
                 ) : (
                   <p>{tab.content}</p>
-                )
-              )}
+                ))}
             </div>
           </TabsContent>
         ))}
@@ -628,17 +671,5 @@ export const TabsBlock: ComponentConfig = {
   },
   icon: Layout,
   category: "Basic",
-  acceptsChildren: true
-};
-
-// Column Content Block - Used as a child of ColumnsBlock to wrap content in each column
-export const ColumnContentBlock: ComponentConfig = {
-  fields: {},
-  render: (_props, _editMode, _business, children) => {
-    // This is a wrapper component that just renders its children
-    return <>{children}</>;
-  },
-  icon: Layout,
-  category: "Basic",
-  acceptsChildren: true
+  acceptsChildren: true,
 };

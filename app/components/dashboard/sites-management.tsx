@@ -318,6 +318,12 @@ export default function SitesManagement() {
                             Domain Settings
                           </Link>
                         </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href={`/dashboard/businesses/${business._id}/verify`}>
+                            <Shield className="w-3 h-3 mr-2" />
+                            Verify Business
+                          </Link>
+                        </DropdownMenuItem>
                         {business.isPublished && (
                           <>
                             <DropdownMenuSeparator />
