@@ -55,9 +55,12 @@ export interface SimplePageData {
   sections: SectionInstance[];
   theme?: SimpleTheme;
   metadata?: {
-    createdAt: number;
-    updatedAt: number;
+    createdAt?: number;
+    updatedAt?: number;
     publishedAt?: number;
+    seoTitle?: string;
+    seoDescription?: string;
+    seoKeywords?: string;
   };
 }
 

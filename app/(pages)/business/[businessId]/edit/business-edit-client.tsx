@@ -4,7 +4,7 @@ import { notFound, useRouter } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { SimpleEditor } from "@/app/components/simple-builder/core/simple-editor";
+import { SimpleEditor } from "@/app/components/simple-builder/core/simple-editor-enhanced";
 import type {
   SimplePageData,
   SectionInstance,
@@ -232,6 +232,7 @@ export default function BusinessEditClient({
     <SimpleEditor
       initialData={initialData}
       businessData={businessData}
+      domain={domain?.subdomain}
       onSave={handleSave}
       onPublish={handlePublish}
     />

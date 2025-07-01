@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { api } from "@/convex/_generated/api";
-import BusinessPageRendererV2 from "@/app/components/business/business-page-renderer-v2";
+import BusinessPageRenderer from "@/app/components/business/business-page-renderer";
 import { Metadata } from "next";
 import { fetchQuery } from "convex/nextjs";
 
@@ -193,7 +193,7 @@ export default async function BusinessPage({ params }: PageProps) {
           </div>
         )}
 
-        <BusinessPageRendererV2
+        <BusinessPageRenderer
           business={businessData}
           pageContent={page?.content || JSON.stringify({ sections: [] })}
         />
