@@ -1,36 +1,35 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Doc } from '@/convex/_generated/dataModel';
-import { allComponentConfigs as componentConfigs } from '@/app/components/visual-editor/config/all-components';
-import { ComponentData } from '@/app/components/visual-editor/core/types';
-import BusinessPageContent from './business-page-content';
-import { Section } from '@/app/types/businesses';
-import { useAnalytics } from '@/hooks/use-analytics';
+import React from "react";
+import { Doc } from "@/convex/_generated/dataModel";
+import { allComponentConfigs as componentConfigs } from "@/app/components/visual-editor/config/all-components";
+import { ComponentData } from "@/app/components/visual-editor/core/types";
+import { useAnalytics } from "@/hooks/use-analytics";
 
 interface BusinessPageRendererProps {
-  business: Doc<'businesses'>;
+  business: Doc<"businesses">;
   pageContent: string;
 }
 
-export default function BusinessPageRenderer({ 
-  business, 
-  pageContent 
+export default function BusinessPageRenderer({
+  business,
+  pageContent,
 }: BusinessPageRendererProps) {
   // Initialize analytics tracking
   useAnalytics({
     businessId: business._id,
     domainId: business.domainId,
-    enabled: true
+    enabled: true,
   });
+
   // Parse the page content
-  let parsedContent: { components?: ComponentData[]; sections?: Section[] };
+  let parsedContent: { components?: ComponentData[] };
   try {
     parsedContent = JSON.parse(pageContent);
   } catch (e) {
     console.error("Failed to parse page content", e);
-    // Return default content if parsing fails
-    return <BusinessPageContent initialBusiness={business} content={{ sections: [] }} />;
+    // Return empty content if parsing fails
+    return <main className="flex-grow"></main>;
   }
 
   // Recursive function to render components with their children
@@ -41,32 +40,44 @@ export default function BusinessPageRenderer({
     // Pass business data to components that need it
     const componentProps = {
       ...component.props,
-      business
+      business,
     };
 
     // Render children if component accepts them
     let children: React.ReactNode = null;
-    if (config.acceptsChildren && component.children && component.children.length > 0) {
+    if (
+      config.acceptsChildren &&
+      component.children &&
+      component.children.length > 0
+    ) {
       // For ColumnsBlock, we need to handle column distribution
-      if (component.type === 'ColumnsBlock') {
-        const columnCount = parseInt(component.props.columns as string || "2");
-        const columnContents: React.ReactNode[][] = Array(columnCount).fill(null).map(() => []);
-        
+      if (component.type === "ColumnsBlock") {
+        const columnCount = parseInt(
+          (component.props.columns as string) || "2",
+        );
+        const columnContents: React.ReactNode[][] = Array(columnCount)
+          .fill(null)
+          .map(() => []);
+
         // Distribute children to columns based on metadata
         component.children.forEach((child, index) => {
-          const columnIndex = child.metadata?.columnIndex !== undefined 
-            ? child.metadata.columnIndex as number
-            : index % columnCount;
-          
+          const columnIndex =
+            child.metadata?.columnIndex !== undefined
+              ? (child.metadata.columnIndex as number)
+              : index % columnCount;
+
           // Ensure columnIndex is within bounds
-          const safeColumnIndex = Math.min(Math.max(0, columnIndex), columnCount - 1);
+          const safeColumnIndex = Math.min(
+            Math.max(0, columnIndex),
+            columnCount - 1,
+          );
           columnContents[safeColumnIndex].push(
             <React.Fragment key={child.id}>
               {renderComponent(child)}
-            </React.Fragment>
+            </React.Fragment>,
           );
         });
-        
+
         // Pass the distributed children to ColumnsBlock
         children = columnContents.map((colChildren, colIndex) => (
           <div key={colIndex} className="column-content">
@@ -86,19 +97,17 @@ export default function BusinessPageRenderer({
     return config.render(componentProps, false, business, children);
   };
 
-  // Check if it's the new component-based format
+  // Render component-based format
   if (parsedContent.components && Array.isArray(parsedContent.components)) {
     return (
       <main className="flex-grow">
         {parsedContent.components.map((component: ComponentData) => (
-          <div key={component.id}>
-            {renderComponent(component)}
-          </div>
+          <div key={component.id}>{renderComponent(component)}</div>
         ))}
       </main>
     );
   }
 
-  // Fall back to the old section-based format
-  return <BusinessPageContent initialBusiness={business} content={parsedContent} />;
+  // Return empty content if no components found
+  return <main className="flex-grow"></main>;
 }
