@@ -69,12 +69,17 @@ export function HeroSection({
             {overlay && (
               <div
                 className="absolute inset-0 bg-black"
-                style={{ opacity: overlayOpacity }}
+                style={{ opacity: (overlayOpacity || 50) / 100 }}
               />
             )}
           </>
         )}
-        <div className="relative z-10 text-center max-w-4xl mx-auto px-4">
+        <div
+          className={cn(
+            "relative z-10 text-center max-w-4xl mx-auto px-4",
+            backgroundImage && "text-white",
+          )}
+        >
           <h1
             className="text-4xl md:text-6xl font-bold mb-4"
             contentEditable={editMode}

@@ -11,6 +11,7 @@ import { AboutSection } from "./components/about-section";
 import { ServicesSection } from "./components/services-section";
 import { GallerySection } from "./components/gallery-section";
 import { ContactSection } from "./components/contact-section";
+import ReviewsSection from "./components/reviews-section";
 
 interface SectionRendererProps {
   data: SimpleComponentData;
@@ -23,6 +24,7 @@ interface SectionRendererProps {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const sectionComponents: Record<string, React.ComponentType<any>> = {
   // Header variations
+  "header-section": HeaderSection,
   "header-classic": HeaderSection,
   "header-centered": HeaderSection,
   "header-minimal": HeaderSection,
@@ -51,6 +53,9 @@ const sectionComponents: Record<string, React.ComponentType<any>> = {
   "contact-form-map": ContactSection,
   "contact-cards": ContactSection,
   "contact-social": ContactSection,
+
+  // Reviews variations
+  "reviews-section": ReviewsSection,
 };
 
 export function SectionRenderer({
@@ -84,9 +89,14 @@ export function SectionRenderer({
     textAlign: data.style?.textAlign,
   };
 
+  // Don't add padding to header sections
+  const sectionClasses = data.type.includes("header")
+    ? cn("simple-section", `section-${data.type}`)
+    : cn("simple-section", `section-${data.type}`, "py-16 md:py-20");
+
   return (
     <section
-      className={cn("simple-section", `section-${data.type}`)}
+      className={sectionClasses}
       style={sectionStyle}
       data-section-id={data.id}
     >

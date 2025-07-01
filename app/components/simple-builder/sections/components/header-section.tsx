@@ -75,19 +75,36 @@ export function HeaderSection({
 
   if (type === "header-classic") {
     return (
-      <header className="w-full">
+      <header className="w-full py-4 px-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo */}
           <div className="flex-shrink-0">
-            {editMode ? (
-              <label className="cursor-pointer block">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoUpload}
-                  className="hidden"
-                />
-                <div className="relative group">
+            {logo.startsWith("http") || logo.startsWith("data:") ? (
+              editMode ? (
+                <label className="cursor-pointer block">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    className="hidden"
+                  />
+                  <div className="relative group">
+                    <Image
+                      src={logo}
+                      alt={logoAlt}
+                      width={150}
+                      height={50}
+                      className="h-12 w-auto"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-white text-sm">
+                        Click to upload
+                      </span>
+                    </div>
+                  </div>
+                </label>
+              ) : (
+                <Link href="/">
                   <Image
                     src={logo}
                     alt={logoAlt}
@@ -95,22 +112,16 @@ export function HeaderSection({
                     height={50}
                     className="h-12 w-auto"
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="text-white text-sm">Click to upload</span>
-                  </div>
-                </div>
-              </label>
+                </Link>
+              )
             ) : (
-              <Link href="/">
-                <Image
-                  src={logo}
-                  alt={logoAlt}
-                  width={150}
-                  height={50}
-                  className="h-12 w-auto"
-                />
+              <Link
+                href="/"
+                className="text-2xl font-bold text-foreground hover:text-primary transition-colors"
+              >
+                {logo}
               </Link>
-            )}
+            )}{" "}
           </div>
 
           {/* Desktop Menu */}
@@ -218,15 +229,32 @@ export function HeaderSection({
         <div className="max-w-7xl mx-auto">
           {/* Logo */}
           <div className="mb-4">
-            {editMode ? (
-              <label className="cursor-pointer inline-block">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoUpload}
-                  className="hidden"
-                />
-                <div className="relative group inline-block">
+            {logo.startsWith("http") || logo.startsWith("data:") ? (
+              editMode ? (
+                <label className="cursor-pointer inline-block">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    className="hidden"
+                  />
+                  <div className="relative group inline-block">
+                    <Image
+                      src={logo}
+                      alt={logoAlt}
+                      width={150}
+                      height={50}
+                      className="h-12 w-auto mx-auto"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-white text-sm">
+                        Click to upload
+                      </span>
+                    </div>
+                  </div>
+                </label>
+              ) : (
+                <Link href="/" className="inline-block">
                   <Image
                     src={logo}
                     alt={logoAlt}
@@ -234,20 +262,14 @@ export function HeaderSection({
                     height={50}
                     className="h-12 w-auto mx-auto"
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="text-white text-sm">Click to upload</span>
-                  </div>
-                </div>
-              </label>
+                </Link>
+              )
             ) : (
-              <Link href="/" className="inline-block">
-                <Image
-                  src={logo}
-                  alt={logoAlt}
-                  width={150}
-                  height={50}
-                  className="h-12 w-auto mx-auto"
-                />
+              <Link
+                href="/"
+                className="inline-block text-2xl font-bold text-foreground hover:text-primary transition-colors"
+              >
+                {logo}
               </Link>
             )}
           </div>
@@ -315,15 +337,30 @@ export function HeaderSection({
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
         <div className="flex-shrink-0">
-          {editMode ? (
-            <label className="cursor-pointer block">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleLogoUpload}
-                className="hidden"
-              />
-              <div className="relative group">
+          {logo.startsWith("http") || logo.startsWith("data:") ? (
+            editMode ? (
+              <label className="cursor-pointer block">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                  className="hidden"
+                />
+                <div className="relative group">
+                  <Image
+                    src={logo}
+                    alt={logoAlt}
+                    width={120}
+                    height={40}
+                    className="h-10 w-auto"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-white text-sm">Click to upload</span>
+                  </div>
+                </div>
+              </label>
+            ) : (
+              <Link href="/">
                 <Image
                   src={logo}
                   alt={logoAlt}
@@ -331,20 +368,14 @@ export function HeaderSection({
                   height={40}
                   className="h-10 w-auto"
                 />
-                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="text-white text-sm">Click to upload</span>
-                </div>
-              </div>
-            </label>
+              </Link>
+            )
           ) : (
-            <Link href="/">
-              <Image
-                src={logo}
-                alt={logoAlt}
-                width={120}
-                height={40}
-                className="h-10 w-auto"
-              />
+            <Link
+              href="/"
+              className="text-xl font-bold text-foreground hover:text-primary transition-colors"
+            >
+              {logo}
             </Link>
           )}
         </div>

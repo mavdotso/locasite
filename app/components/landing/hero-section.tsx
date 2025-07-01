@@ -277,8 +277,10 @@ export default function HeroSection() {
                 {/* Preview Content */}
                 <div className="relative overflow-hidden rounded-b-xl bg-background">
                   {previewData ? (
-                    <div className="h-[600px] overflow-hidden">
-                      <BusinessLivePreview businessData={previewData} />
+                    <div className="relative">
+                      <div className="h-[700px] overflow-y-auto">
+                        <BusinessLivePreview businessData={previewData} />
+                      </div>
                       {/* CTA overlay */}
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background/90 to-transparent p-6">
                         <div className="text-center">

@@ -60,10 +60,36 @@ export default function BusinessLivePreview({
   const defaultPageContent = {
     mode: "simple",
     sections: [
+      // Header section
+      {
+        id: "header-1",
+        variationId: "header-section",
+        order: 0,
+        data: {
+          id: "header-1",
+          type: "header-section",
+          content: {
+            logo: businessData.name,
+            logoAlt: businessData.name,
+            menuItems: [
+              { label: "Home", link: "#hero" },
+              { label: "About", link: "#about" },
+              { label: "Services", link: "#services" },
+              { label: "Gallery", link: "#gallery" },
+              { label: "Reviews", link: "#reviews" },
+              { label: "Contact", link: "#contact" },
+            ],
+            showButton: true,
+            buttonText: "Get in Touch",
+            buttonLink: "#contact",
+          },
+        },
+      },
+      // Hero section with better styling
       {
         id: "hero-1",
         variationId: "hero-section",
-        order: 0,
+        order: 1,
         data: {
           id: "hero-1",
           type: "hero-section",
@@ -74,14 +100,16 @@ export default function BusinessLivePreview({
             ctaText: "Contact Us",
             ctaLink: "#contact",
             overlay: true,
-            overlayOpacity: 50,
+            overlayOpacity: 40,
+            height: "large",
           },
         },
       },
+      // About section
       {
         id: "about-1",
         variationId: "about-section",
-        order: 1,
+        order: 2,
         data: {
           id: "about-1",
           type: "about-section",
@@ -96,15 +124,87 @@ export default function BusinessLivePreview({
           },
         },
       },
+      // Services section (if applicable)
+      {
+        id: "services-1",
+        variationId: "services-grid",
+        order: 3,
+        data: {
+          id: "services-1",
+          type: "services-grid",
+          content: {
+            title: "Our Services",
+            subtitle: "What we offer",
+            services: [
+              {
+                title: "Quality Service",
+                description:
+                  "We provide top-notch service to all our customers",
+                icon: "star",
+              },
+              {
+                title: "Expert Team",
+                description: "Our experienced team is here to help you",
+                icon: "users",
+              },
+              {
+                title: "Best Results",
+                description: "We deliver exceptional results every time",
+                icon: "trophy",
+              },
+            ],
+          },
+        },
+      },
+      // Reviews section
+      {
+        id: "reviews-1",
+        variationId: "reviews-section",
+        order: 4,
+        data: {
+          id: "reviews-1",
+          type: "reviews-section",
+          content: {
+            title: "What Our Customers Say",
+            subtitle: businessData.rating
+              ? `${businessData.rating} ★ Rating`
+              : "Customer Reviews",
+            reviews: businessData.reviews?.slice(0, 3).map((review, index) => ({
+              id: `review-${index}`,
+              author: review.reviewer || `Customer ${index + 1}`,
+              rating: parseInt(review.rating) || 5,
+              content: review.text || "Great experience!",
+              date: "Recently",
+            })) || [
+              {
+                id: "review-1",
+                author: "John Doe",
+                rating: 5,
+                content: "Excellent service and great experience!",
+                date: "Last week",
+              },
+              {
+                id: "review-2",
+                author: "Jane Smith",
+                rating: 5,
+                content: "Highly recommend! Professional and friendly staff.",
+                date: "2 weeks ago",
+              },
+            ],
+          },
+        },
+      },
+      // Gallery section
       {
         id: "gallery-1",
         variationId: "gallery-grid",
-        order: 2,
+        order: 5,
         data: {
           id: "gallery-1",
           type: "gallery-grid",
           content: {
             title: "Gallery",
+            subtitle: "Take a look at our work",
             images:
               businessData.photos
                 ?.filter((photo) => photo && photo.trim() !== "")
@@ -117,15 +217,17 @@ export default function BusinessLivePreview({
           },
         },
       },
+      // Contact section
       {
         id: "contact-1",
         variationId: "contact-form-map",
-        order: 3,
+        order: 6,
         data: {
           id: "contact-1",
           type: "contact-form-map",
           content: {
-            title: "Contact Us",
+            title: "Get in Touch",
+            subtitle: "We'd love to hear from you",
             address: businessData.address,
             phone: businessData.phone,
             email: "",
@@ -150,6 +252,9 @@ export default function BusinessLivePreview({
         heading: "Inter",
         body: "Inter",
       },
+      spacing: {
+        sectionPadding: "80px",
+      },
     },
   };
 
@@ -158,31 +263,11 @@ export default function BusinessLivePreview({
 
   return (
     <div className="w-full bg-background">
-      <div className="border border-border rounded-lg overflow-hidden shadow-lg">
-        {/* Browser mockup header */}
-        <div className="bg-muted border-b border-border px-4 py-2 flex items-center gap-2">
-          <div className="flex gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-red-500" />
-            <div className="w-3 h-3 rounded-full bg-yellow-500" />
-            <div className="w-3 h-3 rounded-full bg-green-500" />
-          </div>
-          <div className="flex-1 flex justify-center">
-            <div className="bg-background border border-border rounded px-3 py-1 text-xs text-muted-foreground">
-              {businessData.name.toLowerCase().replace(/\s+/g, "-")}
-              .locasite.com
-            </div>
-          </div>
-        </div>
-
-        {/* Page content */}
-        <div className="bg-background max-h-[600px] overflow-y-auto">
-          <BusinessPageRenderer
-            business={displayBusiness}
-            pageContent={pageContent}
-            mode="simple"
-          />
-        </div>
-      </div>
+      <BusinessPageRenderer
+        business={displayBusiness}
+        pageContent={pageContent}
+        mode="simple"
+      />
     </div>
   );
 }
