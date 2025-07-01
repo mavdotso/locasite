@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { Button } from "@/app/components/ui/button";
 import { ComponentVariation } from "@/app/types/visual-editor";
 
@@ -88,9 +89,11 @@ export const heroSplitLayout: ComponentVariation = {
               ) : null}
             </div>
             <div className={imageOnRight ? "" : "md:order-1"}>
-              <img
+              <Image
                 src={props.image as string}
                 alt="Hero"
+                width={800}
+                height={600}
                 className="w-full h-auto rounded-lg shadow-xl"
               />
             </div>

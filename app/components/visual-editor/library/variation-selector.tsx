@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { ComponentVariation } from "@/app/types/visual-editor";
 import { Button } from "@/app/components/ui/button";
 import {
@@ -104,9 +105,11 @@ export function VariationSelector({
                       {/* Preview */}
                       {variation.preview ? (
                         <div className="mt-3 rounded-md overflow-hidden border">
-                          <img
+                          <Image
                             src={variation.preview}
                             alt={variation.name}
+                            width={400}
+                            height={128}
                             className="w-full h-32 object-cover"
                           />
                         </div>

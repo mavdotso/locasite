@@ -1,7 +1,20 @@
 import React from "react";
+import Image from "next/image";
 import { ComponentVariation } from "@/app/types/visual-editor";
-import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { CheckCircle, Zap, Shield, Users, Target, Sparkles } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/app/components/ui/card";
+import {
+  CheckCircle,
+  Zap,
+  Shield,
+  Users,
+  Target,
+  Sparkles,
+} from "lucide-react";
 
 // Feature Variation 1: Grid Layout
 export const featureGrid: ComponentVariation = {
@@ -15,35 +28,39 @@ export const featureGrid: ComponentVariation = {
       {
         icon: "CheckCircle",
         title: "Reliable Service",
-        description: "Count on us for consistent, dependable results every time."
+        description:
+          "Count on us for consistent, dependable results every time.",
       },
       {
         icon: "Zap",
         title: "Fast Delivery",
-        description: "Quick turnaround times without compromising on quality."
+        description: "Quick turnaround times without compromising on quality.",
       },
       {
         icon: "Shield",
         title: "Secure & Safe",
-        description: "Your data and privacy are our top priority."
+        description: "Your data and privacy are our top priority.",
       },
       {
         icon: "Users",
         title: "Expert Team",
-        description: "Skilled professionals dedicated to your success."
-      }
+        description: "Skilled professionals dedicated to your success.",
+      },
     ],
     columns: 2,
-    showIcons: true
+    showIcons: true,
   },
   render: (props) => {
-    const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+    const iconMap: Record<
+      string,
+      React.ComponentType<{ className?: string }>
+    > = {
       CheckCircle,
       Zap,
       Shield,
       Users,
       Target,
-      Sparkles
+      Sparkles,
     };
 
     const features = props.features as Array<{
@@ -53,14 +70,23 @@ export const featureGrid: ComponentVariation = {
     }>;
 
     const columns = props.columns as number;
-    const gridCols = columns === 3 ? "md:grid-cols-3" : columns === 4 ? "md:grid-cols-4" : "md:grid-cols-2";
+    const gridCols =
+      columns === 3
+        ? "md:grid-cols-3"
+        : columns === 4
+          ? "md:grid-cols-4"
+          : "md:grid-cols-2";
 
     return (
       <section className="py-16 bg-muted">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">{props.title as string}</h2>
-            <p className="text-xl text-muted-foreground">{props.subtitle as string}</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              {props.title as string}
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              {props.subtitle as string}
+            </p>
           </div>
           <div className={`grid gap-8 ${gridCols}`}>
             {features.map((feature, index) => {
@@ -76,7 +102,9 @@ export const featureGrid: ComponentVariation = {
                     <CardTitle className="text-xl">{feature.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground">{feature.description}</p>
+                    <p className="text-muted-foreground">
+                      {feature.description}
+                    </p>
                   </CardContent>
                 </Card>
               );
@@ -85,7 +113,7 @@ export const featureGrid: ComponentVariation = {
         </div>
       </section>
     );
-  }
+  },
 };
 
 // Feature Variation 2: Alternating Layout
@@ -98,25 +126,28 @@ export const featureAlternating: ComponentVariation = {
     features: [
       {
         title: "Professional Consultation",
-        description: "Get expert advice tailored to your specific needs and goals.",
-        image: "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=600",
+        description:
+          "Get expert advice tailored to your specific needs and goals.",
+        image:
+          "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=600",
         bulletPoints: [
           "One-on-one sessions",
           "Customized solutions",
-          "Follow-up support"
-        ]
+          "Follow-up support",
+        ],
       },
       {
         title: "Implementation Support",
         description: "We help you every step of the way to ensure success.",
-        image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600",
+        image:
+          "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600",
         bulletPoints: [
           "Hands-on assistance",
           "Training included",
-          "Ongoing maintenance"
-        ]
-      }
-    ]
+          "Ongoing maintenance",
+        ],
+      },
+    ],
   },
   render: (props) => {
     const features = props.features as Array<{
@@ -134,15 +165,17 @@ export const featureAlternating: ComponentVariation = {
           </h2>
           <div className="space-y-20">
             {features.map((feature, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className={`grid md:grid-cols-2 gap-12 items-center ${
-                  index % 2 === 1 ? 'md:flex-row-reverse' : ''
+                  index % 2 === 1 ? "md:flex-row-reverse" : ""
                 }`}
               >
-                <div className={index % 2 === 1 ? 'md:order-2' : ''}>
+                <div className={index % 2 === 1 ? "md:order-2" : ""}>
                   <h3 className="text-2xl font-bold mb-4">{feature.title}</h3>
-                  <p className="text-muted-foreground mb-6">{feature.description}</p>
+                  <p className="text-muted-foreground mb-6">
+                    {feature.description}
+                  </p>
                   <ul className="space-y-2">
                     {feature.bulletPoints.map((point, i) => (
                       <li key={i} className="flex items-start gap-2">
@@ -152,10 +185,12 @@ export const featureAlternating: ComponentVariation = {
                     ))}
                   </ul>
                 </div>
-                <div className={index % 2 === 1 ? 'md:order-1' : ''}>
-                  <img 
-                    src={feature.image} 
+                <div className={index % 2 === 1 ? "md:order-1" : ""}>
+                  <Image
+                    src={feature.image}
                     alt={feature.title}
+                    width={600}
+                    height={400}
                     className="w-full h-auto rounded-lg shadow-xl"
                   />
                 </div>
@@ -165,7 +200,7 @@ export const featureAlternating: ComponentVariation = {
         </div>
       </section>
     );
-  }
+  },
 };
 
 // Feature Variation 3: Centered Icons
@@ -180,29 +215,32 @@ export const featureCentered: ComponentVariation = {
       {
         icon: "Target",
         title: "Goal-Oriented",
-        description: "We focus on achieving your objectives"
+        description: "We focus on achieving your objectives",
       },
       {
         icon: "Sparkles",
         title: "Innovation",
-        description: "Cutting-edge solutions for modern challenges"
+        description: "Cutting-edge solutions for modern challenges",
       },
       {
         icon: "Shield",
         title: "Protection",
-        description: "Your security is our priority"
-      }
+        description: "Your security is our priority",
+      },
     ],
-    backgroundColor: "#f8f9fa"
+    backgroundColor: "#f8f9fa",
   },
   render: (props) => {
-    const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+    const iconMap: Record<
+      string,
+      React.ComponentType<{ className?: string }>
+    > = {
       CheckCircle,
       Zap,
       Shield,
       Users,
       Target,
-      Sparkles
+      Sparkles,
     };
 
     const features = props.features as Array<{
@@ -212,14 +250,16 @@ export const featureCentered: ComponentVariation = {
     }>;
 
     return (
-      <section 
+      <section
         className="py-20"
         style={{ backgroundColor: props.backgroundColor as string }}
       >
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">{props.title as string}</h2>
-            <p className="text-xl text-muted-foreground">{props.subtitle as string}</p>
+            <p className="text-xl text-muted-foreground">
+              {props.subtitle as string}
+            </p>
           </div>
           <div className="grid md:grid-cols-3 gap-12">
             {features.map((feature, index) => {
@@ -238,7 +278,7 @@ export const featureCentered: ComponentVariation = {
         </div>
       </section>
     );
-  }
+  },
 };
 
 // Feature Variation 4: Minimal List
@@ -254,9 +294,9 @@ export const featureMinimalList: ComponentVariation = {
       "30-Day Money Back Guarantee",
       "Regular Updates and Maintenance",
       "Comprehensive Documentation",
-      "Priority Technical Support"
+      "Priority Technical Support",
     ],
-    columns: 2
+    columns: 2,
   },
   render: (props) => {
     const features = props.features as string[];
@@ -268,7 +308,9 @@ export const featureMinimalList: ComponentVariation = {
           <h2 className="text-3xl font-bold text-center mb-12">
             {props.title as string}
           </h2>
-          <div className={`grid gap-4 ${columns === 2 ? 'md:grid-cols-2' : ''}`}>
+          <div
+            className={`grid gap-4 ${columns === 2 ? "md:grid-cols-2" : ""}`}
+          >
             {features.map((feature, index) => (
               <div key={index} className="flex items-center gap-3">
                 <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
@@ -279,7 +321,7 @@ export const featureMinimalList: ComponentVariation = {
         </div>
       </section>
     );
-  }
+  },
 };
 
 // Export all variations
@@ -287,5 +329,5 @@ export const featureVariations: ComponentVariation[] = [
   featureGrid,
   featureAlternating,
   featureCentered,
-  featureMinimalList
+  featureMinimalList,
 ];
