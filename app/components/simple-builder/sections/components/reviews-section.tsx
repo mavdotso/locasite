@@ -22,8 +22,6 @@ export default function ReviewsSection({
   title = "Customer Reviews",
   subtitle,
   reviews = [],
-  editMode,
-  onUpdate,
 }: ReviewsSectionProps) {
   return (
     <section className="py-20 px-4 bg-muted/30">
