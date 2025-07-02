@@ -115,10 +115,45 @@ export default function BusinessEditClient({
 
       // Check if it's already in Simple Mode format
       if (parsed.mode === "simple" && parsed.sections) {
-        // Use the sections AS IS from the database - they were created correctly
+        // Populate sections with template data if they're empty
+        const populatedSections = parsed.sections.map((section: any) => {
+          // If section data is empty or missing content, populate from template
+          if (
+            !section.data?.content ||
+            Object.keys(section.data.content).length === 0
+          ) {
+            const variation = getVariationById(section.variationId);
+            if (variation) {
+              return {
+                ...section,
+                data: JSON.parse(JSON.stringify(variation.template)), // Deep clone
+              };
+            }
+          }
+          return section;
+        });
+
+        // Populate sections with template data if they're empty
+        const populatedSections = parsed.sections.map((section: any) => {
+          // If section data is empty or missing content, populate from template
+          if (
+            !section.data?.content ||
+            Object.keys(section.data.content).length === 0
+          ) {
+            const variation = getVariationById(section.variationId);
+            if (variation) {
+              return {
+                ...section,
+                data: JSON.parse(JSON.stringify(variation.template)), // Deep clone
+              };
+            }
+          }
+          return section;
+        });
+
         initialData = {
           title: parsed.title || business.name || "Welcome",
-          sections: parsed.sections,
+          sections: populatedSections,
           theme: parsed.theme || initialData.theme,
         };
       } else {

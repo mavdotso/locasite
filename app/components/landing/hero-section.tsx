@@ -130,7 +130,7 @@ export default function HeroSection() {
         });
 
         if (result.businessId) {
-          router.push(`/preview/${result.businessId}`);
+          router.push(`/business/${result.businessId}/edit`);
         }
       } else if (data.businessData) {
         // Fallback for different response format
@@ -140,7 +140,7 @@ export default function HeroSection() {
         });
 
         if (result.businessId) {
-          router.push(`/preview/${result.businessId}`);
+          router.push(`/business/${result.businessId}/edit`);
         }
       }
     } catch (error) {

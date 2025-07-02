@@ -30,6 +30,7 @@ import type * as lib_themeSuggestions from "../lib/themeSuggestions.js";
 import type * as lib_types from "../lib/types.js";
 import type * as mediaLibrary from "../mediaLibrary.js";
 import type * as pages from "../pages.js";
+import type * as pagesSimple from "../pagesSimple.js";
 import type * as regenerateAI from "../regenerateAI.js";
 import type * as reviewFilter from "../reviewFilter.js";
 import type * as storage from "../storage.js";
@@ -72,6 +73,7 @@ declare const fullApi: ApiFromModules<{
   "lib/types": typeof lib_types;
   mediaLibrary: typeof mediaLibrary;
   pages: typeof pages;
+  pagesSimple: typeof pagesSimple;
   regenerateAI: typeof regenerateAI;
   reviewFilter: typeof reviewFilter;
   storage: typeof storage;

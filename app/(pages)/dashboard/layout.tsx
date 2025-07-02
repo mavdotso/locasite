@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import DashboardNav from '@/app/components/dashboard/dashboard-nav';
 import { Card } from '@/app/components/ui/card';
+import { AuthRedirectHandler } from '@/app/components/auth/auth-redirect-handler';
 
 export default function DashboardLayout({
   children,
@@ -9,6 +10,7 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="min-h-screen bg-muted">
+      <AuthRedirectHandler />
       <DashboardNav />
       <main className="container mx-auto px-4 py-8">
         <Suspense fallback={

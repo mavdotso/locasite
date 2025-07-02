@@ -3,7 +3,7 @@
 import { Preloaded, usePreloadedQuery, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import BusinessPreviewRenderer from "./business-preview-renderer";
+import BusinessPageRenderer from "./business-page-renderer";
 import { Button } from "@/app/components/ui/button";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useRouter } from "next/navigation";
@@ -20,7 +20,7 @@ interface BusinessPreviewWrapperProps {
   preloadedBusiness: Preloaded<typeof api.businesses.getByIdWithDraft>;
 }
 
-// Helper function to detect business type - matches the one in business-edit-client.tsx
+// Helper function to detect business type
 function detectBusinessType(business: {
   category?: string;
   description?: string;
@@ -104,6 +104,24 @@ function detectBusinessType(business: {
   // Default to professional for all others
   return "professional";
 }
+  if (combined.match(/salon|spa|beauty|hair|nails|massage|wellness/)) {
+    return "salon";
+  }
+  if (combined.match(/clinic|medical|doctor|dental|health|hospital/)) {
+    return "medical";
+  }
+  if (combined.match(/retail|shop|store|boutique|market/)) {
+    return "retail";
+  }
+  if (combined.match(/auto|car|mechanic|tire|oil|repair/)) {
+    return "automotive";
+  }
+  if (combined.match(/law|legal|attorney|consult|account|finance|insurance/)) {
+    return "professional";
+  }
+
+  return null;
+}
 
 export function BusinessPreviewWrapper({
   businessId,
@@ -113,12 +131,18 @@ export function BusinessPreviewWrapper({
   const { signIn } = useAuthActions();
   const router = useRouter();
   const user = useQuery(api.auth.currentUser);
-  
+
   // Get the domain for this business
-  const domain = useQuery(api.domains.getByBusinessId, business ? { businessId } : "skip");
-  
+  const domain = useQuery(
+    api.domains.getByBusinessId,
+    business ? { businessId } : "skip",
+  );
+
   // Get the homepage for this domain
-  const page = useQuery(api.pages.getHomepageByDomain, domain ? { domainId: domain._id } : "skip");
+  const page = useQuery(
+    api.pages.getHomepageByDomain,
+    domain ? { domainId: domain._id } : "skip",
+  );
 
   if (!business) {
     return <div>Business not found</div>;
@@ -151,29 +175,17 @@ export function BusinessPreviewWrapper({
   const generateId = () => Math.random().toString(36).substring(2, 9);
 
   // Create the same initial data that the edit page would create
-  let pageContent: string = "";
-  let useExistingContent = false;
+  let pageContent: string;
 
   if (page?.content) {
-    // Parse existing content and ensure it's in simple mode
-    try {
-      const parsed = JSON.parse(page.content);
-      if (parsed.mode === "simple" && parsed.sections) {
-        // Use existing simple mode content
-        pageContent = page.content;
-        useExistingContent = true;
-      }
-    } catch {
-      // Invalid JSON, will create default content
-    }
-  }
-
-  if (!useExistingContent) {
+    // Use existing page content
+    pageContent = page.content;
+  } else {
     // Create the same default content that the edit page creates
     const businessType = detectBusinessType(business);
-    const preset = getPresetByType(businessType);
-    
-    const initialData: SimplePageData = {
+    const preset = businessType ? getPresetByType(businessType) : undefined;
+
+    let initialData: SimplePageData = {
       title: business.name || "Welcome",
       sections: [],
       theme: {
@@ -261,14 +273,14 @@ export function BusinessPreviewWrapper({
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-lg font-semibold">{business.name} - Preview</h1>
-              <p className="text-sm text-muted-foreground">This is how your website will look</p>
+              <h1 className="text-lg font-semibold">
+                {business.name} - Preview
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                This is how your website will look
+              </p>
             </div>
-            <Button 
-              size="lg" 
-              onClick={handleCreateWebsite}
-              className="gap-2"
-            >
+            <Button size="lg" onClick={handleCreateWebsite} className="gap-2">
               <Sparkles className="w-4 h-4" />
               Create this website
               <ArrowRight className="w-4 h-4" />
@@ -277,10 +289,11 @@ export function BusinessPreviewWrapper({
         </div>
       </div>
 
-      {/* Business Page Content - Preview only renders simple mode */}
-      <BusinessPreviewRenderer 
+      {/* Business Page Content */}
+      <BusinessPageRenderer
         business={business}
         pageContent={pageContent}
+        mode="simple"
       />
     </div>
   );
