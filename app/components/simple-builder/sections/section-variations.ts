@@ -105,7 +105,7 @@ export const heroVariations: SectionVariation[] = [
         secondaryCtaText: "Learn More",
         secondaryCtaLink: "#about",
         backgroundImage: "{businessMainPhoto}",
-        overlay: true,
+        overlay: false,
         overlayOpacity: 0.4,
         overlayGradient:
           "linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.5))",

@@ -115,13 +115,17 @@ export function HeroSection({
 
   // Center Hero with Background
   if (type === "hero-section") {
-    // Use a gradient background if no image is provided
-    const hasBackgroundImage =
-      backgroundImage && backgroundImage !== "{businessMainPhoto}";
+    // Check if we have a real image URL (not a template variable or placeholder)
+    const hasRealImage =
+      backgroundImage &&
+      !backgroundImage.includes("{") &&
+      !backgroundImage.includes("placeholder") &&
+      (backgroundImage.startsWith("http") || backgroundImage.startsWith("/"));
 
     return (
       <div className="relative min-h-[700px] flex items-center justify-center overflow-hidden">
-        {hasBackgroundImage ? (
+        {/* Background Layer */}
+        {hasRealImage ? (
           <>
             <Image
               src={backgroundImage}
@@ -132,26 +136,26 @@ export function HeroSection({
             />
             {overlay && (
               <div
-                className={cn(
-                  "absolute inset-0",
-                  overlayGradient || "bg-black",
-                )}
+                className="absolute inset-0"
                 style={{
-                  opacity: overlayOpacity,
-                  background: overlayGradient || undefined,
+                  background: overlayGradient || "rgba(0,0,0,0.4)",
+                  opacity: overlayGradient ? 1 : overlayOpacity,
                 }}
               />
             )}
           </>
         ) : (
-          // Gradient background fallback when no image
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-secondary/10" />
+          // Beautiful gradient background as fallback
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-indigo-50" />
         )}
+
         {renderDecorativeElement()}
+
+        {/* Content Layer */}
         <div
           className={cn(
             "relative z-10 text-center max-w-5xl mx-auto px-6 py-12",
-            hasBackgroundImage && "text-white",
+            hasRealImage && overlay ? "text-white" : "text-foreground",
           )}
         >
           <h1
@@ -173,7 +177,9 @@ export function HeroSection({
               className={cn(
                 "text-xl md:text-2xl mb-10 max-w-3xl mx-auto",
                 "leading-relaxed",
-                hasBackgroundImage ? "opacity-90" : "text-muted-foreground",
+                hasRealImage && overlay
+                  ? "opacity-90"
+                  : "text-muted-foreground",
                 "animate-fadeInUp animation-delay-100",
               )}
               contentEditable={editMode}
@@ -204,7 +210,7 @@ export function HeroSection({
                 href={secondaryCtaLink}
                 className={cn(
                   "inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-lg",
-                  hasBackgroundImage
+                  hasRealImage && overlay
                     ? "bg-white/20 backdrop-blur-sm text-white border-2 border-white/30 hover:bg-white/30"
                     : "bg-background border-2 border-border hover:bg-accent",
                   "transition-all duration-300",
