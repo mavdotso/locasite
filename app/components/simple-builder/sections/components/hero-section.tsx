@@ -115,9 +115,13 @@ export function HeroSection({
 
   // Center Hero with Background
   if (type === "hero-section") {
+    // Use a gradient background if no image is provided
+    const hasBackgroundImage =
+      backgroundImage && backgroundImage !== "{businessMainPhoto}";
+
     return (
       <div className="relative min-h-[700px] flex items-center justify-center overflow-hidden">
-        {backgroundImage && (
+        {hasBackgroundImage ? (
           <>
             <Image
               src={backgroundImage}
@@ -139,12 +143,15 @@ export function HeroSection({
               />
             )}
           </>
+        ) : (
+          // Gradient background fallback when no image
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-secondary/10" />
         )}
         {renderDecorativeElement()}
         <div
           className={cn(
             "relative z-10 text-center max-w-5xl mx-auto px-6 py-12",
-            backgroundImage && "text-white",
+            hasBackgroundImage && "text-white",
           )}
         >
           <h1
@@ -166,7 +173,7 @@ export function HeroSection({
               className={cn(
                 "text-xl md:text-2xl mb-10 max-w-3xl mx-auto",
                 "leading-relaxed",
-                backgroundImage ? "opacity-90" : "text-muted-foreground",
+                hasBackgroundImage ? "opacity-90" : "text-muted-foreground",
                 "animate-fadeInUp animation-delay-100",
               )}
               contentEditable={editMode}
@@ -197,7 +204,7 @@ export function HeroSection({
                 href={secondaryCtaLink}
                 className={cn(
                   "inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-lg",
-                  backgroundImage
+                  hasBackgroundImage
                     ? "bg-white/20 backdrop-blur-sm text-white border-2 border-white/30 hover:bg-white/30"
                     : "bg-background border-2 border-border hover:bg-accent",
                   "transition-all duration-300",

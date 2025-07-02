@@ -56,6 +56,8 @@ export default function BusinessPageRenderer({
     businessDescription: business.description,
     businessHours: business.hours,
     businessWebsite: business.website,
+    businessPhotos: business.photos,
+    businessMainPhoto: business.photos?.[0],
     // Add more business fields as needed
   };
 

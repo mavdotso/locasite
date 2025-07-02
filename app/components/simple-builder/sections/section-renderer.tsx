@@ -92,7 +92,7 @@ export function SectionRenderer({
   // Don't add padding to header sections
   const sectionClasses = data.type.includes("header")
     ? cn("simple-section", `section-${data.type}`)
-    : cn("simple-section", `section-${data.type}`, "py-16 md:py-20");
+    : cn("simple-section", `section-${data.type}`, "py-12 md:py-16");
 
   return (
     <section

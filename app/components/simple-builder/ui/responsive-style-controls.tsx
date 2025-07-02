@@ -73,7 +73,10 @@ export function ResponsiveStyleControls({
   const deviceKey = currentDevice as keyof ResponsiveStyles;
   const currentStyles = styles[deviceKey] || {};
 
-  const updateStyle = (key: keyof StyleSettings, value: any) => {
+  const updateStyle = (
+    key: keyof StyleSettings,
+    value: string | number | boolean | undefined,
+  ) => {
     onStyleChangeAction(currentDevice, {
       ...currentStyles,
       [key]: value,

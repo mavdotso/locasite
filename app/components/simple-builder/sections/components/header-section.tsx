@@ -75,7 +75,7 @@ export function HeaderSection({
 
   if (type === "header-classic") {
     return (
-      <header className="w-full py-4 px-4">
+      <header className="w-full py-4 px-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo */}
           <div className="flex-shrink-0">
@@ -225,7 +225,7 @@ export function HeaderSection({
 
   if (type === "header-centered") {
     return (
-      <header className="w-full text-center">
+      <header className="w-full text-center py-4 px-6">
         <div className="max-w-7xl mx-auto">
           {/* Logo */}
           <div className="mb-4">
@@ -333,7 +333,7 @@ export function HeaderSection({
 
   // Minimal header (default)
   return (
-    <header className="w-full">
+    <header className="w-full py-4 px-6">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
         <div className="flex-shrink-0">

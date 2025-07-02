@@ -98,17 +98,17 @@ export const heroVariations: SectionVariation[] = [
       id: generateId(),
       type: "hero-section",
       content: {
-        title: "Welcome to Your Business",
+        title: "Welcome to {businessName}",
         subtitle: "Your trusted partner for quality services",
         ctaText: "Get Started",
         ctaLink: "#contact",
         secondaryCtaText: "Learn More",
         secondaryCtaLink: "#about",
-        backgroundImage: "/api/placeholder/1920/800",
+        backgroundImage: "{businessMainPhoto}",
         overlay: true,
-        overlayOpacity: 0.5,
+        overlayOpacity: 0.4,
         overlayGradient:
-          "linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7))",
+          "linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.5))",
         decorativeElement: "waves",
       },
       style: {
