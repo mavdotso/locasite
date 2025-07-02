@@ -15,7 +15,9 @@ import CanvasControls, { DeviceSize, deviceSizes } from "../ui/canvas-controls";
 import {
   ResponsiveStyleControls,
   ResponsiveStyles,
+  StyleSettings,
 } from "../ui/responsive-style-controls";
+import { DeviceType } from "../ui/responsive-preview";
 import { getVariationById } from "../sections/section-variations";
 import { cn } from "@/app/lib/utils";
 import { Button } from "@/app/components/ui/button";
@@ -30,7 +32,6 @@ import {
   Trash2,
   Copy,
   Layers,
-  Smartphone,
 } from "lucide-react";
 import {
   Sheet,
@@ -201,10 +202,7 @@ export function SimpleEditorResponsive({
 
   // Update responsive styles for a section
   const handleResponsiveStyleUpdate = useCallback(
-    (
-      device: "mobile" | "tablet" | "desktop",
-      styles: ResponsiveStyles[keyof ResponsiveStyles],
-    ) => {
+    (device: DeviceType, styles: StyleSettings) => {
       if (!selectedSectionId || !styles) return;
 
       setResponsiveStyles((prev) => ({
@@ -425,17 +423,17 @@ export function SimpleEditorResponsive({
 
               {/* Responsive Styles Button */}
               {selectedSectionId && (
-                <div className="mt-6 pt-6 border-t">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsResponsiveStylesOpen(true)}
-                    className="w-full flex items-center gap-2"
-                  >
-                    <Smartphone className="h-4 w-4" />
-                    Responsive Styles
-                  </Button>
-                </div>
+                <ResponsiveStyleControls
+                  currentDevice={
+                    deviceSize === "tablet"
+                      ? "tablet"
+                      : deviceSize === "mobile"
+                        ? "mobile"
+                        : ("desktop" as DeviceType)
+                  }
+                  styles={responsiveStyles[selectedSectionId] || {}}
+                  onStyleChangeAction={handleResponsiveStyleUpdate}
+                />
               )}
             </div>
           </div>

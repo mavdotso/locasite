@@ -38,6 +38,14 @@ export function HeaderSection({
 }: HeaderSectionProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Truncate logo text if it's too long
+  const truncatedLogo =
+    logo && !logo.startsWith("http") && !logo.startsWith("data:")
+      ? logo.length > 20
+        ? logo.substring(0, 20) + "..."
+        : logo
+      : logo;
+
   const handleContentEdit = (field: string, value: unknown) => {
     if (onUpdate) {
       onUpdate({
@@ -117,9 +125,10 @@ export function HeaderSection({
             ) : (
               <Link
                 href="/"
-                className="text-2xl font-bold text-foreground hover:text-primary transition-colors"
+                className="text-2xl font-bold text-foreground hover:text-primary transition-colors truncate max-w-[200px] block"
+                title={logo}
               >
-                {logo}
+                {truncatedLogo}
               </Link>
             )}{" "}
           </div>
@@ -188,14 +197,14 @@ export function HeaderSection({
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <nav className="md:hidden mt-4 pb-4 border-t border-border">
-            <div className="flex flex-col space-y-4 pt-4">
+            <div className="flex flex-col space-y-2 pt-4">
               {menuItems
                 .filter((item) => item.enabled !== false)
                 .map((item, index) => (
                   <Link
                     key={index}
                     href={item.link}
-                    className="text-foreground hover:text-primary transition-colors px-4"
+                    className="text-foreground hover:text-primary transition-colors px-4 py-2 hover:bg-muted rounded-md mx-2"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {item.label}
@@ -267,9 +276,10 @@ export function HeaderSection({
             ) : (
               <Link
                 href="/"
-                className="inline-block text-2xl font-bold text-foreground hover:text-primary transition-colors"
+                className="inline-block text-2xl font-bold text-foreground hover:text-primary transition-colors truncate max-w-[200px]"
+                title={logo}
               >
-                {logo}
+                {truncatedLogo}
               </Link>
             )}
           </div>
@@ -310,14 +320,14 @@ export function HeaderSection({
           {/* Mobile Menu */}
           {mobileMenuOpen && (
             <nav className="md:hidden mt-4 pb-4 border-t border-border">
-              <div className="flex flex-col space-y-4 pt-4">
+              <div className="flex flex-col space-y-2 pt-4">
                 {menuItems
                   .filter((item) => item.enabled !== false)
                   .map((item, index) => (
                     <Link
                       key={index}
                       href={item.link}
-                      className="text-foreground hover:text-primary transition-colors"
+                      className="text-foreground hover:text-primary transition-colors px-4 py-2 hover:bg-muted rounded-md mx-2"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {item.label}
@@ -373,9 +383,10 @@ export function HeaderSection({
           ) : (
             <Link
               href="/"
-              className="text-xl font-bold text-foreground hover:text-primary transition-colors"
+              className="text-xl font-bold text-foreground hover:text-primary transition-colors truncate max-w-[180px] block"
+              title={logo}
             >
-              {logo}
+              {truncatedLogo}
             </Link>
           )}
         </div>
@@ -416,7 +427,7 @@ export function HeaderSection({
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <nav className="mt-4 pb-4 border-t border-border">
+        <nav className="md:hidden mt-4 pb-4 border-t border-border">
           <div className="flex flex-col space-y-4 pt-4">
             {menuItems
               .filter((item) => item.enabled !== false)
@@ -424,7 +435,7 @@ export function HeaderSection({
                 <Link
                   key={index}
                   href={item.link}
-                  className="text-foreground hover:text-primary transition-colors px-4"
+                  className="text-foreground hover:text-primary transition-colors px-4 py-2 hover:bg-muted rounded-md mx-2"
                   onClick={() => setMobileMenuOpen(false)}
                   contentEditable={editMode}
                   suppressContentEditableWarning
