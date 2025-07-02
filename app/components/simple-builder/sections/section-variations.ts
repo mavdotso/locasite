@@ -63,7 +63,7 @@ export const headerVariations: SectionVariation[] = [
   {
     id: "header-minimal",
     name: "Minimal Header",
-    description: "Logo and hamburger menu for mobile-first design",
+    description: "Simple header with logo and navigation",
     category: "header",
     template: {
       id: generateId(),

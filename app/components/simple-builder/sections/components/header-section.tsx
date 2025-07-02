@@ -380,8 +380,33 @@ export function HeaderSection({
           )}
         </div>
 
+        {/* Desktop Menu */}
+        <nav className="hidden md:flex items-center space-x-6">
+          {menuItems
+            .filter((item) => item.enabled !== false)
+            .map((item, index) => (
+              <Link
+                key={index}
+                href={item.link}
+                className="text-foreground hover:text-primary transition-colors"
+                contentEditable={editMode}
+                suppressContentEditableWarning
+                onBlur={(e) =>
+                  handleMenuItemEdit(
+                    menuItems.indexOf(item),
+                    "label",
+                    e.currentTarget.textContent || "",
+                  )
+                }
+              >
+                {item.label}
+              </Link>
+            ))}
+        </nav>
+
         {/* Mobile Menu Button */}
         <button
+          className="md:hidden"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Toggle menu"
         >
