@@ -10,11 +10,8 @@ import { SectionRenderer } from "../sections/section-renderer";
 import { SectionSelector } from "./section-selector";
 import { PageSettingsSidebar } from "../ui/page-settings-sidebar-enhanced";
 import { SectionSettingsSidebarEnhanced } from "../ui/section-settings-sidebar-enhanced";
-import {
-  ResponsivePreview,
-  DeviceType,
-  OrientationType,
-} from "../ui/responsive-preview";
+import ResponsiveFrame from "../ui/responsive-frame";
+import CanvasControls, { DeviceSize, deviceSizes } from "../ui/canvas-controls";
 import {
   ResponsiveStyleControls,
   ResponsiveStyles,
@@ -41,6 +38,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/app/components/ui/sheet";
+import { TooltipProvider } from "@/app/components/ui/tooltip";
 
 interface SimpleEditorProps {
   initialData: SimplePageData;
@@ -73,8 +71,8 @@ export function SimpleEditorResponsive({
   const [isResponsiveStylesOpen, setIsResponsiveStylesOpen] = useState(false);
 
   // Responsive preview states
-  const [currentDevice, setCurrentDevice] = useState<DeviceType>("desktop");
-  const [orientation, setOrientation] = useState<OrientationType>("portrait");
+  const [deviceSize, setDeviceSize] = useState<DeviceSize>("desktop");
+  const [zoom, setZoom] = useState(100);
   const [responsiveStyles, setResponsiveStyles] = useState<
     Record<string, ResponsiveStyles>
   >({});
@@ -203,7 +201,10 @@ export function SimpleEditorResponsive({
 
   // Update responsive styles for a section
   const handleResponsiveStyleUpdate = useCallback(
-    (device: DeviceType, styles: ResponsiveStyles[keyof ResponsiveStyles]) => {
+    (
+      device: "mobile" | "tablet" | "desktop",
+      styles: ResponsiveStyles[keyof ResponsiveStyles],
+    ) => {
       if (!selectedSectionId || !styles) return;
 
       setResponsiveStyles((prev) => ({
@@ -246,426 +247,462 @@ export function SimpleEditorResponsive({
   );
 
   return (
-    <div className="simple-editor h-screen flex flex-col">
-      {/* Editor Header */}
-      <div className="sticky top-0 z-40 bg-background border-b">
-        <div className="px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <h1 className="text-xl font-semibold">Page Editor</h1>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsPageSettingsOpen(true)}
-                className="flex items-center gap-2"
-              >
-                <Settings className="h-4 w-4" />
-                Page Settings
-              </Button>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsPreviewMode(!isPreviewMode)}
-                className={cn(
-                  "flex items-center gap-2",
-                  isPreviewMode && "bg-accent",
-                )}
-              >
-                <Eye className="h-4 w-4" />
-                {isPreviewMode ? "Edit" : "Preview"}
-              </Button>
-
-              <div className="h-6 w-px bg-border" />
-
-              <Button
-                onClick={handleSave}
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                <Save className="h-4 w-4" />
-                Save
-              </Button>
-
-              {onPublishAction && (
+    <TooltipProvider>
+      <div className="simple-editor h-screen flex flex-col">
+        {/* Editor Header */}
+        <div className="sticky top-0 z-40 bg-background border-b">
+          <div className="px-4 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <h1 className="text-xl font-semibold">Page Editor</h1>
                 <Button
-                  onClick={handlePublish}
+                  variant="outline"
                   size="sm"
-                  variant={isPublished ? "secondary" : "default"}
+                  onClick={() => setIsPageSettingsOpen(true)}
                   className="flex items-center gap-2"
                 >
-                  <Rocket className="h-4 w-4" />
-                  {isPublished ? "Update" : "Publish"}
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content Area */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Sidebar - Section List */}
-        <div className="w-64 border-r bg-muted/30 overflow-y-auto">
-          <div className="p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-medium flex items-center gap-2">
-                <Layers className="h-4 w-4" />
-                Page Sections
-              </h2>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => setIsAddingSectionOpen(true)}
-                className="h-8 w-8 p-0"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-
-            {pageData.sections.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-sm text-muted-foreground mb-3">
-                  No sections yet
-                </p>
-                <Button
-                  size="sm"
-                  onClick={() => setIsAddingSectionOpen(true)}
-                  className="w-full"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Section
+                  <Settings className="h-4 w-4" />
+                  Page Settings
                 </Button>
               </div>
-            ) : (
-              <div className="space-y-2">
-                {pageData.sections
-                  .sort((a, b) => a.order - b.order)
-                  .map((section, index) => {
-                    const variation = getVariationById(section.variationId);
-                    return (
-                      <div
-                        key={section.id}
-                        className={cn(
-                          "p-3 rounded-lg border cursor-pointer transition-colors",
-                          selectedSectionId === section.id
-                            ? "bg-primary/10 border-primary"
-                            : "bg-background hover:bg-accent",
-                        )}
-                        onClick={() => setSelectedSectionId(section.id)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">
-                              {variation?.name || "Unknown Section"}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {variation?.category}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-6 w-6 p-0"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleReorderSections(
-                                  index,
-                                  Math.max(0, index - 1),
-                                );
-                              }}
-                              disabled={index === 0}
-                            >
-                              <ChevronUp className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-6 w-6 p-0"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleReorderSections(
-                                  index,
-                                  Math.min(
-                                    pageData.sections.length - 1,
-                                    index + 1,
-                                  ),
-                                );
-                              }}
-                              disabled={index === pageData.sections.length - 1}
-                            >
-                              <ChevronDown className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
 
-                {/* Add section button between sections */}
+              <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setIsAddingSectionOpen(true)}
-                  className="w-full"
+                  onClick={() => setIsPreviewMode(!isPreviewMode)}
+                  className={cn(
+                    "flex items-center gap-2",
+                    isPreviewMode && "bg-accent",
+                  )}
                 >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Section
+                  <Eye className="h-4 w-4" />
+                  {isPreviewMode ? "Edit" : "Preview"}
                 </Button>
-              </div>
-            )}
 
-            {/* Responsive Styles Button */}
-            {selectedSectionId && (
-              <div className="mt-6 pt-6 border-t">
+                <div className="h-6 w-px bg-border" />
+
                 <Button
+                  onClick={handleSave}
                   variant="outline"
                   size="sm"
-                  onClick={() => setIsResponsiveStylesOpen(true)}
-                  className="w-full flex items-center gap-2"
+                  className="flex items-center gap-2"
                 >
-                  <Smartphone className="h-4 w-4" />
-                  Responsive Styles
+                  <Save className="h-4 w-4" />
+                  Save
                 </Button>
+
+                {onPublishAction && (
+                  <Button
+                    onClick={handlePublish}
+                    size="sm"
+                    variant={isPublished ? "secondary" : "default"}
+                    className="flex items-center gap-2"
+                  >
+                    <Rocket className="h-4 w-4" />
+                    {isPublished ? "Update" : "Publish"}
+                  </Button>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </div>
 
-        {/* Center - Page Preview with Responsive Frame */}
-        <div className="flex-1 overflow-hidden">
-          <ResponsivePreview
-            currentDevice={currentDevice}
-            orientation={orientation}
-            onDeviceChangeAction={setCurrentDevice}
-            onOrientationChangeAction={setOrientation}
-          >
-            <div
-              className={cn(
-                "min-h-full",
-                isPreviewMode && "pointer-events-none",
-              )}
-            >
+        {/* Main Content Area */}
+        <div className="flex-1 flex overflow-hidden">
+          {/* Left Sidebar - Section List */}
+          <div className="w-64 border-r bg-muted/30 overflow-y-auto">
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-medium flex items-center gap-2">
+                  <Layers className="h-4 w-4" />
+                  Page Sections
+                </h2>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setIsAddingSectionOpen(true)}
+                  className="h-8 w-8 p-0"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+
               {pageData.sections.length === 0 ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <p className="text-muted-foreground mb-4">
-                      Start building your page by adding sections
-                    </p>
-                    <Button
-                      onClick={() => setIsAddingSectionOpen(true)}
-                      size="lg"
-                    >
-                      <Plus className="h-5 w-5 mr-2" />
-                      Add First Section
-                    </Button>
-                  </div>
+                <div className="text-center py-8">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    No sections yet
+                  </p>
+                  <Button
+                    size="sm"
+                    onClick={() => setIsAddingSectionOpen(true)}
+                    className="w-full"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Section
+                  </Button>
                 </div>
               ) : (
-                <div className="space-y-0">
+                <div className="space-y-2">
                   {pageData.sections
                     .sort((a, b) => a.order - b.order)
                     .map((section, index) => {
-                      const sectionStyles =
-                        currentDevice !== "fullwidth"
-                          ? responsiveStyles[section.id]?.[
-                              currentDevice as keyof ResponsiveStyles
-                            ]
-                          : undefined;
-                      const shouldHide = sectionStyles?.hideOnDevice;
-
-                      if (shouldHide && isPreviewMode) {
-                        return null;
-                      }
-
+                      const variation = getVariationById(section.variationId);
                       return (
                         <div
                           key={section.id}
                           className={cn(
-                            "relative group",
-                            !isPreviewMode &&
-                              "hover:ring-2 hover:ring-primary/50",
-                            selectedSectionId === section.id &&
-                              "ring-2 ring-primary",
-                            shouldHide && !isPreviewMode && "opacity-50",
+                            "p-3 rounded-lg border cursor-pointer transition-colors",
+                            selectedSectionId === section.id
+                              ? "bg-primary/10 border-primary"
+                              : "bg-background hover:bg-accent",
                           )}
-                          onClick={() =>
-                            !isPreviewMode && setSelectedSectionId(section.id)
-                          }
+                          onClick={() => setSelectedSectionId(section.id)}
                         >
-                          {/* Section Controls */}
-                          {!isPreviewMode && (
-                            <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <div className="flex items-center gap-1 bg-background rounded-md shadow-lg p-1">
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className="h-8 w-8 p-0"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setIsSectionSettingsOpen(true);
-                                  }}
-                                  title="Section settings"
-                                >
-                                  <Settings className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className="h-8 w-8 p-0"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDuplicateSection(section.id);
-                                  }}
-                                  title="Duplicate section"
-                                >
-                                  <Copy className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (
-                                      confirm(
-                                        "Are you sure you want to delete this section?",
-                                      )
-                                    ) {
-                                      handleDeleteSection(section.id);
-                                    }
-                                  }}
-                                  title="Delete section"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">
+                                {variation?.name || "Unknown Section"}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {variation?.category}
+                              </p>
                             </div>
-                          )}
-
-                          {/* Section Content with Responsive Styles */}
-                          <div
-                            className={cn(
-                              sectionStyles?.padding &&
-                                `p-${sectionStyles.padding}`,
-                              sectionStyles?.margin &&
-                                `m-${sectionStyles.margin}`,
-                              sectionStyles?.fontSize,
-                              sectionStyles?.textAlign &&
-                                `text-${sectionStyles.textAlign}`,
-                              sectionStyles?.stackVertically && "flex flex-col",
-                              sectionStyles?.columnGap &&
-                                `gap-${sectionStyles.columnGap}`,
-                            )}
-                          >
-                            <SectionRenderer
-                              data={section.data}
-                              editMode={!isPreviewMode}
-                              businessData={businessData}
-                              onUpdate={(newData) =>
-                                handleUpdateSection(section.id, newData)
-                              }
-                            />
+                            <div className="flex items-center gap-1">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 w-6 p-0"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleReorderSections(
+                                    index,
+                                    Math.max(0, index - 1),
+                                  );
+                                }}
+                                disabled={index === 0}
+                              >
+                                <ChevronUp className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 w-6 p-0"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleReorderSections(
+                                    index,
+                                    Math.min(
+                                      pageData.sections.length - 1,
+                                      index + 1,
+                                    ),
+                                  );
+                                }}
+                                disabled={
+                                  index === pageData.sections.length - 1
+                                }
+                              >
+                                <ChevronDown className="h-3 w-3" />
+                              </Button>
+                            </div>
                           </div>
-
-                          {/* Add Section Button */}
-                          {!isPreviewMode &&
-                            index < pageData.sections.length - 1 && (
-                              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Button
-                                  size="sm"
-                                  variant="secondary"
-                                  className="h-8 shadow-lg"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setIsAddingSectionOpen(true);
-                                  }}
-                                >
-                                  <Plus className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            )}
                         </div>
                       );
                     })}
+
+                  {/* Add section button between sections */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsAddingSectionOpen(true)}
+                    className="w-full"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Section
+                  </Button>
+                </div>
+              )}
+
+              {/* Responsive Styles Button */}
+              {selectedSectionId && (
+                <div className="mt-6 pt-6 border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsResponsiveStylesOpen(true)}
+                    className="w-full flex items-center gap-2"
+                  >
+                    <Smartphone className="h-4 w-4" />
+                    Responsive Styles
+                  </Button>
                 </div>
               )}
             </div>
-          </ResponsivePreview>
-        </div>
-      </div>
-
-      {/* Section Selector Modal */}
-      {isAddingSectionOpen && (
-        <SectionSelector
-          onSelect={handleAddSection}
-          onClose={() => setIsAddingSectionOpen(false)}
-        />
-      )}
-
-      {/* Page Settings Sidebar */}
-      <PageSettingsSidebar
-        isOpen={isPageSettingsOpen}
-        onClose={() => setIsPageSettingsOpen(false)}
-        pageTitle={pageData.pageTitle || "Untitled Page"}
-        domain={domain}
-        seoTitle={pageData.seoTitle}
-        seoDescription={pageData.seoDescription}
-        seoKeywords={pageData.seoKeywords}
-        ogTitle={pageData.ogTitle}
-        ogDescription={pageData.ogDescription}
-        ogImage={pageData.ogImage}
-        isPublished={isPublished}
-        onUpdate={(settings) => {
-          setPageData((prev) => ({
-            ...prev,
-            ...settings,
-          }));
-        }}
-      />
-
-      {/* Section Settings Sidebar */}
-      {selectedSection && (
-        <SectionSettingsSidebarEnhanced
-          isOpen={isSectionSettingsOpen}
-          onClose={() => setIsSectionSettingsOpen(false)}
-          sectionData={selectedSection.data}
-          variationId={selectedSection.variationId}
-          pageSections={pageData.sections.map((s) => ({
-            id: s.id,
-            type: s.variationId,
-            content: s.data.content,
-          }))}
-          onUpdate={(newData) =>
-            handleUpdateSection(selectedSection.id, newData)
-          }
-        />
-      )}
-
-      {/* Responsive Styles Sheet */}
-      <Sheet
-        open={isResponsiveStylesOpen}
-        onOpenChange={setIsResponsiveStylesOpen}
-      >
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Responsive Styles</SheetTitle>
-          </SheetHeader>
-          <div className="mt-6">
-            {selectedSectionId && (
-              <ResponsiveStyleControls
-                currentDevice={currentDevice}
-                styles={responsiveStyles[selectedSectionId] || {}}
-                onStyleChangeAction={handleResponsiveStyleUpdate}
-              />
-            )}
           </div>
-        </SheetContent>
-      </Sheet>
-    </div>
+
+          {/* Center - Page Preview with Responsive Frame */}
+          <div className="flex-1 overflow-hidden relative bg-muted/30">
+            <div className="h-full overflow-hidden flex items-center justify-center p-4">
+              <div
+                className="flex items-start justify-center"
+                style={{
+                  transform: `scale(${zoom / 100})`,
+                  transformOrigin: "center center",
+                  height: `${100 / (zoom / 100)}%`,
+                  width: "100%",
+                }}
+              >
+                <ResponsiveFrame
+                  width={
+                    deviceSize === "desktop"
+                      ? "100%"
+                      : deviceSizes[deviceSize].width
+                  }
+                  className="bg-background shadow-xl"
+                >
+                  <div
+                    className={cn(
+                      "min-h-full",
+                      isPreviewMode && "pointer-events-none",
+                    )}
+                  >
+                    {pageData.sections.length === 0 ? (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="text-center">
+                          <p className="text-muted-foreground mb-4">
+                            Start building your page by adding sections
+                          </p>
+                          <Button
+                            onClick={() => setIsAddingSectionOpen(true)}
+                            size="lg"
+                          >
+                            <Plus className="h-5 w-5 mr-2" />
+                            Add First Section
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-0">
+                        {pageData.sections
+                          .sort((a, b) => a.order - b.order)
+                          .map((section, index) => {
+                            const sectionStyles =
+                              deviceSize !== "desktop"
+                                ? responsiveStyles[section.id]?.[
+                                    deviceSize === "tablet"
+                                      ? "tablet"
+                                      : "mobile"
+                                  ]
+                                : undefined;
+                            const shouldHide = sectionStyles?.hideOnDevice;
+                            if (shouldHide && isPreviewMode) {
+                              return null;
+                            }
+
+                            return (
+                              <div
+                                key={section.id}
+                                className={cn(
+                                  "relative group",
+                                  !isPreviewMode &&
+                                    "hover:ring-2 hover:ring-primary/50",
+                                  selectedSectionId === section.id &&
+                                    "ring-2 ring-primary",
+                                  shouldHide && !isPreviewMode && "opacity-50",
+                                )}
+                                onClick={() =>
+                                  !isPreviewMode &&
+                                  setSelectedSectionId(section.id)
+                                }
+                              >
+                                {/* Section Controls */}
+                                {!isPreviewMode && (
+                                  <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="flex items-center gap-1 bg-background rounded-md shadow-lg p-1">
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-8 w-8 p-0"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setIsSectionSettingsOpen(true);
+                                        }}
+                                        title="Section settings"
+                                      >
+                                        <Settings className="h-4 w-4" />
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-8 w-8 p-0"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleDuplicateSection(section.id);
+                                        }}
+                                        title="Duplicate section"
+                                      >
+                                        <Copy className="h-4 w-4" />
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          if (
+                                            confirm(
+                                              "Are you sure you want to delete this section?",
+                                            )
+                                          ) {
+                                            handleDeleteSection(section.id);
+                                          }
+                                        }}
+                                        title="Delete section"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Section Content with Responsive Styles */}
+                                <div
+                                  className={cn(
+                                    sectionStyles?.padding &&
+                                      `p-${sectionStyles.padding}`,
+                                    sectionStyles?.margin &&
+                                      `m-${sectionStyles.margin}`,
+                                    sectionStyles?.fontSize,
+                                    sectionStyles?.textAlign &&
+                                      `text-${sectionStyles.textAlign}`,
+                                    sectionStyles?.stackVertically &&
+                                      "flex flex-col",
+                                    sectionStyles?.columnGap &&
+                                      `gap-${sectionStyles.columnGap}`,
+                                  )}
+                                >
+                                  <SectionRenderer
+                                    data={section.data}
+                                    editMode={!isPreviewMode}
+                                    businessData={businessData}
+                                    onUpdate={(newData) =>
+                                      handleUpdateSection(section.id, newData)
+                                    }
+                                  />
+                                </div>
+
+                                {/* Add Section Button */}
+                                {!isPreviewMode &&
+                                  index < pageData.sections.length - 1 && (
+                                    <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        className="h-8 shadow-lg"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setIsAddingSectionOpen(true);
+                                        }}
+                                      >
+                                        <Plus className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  )}
+                              </div>
+                            );
+                          })}
+                      </div>
+                    )}
+                  </div>
+                </ResponsiveFrame>
+              </div>
+            </div>
+            {/* Canvas Controls */}
+            <CanvasControls
+              deviceSize={deviceSize}
+              onDeviceSizeChangeAction={setDeviceSize}
+              zoom={zoom}
+              onZoomChangeAction={setZoom}
+              isPreviewMode={isPreviewMode}
+              onPreviewModeChangeAction={setIsPreviewMode}
+            />
+          </div>
+        </div>
+
+        {/* Section Selector Modal */}
+        {isAddingSectionOpen && (
+          <SectionSelector
+            onSelect={handleAddSection}
+            onClose={() => setIsAddingSectionOpen(false)}
+          />
+        )}
+
+        {/* Page Settings Sidebar */}
+        <PageSettingsSidebar
+          isOpen={isPageSettingsOpen}
+          onClose={() => setIsPageSettingsOpen(false)}
+          pageTitle={pageData.pageTitle || "Untitled Page"}
+          domain={domain}
+          seoTitle={pageData.seoTitle}
+          seoDescription={pageData.seoDescription}
+          seoKeywords={pageData.seoKeywords}
+          ogTitle={pageData.ogTitle}
+          ogDescription={pageData.ogDescription}
+          ogImage={pageData.ogImage}
+          isPublished={isPublished}
+          onUpdate={(settings) => {
+            setPageData((prev) => ({
+              ...prev,
+              ...settings,
+            }));
+          }}
+        />
+
+        {/* Section Settings Sidebar */}
+        {selectedSection && (
+          <SectionSettingsSidebarEnhanced
+            isOpen={isSectionSettingsOpen}
+            onClose={() => setIsSectionSettingsOpen(false)}
+            sectionData={selectedSection.data}
+            variationId={selectedSection.variationId}
+            pageSections={pageData.sections.map((s) => ({
+              id: s.id,
+              type: s.variationId,
+              content: s.data.content,
+            }))}
+            onUpdate={(newData) =>
+              handleUpdateSection(selectedSection.id, newData)
+            }
+          />
+        )}
+
+        {/* Responsive Styles Sheet */}
+        <Sheet
+          open={isResponsiveStylesOpen}
+          onOpenChange={setIsResponsiveStylesOpen}
+        >
+          <SheetContent>
+            <SheetHeader>
+              <SheetTitle>Responsive Styles</SheetTitle>
+            </SheetHeader>
+            <div className="mt-6">
+              {selectedSectionId && (
+                <ResponsiveStyleControls
+                  currentDevice={
+                    deviceSize === "tablet"
+                      ? "tablet"
+                      : deviceSize === "mobile"
+                        ? "mobile"
+                        : "desktop"
+                  }
+                  styles={responsiveStyles[selectedSectionId] || {}}
+                  onStyleChangeAction={handleResponsiveStyleUpdate}
+                />
+              )}{" "}
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+    </TooltipProvider>
   );
 }
