@@ -12,12 +12,7 @@ import { PageSettingsSidebar } from "../ui/page-settings-sidebar-enhanced";
 import { SectionSettingsSidebarEnhanced } from "../ui/section-settings-sidebar-enhanced";
 import ResponsiveFrame from "../ui/responsive-frame";
 import CanvasControls, { DeviceSize, deviceSizes } from "../ui/canvas-controls";
-import {
-  ResponsiveStyleControls,
-  ResponsiveStyles,
-  StyleSettings,
-} from "../ui/responsive-style-controls";
-import { DeviceType } from "../ui/responsive-preview";
+import { ResponsiveStyles } from "../ui/responsive-style-controls";
 import { getVariationById } from "../sections/section-variations";
 import { cn } from "@/app/lib/utils";
 import { Button } from "@/app/components/ui/button";
@@ -33,12 +28,7 @@ import {
   Copy,
   Layers,
 } from "lucide-react";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/app/components/ui/sheet";
+
 import { TooltipProvider } from "@/app/components/ui/tooltip";
 
 interface SimpleEditorProps {
@@ -69,14 +59,11 @@ export function SimpleEditorResponsive({
   const [isPageSettingsOpen, setIsPageSettingsOpen] = useState(false);
   const [isSectionSettingsOpen, setIsSectionSettingsOpen] = useState(false);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
-  const [isResponsiveStylesOpen, setIsResponsiveStylesOpen] = useState(false);
 
   // Responsive preview states
   const [deviceSize, setDeviceSize] = useState<DeviceSize>("desktop");
   const [zoom, setZoom] = useState(100);
-  const [responsiveStyles, setResponsiveStyles] = useState<
-    Record<string, ResponsiveStyles>
-  >({});
+  const [responsiveStyles] = useState<Record<string, ResponsiveStyles>>({});
 
   // Generate unique ID
   const generateId = () => Math.random().toString(36).substring(2, 9);
@@ -198,22 +185,6 @@ export function SimpleEditorResponsive({
       });
     },
     [],
-  );
-
-  // Update responsive styles for a section
-  const handleResponsiveStyleUpdate = useCallback(
-    (device: DeviceType, styles: StyleSettings) => {
-      if (!selectedSectionId || !styles) return;
-
-      setResponsiveStyles((prev) => ({
-        ...prev,
-        [selectedSectionId]: {
-          ...prev[selectedSectionId],
-          [device]: styles,
-        },
-      }));
-    },
-    [selectedSectionId],
   );
 
   // Save changes
@@ -419,21 +390,6 @@ export function SimpleEditorResponsive({
                     Add Section
                   </Button>
                 </div>
-              )}
-
-              {/* Responsive Styles Button */}
-              {selectedSectionId && (
-                <ResponsiveStyleControls
-                  currentDevice={
-                    deviceSize === "tablet"
-                      ? "tablet"
-                      : deviceSize === "mobile"
-                        ? "mobile"
-                        : ("desktop" as DeviceType)
-                  }
-                  styles={responsiveStyles[selectedSectionId] || {}}
-                  onStyleChangeAction={handleResponsiveStyleUpdate}
-                />
               )}
             </div>
           </div>
@@ -673,33 +629,6 @@ export function SimpleEditorResponsive({
             }
           />
         )}
-
-        {/* Responsive Styles Sheet */}
-        <Sheet
-          open={isResponsiveStylesOpen}
-          onOpenChange={setIsResponsiveStylesOpen}
-        >
-          <SheetContent>
-            <SheetHeader>
-              <SheetTitle>Responsive Styles</SheetTitle>
-            </SheetHeader>
-            <div className="mt-6">
-              {selectedSectionId && (
-                <ResponsiveStyleControls
-                  currentDevice={
-                    deviceSize === "tablet"
-                      ? "tablet"
-                      : deviceSize === "mobile"
-                        ? "mobile"
-                        : "desktop"
-                  }
-                  styles={responsiveStyles[selectedSectionId] || {}}
-                  onStyleChangeAction={handleResponsiveStyleUpdate}
-                />
-              )}{" "}
-            </div>
-          </SheetContent>
-        </Sheet>
       </div>
     </TooltipProvider>
   );

@@ -36,6 +36,7 @@ const sectionComponents: Record<string, React.ComponentType<any>> = {
 
   // About variations
   "about-section": AboutSection,
+  "about-features": AboutSection,
   "about-columns": AboutSection,
   "about-timeline": AboutSection,
 
