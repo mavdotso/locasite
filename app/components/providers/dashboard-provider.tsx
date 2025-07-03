@@ -43,8 +43,3 @@ export function useCurrentUser() {
   return user;
 }
 
-// Helper hook for components that only need businesses
-export function useUserBusinesses() {
-  const { businesses } = useDashboardData();
-  return businesses;
-}

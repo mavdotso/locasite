@@ -194,16 +194,3 @@ export function getPresetByType(
   return businessPresets.find((preset) => preset.type === type);
 }
 
-// Helper function to apply preset to page data
-export function applyPresetToPage(preset: BusinessPreset): {
-  sections: Array<{
-    variationId: string;
-    order: number;
-  }>;
-  theme: BusinessPreset["theme"];
-} {
-  return {
-    sections: preset.sections,
-    theme: preset.theme,
-  };
-}
