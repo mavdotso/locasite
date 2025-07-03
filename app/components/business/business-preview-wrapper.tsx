@@ -3,12 +3,106 @@
 import { Preloaded, usePreloadedQuery, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { VisualEditorRenderer } from "@/app/components/visual-editor/core/visual-editor-renderer";
-// Using simple loading div instead of skeleton
+import BusinessPreviewRenderer from "./business-preview-renderer";
+import { Button } from "@/app/components/ui/button";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { useRouter } from "next/navigation";
+import { ArrowRight, Sparkles } from "lucide-react";
+import { getVariationById } from "@/app/components/simple-builder/sections/section-variations";
+import { getPresetByType } from "@/app/components/simple-builder/sections/business-presets";
+import type {
+  SimplePageData,
+  SectionInstance,
+} from "@/app/components/simple-builder/types/simple-builder";
 
 interface BusinessPreviewWrapperProps {
   businessId: Id<"businesses">;
   preloadedBusiness: Preloaded<typeof api.businesses.getByIdWithDraft>;
+}
+
+// Helper function to detect business type - matches the one in business-edit-client.tsx
+function detectBusinessType(business: {
+  category?: string;
+  description?: string;
+  name?: string;
+}):
+  | "restaurant"
+  | "salon"
+  | "medical"
+  | "professional"
+  | "retail"
+  | "automotive" {
+  const category = business.category?.toLowerCase() || "";
+  const description = business.description?.toLowerCase() || "";
+  const name = business.name?.toLowerCase() || "";
+
+  // Check for restaurant keywords
+  if (
+    category.includes("restaurant") ||
+    category.includes("food") ||
+    category.includes("cafe") ||
+    description.includes("restaurant") ||
+    description.includes("dining") ||
+    name.includes("restaurant") ||
+    name.includes("cafe")
+  ) {
+    return "restaurant";
+  }
+
+  // Check for salon/beauty keywords
+  if (
+    category.includes("beauty") ||
+    category.includes("salon") ||
+    category.includes("spa") ||
+    description.includes("salon") ||
+    description.includes("beauty") ||
+    name.includes("salon") ||
+    name.includes("spa")
+  ) {
+    return "salon";
+  }
+
+  // Check for medical keywords
+  if (
+    category.includes("medical") ||
+    category.includes("health") ||
+    category.includes("clinic") ||
+    description.includes("medical") ||
+    description.includes("doctor") ||
+    name.includes("clinic") ||
+    name.includes("medical")
+  ) {
+    return "medical";
+  }
+
+  // Check for retail keywords
+  if (
+    category.includes("retail") ||
+    category.includes("store") ||
+    category.includes("shop") ||
+    description.includes("retail") ||
+    description.includes("store") ||
+    name.includes("shop") ||
+    name.includes("store")
+  ) {
+    return "retail";
+  }
+
+  // Check for automotive keywords
+  if (
+    category.includes("auto") ||
+    category.includes("car") ||
+    category.includes("mechanic") ||
+    description.includes("auto") ||
+    description.includes("repair") ||
+    name.includes("auto") ||
+    name.includes("mechanic")
+  ) {
+    return "automotive";
+  }
+
+  // Default to professional for all others
+  return "professional";
 }
 
 export function BusinessPreviewWrapper({
@@ -16,6 +110,9 @@ export function BusinessPreviewWrapper({
   preloadedBusiness,
 }: BusinessPreviewWrapperProps) {
   const business = usePreloadedQuery(preloadedBusiness);
+  const { signIn } = useAuthActions();
+  const router = useRouter();
+  const user = useQuery(api.auth.currentUser);
   
   // Get the domain for this business
   const domain = useQuery(api.domains.getByBusinessId, business ? { businessId } : "skip");
@@ -27,7 +124,7 @@ export function BusinessPreviewWrapper({
     return <div>Business not found</div>;
   }
 
-  if (!domain || !page) {
+  if (!domain) {
     return (
       <div className="space-y-4">
         <div className="h-16 w-full bg-muted animate-pulse rounded" />
@@ -38,19 +135,153 @@ export function BusinessPreviewWrapper({
     );
   }
 
-  // Parse the page content
-  let pageData;
-  try {
-    pageData = JSON.parse(page.content);
-  } catch (error) {
-    console.error("Failed to parse page content:", error);
-    return <div>Error loading page content</div>;
+  const handleCreateWebsite = async () => {
+    if (!user) {
+      // Store the business ID to claim after sign-in
+      sessionStorage.setItem("claimBusinessId", businessId);
+      sessionStorage.setItem("redirectToEditor", "true");
+      await signIn("google");
+    } else {
+      // User is logged in, redirect to edit page
+      router.push(`/business/${businessId}/edit`);
+    }
+  };
+
+  // Generate unique ID
+  const generateId = () => Math.random().toString(36).substring(2, 9);
+
+  // Create the same initial data that the edit page would create
+  let pageContent: string = "";
+  let useExistingContent = false;
+
+  if (page?.content) {
+    // Parse existing content and ensure it's in simple mode
+    try {
+      const parsed = JSON.parse(page.content);
+      if (parsed.mode === "simple" && parsed.sections) {
+        // Use existing simple mode content
+        pageContent = page.content;
+        useExistingContent = true;
+      }
+    } catch {
+      // Invalid JSON, will create default content
+    }
+  }
+
+  if (!useExistingContent) {
+    // Create the same default content that the edit page creates
+    const businessType = detectBusinessType(business);
+    const preset = getPresetByType(businessType);
+    
+    const initialData: SimplePageData = {
+      title: business.name || "Welcome",
+      sections: [],
+      theme: {
+        colors: {
+          primary: "#000000",
+          secondary: "#666666",
+          accent: "#0066cc",
+          background: "#ffffff",
+          text: "#333333",
+          muted: "#f5f5f5",
+        },
+        fonts: {
+          heading: "Inter",
+          body: "Inter",
+        },
+        spacing: {
+          section: "80px",
+          element: "40px",
+        },
+      },
+    };
+
+    if (preset) {
+      // Apply preset sections
+      initialData.sections = preset.sections
+        .map((sectionConfig, index) => {
+          const variation = getVariationById(sectionConfig.variationId);
+          if (!variation) return null;
+
+          return {
+            id: generateId(),
+            variationId: sectionConfig.variationId,
+            order: index,
+            data: JSON.parse(JSON.stringify(variation.template)), // Deep clone
+          } as SectionInstance;
+        })
+        .filter(Boolean) as SectionInstance[];
+
+      initialData.theme = preset.theme;
+    } else {
+      // Default sections if no preset matches
+      initialData.sections = [
+        {
+          id: generateId(),
+          variationId: "hero-center-bg",
+          order: 0,
+          data: getVariationById("hero-center-bg")!.template,
+        },
+        {
+          id: generateId(),
+          variationId: "about-text-image",
+          order: 1,
+          data: getVariationById("about-text-image")!.template,
+        },
+        {
+          id: generateId(),
+          variationId: "services-3-column",
+          order: 2,
+          data: getVariationById("services-3-column")!.template,
+        },
+        {
+          id: generateId(),
+          variationId: "contact-form-map",
+          order: 3,
+          data: getVariationById("contact-form-map")!.template,
+        },
+      ];
+    }
+
+    // Add mode to the data
+    const pageData = {
+      mode: "simple" as const,
+      title: initialData.title,
+      sections: initialData.sections,
+      theme: initialData.theme,
+    };
+
+    pageContent = JSON.stringify(pageData);
   }
 
   return (
-    <VisualEditorRenderer 
-      pageData={pageData} 
-      business={business}
-    />
+    <div className="relative">
+      {/* Sticky CTA Bar */}
+      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-lg font-semibold">{business.name} - Preview</h1>
+              <p className="text-sm text-muted-foreground">This is how your website will look</p>
+            </div>
+            <Button 
+              size="lg" 
+              onClick={handleCreateWebsite}
+              className="gap-2"
+            >
+              <Sparkles className="w-4 h-4" />
+              Create this website
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Business Page Content - Preview only renders simple mode */}
+      <BusinessPreviewRenderer 
+        business={business}
+        pageContent={pageContent}
+      />
+    </div>
   );
 }

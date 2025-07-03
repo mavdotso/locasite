@@ -1,4 +1,4 @@
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
 // Function to generate a signed URL for uploading a file
@@ -40,5 +40,15 @@ export const storeFile = mutation({
     });
 
     return url;
+  },
+});
+
+// Function to get a public URL for a stored file
+export const getUrl = query({
+  args: {
+    storageId: v.id("_storage"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.storage.getUrl(args.storageId);
   },
 });

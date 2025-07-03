@@ -56,20 +56,17 @@ export const createDefaultPages = mutation({
         
         console.log(`Creating default pages for business: ${business.name}, domain: ${domain.subdomain}`);
         
-        // Create components array for visual editor format with new 6-section structure
-        const components: Array<{
+        // Component type definition for visual editor format
+        interface ComponentNode {
             id: string;
             type: string;
             props: Record<string, unknown>;
             metadata?: Record<string, unknown>;
-            children?: Array<{
-                id: string;
-                type: string;
-                props: Record<string, unknown>;
-                metadata?: Record<string, unknown>;
-                children?: any[];
-            }>;
-        }> = [];
+            children?: ComponentNode[];
+        }
+        
+        // Create components array for visual editor format with new 6-section structure
+        const components: ComponentNode[] = [];
         
         let componentIndex = 0;
         
@@ -261,7 +258,7 @@ export const createDefaultPages = mutation({
                             },
                             metadata: { columnIndex: 1 }
                         } : null
-                    ].filter(Boolean)
+                    ].filter((child): child is NonNullable<typeof child> => child !== null) as ComponentNode[]
                 }
             ]
         });
@@ -494,25 +491,17 @@ export const createDefaultPages = mutation({
                                         align: "center"
                                     }
                                 },
-                                ...(business.hours && business.hours.length > 0 ? 
-                                    business.hours.map((hour: string, index: number) => ({
-                                        id: `component-${componentIndex++}-hour-${index}`,
-                                        type: "TextBlock",
-                                        props: {
-                                            content: hour,
-                                            variant: "small",
-                                            align: "center"
-                                        }
-                                    })) : [{
-                                        id: `component-${componentIndex++}`,
-                                        type: "TextBlock",
-                                        props: {
-                                            content: "Contact us for hours",
-                                            variant: "paragraph",
-                                            align: "center"
-                                        }
-                                    }]
-                                )
+                                {
+                                    id: `component-${componentIndex++}`,
+                                    type: "TextBlock",
+                                    props: {
+                                        content: business.hours && business.hours.length > 0 
+                                            ? business.hours.join('\n')
+                                            : "Contact us for hours",
+                                        variant: business.hours && business.hours.length > 0 ? "small" : "paragraph",
+                                        align: "center"
+                                    }
+                                }
                             ]
                         }
                     ]

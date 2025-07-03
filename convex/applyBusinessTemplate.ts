@@ -2,6 +2,7 @@ import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
 import { Doc } from "./_generated/dataModel";
+import { AIContentResult } from "./lib/types";
 
 export const applyBusinessTemplate = action({
   args: {
@@ -165,12 +166,20 @@ function getThemePresetForTemplate(templateId: string): string | null {
   return themeMap[templateId] || null;
 }
 
+// Section type for page components
+interface PageSection {
+  id: string;
+  type: string;
+  props: Record<string, unknown>;
+  children?: PageSection[];
+}
+
 // Generate page content based on template and business data
 async function generatePageContent(templateId: string, business: Doc<"businesses">) {
-  const aiContent = business.aiGeneratedContent;
+  const aiContent = business.aiGeneratedContent as AIContentResult | undefined;
   
   // Base sections that all templates should have
-  const sections = [];
+  const sections: (PageSection | null)[] = [];
   
   // Add sections based on template type with AI-generated content
   switch (templateId) {
@@ -259,7 +268,7 @@ async function generatePageContent(templateId: string, business: Doc<"businesses
 }
 
 // Helper functions to create sections
-function createHeroSection(business: Doc<"businesses">) {
+function createHeroSection(business: Doc<"businesses">): PageSection {
   const aiContent = business.aiGeneratedContent;
   return {
     id: generateId(),
@@ -284,7 +293,7 @@ function createHeroSection(business: Doc<"businesses">) {
   };
 }
 
-function createAboutSection(aboutContent?: any) {
+function createAboutSection(aboutContent?: AIContentResult['about']): PageSection | null {
   if (!aboutContent) return null;
   return {
     id: generateId(),
@@ -298,7 +307,7 @@ function createAboutSection(aboutContent?: any) {
   };
 }
 
-function createServicesSection(servicesContent?: any) {
+function createServicesSection(servicesContent?: AIContentResult['services']): PageSection | null {
   if (!servicesContent) return null;
   return {
     id: generateId(),
@@ -312,7 +321,7 @@ function createServicesSection(servicesContent?: any) {
   };
 }
 
-function createFeaturesSection(featuresContent?: any) {
+function createFeaturesSection(featuresContent?: AIContentResult['features']): PageSection | null {
   if (!featuresContent) return null;
   return {
     id: generateId(),
@@ -327,7 +336,7 @@ function createFeaturesSection(featuresContent?: any) {
   };
 }
 
-function createTeamSection(teamContent?: any) {
+function createTeamSection(teamContent?: AIContentResult['team']): PageSection | null {
   if (!teamContent) return null;
   return {
     id: generateId(),
@@ -341,7 +350,7 @@ function createTeamSection(teamContent?: any) {
   };
 }
 
-function createProcessSection(processContent?: any) {
+function createProcessSection(processContent?: AIContentResult['process']): PageSection | null {
   if (!processContent) return null;
   return {
     id: generateId(),
@@ -355,7 +364,7 @@ function createProcessSection(processContent?: any) {
   };
 }
 
-function createFAQSection(faqContent?: any) {
+function createFAQSection(faqContent?: AIContentResult['faq']): PageSection | null {
   if (!faqContent) return null;
   return {
     id: generateId(),
@@ -367,7 +376,7 @@ function createFAQSection(faqContent?: any) {
   };
 }
 
-function createStatsSection(statsContent?: any) {
+function createStatsSection(statsContent?: AIContentResult['stats']): PageSection | null {
   if (!statsContent) return null;
   return {
     id: generateId(),
@@ -381,7 +390,7 @@ function createStatsSection(statsContent?: any) {
   };
 }
 
-function createSpecialOffersSection(offersContent?: any) {
+function createSpecialOffersSection(offersContent?: AIContentResult['specialOffers']): PageSection | null {
   if (!offersContent) return null;
   return {
     id: generateId(),
@@ -393,7 +402,7 @@ function createSpecialOffersSection(offersContent?: any) {
   };
 }
 
-function createReviewsSection() {
+function createReviewsSection(): PageSection {
   return {
     id: generateId(),
     type: 'GoogleReviewsSection',
@@ -409,7 +418,7 @@ function createReviewsSection() {
   };
 }
 
-function createGallerySection() {
+function createGallerySection(): PageSection {
   return {
     id: generateId(),
     type: 'GallerySection',
@@ -421,7 +430,7 @@ function createGallerySection() {
   };
 }
 
-function createBeforeAfterSection() {
+function createBeforeAfterSection(): PageSection {
   return {
     id: generateId(),
     type: 'BeforeAfterSection',
@@ -434,7 +443,7 @@ function createBeforeAfterSection() {
   };
 }
 
-function createMenuSection() {
+function createMenuSection(): PageSection {
   return {
     id: generateId(),
     type: 'MenuPriceListSection',
@@ -446,7 +455,7 @@ function createMenuSection() {
   };
 }
 
-function createHoursSection() {
+function createHoursSection(): PageSection {
   return {
     id: generateId(),
     type: 'OperatingHoursSection',
@@ -458,7 +467,7 @@ function createHoursSection() {
   };
 }
 
-function createLocationSection() {
+function createLocationSection(): PageSection {
   return {
     id: generateId(),
     type: 'LocationDirectionsSection',
@@ -470,7 +479,7 @@ function createLocationSection() {
   };
 }
 
-function createContactSection() {
+function createContactSection(): PageSection {
   return {
     id: generateId(),
     type: 'ContactSection',
@@ -482,7 +491,7 @@ function createContactSection() {
   };
 }
 
-function createCTASection(ctaContent?: any) {
+function createCTASection(ctaContent?: AIContentResult['callToAction']): PageSection | null {
   if (!ctaContent) return null;
   return {
     id: generateId(),
@@ -499,6 +508,6 @@ function createCTASection(ctaContent?: any) {
   };
 }
 
-function generateId() {
+function generateId(): string {
   return Math.random().toString(36).substr(2, 9);
 }
