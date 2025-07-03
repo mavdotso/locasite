@@ -59,6 +59,7 @@ export function SimpleEditorResponsive({
   const [isPageSettingsOpen, setIsPageSettingsOpen] = useState(false);
   const [isSectionSettingsOpen, setIsSectionSettingsOpen] = useState(false);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [pendingInsertIndex, setPendingInsertIndex] = useState<number | undefined>(undefined);
 
   // Responsive preview states
   const [deviceSize, setDeviceSize] = useState<DeviceSize>("desktop");
@@ -70,30 +71,39 @@ export function SimpleEditorResponsive({
 
   // Add a new section
   const handleAddSection = useCallback(
-    (variationId: string, insertIndex?: number) => {
+    (variationId: string, insertAfterIndex?: number) => {
       const variation = getVariationById(variationId);
       if (!variation) return;
 
       const newSection: SectionInstance = {
         id: generateId(),
         variationId: variation.id,
-        order: insertIndex ?? pageData.sections.length,
+        order: 0, // Will be set properly below
         data: JSON.parse(JSON.stringify(variation.template)), // Deep clone
       };
 
       setPageData((prev) => {
-        const newSections = [...prev.sections];
-        if (insertIndex !== undefined) {
-          // Insert at specific position
-          newSections.splice(insertIndex, 0, newSection);
-          // Update order for all sections
-          newSections.forEach((section, idx) => {
-            section.order = idx;
-          });
+        // Sort sections by order first to work with visual order
+        const sortedSections = [...prev.sections].sort((a, b) => a.order - b.order);
+        
+        let newSections: SectionInstance[];
+        
+        if (insertAfterIndex !== undefined) {
+          // Insert after the specified index
+          newSections = [
+            ...sortedSections.slice(0, insertAfterIndex + 1),
+            newSection,
+            ...sortedSections.slice(insertAfterIndex + 1)
+          ];
         } else {
           // Add to end
-          newSections.push(newSection);
+          newSections = [...sortedSections, newSection];
         }
+        
+        // Reassign order values based on new positions
+        newSections.forEach((section, idx) => {
+          section.order = idx;
+        });
 
         return {
           ...prev,
@@ -104,7 +114,7 @@ export function SimpleEditorResponsive({
       setIsAddingSectionOpen(false);
       setSelectedSectionId(newSection.id);
     },
-    [pageData.sections],
+    [],
   );
 
   // Update section data
@@ -290,7 +300,10 @@ export function SimpleEditorResponsive({
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() => setIsAddingSectionOpen(true)}
+                  onClick={() => {
+                    setPendingInsertIndex(undefined); // Add to end
+                    setIsAddingSectionOpen(true);
+                  }}
                   className="h-8 w-8 p-0"
                 >
                   <Plus className="h-4 w-4" />
@@ -304,7 +317,10 @@ export function SimpleEditorResponsive({
                   </p>
                   <Button
                     size="sm"
-                    onClick={() => setIsAddingSectionOpen(true)}
+                    onClick={() => {
+                      setPendingInsertIndex(undefined); // Add to end
+                      setIsAddingSectionOpen(true);
+                    }}
                     className="w-full"
                   >
                     <Plus className="h-4 w-4 mr-2" />
@@ -383,7 +399,10 @@ export function SimpleEditorResponsive({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setIsAddingSectionOpen(true)}
+                    onClick={() => {
+                      setPendingInsertIndex(undefined); // Add to end
+                      setIsAddingSectionOpen(true);
+                    }}
                     className="w-full"
                   >
                     <Plus className="h-4 w-4 mr-2" />
@@ -427,7 +446,10 @@ export function SimpleEditorResponsive({
                             Start building your page by adding sections
                           </p>
                           <Button
-                            onClick={() => setIsAddingSectionOpen(true)}
+                            onClick={() => {
+                              setPendingInsertIndex(undefined); // Add as first section
+                              setIsAddingSectionOpen(true);
+                            }}
                             size="lg"
                           >
                             <Plus className="h-5 w-5 mr-2" />
@@ -555,6 +577,10 @@ export function SimpleEditorResponsive({
                                         className="h-8 shadow-lg"
                                         onClick={(e) => {
                                           e.stopPropagation();
+                                          // Find the sorted index for insertion
+                                          const sortedSections = pageData.sections.sort((a, b) => a.order - b.order);
+                                          const sortedIndex = sortedSections.findIndex(s => s.id === section.id);
+                                          setPendingInsertIndex(sortedIndex); // Insert after current section
                                           setIsAddingSectionOpen(true);
                                         }}
                                       >
@@ -586,8 +612,14 @@ export function SimpleEditorResponsive({
         {/* Section Selector Modal */}
         {isAddingSectionOpen && (
           <SectionSelector
-            onSelect={handleAddSection}
-            onClose={() => setIsAddingSectionOpen(false)}
+            onSelect={(variationId) => {
+              handleAddSection(variationId, pendingInsertIndex);
+              setPendingInsertIndex(undefined);
+            }}
+            onClose={() => {
+              setIsAddingSectionOpen(false);
+              setPendingInsertIndex(undefined);
+            }}
           />
         )}
 
