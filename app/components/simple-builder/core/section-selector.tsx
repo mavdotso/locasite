@@ -16,6 +16,7 @@ const categories: { id: SectionCategory; label: string; icon: string }[] = [
   { id: "about", label: "About", icon: "📝" },
   { id: "services", label: "Services", icon: "⚡" },
   { id: "gallery", label: "Gallery", icon: "🖼️" },
+  { id: "reviews", label: "Reviews", icon: "⭐" },
   { id: "contact", label: "Contact", icon: "📞" },
 ];
 

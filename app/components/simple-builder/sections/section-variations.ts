@@ -6,6 +6,34 @@ const generateId = () => Math.random().toString(36).substring(2, 9);
 // Header Section Variations
 export const headerVariations: SectionVariation[] = [
   {
+    id: "header-section",
+    name: "Header Section",
+    description: "Standard header with navigation",
+    category: "header",
+    template: {
+      id: generateId(),
+      type: "header-section",
+      content: {
+        logo: "/api/placeholder/150/50",
+        logoAlt: "Company Logo",
+        menuItems: [
+          { label: "Home", link: "#home" },
+          { label: "About", link: "#about" },
+          { label: "Services", link: "#services" },
+          { label: "Contact", link: "#contact" },
+        ],
+        showButton: true,
+        buttonText: "Get Started",
+        buttonLink: "#contact",
+      },
+      style: {
+        backgroundColor: "#ffffff",
+        padding: "1rem 2rem",
+      },
+    },
+    editableFields: ["content.logo", "content.menuItems", "content.buttonText"],
+  },
+  {
     id: "header-classic",
     name: "Classic Header",
     description: "Logo on left, menu in center, optional button on right",
@@ -89,6 +117,40 @@ export const headerVariations: SectionVariation[] = [
 
 // Hero Section Variations
 export const heroVariations: SectionVariation[] = [
+  {
+    id: "hero-section",
+    name: "Hero Section",
+    description: "Main hero section with background",
+    category: "hero",
+    template: {
+      id: generateId(),
+      type: "hero-section",
+      content: {
+        title: "Welcome to {businessName}",
+        subtitle: "Your trusted partner for quality services",
+        ctaText: "Get Started",
+        ctaLink: "#contact",
+        secondaryCtaText: "Learn More",
+        secondaryCtaLink: "#about",
+        backgroundImage: "{businessMainPhoto}",
+        overlay: false,
+        overlayOpacity: 0.4,
+        overlayGradient:
+          "linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.5))",
+        decorativeElement: "waves",
+      },
+      style: {
+        textAlign: "center",
+        padding: "6rem 2rem",
+      },
+    },
+    editableFields: [
+      "content.title",
+      "content.subtitle",
+      "content.ctaText",
+      "content.backgroundImage",
+    ],
+  },
   {
     id: "hero-center-bg",
     name: "Center Hero with Background",
@@ -204,6 +266,33 @@ export const heroVariations: SectionVariation[] = [
 
 // About Section Variations
 export const aboutVariations: SectionVariation[] = [
+  {
+    id: "about-section",
+    name: "About Section",
+    description: "Standard about section",
+    category: "about",
+    template: {
+      id: generateId(),
+      type: "about-section",
+      content: {
+        title: "About Us",
+        content:
+          "We are dedicated to providing exceptional service to our community. With years of experience and a commitment to excellence, we've built a reputation for quality and reliability.",
+        image: "/api/placeholder/600/400",
+        imagePosition: "right",
+        stats: [
+          { value: "10+", label: "Years Experience" },
+          { value: "500+", label: "Happy Clients" },
+          { value: "24/7", label: "Support" },
+        ],
+      },
+      style: {
+        padding: "4rem 2rem",
+        backgroundColor: "transparent",
+      },
+    },
+    editableFields: ["content.title", "content.content", "content.image"],
+  },
   {
     id: "about-text-image",
     name: "Text with Side Image",
@@ -660,6 +749,49 @@ export const contactVariations: SectionVariation[] = [
   },
 ];
 
+// Reviews Section Variations
+export const reviewsVariations: SectionVariation[] = [
+  {
+    id: "reviews-section",
+    name: "Customer Reviews",
+    description: "Display customer reviews and ratings",
+    category: "reviews",
+    template: {
+      id: generateId(),
+      type: "reviews-section",
+      content: {
+        title: "What Our Customers Say",
+        subtitle: "See what people are saying about us",
+        reviews: [
+          {
+            author: "John D.",
+            rating: 5,
+            text: "Excellent service! Highly recommend.",
+            date: "2024-01-15",
+          },
+          {
+            author: "Sarah M.",
+            rating: 5,
+            text: "Professional and reliable. Will use again.",
+            date: "2024-01-10",
+          },
+          {
+            author: "Mike R.",
+            rating: 4,
+            text: "Great experience overall.",
+            date: "2024-01-05",
+          },
+        ],
+      },
+      style: {
+        padding: "4rem 2rem",
+        backgroundColor: "#f8f9fa",
+      },
+    },
+    editableFields: ["content.title", "content.subtitle", "content.reviews"],
+  },
+];
+
 // Export all variations
 export const allSectionVariations: SectionVariation[] = [
   ...headerVariations,
@@ -668,6 +800,7 @@ export const allSectionVariations: SectionVariation[] = [
   ...servicesVariations,
   ...galleryVariations,
   ...contactVariations,
+  ...reviewsVariations,
 ];
 
 // Helper function to get variations by category

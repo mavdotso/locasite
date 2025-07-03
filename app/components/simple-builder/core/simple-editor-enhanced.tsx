@@ -38,6 +38,9 @@ interface SimpleEditorProps {
   onPublish?: (data: SimplePageData) => void;
 }
 
+// State to track where to insert new section
+type InsertPosition = number | null;
+
 export function SimpleEditor({
   initialData,
   businessData,
@@ -54,28 +57,29 @@ export function SimpleEditor({
   const [isPageSettingsOpen, setIsPageSettingsOpen] = useState(false);
   const [isSectionSettingsOpen, setIsSectionSettingsOpen] = useState(false);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [insertPosition, setInsertPosition] = useState<InsertPosition>(null);
 
   // Generate unique ID
   const generateId = () => Math.random().toString(36).substring(2, 9);
 
   // Add a new section
   const handleAddSection = useCallback(
-    (variationId: string, insertIndex?: number) => {
+    (variationId: string) => {
       const variation = getVariationById(variationId);
       if (!variation) return;
 
       const newSection: SectionInstance = {
         id: generateId(),
         variationId: variation.id,
-        order: insertIndex ?? pageData.sections.length,
+        order: insertPosition ?? pageData.sections.length,
         data: JSON.parse(JSON.stringify(variation.template)), // Deep clone
       };
 
       setPageData((prev) => {
         const newSections = [...prev.sections];
-        if (insertIndex !== undefined) {
+        if (insertPosition !== null) {
           // Insert at specific position
-          newSections.splice(insertIndex, 0, newSection);
+          newSections.splice(insertPosition, 0, newSection);
           // Update order for all sections
           newSections.forEach((section, idx) => {
             section.order = idx;
@@ -92,9 +96,10 @@ export function SimpleEditor({
       });
 
       setIsAddingSectionOpen(false);
+      setInsertPosition(null);
       setSelectedSectionId(newSection.id);
     },
-    [pageData.sections],
+    [pageData.sections, insertPosition],
   );
 
   // Update section data
@@ -270,7 +275,10 @@ export function SimpleEditor({
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={() => setIsAddingSectionOpen(true)}
+                onClick={() => {
+                  setInsertPosition(null); // Add to end
+                  setIsAddingSectionOpen(true);
+                }}
                 className="h-8 w-8 p-0"
               >
                 <Plus className="h-4 w-4" />
@@ -284,7 +292,10 @@ export function SimpleEditor({
                 </p>
                 <Button
                   size="sm"
-                  onClick={() => setIsAddingSectionOpen(true)}
+                  onClick={() => {
+                    setInsertPosition(null); // Add to end
+                    setIsAddingSectionOpen(true);
+                  }}
                   className="w-full"
                 >
                   <Plus className="h-4 w-4 mr-2" />
@@ -306,7 +317,10 @@ export function SimpleEditor({
                             ? "bg-primary/10 border-primary"
                             : "bg-background hover:bg-accent",
                         )}
-                        onClick={() => setSelectedSectionId(section.id)}
+                        onClick={() => {
+                          setSelectedSectionId(section.id);
+                          setIsSectionSettingsOpen(true);
+                        }}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
@@ -361,7 +375,10 @@ export function SimpleEditor({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setIsAddingSectionOpen(true)}
+                  onClick={() => {
+                    setInsertPosition(null); // Add to end
+                    setIsAddingSectionOpen(true);
+                  }}
                   className="w-full"
                 >
                   <Plus className="h-4 w-4 mr-2" />
@@ -384,7 +401,10 @@ export function SimpleEditor({
                     Start building your page by adding sections
                   </p>
                   <Button
-                    onClick={() => setIsAddingSectionOpen(true)}
+                    onClick={() => {
+                      setInsertPosition(0); // Add as first section
+                      setIsAddingSectionOpen(true);
+                    }}
                     size="lg"
                   >
                     <Plus className="h-5 w-5 mr-2" />
@@ -405,9 +425,12 @@ export function SimpleEditor({
                         selectedSectionId === section.id &&
                           "ring-2 ring-primary",
                       )}
-                      onClick={() =>
-                        !isPreviewMode && setSelectedSectionId(section.id)
-                      }
+                      onClick={() => {
+                        if (!isPreviewMode) {
+                          setSelectedSectionId(section.id);
+                          setIsSectionSettingsOpen(true);
+                        }
+                      }}
                     >
                       {/* Section Controls */}
                       {!isPreviewMode && (
@@ -479,8 +502,8 @@ export function SimpleEditor({
                               className="h-8 shadow-lg"
                               onClick={(e) => {
                                 e.stopPropagation();
+                                setInsertPosition(index + 1); // Insert after current section
                                 setIsAddingSectionOpen(true);
-                                // TODO: Pass insert index to section selector
                               }}
                             >
                               <Plus className="h-4 w-4" />

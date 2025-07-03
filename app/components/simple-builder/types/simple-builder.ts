@@ -8,6 +8,7 @@ export type SectionCategory =
   | "services"
   | "gallery"
   | "contact"
+  | "reviews"
   | "footer";
 
 // Simple component data structure (independent from visual editor)
