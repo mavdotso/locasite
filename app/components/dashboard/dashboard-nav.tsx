@@ -3,9 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useQuery } from 'convex/react';
 import { useAuthActions } from '@convex-dev/auth/react';
-import { api } from '@/convex/_generated/api';
 import { Button } from '@/app/components/ui/button';
 import { 
   Globe, 
@@ -18,6 +16,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/app/lib/utils';
 import Logo from '@/app/components/ui/logo';
+import { useCurrentUser } from '@/app/components/providers/dashboard-provider';
 
 const navigation = [
   { 
@@ -39,7 +38,7 @@ export default function DashboardNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { signOut } = useAuthActions();
-  const user = useQuery(api.auth.currentUser);
+  const user = useCurrentUser();
 
   const handleSignOut = async () => {
     await signOut();

@@ -630,7 +630,7 @@ export function SectionSettingsSidebarEnhanced({
       return (
         <div key={fullPath} className="space-y-2">
           <Label htmlFor={fullPath} className="flex items-center gap-2">
-            <Image className="h-4 w-4" />
+            <Image className="h-4 w-4" aria-label="Image field" />
             {displayName}
           </Label>
           <Input

@@ -15,6 +15,7 @@ import type * as auth from "../auth.js";
 import type * as businessClaims from "../businessClaims.js";
 import type * as businesses from "../businesses.js";
 import type * as businessesActions from "../businessesActions.js";
+import type * as businessesWithDomain from "../businessesWithDomain.js";
 import type * as contactMessages from "../contactMessages.js";
 import type * as domains from "../domains.js";
 import type * as http from "../http.js";
@@ -58,6 +59,7 @@ declare const fullApi: ApiFromModules<{
   businessClaims: typeof businessClaims;
   businesses: typeof businesses;
   businessesActions: typeof businessesActions;
+  businessesWithDomain: typeof businessesWithDomain;
   contactMessages: typeof contactMessages;
   domains: typeof domains;
   http: typeof http;

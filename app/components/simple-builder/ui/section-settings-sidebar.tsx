@@ -151,7 +151,7 @@ export function SectionSettingsSidebar({
                 return (
                   <div key={field} className="space-y-2">
                     <Label htmlFor={field} className="flex items-center gap-2">
-                      <Image className="h-4 w-4" />
+                      <Image className="h-4 w-4" aria-label="Image field" />
                       {fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}
                     </Label>
                     <Input

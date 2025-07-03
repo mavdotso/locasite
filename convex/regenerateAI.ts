@@ -2,6 +2,7 @@ import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
 import { Doc } from "./_generated/dataModel";
+import { AIContentResult } from "./lib/types";
 
 export const regenerateAIContentForBusiness = action({
   args: { 
@@ -10,7 +11,7 @@ export const regenerateAIContentForBusiness = action({
   },
   handler: async (ctx, args): Promise<{
     success: boolean;
-    content: any;
+    content: AIContentResult;
     businessCategory?: string;
     reviewsFiltered?: boolean;
     error?: string;
@@ -42,7 +43,7 @@ export const regenerateAIContentForBusiness = action({
       };
 
       // Generate comprehensive AI content
-      const contentResult: any = await ctx.runAction(api.aiContentGenerator.generateBusinessContent, {
+      const contentResult = await ctx.runAction(api.aiContentGenerator.generateBusinessContent, {
         businessData
       });
 
