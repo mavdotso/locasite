@@ -84,7 +84,6 @@ Locasite is a Business Site Generator SaaS that creates professional websites fo
 
 ### Important Considerations
 
-- **Theme v2**: Recently implemented major theme system overhaul with enhanced customization capabilities
 - **Google Business Verification**: Complete integration with Google Business Profile API for business claiming
 - Environment variables are required for Convex, authentication, and Google API integration
 - The app uses server components where possible for performance
@@ -186,6 +185,7 @@ export const createTask = mutation({
 - **Descriptive variable names** with clear intent
 
 ### Performance Optimization
+- **Put fetching Convex Queries as far up in hierarchy as possible and pass the needed data to children as props** - avoid repeated fetching of the same data in children of the same parent
 - **Minimize use of `useClient`, `useEffect`, `useState`** - prefer server-side solutions
 - **Prefer React Server Components (RSC)** and Suspense for better performance  
 - **Use dynamic imports** for large components

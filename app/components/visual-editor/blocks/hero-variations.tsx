@@ -239,7 +239,7 @@ export const heroGradient: ComponentVariation = {
         {props.buttonText ? (
           <Button
             size="lg"
-            className="text-lg px-8 bg-white text-foreground hover:bg-muted"
+            className="text-lg px-8 bg-background text-foreground hover:bg-muted"
           >
             {props.buttonText as string}
           </Button>
