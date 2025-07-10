@@ -914,13 +914,42 @@ export function SectionSettingsSidebar({
             <Image className="h-4 w-4" aria-label="Image field" />
             {displayName}
           </Label>
-          <Input
-            id={fullPath}
-            type="url"
-            value={String(value)}
-            onChange={(e) => handleContentChange(fullPath, e.target.value)}
-            placeholder="Enter image URL"
-          />
+          <div className="space-y-2">
+            {value && String(value).trim() !== "" ? (
+              <div className="relative aspect-video rounded-lg overflow-hidden border bg-muted">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={String(value)}
+                  alt={displayName}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ) : null}
+            <MediaLibrary
+              businessId={businessId}
+              onSelect={(url) => {
+                handleContentChange(fullPath, url);
+              }}
+              trigger={
+                <Button variant="outline" className="w-full">
+                  <Image className="h-4 w-4 mr-2" aria-label="Select image" />
+                  {value ? "Change Image" : "Select Image"}
+                </Button>
+              }
+              fileTypes={["image/*"]}
+            />
+            {value && String(value).trim() !== "" ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleContentChange(fullPath, "")}
+                className="w-full"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Remove Image
+              </Button>
+            ) : null}
+          </div>
         </div>
       );
     }

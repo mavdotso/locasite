@@ -17,7 +17,8 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/app/components/ui/tabs";
-import { Settings, Globe, Search, Share2 } from "lucide-react";
+import { Settings, Globe, Search, Share2, Image, X } from "lucide-react";
+import MediaLibrary from "@/app/components/visual-editor/library/media-library";
 
 interface PageSettingsSidebarProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ interface PageSettingsSidebarProps {
   ogDescription?: string;
   ogImage?: string;
   isPublished?: boolean;
+  businessId?: string;
   onUpdate: (settings: {
     pageTitle?: string;
     seoTitle?: string;
@@ -54,6 +56,7 @@ export function PageSettingsSidebar({
   ogDescription,
   ogImage,
   isPublished = false,
+  businessId,
   onUpdate,
 }: PageSettingsSidebarProps) {
   const [formData, setFormData] = React.useState({
@@ -258,15 +261,41 @@ export function PageSettingsSidebar({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="ogImage">Open Graph Image URL</Label>
-                  <Input
-                    id="ogImage"
-                    value={formData.ogImage}
-                    onChange={(e) =>
-                      setFormData({ ...formData, ogImage: e.target.value })
+                  <Label htmlFor="ogImage">Open Graph Image</Label>
+                  {formData.ogImage && (
+                    <div className="relative aspect-video rounded-lg overflow-hidden border bg-muted mb-2">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={formData.ogImage}
+                        alt="Open Graph preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <MediaLibrary
+                    businessId={businessId}
+                    onSelect={(url) => {
+                      setFormData({ ...formData, ogImage: url });
+                    }}
+                    trigger={
+                      <Button variant="outline" className="w-full">
+                        <Image className="h-4 w-4 mr-2" aria-label="Select image" />
+                        {formData.ogImage ? "Change Image" : "Select Image"}
+                      </Button>
                     }
-                    placeholder="https://example.com/image.jpg"
+                    fileTypes={["image/*"]}
                   />
+                  {formData.ogImage && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setFormData({ ...formData, ogImage: "" })}
+                      className="w-full"
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Remove Image
+                    </Button>
+                  )}
                   <p className="text-xs text-muted-foreground">
                     Recommended size: 1200x630px
                   </p>

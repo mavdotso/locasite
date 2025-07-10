@@ -674,6 +674,7 @@ export function SimpleEditorResponsive({
           ogDescription={pageData.ogDescription}
           ogImage={pageData.ogImage}
           isPublished={isPublished}
+          businessId={businessId}
           onUpdate={(settings) => {
             setPageData((prev) => ({
               ...prev,
