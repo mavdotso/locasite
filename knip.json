@@ -23,10 +23,21 @@
     "lucide-react",
     "react-hook-form",
     "next-themes",
-    "sonner"
+    "sonner",
+    "react-window",
+    "react-window-infinite-loader",
+    "tailwindcss-animate"
   ],
   "ignoreWorkspaces": [],
-  "ignore": ["app/components/ui/**", "**/*radix*", "**/radix/**"],
+  "ignore": [
+    "app/components/ui/**", 
+    "**/*radix*", 
+    "**/radix/**",
+    "app/components/visual-editor/**",
+    "app/hooks/use-component-preloader.ts",
+    "app/hooks/use-debounced-callback.ts",
+    "app/lib/layout-styles.ts"
+  ],
   "ignoreBinaries": [],
   "ignoreExportsUsedInFile": true
 }

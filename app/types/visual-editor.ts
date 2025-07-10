@@ -190,6 +190,12 @@ export interface ComponentData {
 export interface PageData {
   title: string;
   components: ComponentData[];
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
 }
 
 // Editor state

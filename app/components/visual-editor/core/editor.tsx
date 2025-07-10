@@ -36,7 +36,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/app/components/ui/tooltip";
-import { PublishDialog } from "@/app/components/business/publish-dialog";
+import { PublishSettingsDialog } from "@/app/components/business/publish-settings-dialog";
 import { useDebouncedCallback } from "@/app/hooks/use-debounced-callback";
 import { useComponentPreloader } from "@/app/hooks/use-component-preloader";
 import TemplateSelector from "../library/template-selector";
@@ -1113,14 +1113,30 @@ export default function VisualEditor({
           </div>
         </div>
 
-        {/* Publish Dialog */}
-        <PublishDialog
+        {/* Publish Settings Dialog */}
+        <PublishSettingsDialog
           businessId={businessId}
           businessName={business.name}
           open={showPublishDialog}
           onOpenChange={setShowPublishDialog}
+          pageData={{
+            pageTitle: pageData.title,
+            seoTitle: pageData.seoTitle,
+            seoDescription: pageData.seoDescription,
+            seoKeywords: pageData.seoKeywords,
+            ogTitle: pageData.ogTitle,
+            ogDescription: pageData.ogDescription,
+            ogImage: pageData.ogImage,
+          }}
+          onUpdatePageData={(data) => {
+            setPageData((prev) => ({
+              ...prev,
+              ...data,
+            }));
+          }}
           onPublishComplete={() => {
-            // Reload to update UI with published state
+            // Save and reload to update UI with published state
+            handleSave();
             window.location.reload();
           }}
         />

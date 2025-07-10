@@ -27,9 +27,14 @@ import {
   Trash2,
   Copy,
   Layers,
+  ArrowLeft,
 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 import { TooltipProvider } from "@/app/components/ui/tooltip";
+import { PublishSettingsDialog } from "@/app/components/business/publish-settings-dialog";
+import { Id } from "@/convex/_generated/dataModel";
 
 interface SimpleEditorProps {
   initialData: SimplePageData;
@@ -49,6 +54,7 @@ export function SimpleEditorResponsive({
   domain,
   isPublished = false,
   businessId,
+  business,
   onSaveAction,
   onPublishAction,
 }: SimpleEditorProps) {
@@ -62,6 +68,7 @@ export function SimpleEditorResponsive({
   const [settingsSectionId, setSettingsSectionId] = useState<string | null>(null);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [pendingInsertIndex, setPendingInsertIndex] = useState<number | undefined>(undefined);
+  const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
 
   // Responsive preview states
   const [deviceSize, setDeviceSize] = useState<DeviceSize>("desktop");
@@ -248,14 +255,11 @@ export function SimpleEditorResponsive({
 
   // Publish changes
   const handlePublish = useCallback(() => {
-    if (onPublishAction) {
-      const enhancedPageData = {
-        ...pageData,
-        responsiveStyles,
-      };
-      onPublishAction(enhancedPageData);
-    }
-  }, [pageData, responsiveStyles, onPublishAction]);
+    // First save the current state
+    handleSave();
+    // Then open the publish dialog
+    setIsPublishDialogOpen(true);
+  }, [handleSave]);
 
   // Get section for settings sidebar
   const settingsSection = pageData.sections.find(
@@ -270,7 +274,29 @@ export function SimpleEditorResponsive({
           <div className="px-4 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <h1 className="text-xl font-semibold">Page Editor</h1>
+                <Link href="/dashboard" className="flex items-center gap-2">
+                  <Image
+                    src="/logo.svg"
+                    alt="Locasite"
+                    width={120}
+                    height={30}
+                    className="h-8 w-auto"
+                  />
+                </Link>
+                <div className="h-6 w-px bg-border" />
+                <Link href="/dashboard">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex items-center gap-2"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    Dashboard
+                  </Button>
+                </Link>
+              </div>
+
+              <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -280,9 +306,9 @@ export function SimpleEditorResponsive({
                   <Settings className="h-4 w-4" />
                   Page Settings
                 </Button>
-              </div>
 
-              <div className="flex items-center gap-2">
+                <div className="h-6 w-px bg-border" />
+
                 <Button
                   variant="outline"
                   size="sm"
@@ -702,6 +728,32 @@ export function SimpleEditorResponsive({
             onUpdate={(newData) =>
               handleUpdateSection(settingsSection.id, newData)
             }
+          />
+        )}
+
+        {/* Publish Settings Dialog */}
+        {businessId && (
+          <PublishSettingsDialog
+            businessId={businessId as Id<"businesses">}
+            businessName={business?.name as string || businessData?.name || "Business"}
+            open={isPublishDialogOpen}
+            onOpenChange={setIsPublishDialogOpen}
+            pageData={pageData}
+            onUpdatePageData={(data) => {
+              setPageData((prev) => ({
+                ...prev,
+                ...data,
+              }));
+            }}
+            onPublishComplete={() => {
+              if (onPublishAction) {
+                const enhancedPageData = {
+                  ...pageData,
+                  responsiveStyles,
+                };
+                onPublishAction(enhancedPageData);
+              }
+            }}
           />
         )}
       </div>

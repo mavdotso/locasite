@@ -38,7 +38,7 @@ import { toast } from 'sonner';
 import Image from 'next/image';
 import EditButton from '@/app/components/ui/edit-button';
 import ViewButton from '@/app/components/ui/view-button';
-import { PublishDialog } from '@/app/components/business/publish-dialog';
+import { PublishSettingsDialog } from '@/app/components/business/publish-settings-dialog';
 
 type SiteStatus = 'all' | 'published' | 'draft' | 'pending';
 
@@ -399,9 +399,9 @@ export default function SitesManagement() {
         </Card>
       )}
       
-      {/* Publish Dialog */}
+      {/* Publish Settings Dialog */}
       {publishDialogBusiness && (
-        <PublishDialog
+        <PublishSettingsDialog
           businessId={publishDialogBusiness.id}
           businessName={publishDialogBusiness.name}
           open={!!publishDialogBusiness}
