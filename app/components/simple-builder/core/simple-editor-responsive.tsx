@@ -29,8 +29,8 @@ import {
   Layers,
   ArrowLeft,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
+import Logo from "@/app/components/ui/logo";
 
 import { TooltipProvider } from "@/app/components/ui/tooltip";
 import { PublishSettingsDialog } from "@/app/components/business/publish-settings-dialog";
@@ -275,13 +275,7 @@ export function SimpleEditorResponsive({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Link href="/dashboard" className="flex items-center gap-2">
-                  <Image
-                    src="/logo.svg"
-                    alt="Locasite"
-                    width={120}
-                    height={30}
-                    className="h-8 w-auto"
-                  />
+                  <Logo />
                 </Link>
                 <div className="h-6 w-px bg-border" />
                 <Link href="/dashboard">
@@ -334,17 +328,15 @@ export function SimpleEditorResponsive({
                   Save
                 </Button>
 
-                {onPublishAction && (
-                  <Button
-                    onClick={handlePublish}
-                    size="sm"
-                    variant={isPublished ? "secondary" : "default"}
-                    className="flex items-center gap-2"
-                  >
-                    <Rocket className="h-4 w-4" />
-                    {isPublished ? "Update" : "Publish"}
-                  </Button>
-                )}
+                <Button
+                  onClick={handlePublish}
+                  size="sm"
+                  variant={isPublished ? "secondary" : "default"}
+                  className="flex items-center gap-2"
+                >
+                  <Rocket className="h-4 w-4" />
+                  {isPublished ? "Update" : "Publish"}
+                </Button>
               </div>
             </div>
           </div>

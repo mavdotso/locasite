@@ -41,6 +41,8 @@ import { useDebouncedCallback } from "@/app/hooks/use-debounced-callback";
 import { useComponentPreloader } from "@/app/hooks/use-component-preloader";
 import TemplateSelector from "../library/template-selector";
 import PageSettingsSidebar from "../ui/page-settings-sidebar";
+import Logo from "@/app/components/ui/logo";
+import Link from "next/link";
 
 interface VisualEditorProps {
   businessId: Id<"businesses">;
@@ -673,6 +675,10 @@ export default function VisualEditor({
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-background border-b border-border/50">
             <div className="flex items-center gap-3">
+              <Link href="/dashboard" className="flex items-center">
+                <Logo />
+              </Link>
+              <div className="h-6 w-px bg-border" />
               <div className="flex items-center gap-1 bg-muted/50 rounded-md p-0.5">
                 <Tooltip>
                   <TooltipTrigger asChild>

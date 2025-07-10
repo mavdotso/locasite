@@ -18,7 +18,8 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/app/components/ui/tabs";
-import { DeviceType } from "./responsive-preview";
+// Define DeviceType locally since responsive-preview was deleted
+export type DeviceType = "mobile" | "tablet" | "desktop" | "fullwidth";
 
 export interface ResponsiveStyles {
   mobile?: StyleSettings;

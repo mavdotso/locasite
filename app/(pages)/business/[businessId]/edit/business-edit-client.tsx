@@ -292,6 +292,8 @@ export default function BusinessEditClient({
     <SimpleEditorResponsive
       initialData={initialData}
       businessData={businessData}
+      businessId={businessId}
+      business={business}
       domain={domain?.subdomain}
       isPublished={business.isPublished}
       onSaveAction={handleSave}
