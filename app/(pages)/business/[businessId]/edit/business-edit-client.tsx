@@ -37,7 +37,9 @@ export default function BusinessEditClient({
   const createDefaultPages = useMutation(
     api.pagesSimple.createDefaultPagesSimple,
   );
-  const publishBusiness = useMutation(api.businesses.publish);
+  const createPageWithContent = useMutation(
+    api.pagesSimple.createPageWithContent,
+  );
   const syncBusinessDomain = useMutation(api.businessDomainSync.syncBusinessDomain);
   const syncStatus = useQuery(
     api.businessDomainSync.checkBusinessDomainSync,
@@ -54,8 +56,9 @@ export default function BusinessEditClient({
 
   // Handle business-domain sync
   useEffect(() => {
-    if (syncStatus && !syncStatus.synced && business && user) {
+    if (syncStatus && !syncStatus.synced && business && user && !pages) {
       console.log("Business-domain sync issue detected:", syncStatus.error);
+      // Only sync if there are no pages yet
       // Automatically fix the sync issue
       syncBusinessDomain({ businessId: business._id })
         .then((result) => {
@@ -71,7 +74,7 @@ export default function BusinessEditClient({
           toast.error("Failed to complete business setup. Please refresh the page.");
         });
     }
-  }, [syncStatus, business, user, syncBusinessDomain]);
+  }, [syncStatus, business, user, pages, syncBusinessDomain]);
 
   // Loading state while fetching user or business
   if (user === undefined || business === undefined) {
@@ -140,6 +143,11 @@ export default function BusinessEditClient({
   if (page?.content) {
     try {
       const parsed = JSON.parse(page.content);
+      console.log("Parsed page content:", { 
+        mode: parsed.mode, 
+        sectionsCount: parsed.sections?.length,
+        hasContent: !!parsed.sections 
+      });
 
       // Check if it's already in Simple Mode format
       if (parsed.mode === "simple" && parsed.sections) {
@@ -149,6 +157,7 @@ export default function BusinessEditClient({
           sections: parsed.sections,
           theme: parsed.theme || initialData.theme,
         };
+        console.log("Loaded", initialData.sections.length, "sections from saved content");
       } else {
         // If no content or it's in Pro mode, create default sections based on business type
         const businessType = detectBusinessType(business);
@@ -215,6 +224,12 @@ export default function BusinessEditClient({
         sections: data.sections,
         theme: data.theme,
       };
+      
+      console.log("Saving page data:", {
+        mode: pageData.mode,
+        sectionsCount: pageData.sections.length,
+        sections: pageData.sections.map(s => ({ id: s.id, variationId: s.variationId }))
+      });
 
       if (page) {
         await updatePage({
@@ -248,42 +263,24 @@ export default function BusinessEditClient({
       };
 
       if (page) {
+        // Just save the content, don't publish here
+        // The PublishSettingsDialog will handle the actual publishing
         await updatePage({
           pageId: page._id,
           content: JSON.stringify(pageData),
         });
-
-        // Update business publish status
-        if (business && !business.isPublished) {
-          await publishBusiness({ businessId: businessId });
-        }
-
-        toast.success("Page published successfully");
       } else if (domain) {
-        // Create page with current editor content instead of defaults
-        const result = await createDefaultPages({
+        // Create page with current editor content directly
+        await createPageWithContent({
           domainId: domain._id,
           businessId: businessId,
+          content: JSON.stringify(pageData),
         });
-
-        // Immediately update the created page with the current editor content
-        if (result?.pageId) {
-          await updatePage({
-            pageId: result.pageId,
-            content: JSON.stringify(pageData),
-          });
-        }
-
-        // Update business publish status
-        if (business && !business.isPublished) {
-          await publishBusiness({ businessId: businessId });
-        }
-
-        toast.success("Page published successfully");
       }
     } catch (error) {
       console.error("Error publishing page:", error);
-      toast.error("Failed to publish page");
+      toast.error("Failed to save page content");
+      throw error; // Re-throw to prevent the dialog from closing
     }
   };
 

@@ -193,11 +193,17 @@ export function PublishSettingsDialog({
         });
       }
       
-      // Create/update the subdomain
-      const result = await generateSubdomain({
-        businessId,
-        customSubdomain: subdomainInput
-      });
+      // Only generate subdomain if it's different from current
+      let subdomain = subdomainInput;
+      
+      // Check if we need to create/update subdomain
+      if (!domain || domain.subdomain !== subdomainInput) {
+        const result = await generateSubdomain({
+          businessId,
+          customSubdomain: subdomainInput
+        });
+        subdomain = result.subdomain;
+      }
       
       // Publish the business
       await publishBusiness({ businessId });
@@ -205,8 +211,8 @@ export function PublishSettingsDialog({
       // Show success message
       const isDevelopment = process.env.NODE_ENV === 'development';
       const publishedUrl = isDevelopment 
-        ? `http://${result.subdomain}.localhost:3000`
-        : `https://${result.subdomain}.${rootDomain}`;
+        ? `http://${subdomain}.localhost:3000`
+        : `https://${subdomain}.${rootDomain}`;
       
       toast.success(
         <div className="flex flex-col gap-1">

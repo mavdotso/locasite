@@ -893,12 +893,18 @@ export const createBusinessFromPendingData = mutation({
     });
 
     // Automatically generate domain and create pages
+    // Note: generateSubdomain will also update the business with domainId
     const { domainId } = await ctx.runMutation(api.domains.generateSubdomain, {
       businessId,
     });
-
-    // Update business with domainId
-    await ctx.db.patch(businessId, { domainId });
+    
+    // Verify the business has domainId set
+    const businessWithDomain = await ctx.db.get(businessId);
+    if (!businessWithDomain?.domainId) {
+      console.error("Business domainId not set after generateSubdomain", { businessId, domainId });
+      // Try to set it again
+      await ctx.db.patch(businessId, { domainId });
+    }
 
     // Create default pages in simple mode format
     console.log(

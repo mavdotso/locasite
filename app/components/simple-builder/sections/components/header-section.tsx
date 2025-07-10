@@ -31,7 +31,7 @@ export function HeaderSection({
   type,
   logo,
   logoAlt,
-  menuItems,
+  menuItems = [],
   showButton,
   buttonText,
   buttonLink,
