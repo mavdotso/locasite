@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/app/components/ui/dialog";
 import {
   Select,
@@ -226,14 +227,17 @@ export default function MediaLibrary({
         )}
       </DialogTrigger>
 
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Media Library</DialogTitle>
-        </DialogHeader>
+      <DialogContent className="max-w-5xl h-[80vh] flex flex-col p-0">
+        <div className="px-6 pt-6 pb-4 border-b">
+          <DialogHeader>
+            <DialogTitle>Media Library</DialogTitle>
+          </DialogHeader>
+        </div>
 
         {/* Controls */}
-        <div className="flex flex-col gap-4 border-b pb-4">
-          <div className="flex items-center gap-4">
+        <div className="px-6 py-4 border-b">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -252,7 +256,7 @@ export default function MediaLibrary({
                 <SelectItem value="all">All Files</SelectItem>
                 {folders?.map((folder) => (
                   <SelectItem key={folder} value={folder}>
-                    {folder}
+                    {folder === "google-business" ? "Google Business Photos" : folder}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -276,29 +280,18 @@ export default function MediaLibrary({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-            >
-              {isUploading ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Upload className="h-4 w-4 mr-2" />
-              )}
-              Upload Files
-            </Button>
-
             {allowMultiple && selectedFiles.length > 0 && (
-              <Button onClick={handleConfirmSelection}>
-                Select {selectedFiles.length} file(s)
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button onClick={handleConfirmSelection}>
+                  Select {selectedFiles.length} file(s)
+                </Button>
+              </div>
             )}
           </div>
         </div>
 
-        {/* File Grid/List */}
-        <div className="flex-1 overflow-auto">
+        {/* File Grid/List - with proper scrolling */}
+        <div className="flex-1 overflow-y-auto px-6 py-4">
           {filteredFiles.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
               <ImageIcon className="h-12 w-12 mb-4" />
@@ -306,7 +299,7 @@ export default function MediaLibrary({
               <p className="text-sm">Upload some files to get started</p>
             </div>
           ) : viewMode === "grid" ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredFiles.map((file) => (
                 <div
                   key={file._id}
@@ -318,41 +311,35 @@ export default function MediaLibrary({
                   onClick={() => handleFileSelect(file)}
                 >
                   {file.fileType.startsWith("image/") ? (
-                    <Image
-                      src={file.url}
-                      alt={file.alt || file.fileName}
-                      width={200}
-                      height={150}
-                      className="w-full h-32 object-cover"
-                    />
+                    <div className="aspect-square">
+                      <Image
+                        src={file.url}
+                        alt={file.alt || file.fileName}
+                        width={300}
+                        height={300}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
                   ) : (
-                    <div className="w-full h-32 flex items-center justify-center bg-muted">
+                    <div className="aspect-square flex items-center justify-center bg-muted">
                       {renderFileIcon(file.fileType)}
                     </div>
                   )}
 
-                  <div className="p-2">
-                    <p className="text-xs font-medium truncate">
+                  <div className="p-3">
+                    <p className="text-sm font-medium truncate">
                       {file.fileName}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground mt-1">
                       {formatFileSize(file.fileSize)}
                     </p>
+                    {file.folder === "google-business" && (
+                      <p className="text-xs text-blue-600 mt-1">
+                        Google Business
+                      </p>
+                    )}
                   </div>
-
-                  {file.tags.length > 0 && (
-                    <div className="absolute top-2 left-2 flex flex-wrap gap-1">
-                      {file.tags.slice(0, 2).map((tag) => (
-                        <Badge
-                          key={tag}
-                          variant="secondary"
-                          className="text-xs"
-                        >
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
@@ -374,6 +361,7 @@ export default function MediaLibrary({
                         width={48}
                         height={48}
                         className="w-12 h-12 object-cover rounded"
+                        loading="lazy"
                       />
                     ) : (
                       <div className="w-12 h-12 flex items-center justify-center bg-muted rounded">
@@ -406,6 +394,26 @@ export default function MediaLibrary({
             </div>
           )}
         </div>
+
+        <DialogFooter className="px-6 py-4 border-t">
+          <div className="flex justify-between items-center w-full">
+            <div className="text-sm text-muted-foreground">
+              {filteredFiles.length} file{filteredFiles.length !== 1 ? 's' : ''} found
+            </div>
+            <Button
+              size="default"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+            >
+              {isUploading ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Upload className="h-4 w-4 mr-2" />
+              )}
+              Upload Files
+            </Button>
+          </div>
+        </DialogFooter>
 
         <input
           ref={fileInputRef}

@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { Id } from "./_generated/dataModel";
+import { getUserFromAuth } from "./lib/helpers";
 
 // Upload a file to the media library
 export const uploadFile = mutation({
@@ -22,10 +23,7 @@ export const uploadFile = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
+    const user = await getUserFromAuth(ctx);
 
     // Get the public URL for the file
     const url = await ctx.storage.getUrl(args.storageId);
@@ -41,7 +39,7 @@ export const uploadFile = mutation({
       fileSize: args.fileSize,
       storageId: args.storageId,
       url,
-      userId: identity.subject as Id<"users">,
+      userId: user._id,
       businessId: args.businessId,
       folder: args.folder,
       alt: args.alt,
@@ -66,17 +64,14 @@ export const getMediaFiles = query({
     offset: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
+    const user = await getUserFromAuth(ctx);
 
     let query = ctx.db
       .query("mediaLibrary")
       .filter((q) => q.eq(q.field("isDeleted"), false));
 
     // Filter by user
-    query = query.filter((q) => q.eq(q.field("userId"), identity.subject));
+    query = query.filter((q) => q.eq(q.field("userId"), user._id));
 
     // Filter by business if provided
     if (args.businessId) {
@@ -84,7 +79,7 @@ export const getMediaFiles = query({
     }
 
     // Filter by folder if provided
-    if (args.folder) {
+    if (args.folder && args.folder !== "google-business") {
       query = query.filter((q) => q.eq(q.field("folder"), args.folder));
     }
 
@@ -98,11 +93,52 @@ export const getMediaFiles = query({
     const offset = args.offset || 0;
 
     const allFiles = await query.order("desc").collect();
-    const paginatedFiles = allFiles.slice(offset, offset + limit);
+    let combinedFiles = [...allFiles];
+
+    // If businessId is provided and folder is "all" or "google-business", include scraped Google Business images
+    if (args.businessId && (!args.folder || args.folder === "all" || args.folder === "google-business")) {
+      const business = await ctx.db.get(args.businessId);
+      if (business) {
+        // Add scraped Google Business photos as virtual media library entries
+        const googlePhotos = business.photos
+          .filter((photo) => photo && photo.trim() !== "")
+          .map((photo, index) => ({
+            _id: `google-${args.businessId}-${index}` as Id<"mediaLibrary">,
+            _creationTime: business.createdAt,
+            fileName: `${business.name} - Image ${index + 1}`,
+            originalName: `${business.name} - Image ${index + 1}`,
+            fileType: "image/jpeg",
+            fileSize: 0, // Unknown size for scraped images
+            storageId: "" as Id<"_storage">,
+            url: photo,
+            userId: user._id,
+            businessId: args.businessId,
+            folder: "google-business",
+            alt: `${business.name} - Google Business Image ${index + 1}`,
+            tags: ["google-business", "scraped"],
+            dimensions: undefined,
+            usageCount: 0,
+            createdAt: business.createdAt,
+            isDeleted: false,
+            updatedAt: undefined,
+            lastUsedAt: undefined,
+          }));
+
+        // If showing only google-business folder, show only Google photos
+        if (args.folder === "google-business") {
+          combinedFiles = googlePhotos;
+        } else {
+          // Otherwise, combine both sources
+          combinedFiles = [...googlePhotos, ...allFiles];
+        }
+      }
+    }
+
+    const paginatedFiles = combinedFiles.slice(offset, offset + limit);
     return {
       files: paginatedFiles,
-      total: allFiles.length,
-      hasMore: offset + limit < allFiles.length,
+      total: combinedFiles.length,
+      hasMore: offset + limit < combinedFiles.length,
     };
   },
 });
@@ -111,10 +147,7 @@ export const getMediaFiles = query({
 export const getMediaFile = query({
   args: { mediaId: v.id("mediaLibrary") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
+    const user = await getUserFromAuth(ctx);
 
     const media = await ctx.db.get(args.mediaId);
     if (!media) {
@@ -122,7 +155,7 @@ export const getMediaFile = query({
     }
 
     // Check ownership
-    if (media.userId !== identity.subject) {
+    if (media.userId !== user._id) {
       throw new Error("Not authorized to access this file");
     }
 
@@ -140,10 +173,7 @@ export const updateMediaFile = mutation({
     tags: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
+    const user = await getUserFromAuth(ctx);
 
     const media = await ctx.db.get(args.mediaId);
     if (!media) {
@@ -151,7 +181,7 @@ export const updateMediaFile = mutation({
     }
 
     // Check ownership
-    if (media.userId !== identity.subject) {
+    if (media.userId !== user._id) {
       throw new Error("Not authorized to update this file");
     }
 
@@ -172,10 +202,7 @@ export const updateMediaFile = mutation({
 export const deleteMediaFile = mutation({
   args: { mediaId: v.id("mediaLibrary") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
+    const user = await getUserFromAuth(ctx);
 
     const media = await ctx.db.get(args.mediaId);
     if (!media) {
@@ -183,7 +210,7 @@ export const deleteMediaFile = mutation({
     }
 
     // Check ownership
-    if (media.userId !== identity.subject) {
+    if (media.userId !== user._id) {
       throw new Error("Not authorized to delete this file");
     }
 
@@ -217,15 +244,12 @@ export const trackUsage = mutation({
 export const getFolders = query({
   args: { businessId: v.optional(v.id("businesses")) },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
+    const user = await getUserFromAuth(ctx);
 
     let query = ctx.db
       .query("mediaLibrary")
       .filter((q) => q.eq(q.field("isDeleted"), false))
-      .filter((q) => q.eq(q.field("userId"), identity.subject));
+      .filter((q) => q.eq(q.field("userId"), user._id));
 
     if (args.businessId) {
       query = query.filter((q) => q.eq(q.field("businessId"), args.businessId));
@@ -239,6 +263,14 @@ export const getFolders = query({
         folders.add(file.folder);
       }
     });
+
+    // If businessId is provided, check if there are Google Business photos
+    if (args.businessId) {
+      const business = await ctx.db.get(args.businessId);
+      if (business && business.photos && business.photos.length > 0) {
+        folders.add("google-business");
+      }
+    }
 
     return Array.from(folders).sort();
   },

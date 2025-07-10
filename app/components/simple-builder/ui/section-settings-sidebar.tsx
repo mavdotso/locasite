@@ -804,9 +804,13 @@ export function SectionSettingsSidebar({
             <MediaLibrary
               businessId={businessId}
               onSelect={(url) => {
+                // Extract business name from the URL or use a default
+                const altText = url.includes("google") 
+                  ? "Business gallery image" 
+                  : "Gallery image";
                 handleArrayItemAdd(fullPath, {
                   src: url,
-                  alt: "Gallery image",
+                  alt: altText,
                 });
               }}
               trigger={
