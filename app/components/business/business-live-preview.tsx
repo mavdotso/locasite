@@ -74,7 +74,6 @@ export default function BusinessLivePreview({
             menuItems: [
               { label: "Home", link: "#hero" },
               { label: "About", link: "#about" },
-              { label: "Services", link: "#services" },
               { label: "Gallery", link: "#gallery" },
               { label: "Reviews", link: "#reviews" },
               { label: "Contact", link: "#contact" },
@@ -124,43 +123,11 @@ export default function BusinessLivePreview({
           },
         },
       },
-      // Services section (if applicable)
-      {
-        id: "services-1",
-        variationId: "services-grid",
-        order: 3,
-        data: {
-          id: "services-1",
-          type: "services-grid",
-          content: {
-            title: "Our Services",
-            subtitle: "What we offer",
-            services: [
-              {
-                title: "Quality Service",
-                description:
-                  "We provide top-notch service to all our customers",
-                icon: "star",
-              },
-              {
-                title: "Expert Team",
-                description: "Our experienced team is here to help you",
-                icon: "users",
-              },
-              {
-                title: "Best Results",
-                description: "We deliver exceptional results every time",
-                icon: "trophy",
-              },
-            ],
-          },
-        },
-      },
       // Reviews section
       {
         id: "reviews-1",
         variationId: "reviews-section",
-        order: 4,
+        order: 3,
         data: {
           id: "reviews-1",
           type: "reviews-section",
@@ -198,7 +165,7 @@ export default function BusinessLivePreview({
       {
         id: "gallery-1",
         variationId: "gallery-grid",
-        order: 5,
+        order: 4,
         data: {
           id: "gallery-1",
           type: "gallery-grid",
@@ -221,7 +188,7 @@ export default function BusinessLivePreview({
       {
         id: "contact-1",
         variationId: "contact-form-map",
-        order: 6,
+        order: 5,
         data: {
           id: "contact-1",
           type: "contact-form-map",

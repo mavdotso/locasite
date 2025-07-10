@@ -20,35 +20,6 @@ const sampleSections: SimpleComponentData[] = [
     style: {},
   },
   {
-    id: "services-1",
-    type: "services-grid",
-    content: {
-      title: "Our Services",
-      subtitle: "Discover what we can do for you",
-      services: [
-        {
-          title: "Premium Service",
-          description: "Top-quality service tailored to your needs",
-          icon: "star",
-          features: ["Feature 1", "Feature 2", "Feature 3"],
-        },
-        {
-          title: "Professional Support",
-          description: "Expert assistance whenever you need it",
-          icon: "check",
-          features: ["24/7 Support", "Expert Team", "Quick Response"],
-        },
-        {
-          title: "Custom Solutions",
-          description: "Personalized solutions for your business",
-          icon: "heart",
-          features: ["Tailored Approach", "Flexible Options", "Scalable"],
-        },
-      ],
-    },
-    style: {},
-  },
-  {
     id: "gallery-1",
     type: "gallery-grid",
     content: {
