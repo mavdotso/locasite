@@ -1,6 +1,7 @@
 "use client";
 
 import { Star } from "lucide-react";
+import { getBusinessCategoryTheme } from "../../core/business-category-themes";
 
 interface Review {
   id: string;
@@ -16,20 +17,56 @@ interface ReviewsSectionProps {
   reviews?: Review[];
   editMode?: boolean;
   onUpdate?: (content: Record<string, unknown>) => void;
+  businessCategory?: string;
 }
 
 export default function ReviewsSection({
   title = "Customer Reviews",
   subtitle,
   reviews = [],
+  businessCategory,
 }: ReviewsSectionProps) {
+  // Get theme based on business category
+  const categoryTheme = getBusinessCategoryTheme(businessCategory);
+  const themeColors = categoryTheme.colors;
+  const reviewStyles = categoryTheme.sectionStyles.reviews;
+  const getCardStyles = () => {
+    switch (reviewStyles.cardStyle) {
+      case "minimal":
+        return "p-6";
+      case "quote":
+        return "p-6 rounded-lg border-l-4";
+      case "bubble":
+        return "p-6 rounded-2xl shadow-lg";
+      case "elegant":
+        return "p-6 rounded-lg shadow-md border";
+      default:
+        return "p-6 rounded-lg border";
+    }
+  };
+
   return (
-    <section className="py-20 px-4 bg-muted/30">
+    <section
+      className="py-20 px-4"
+      style={{
+        backgroundColor: themeColors.background,
+        backgroundImage: themeColors.backgroundGradient
+          ? themeColors.backgroundGradient
+          : undefined,
+      }}
+    >
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">{title}</h2>
+          <h2
+            className="text-3xl md:text-4xl font-bold mb-4"
+            style={{ color: themeColors.textPrimary }}
+          >
+            {title}
+          </h2>
           {subtitle && (
-            <p className="text-lg text-muted-foreground">{subtitle}</p>
+            <p className="text-lg" style={{ color: themeColors.textSecondary }}>
+              {subtitle}
+            </p>
           )}
         </div>
 
@@ -37,17 +74,30 @@ export default function ReviewsSection({
           {reviews.map((review) => (
             <div
               key={review.id}
-              className="bg-card rounded-lg p-6 shadow-sm border border-border"
+              className={getCardStyles()}
+              style={{
+                backgroundColor: themeColors.cardBackground,
+                borderColor:
+                  reviewStyles.cardStyle === "quote"
+                    ? reviewStyles.starColor
+                    : themeColors.cardBorder,
+              }}
             >
               <div className="flex items-center gap-1 mb-4">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    className={`h-5 w-5 ${
-                      i < review.rating
-                        ? "fill-yellow-400 text-yellow-400"
-                        : "text-muted-foreground/30"
-                    }`}
+                    className={`h-5 w-5`}
+                    style={{
+                      fill:
+                        i < review.rating
+                          ? reviewStyles.starColor
+                          : "transparent",
+                      color:
+                        i < review.rating
+                          ? reviewStyles.starColor
+                          : themeColors.textSecondary + "30",
+                    }}
                   />
                 ))}
               </div>

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { cn } from "@/app/lib/utils";
 import { GalleryContentUpdate, GalleryImage, Comparison } from "./types";
+import { getBusinessCategoryTheme } from "../../core/business-category-themes";
 
 interface GallerySectionProps {
   type: string;
@@ -13,6 +14,7 @@ interface GallerySectionProps {
   comparisons?: Comparison[];
   editMode?: boolean;
   onUpdate?: (content: GalleryContentUpdate) => void;
+  businessCategory?: string;
 }
 
 export function GallerySection({
@@ -23,8 +25,14 @@ export function GallerySection({
   comparisons,
   editMode,
   onUpdate,
+  businessCategory,
 }: GallerySectionProps) {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+
+  // Get theme based on business category
+  const categoryTheme = getBusinessCategoryTheme(businessCategory);
+  const themeColors = categoryTheme.colors;
+  const galleryStyles = categoryTheme.sectionStyles.gallery;
 
   const handleContentEdit = (field: string, value: unknown) => {
     if (onUpdate) {
@@ -40,11 +48,25 @@ export function GallerySection({
 
   // Grid gallery
   if (type === "gallery-grid" && images) {
+    const getHoverEffect = () => {
+      switch (galleryStyles.hoverEffect) {
+        case "zoom":
+          return "hover:scale-110";
+        case "overlay":
+          return "after:absolute after:inset-0 after:bg-black/0 hover:after:bg-black/20";
+        case "slide":
+          return "hover:translate-y-[-4px]";
+        default:
+          return "hover:scale-110";
+      }
+    };
+
     return (
       <div className="container mx-auto px-4">
         {title && (
           <h2
             className="text-3xl md:text-4xl font-bold text-center mb-12"
+            style={{ color: themeColors.textPrimary }}
             contentEditable={editMode}
             suppressContentEditableWarning
             onBlur={(e) =>
@@ -56,23 +78,34 @@ export function GallerySection({
         )}
         <div
           className={cn(
-            "grid gap-4",
+            "grid",
             columns === 2 && "md:grid-cols-2",
             columns === 3 && "md:grid-cols-3",
             columns === 4 && "md:grid-cols-4",
           )}
+          style={{ gap: galleryStyles.spacing }}
         >
           {images.map((image, index) => (
             <div
               key={index}
-              className="relative aspect-square cursor-pointer overflow-hidden rounded-lg"
+              className={cn(
+                "relative aspect-square cursor-pointer overflow-hidden transition-all duration-300",
+                getHoverEffect(),
+              )}
+              style={{
+                borderRadius: galleryStyles.borderRadius,
+                boxShadow:
+                  galleryStyles.hoverEffect === "overlay"
+                    ? "0 4px 6px -1px rgb(0 0 0 / 0.1)"
+                    : undefined,
+              }}
               onClick={() => setSelectedImage(image)}
             >
               <Image
                 src={image.src}
                 alt={image.alt}
                 fill
-                className="object-cover hover:scale-110 transition-transform duration-300"
+                className="object-cover transition-transform duration-300"
               />
             </div>
           ))}

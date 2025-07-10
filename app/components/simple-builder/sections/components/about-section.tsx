@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import { cn } from "@/app/lib/utils";
 import { AboutContentUpdate } from "./types";
+import { getBusinessCategoryTheme } from "../../core/business-category-themes";
 
 interface AboutSectionProps {
   type: string;
@@ -24,6 +25,7 @@ interface AboutSectionProps {
   onUpdate?: (content: AboutContentUpdate) => void;
   backgroundColor?: string;
   accentColor?: string;
+  businessCategory?: string;
 }
 
 export function AboutSection({
@@ -41,7 +43,18 @@ export function AboutSection({
   onUpdate,
   backgroundColor = "transparent",
   accentColor = "#3b82f6",
+  businessCategory,
 }: AboutSectionProps) {
+  // Get theme based on business category
+  const categoryTheme = getBusinessCategoryTheme(businessCategory);
+  const themeColors = categoryTheme.colors;
+
+  // Use theme values with fallbacks
+  const finalAccentColor = accentColor || themeColors.primary;
+  const finalBackgroundColor =
+    backgroundColor !== "transparent"
+      ? backgroundColor
+      : themeColors.background;
   const handleContentEdit = (field: string, value: unknown) => {
     if (onUpdate) {
       onUpdate({
@@ -60,7 +73,15 @@ export function AboutSection({
   // Text with side image
   if (type === "about-section") {
     return (
-      <section className="py-16 md:py-24" style={{ backgroundColor }}>
+      <section
+        className="py-16 md:py-24"
+        style={{
+          backgroundColor: finalBackgroundColor,
+          backgroundImage: themeColors.backgroundGradient
+            ? themeColors.backgroundGradient
+            : undefined,
+        }}
+      >
         <div className="container mx-auto px-6">
           <div
             className={cn(
@@ -75,10 +96,8 @@ export function AboutSection({
               )}
             >
               <h2
-                className={cn(
-                  "text-3xl md:text-5xl font-bold",
-                  "bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent",
-                )}
+                className="text-3xl md:text-5xl font-bold"
+                style={{ color: themeColors.textPrimary }}
                 contentEditable={editMode}
                 suppressContentEditableWarning
                 onBlur={(e) =>
@@ -89,10 +108,11 @@ export function AboutSection({
               </h2>
               <div
                 className="w-20 h-1 rounded-full"
-                style={{ backgroundColor: accentColor }}
+                style={{ backgroundColor: finalAccentColor }}
               />
               <p
-                className="text-lg text-muted-foreground leading-relaxed"
+                className="text-lg leading-relaxed"
+                style={{ color: themeColors.textSecondary }}
                 contentEditable={editMode}
                 suppressContentEditableWarning
                 onBlur={(e) =>

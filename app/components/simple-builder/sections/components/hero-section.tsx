@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/app/lib/utils";
 import { HeroContentUpdate } from "./types";
+import { getBusinessCategoryTheme } from "../../core/business-category-themes";
 
 interface HeroSectionProps {
   type: string;
@@ -22,8 +23,15 @@ interface HeroSectionProps {
   imageAlt?: string;
   editMode?: boolean;
   onUpdate?: (content: HeroContentUpdate) => void;
-  decorativeElement?: "dots" | "waves" | "circles" | "none";
+  decorativeElement?:
+    | "dots"
+    | "waves"
+    | "circles"
+    | "lines"
+    | "shapes"
+    | "none";
   accentColor?: string;
+  businessCategory?: string;
 }
 
 export function HeroSection({
@@ -44,7 +52,21 @@ export function HeroSection({
   onUpdate,
   decorativeElement = "none",
   accentColor = "#3b82f6",
+  businessCategory,
 }: HeroSectionProps) {
+  // Get theme based on business category
+  const categoryTheme = getBusinessCategoryTheme(businessCategory);
+  const themeColors = categoryTheme.colors;
+  const heroStyles = categoryTheme.sectionStyles.hero;
+
+  // Use theme values with fallbacks
+  const finalAccentColor = accentColor || themeColors.primary;
+  const finalOverlayOpacity = overlayOpacity || heroStyles.overlayOpacity;
+  const finalOverlayGradient = overlayGradient || themeColors.overlayGradient;
+  const finalDecorativeElement =
+    decorativeElement !== "none"
+      ? decorativeElement
+      : heroStyles.decorativeElement || "none";
   const handleContentEdit = (field: string, value: string) => {
     if (onUpdate) {
       onUpdate({
@@ -64,7 +86,7 @@ export function HeroSection({
 
   // Decorative elements
   const renderDecorativeElement = () => {
-    switch (decorativeElement) {
+    switch (finalDecorativeElement) {
       case "dots":
         return (
           <div className="absolute top-10 right-10 opacity-10">
@@ -77,7 +99,7 @@ export function HeroSection({
                 height="20"
                 patternUnits="userSpaceOnUse"
               >
-                <circle cx="2" cy="2" r="2" fill={accentColor} />
+                <circle cx="2" cy="2" r="2" fill={finalAccentColor} />
               </pattern>
               <rect width="120" height="120" fill="url(#dots)" />
             </svg>
@@ -88,7 +110,7 @@ export function HeroSection({
           <div className="absolute bottom-0 left-0 right-0 opacity-10">
             <svg viewBox="0 0 1440 320" className="w-full">
               <path
-                fill={accentColor}
+                fill={finalAccentColor}
                 fillOpacity="1"
                 d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
               ></path>
@@ -100,13 +122,41 @@ export function HeroSection({
           <>
             <div
               className="absolute top-20 left-20 w-64 h-64 rounded-full opacity-5"
-              style={{ backgroundColor: accentColor }}
+              style={{ backgroundColor: finalAccentColor }}
             />
             <div
               className="absolute bottom-20 right-20 w-96 h-96 rounded-full opacity-5"
-              style={{ backgroundColor: accentColor }}
+              style={{ backgroundColor: finalAccentColor }}
             />
           </>
+        );
+      case "lines":
+        return (
+          <div className="absolute inset-0 opacity-5">
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage: `repeating-linear-gradient(45deg, ${finalAccentColor} 0, ${finalAccentColor} 1px, transparent 1px, transparent 15px)`,
+              }}
+            />
+          </div>
+        );
+      case "shapes":
+        return (
+          <div className="absolute inset-0 overflow-hidden opacity-10">
+            <div
+              className="absolute -top-10 -left-10 w-40 h-40 transform rotate-45"
+              style={{ backgroundColor: finalAccentColor }}
+            />
+            <div
+              className="absolute top-1/2 -right-20 w-60 h-60 rounded-full"
+              style={{ backgroundColor: themeColors.secondary }}
+            />
+            <div
+              className="absolute -bottom-10 left-1/3 w-32 h-32 transform rotate-12"
+              style={{ backgroundColor: themeColors.accent }}
+            />
+          </div>
         );
       default:
         return null;
@@ -138,15 +188,22 @@ export function HeroSection({
               <div
                 className="absolute inset-0"
                 style={{
-                  background: overlayGradient || "rgba(0,0,0,0.4)",
-                  opacity: overlayGradient ? 1 : overlayOpacity,
+                  background: finalOverlayGradient || "rgba(0,0,0,0.4)",
+                  opacity: finalOverlayGradient ? 1 : finalOverlayOpacity,
                 }}
               />
             )}
           </>
         ) : (
           // Beautiful gradient background as fallback
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-indigo-50" />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                themeColors.backgroundGradient ||
+                `linear-gradient(135deg, ${themeColors.background} 0%, ${themeColors.cardBackground} 100%)`,
+            }}
+          />
         )}
 
         {renderDecorativeElement()}

@@ -3,6 +3,7 @@
 import React from "react";
 import { cn } from "@/app/lib/utils";
 import { ServicesContentUpdate, Service, PricingTier } from "./types";
+import { getBusinessCategoryTheme } from "../../core/business-category-themes";
 
 interface ServicesSectionProps {
   type: string;
@@ -16,6 +17,7 @@ interface ServicesSectionProps {
   backgroundColor?: string;
   accentColor?: string;
   cardStyle?: "minimal" | "bordered" | "elevated" | "gradient";
+  businessCategory?: string;
 }
 
 export function ServicesSection({
@@ -30,7 +32,21 @@ export function ServicesSection({
   backgroundColor = "transparent",
   accentColor = "#3b82f6",
   cardStyle = "bordered",
+  businessCategory,
 }: ServicesSectionProps) {
+  // Get theme based on business category
+  const categoryTheme = getBusinessCategoryTheme(businessCategory);
+  const themeColors = categoryTheme.colors;
+  const servicesStyles = categoryTheme.sectionStyles.services;
+
+  // Use theme values with fallbacks
+  const finalAccentColor = accentColor || themeColors.primary;
+  const finalCardStyle = cardStyle || servicesStyles.cardStyle;
+  const finalBackgroundColor =
+    backgroundColor !== "transparent"
+      ? backgroundColor
+      : themeColors.background;
+
   const handleContentEdit = (field: string, value: unknown) => {
     if (onUpdate) {
       onUpdate({
@@ -43,28 +59,94 @@ export function ServicesSection({
   };
 
   const getCardStyles = () => {
-    switch (cardStyle) {
+    const baseStyles = "transition-all duration-300 p-6 rounded-xl";
+    const hoverEffects = {
+      scale: "hover:scale-105",
+      shadow: "hover:shadow-xl",
+      glow: "hover:shadow-lg",
+      tilt: "hover:transform hover:rotate-1",
+    };
+
+    const hoverEffect =
+      hoverEffects[servicesStyles.hoverEffect] || hoverEffects.shadow;
+
+    switch (finalCardStyle) {
       case "minimal":
-        return "bg-transparent p-6";
+        return cn("bg-transparent", baseStyles, hoverEffect);
       case "bordered":
-        return "bg-card border border-border rounded-xl p-6 hover:border-primary/50 transition-all duration-300";
+        return cn("border-2", baseStyles, hoverEffect);
       case "elevated":
-        return "bg-card rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300";
+        return cn("shadow-lg", baseStyles, hoverEffect);
       case "gradient":
-        return "bg-gradient-to-br from-card to-muted rounded-xl p-6 border border-border/50";
+        return cn("border", baseStyles, hoverEffect);
       default:
-        return "bg-card border border-border rounded-xl p-6";
+        return cn("border", baseStyles);
+    }
+  };
+
+  const getCardInlineStyles = () => {
+    switch (finalCardStyle) {
+      case "minimal":
+        return {};
+      case "bordered":
+        return {
+          backgroundColor: themeColors.cardBackground,
+          borderColor: themeColors.cardBorder,
+        };
+      case "elevated":
+        return {
+          backgroundColor: themeColors.cardBackground,
+          boxShadow:
+            servicesStyles.hoverEffect === "glow"
+              ? `0 10px 15px -3px ${themeColors.primary}20`
+              : undefined,
+        };
+      case "gradient":
+        return {
+          background: `linear-gradient(to bottom right, ${themeColors.cardBackground}, ${themeColors.background})`,
+          borderColor: `${themeColors.cardBorder}80`,
+        };
+      default:
+        return {
+          backgroundColor: themeColors.cardBackground,
+          borderColor: themeColors.cardBorder,
+        };
+    }
+  };
+
+  const getIconStyles = () => {
+    const baseStyles =
+      "w-14 h-14 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300";
+
+    switch (servicesStyles.iconStyle) {
+      case "circle":
+        return cn(baseStyles, "rounded-full");
+      case "square":
+        return cn(baseStyles, "rounded-lg");
+      case "rounded":
+        return cn(baseStyles, "rounded-2xl");
+      default:
+        return cn(baseStyles, "rounded-lg");
     }
   };
 
   // Grid layout
   if (type === "services-grid" && services) {
     return (
-      <section className="py-16 md:py-24" style={{ backgroundColor }}>
+      <section
+        className="py-16 md:py-24"
+        style={{
+          backgroundColor: finalBackgroundColor,
+          backgroundImage: themeColors.backgroundGradient
+            ? themeColors.backgroundGradient
+            : undefined,
+        }}
+      >
         <div className="container mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <h2
               className="text-3xl md:text-5xl font-bold mb-4"
+              style={{ color: themeColors.textPrimary }}
               contentEditable={editMode}
               suppressContentEditableWarning
               onBlur={(e) =>
@@ -75,7 +157,8 @@ export function ServicesSection({
             </h2>
             {subtitle && (
               <p
-                className="text-lg text-muted-foreground"
+                className="text-lg"
+                style={{ color: themeColors.textSecondary }}
                 contentEditable={editMode}
                 suppressContentEditableWarning
                 onBlur={(e) =>
@@ -105,34 +188,56 @@ export function ServicesSection({
                   "group cursor-pointer",
                   "animate-fadeInUp",
                 )}
-                style={{ animationDelay: `${index * 100}ms` }}
+                style={{
+                  animationDelay: `${index * 100}ms`,
+                  ...getCardInlineStyles(),
+                }}
               >
                 {service.icon && (
                   <div
-                    className="w-14 h-14 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300"
-                    style={{ backgroundColor: `${accentColor}20` }}
+                    className={getIconStyles()}
+                    style={{ backgroundColor: themeColors.iconBackground }}
                   >
-                    <span className="text-2xl" style={{ color: accentColor }}>
+                    <span
+                      className="text-2xl"
+                      style={{ color: finalAccentColor }}
+                    >
                       {service.icon === "star"
                         ? "⭐"
                         : service.icon === "check"
                           ? "✓"
                           : service.icon === "heart"
                             ? "❤️"
-                            : "⚙️"}
+                            : categoryTheme.decorativeElements.icon || "⚙️"}
                     </span>
                   </div>
                 )}
-                <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
-                <p className="text-muted-foreground mb-4">
+                <h3
+                  className="text-xl font-semibold mb-2"
+                  style={{ color: themeColors.textPrimary }}
+                >
+                  {service.title}
+                </h3>
+                <p
+                  className="mb-4"
+                  style={{ color: themeColors.textSecondary }}
+                >
                   {service.description}
                 </p>
                 {service.features && service.features.length > 0 && (
                   <ul className="space-y-2 mb-4">
                     {service.features.map((feature, idx) => (
                       <li key={idx} className="flex items-start">
-                        <span className="text-primary mr-2">✓</span>
-                        <span className="text-sm text-muted-foreground">
+                        <span
+                          className="mr-2"
+                          style={{ color: finalAccentColor }}
+                        >
+                          ✓
+                        </span>
+                        <span
+                          className="text-sm"
+                          style={{ color: themeColors.textSecondary }}
+                        >
                           {feature}
                         </span>
                       </li>
@@ -150,11 +255,20 @@ export function ServicesSection({
   // List layout
   if (type === "services-list" && services) {
     return (
-      <section className="py-16 md:py-24" style={{ backgroundColor }}>
+      <section
+        className="py-16 md:py-24"
+        style={{
+          backgroundColor: finalBackgroundColor,
+          backgroundImage: themeColors.backgroundGradient
+            ? themeColors.backgroundGradient
+            : undefined,
+        }}
+      >
         <div className="container mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <h2
               className="text-3xl md:text-5xl font-bold mb-4"
+              style={{ color: themeColors.textPrimary }}
               contentEditable={editMode}
               suppressContentEditableWarning
               onBlur={(e) =>
@@ -165,7 +279,8 @@ export function ServicesSection({
             </h2>
             {subtitle && (
               <p
-                className="text-lg text-muted-foreground"
+                className="text-lg"
+                style={{ color: themeColors.textSecondary }}
                 contentEditable={editMode}
                 suppressContentEditableWarning
                 onBlur={(e) =>
@@ -186,29 +301,42 @@ export function ServicesSection({
                 className={cn(
                   "flex gap-6 items-start p-6 rounded-xl",
                   "hover:shadow-lg transition-all duration-300",
-                  "bg-card border border-border",
+                  "border",
                   index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse",
                 )}
+                style={{
+                  backgroundColor: themeColors.cardBackground,
+                  borderColor: themeColors.cardBorder,
+                }}
               >
                 {service.icon && (
                   <div
                     className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: `${accentColor}20` }}
+                    style={{ backgroundColor: themeColors.iconBackground }}
                   >
-                    <span className="text-3xl" style={{ color: accentColor }}>
+                    <span
+                      className="text-3xl"
+                      style={{ color: finalAccentColor }}
+                    >
                       {service.icon === "users"
                         ? "👥"
                         : service.icon === "settings"
                           ? "⚙️"
-                          : "📋"}
+                          : categoryTheme.decorativeElements.icon || "📋"}
                     </span>
                   </div>
                 )}
                 <div className="flex-1">
-                  <h3 className="text-xl font-semibold mb-2">
+                  <h3
+                    className="text-xl font-semibold mb-2"
+                    style={{ color: themeColors.textPrimary }}
+                  >
                     {service.title}
                   </h3>
-                  <p className="text-muted-foreground mb-4">
+                  <p
+                    className="mb-4"
+                    style={{ color: themeColors.textSecondary }}
+                  >
                     {service.description}
                   </p>
                   {service.features && service.features.length > 0 && (
@@ -218,8 +346,10 @@ export function ServicesSection({
                           key={idx}
                           className="flex items-center gap-2 text-sm"
                         >
-                          <span className="text-primary">✓</span>
-                          <span>{feature}</span>
+                          <span style={{ color: finalAccentColor }}>✓</span>
+                          <span style={{ color: themeColors.textSecondary }}>
+                            {feature}
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -236,11 +366,20 @@ export function ServicesSection({
   // Pricing table
   if (type === "services-pricing" && pricingTiers) {
     return (
-      <section className="py-16 md:py-24" style={{ backgroundColor }}>
+      <section
+        className="py-16 md:py-24"
+        style={{
+          backgroundColor: finalBackgroundColor,
+          backgroundImage: themeColors.backgroundGradient
+            ? themeColors.backgroundGradient
+            : undefined,
+        }}
+      >
         <div className="container mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <h2
               className="text-3xl md:text-5xl font-bold mb-4"
+              style={{ color: themeColors.textPrimary }}
               contentEditable={editMode}
               suppressContentEditableWarning
               onBlur={(e) =>
@@ -251,7 +390,8 @@ export function ServicesSection({
             </h2>
             {subtitle && (
               <p
-                className="text-lg text-muted-foreground"
+                className="text-lg"
+                style={{ color: themeColors.textSecondary }}
                 contentEditable={editMode}
                 suppressContentEditableWarning
                 onBlur={(e) =>
@@ -272,36 +412,68 @@ export function ServicesSection({
                 className={cn(
                   "relative p-8 rounded-2xl transition-all duration-300",
                   index === 1
-                    ? "border-2 border-primary shadow-2xl scale-105 bg-card"
-                    : "border border-border bg-card hover:shadow-lg",
+                    ? "border-2 shadow-2xl scale-105"
+                    : "border hover:shadow-lg",
                 )}
+                style={{
+                  backgroundColor: themeColors.cardBackground,
+                  borderColor:
+                    index === 1 ? finalAccentColor : themeColors.cardBorder,
+                }}
               >
                 {index === 1 && (
                   <div
                     className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-sm font-semibold text-white"
-                    style={{ backgroundColor: accentColor }}
+                    style={{ backgroundColor: finalAccentColor }}
                   >
                     Most Popular
                   </div>
                 )}
-                <h3 className="text-2xl font-bold mb-2">{tier.name}</h3>
+                <h3
+                  className="text-2xl font-bold mb-2"
+                  style={{ color: themeColors.textPrimary }}
+                >
+                  {tier.name}
+                </h3>
                 <div className="mb-4">
                   <span
                     className="text-4xl font-bold"
-                    style={{ color: index === 1 ? accentColor : undefined }}
+                    style={{
+                      color:
+                        index === 1
+                          ? finalAccentColor
+                          : themeColors.textPrimary,
+                    }}
                   >
                     {tier.price}
                   </span>
                   {tier.price !== "Custom" && (
-                    <span className="text-muted-foreground">/month</span>
+                    <span style={{ color: themeColors.textSecondary }}>
+                      /month
+                    </span>
                   )}
                 </div>
-                <p className="text-muted-foreground mb-6">{tier.description}</p>
+                <p
+                  className="mb-6"
+                  style={{ color: themeColors.textSecondary }}
+                >
+                  {tier.description}
+                </p>
                 <ul className="space-y-3 mb-8">
                   {tier.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start gap-2">
-                      <span className="text-primary mt-0.5">✓</span>
-                      <span className="text-sm">{feature}</span>
+                      <span
+                        className="mt-0.5"
+                        style={{ color: finalAccentColor }}
+                      >
+                        ✓
+                      </span>
+                      <span
+                        className="text-sm"
+                        style={{ color: themeColors.textSecondary }}
+                      >
+                        {feature}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -309,9 +481,14 @@ export function ServicesSection({
                   className={cn(
                     "w-full py-3 rounded-lg font-semibold transition-all duration-300",
                     index === 1
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
-                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+                      ? "shadow-lg hover:shadow-xl"
+                      : "hover:opacity-90",
                   )}
+                  style={{
+                    backgroundColor:
+                      index === 1 ? finalAccentColor : themeColors.secondary,
+                    color: "#ffffff",
+                  }}
                 >
                   Get Started
                 </button>
@@ -326,11 +503,20 @@ export function ServicesSection({
   // Carousel Services
   if (type === "services-carousel" && services) {
     return (
-      <section className="py-16 md:py-24" style={{ backgroundColor }}>
+      <section
+        className="py-16 md:py-24"
+        style={{
+          backgroundColor: finalBackgroundColor,
+          backgroundImage: themeColors.backgroundGradient
+            ? themeColors.backgroundGradient
+            : undefined,
+        }}
+      >
         <div className="container mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <h2
               className="text-3xl md:text-5xl font-bold mb-4"
+              style={{ color: themeColors.textPrimary }}
               contentEditable={editMode}
               suppressContentEditableWarning
               onBlur={(e) =>
@@ -341,7 +527,8 @@ export function ServicesSection({
             </h2>
             {subtitle && (
               <p
-                className="text-lg text-muted-foreground"
+                className="text-lg"
+                style={{ color: themeColors.textSecondary }}
                 contentEditable={editMode}
                 suppressContentEditableWarning
                 onBlur={(e) =>
@@ -361,21 +548,30 @@ export function ServicesSection({
                 <div
                   key={index}
                   className={cn("flex-none w-80 snap-center", getCardStyles())}
+                  style={getCardInlineStyles()}
                 >
                   {service.icon && (
                     <div
-                      className="w-14 h-14 rounded-lg flex items-center justify-center mb-4"
-                      style={{ backgroundColor: `${accentColor}20` }}
+                      className={getIconStyles()}
+                      style={{ backgroundColor: themeColors.iconBackground }}
                     >
-                      <span className="text-2xl" style={{ color: accentColor }}>
-                        {service.icon}
+                      <span
+                        className="text-2xl"
+                        style={{ color: finalAccentColor }}
+                      >
+                        {categoryTheme.decorativeElements.icon || service.icon}
                       </span>
                     </div>
                   )}
-                  <h3 className="text-xl font-semibold mb-2">
+                  <h3
+                    className="text-xl font-semibold mb-2"
+                    style={{ color: themeColors.textPrimary }}
+                  >
                     {service.title}
                   </h3>
-                  <p className="text-muted-foreground">{service.description}</p>
+                  <p style={{ color: themeColors.textSecondary }}>
+                    {service.description}
+                  </p>
                 </div>
               ))}
             </div>

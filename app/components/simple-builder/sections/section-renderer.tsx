@@ -18,6 +18,7 @@ interface SectionRendererProps {
   editMode?: boolean;
   onUpdate?: (newData: SimpleComponentData) => void;
   businessData?: Record<string, unknown>; // Business data for template variable replacement
+  businessCategory?: string; // Business category for theming
 }
 
 // Map of section types to their components
@@ -64,6 +65,7 @@ export function SectionRenderer({
   editMode = false,
   onUpdate,
   businessData,
+  businessCategory,
 }: SectionRendererProps) {
   const Component = sectionComponents[data.type];
 
@@ -106,6 +108,7 @@ export function SectionRenderer({
         {...processedContent}
         type={data.type}
         editMode={editMode}
+        businessCategory={businessCategory}
         onUpdate={(newContent: Record<string, unknown>) => {
           if (onUpdate) {
             onUpdate({

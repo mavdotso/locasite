@@ -6,6 +6,7 @@ import Link from "next/link";
 import { cn } from "@/app/lib/utils";
 import { Menu, X } from "lucide-react";
 import { HeaderContentUpdate } from "./types";
+import { getBusinessCategoryTheme } from "../../core/business-category-themes";
 
 interface MenuItem {
   label: string;
@@ -23,6 +24,7 @@ interface HeaderSectionProps {
   buttonLink?: string;
   editMode?: boolean;
   onUpdate?: (content: HeaderContentUpdate) => void;
+  businessCategory?: string;
 }
 
 export function HeaderSection({
@@ -35,8 +37,13 @@ export function HeaderSection({
   buttonLink,
   editMode,
   onUpdate,
+  businessCategory,
 }: HeaderSectionProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Get theme based on business category
+  const categoryTheme = getBusinessCategoryTheme(businessCategory);
+  const themeColors = categoryTheme.colors;
 
   // Truncate logo text if it's too long
   const truncatedLogo =
@@ -83,7 +90,13 @@ export function HeaderSection({
 
   if (type === "header-classic") {
     return (
-      <header className="w-full py-4 px-6">
+      <header
+        className="w-full py-4 px-6"
+        style={{
+          backgroundColor: themeColors.cardBackground,
+          borderBottom: `1px solid ${themeColors.cardBorder}`,
+        }}
+      >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo */}
           <div className="flex-shrink-0">
