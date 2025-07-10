@@ -625,6 +625,173 @@ export function SectionSettingsSidebarEnhanced({
       );
     }
 
+    // Handle reviews array
+    if (fieldName === "reviews" && Array.isArray(value)) {
+      return (
+        <div key={fullPath} className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label className="text-base font-semibold">{displayName}</Label>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() =>
+                handleArrayItemAdd(fullPath, {
+                  id: `review-${Date.now()}`,
+                  author: "Customer Name",
+                  rating: 5,
+                  content: "Great service!",
+                  date: new Date().toLocaleDateString(),
+                })
+              }
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Add Review
+            </Button>
+          </div>
+          <Accordion type="single" collapsible className="w-full">
+            {value.map((review, index) => (
+              <AccordionItem key={index} value={`review-${index}`}>
+                <AccordionTrigger className="hover:no-underline">
+                  <div className="flex items-center gap-2">
+                    <Star className="h-4 w-4" />
+                    {review.author || `Review ${index + 1}`}
+                    <span className="text-sm text-muted-foreground">
+                      ({review.rating || 0} stars)
+                    </span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="space-y-3 pt-4">
+                  <div className="space-y-2">
+                    <Label>Author</Label>
+                    <Input
+                      value={review.author || ""}
+                      onChange={(e) =>
+                        handleArrayItemChange(
+                          fullPath,
+                          index,
+                          "author",
+                          e.target.value,
+                        )
+                      }
+                      placeholder="Customer name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Rating</Label>
+                    <Select
+                      value={String(review.rating || 5)}
+                      onValueChange={(value) =>
+                        handleArrayItemChange(
+                          fullPath,
+                          index,
+                          "rating",
+                          parseInt(value),
+                        )
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="5">
+                          <div className="flex items-center gap-1">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className="h-4 w-4 fill-amber-500 text-amber-500" />
+                            ))}
+                            <span className="ml-2">5 stars</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="4">
+                          <div className="flex items-center gap-1">
+                            {[...Array(4)].map((_, i) => (
+                              <Star key={i} className="h-4 w-4 fill-amber-500 text-amber-500" />
+                            ))}
+                            <Star className="h-4 w-4 text-muted-foreground/30" />
+                            <span className="ml-2">4 stars</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="3">
+                          <div className="flex items-center gap-1">
+                            {[...Array(3)].map((_, i) => (
+                              <Star key={i} className="h-4 w-4 fill-amber-500 text-amber-500" />
+                            ))}
+                            {[...Array(2)].map((_, i) => (
+                              <Star key={i + 3} className="h-4 w-4 text-muted-foreground/30" />
+                            ))}
+                            <span className="ml-2">3 stars</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="2">
+                          <div className="flex items-center gap-1">
+                            {[...Array(2)].map((_, i) => (
+                              <Star key={i} className="h-4 w-4 fill-amber-500 text-amber-500" />
+                            ))}
+                            {[...Array(3)].map((_, i) => (
+                              <Star key={i + 2} className="h-4 w-4 text-muted-foreground/30" />
+                            ))}
+                            <span className="ml-2">2 stars</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="1">
+                          <div className="flex items-center gap-1">
+                            <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+                            {[...Array(4)].map((_, i) => (
+                              <Star key={i + 1} className="h-4 w-4 text-muted-foreground/30" />
+                            ))}
+                            <span className="ml-2">1 star</span>
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Review Text</Label>
+                    <Textarea
+                      value={review.content || ""}
+                      onChange={(e) =>
+                        handleArrayItemChange(
+                          fullPath,
+                          index,
+                          "content",
+                          e.target.value,
+                        )
+                      }
+                      placeholder="Review content"
+                      rows={3}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Date</Label>
+                    <Input
+                      value={review.date || ""}
+                      onChange={(e) =>
+                        handleArrayItemChange(
+                          fullPath,
+                          index,
+                          "date",
+                          e.target.value,
+                        )
+                      }
+                      placeholder="Review date"
+                    />
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => handleArrayItemRemove(fullPath, index)}
+                    className="w-full"
+                  >
+                    <Minus className="h-4 w-4 mr-1" />
+                    Remove Review
+                  </Button>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      );
+    }
+
     // Handle image fields
     if (fieldName.includes("image") || fieldName.includes("Image")) {
       return (
