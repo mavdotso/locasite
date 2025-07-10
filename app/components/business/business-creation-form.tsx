@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "convex/react";
+import { useMutation, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { BusinessData } from "@/convex/businesses";
 import { Button } from "@/app/components/ui/button";
@@ -46,7 +46,7 @@ export default function BusinessCreationForm({
   const createFromPending = useMutation(
     api.businesses.createBusinessFromPendingData,
   );
-  const storeImages = useMutation(api.storeBusinessImages.storeBusinessImages);
+  const storeImages = useAction(api.storeBusinessImages.storeBusinessImages);
 
   const validateUrl = (url: string): boolean => {
     // Check for various Google Maps URL patterns

@@ -1,7 +1,7 @@
-import { mutation } from './_generated/server';
-import { v } from 'convex/values';
-import { getUserFromAuth } from './lib/helpers';
-import { Id } from './_generated/dataModel';
+import { mutation } from "./_generated/server";
+import { v } from "convex/values";
+import { getUserFromAuth } from "./lib/helpers";
+import { Id } from "./_generated/dataModel";
 
 // Create default pages in simple mode format with EXACT same sections as preview
 export const createDefaultPagesSimple = mutation({
@@ -30,7 +30,7 @@ export const createDefaultPagesSimple = mutation({
     // Check if pages already exist to avoid duplicates
     const existingPage = await ctx.db
       .query("pages")
-      .withIndex("by_domain", q => q.eq("domainId", args.domainId))
+      .withIndex("by_domain", (q) => q.eq("domainId", args.domainId))
       .first();
 
     if (existingPage) {
@@ -53,7 +53,6 @@ export const createDefaultPagesSimple = mutation({
             menuItems: [
               { label: "Home", link: "#hero" },
               { label: "About", link: "#about" },
-              { label: "Services", link: "#services" },
               { label: "Gallery", link: "#gallery" },
               { label: "Reviews", link: "#reviews" },
               { label: "Contact", link: "#contact" },
@@ -117,7 +116,8 @@ export const createDefaultPagesSimple = mutation({
             services: [
               {
                 title: "Quality Service",
-                description: "We provide top-notch service to all our customers",
+                description:
+                  "We provide top-notch service to all our customers",
                 icon: "star",
               },
               {
@@ -138,7 +138,7 @@ export const createDefaultPagesSimple = mutation({
       {
         id: "reviews-1",
         variationId: "reviews-section",
-        order: 4,
+        order: 3,
         data: {
           id: "reviews-1",
           type: "reviews-section",
@@ -154,21 +154,21 @@ export const createDefaultPagesSimple = mutation({
               content: review.text || "Great experience!",
               date: "Recently",
             })) || [
-              {
-                id: "review-1",
-                author: "John Doe",
-                rating: 5,
-                content: "Excellent service and great experience!",
-                date: "Last week",
-              },
-              {
-                id: "review-2",
-                author: "Jane Smith",
-                rating: 5,
-                content: "Highly recommend! Professional and friendly staff.",
-                date: "2 weeks ago",
-              },
-            ],
+                {
+                  id: "review-1",
+                  author: "John Doe",
+                  rating: 5,
+                  content: "Excellent service and great experience!",
+                  date: "Last week",
+                },
+                {
+                  id: "review-2",
+                  author: "Jane Smith",
+                  rating: 5,
+                  content: "Highly recommend! Professional and friendly staff.",
+                  date: "2 weeks ago",
+                },
+              ],
           },
         },
       },
@@ -176,7 +176,7 @@ export const createDefaultPagesSimple = mutation({
       {
         id: "gallery-1",
         variationId: "gallery-grid",
-        order: 5,
+        order: 4,
         data: {
           id: "gallery-1",
           type: "gallery-grid",
@@ -199,7 +199,7 @@ export const createDefaultPagesSimple = mutation({
       {
         id: "contact-1",
         variationId: "contact-form-map",
-        order: 6,
+        order: 5,
         data: {
           id: "contact-1",
           type: "contact-form-map",
@@ -250,7 +250,9 @@ export const createDefaultPagesSimple = mutation({
       lastEditedAt: Date.now(),
     });
 
-    console.log(`Created simple mode page ${pageId} for business ${args.businessId} with 7 sections`);
+    console.log(
+      `Created simple mode page ${pageId} for business ${args.businessId} with 6 sections`,
+    );
 
     return { pageId };
   },

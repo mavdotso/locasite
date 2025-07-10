@@ -1,18 +1,24 @@
-import { mutation } from "./_generated/server";
+import { action, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
-import { getUserFromAuth } from "./lib/helpers";
+import { api, internal } from "./_generated/api";
+import { Id } from "./_generated/dataModel";
 
-export const storeBusinessImages = mutation({
+export const storeBusinessImages = action({
   args: {
     businessId: v.id("businesses"),
   },
   handler: async (ctx, args) => {
-    const user = await getUserFromAuth(ctx);
-
-    // Get the business
-    const business = await ctx.db.get(args.businessId);
+    // Get the business and user info via query
+    const business = await ctx.runQuery(api.businesses.getById, {
+      id: args.businessId,
+    });
     if (!business) {
       throw new Error("Business not found");
+    }
+
+    const user = await ctx.runQuery(api.auth.currentUser);
+    if (!user) {
+      throw new Error("Not authenticated");
     }
 
     // Verify ownership
@@ -43,49 +49,26 @@ export const storeBusinessImages = mutation({
 
         const blob = await response.blob();
 
-        // Generate upload URL
-        const uploadUrl = await ctx.storage.generateUploadUrl();
-
-        // Upload to Convex storage
-        const uploadResponse = await fetch(uploadUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": blob.type || "image/jpeg",
-          },
-          body: blob,
-        });
-
-        if (!uploadResponse.ok) {
-          console.error(`Failed to upload image: ${uploadResponse.statusText}`);
-          storedUrls.push(photoUrl); // Keep original URL if upload fails
-          continue;
-        }
-
-        const { storageId } = await uploadResponse.json();
+        // Store the image directly in the action
+        const storageId = await ctx.storage.store(blob);
 
         // Get the public URL
         const url = await ctx.storage.getUrl(storageId);
         if (!url) {
-          storedUrls.push(photoUrl); // Keep original URL if we can't get storage URL
+          storedUrls.push(photoUrl); // Keep original URL if storage fails
           continue;
         }
 
-        // Add to media library
-        await ctx.db.insert("mediaLibrary", {
-          fileName: `${business.name.toLowerCase().replace(/\s+/g, "-")}-${i + 1}`,
-          originalName: `${business.name} image ${i + 1}`,
-          fileType: blob.type || "image/jpeg",
-          fileSize: blob.size,
+        // Add to media library via mutation
+        await ctx.runMutation(internal.storeBusinessImages.addToMediaLibrary, {
+          businessId: args.businessId,
+          userId: user._id,
+          businessName: business.name,
           storageId,
           url,
-          userId: user._id,
-          businessId: args.businessId,
-          folder: "scraped",
-          alt: `${business.name} image ${i + 1}`,
-          tags: ["scraped", "google-maps"],
-          usageCount: 1,
-          createdAt: Date.now(),
-          isDeleted: false,
+          fileType: blob.type || "image/jpeg",
+          fileSize: blob.size,
+          imageIndex: i,
         });
 
         storedUrls.push(url);
@@ -95,11 +78,58 @@ export const storeBusinessImages = mutation({
       }
     }
 
-    // Update business with new URLs
-    await ctx.db.patch(args.businessId, {
+    // Update business with new URLs via mutation
+    await ctx.runMutation(internal.storeBusinessImages.updateBusinessPhotos, {
+      businessId: args.businessId,
       photos: storedUrls,
     });
 
     return { success: true, storedUrls };
+  },
+});
+
+// Internal mutation to add image to media library
+export const addToMediaLibrary = internalMutation({
+  args: {
+    businessId: v.id("businesses"),
+    userId: v.id("users"),
+    businessName: v.string(),
+    storageId: v.id("_storage"),
+    url: v.string(),
+    fileType: v.string(),
+    fileSize: v.number(),
+    imageIndex: v.number(),
+  },
+  handler: async (ctx, args) => {
+    // Add to media library
+    await ctx.db.insert("mediaLibrary", {
+      fileName: `${args.businessName.toLowerCase().replace(/\s+/g, "-")}-${args.imageIndex + 1}`,
+      originalName: `${args.businessName} image ${args.imageIndex + 1}`,
+      fileType: args.fileType,
+      fileSize: args.fileSize,
+      storageId: args.storageId,
+      url: args.url,
+      userId: args.userId,
+      businessId: args.businessId,
+      folder: "scraped",
+      alt: `${args.businessName} image ${args.imageIndex + 1}`,
+      tags: ["scraped", "google-maps"],
+      usageCount: 1,
+      createdAt: Date.now(),
+      isDeleted: false,
+    });
+  },
+});
+
+// Internal mutation to update business photos
+export const updateBusinessPhotos = internalMutation({
+  args: {
+    businessId: v.id("businesses"),
+    photos: v.array(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.businessId, {
+      photos: args.photos,
+    });
   },
 });

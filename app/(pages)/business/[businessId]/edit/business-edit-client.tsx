@@ -34,7 +34,9 @@ export default function BusinessEditClient({
     domain ? { domainId: domain._id } : "skip",
   );
   const updatePage = useMutation(api.pages.updatePage);
-  const createDefaultPages = useMutation(api.pages.createDefaultPages);
+  const createDefaultPages = useMutation(
+    api.pagesSimple.createDefaultPagesSimple,
+  );
   const publishBusiness = useMutation(api.businesses.publish);
 
   // Handle authentication
@@ -213,6 +215,8 @@ export default function BusinessEditClient({
   const handlePublish = async (data: SimplePageData) => {
     try {
       const pageData = {
+        mode: "simple" as const,
+        title: data.title,
         sections: data.sections,
         theme: data.theme,
       };
@@ -230,14 +234,26 @@ export default function BusinessEditClient({
 
         toast.success("Page published successfully");
       } else if (domain) {
-        // Create default page first if no page exists
-        await createDefaultPages({
+        // Create page with current editor content instead of defaults
+        const result = await createDefaultPages({
           domainId: domain._id,
           businessId: businessId,
         });
-        toast.info(
-          "Default pages created. Please refresh to continue editing.",
-        );
+
+        // Immediately update the created page with the current editor content
+        if (result?.pageId) {
+          await updatePage({
+            pageId: result.pageId,
+            content: JSON.stringify(pageData),
+          });
+        }
+
+        // Update business publish status
+        if (business && !business.isPublished) {
+          await publishBusiness({ businessId: businessId });
+        }
+
+        toast.success("Page published successfully");
       }
     } catch (error) {
       console.error("Error publishing page:", error);
