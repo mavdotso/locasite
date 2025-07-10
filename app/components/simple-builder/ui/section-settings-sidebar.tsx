@@ -937,8 +937,8 @@ export function SectionSettingsSidebar({
         <SheetHeader>
           <SheetTitle>Section Settings</SheetTitle>
         </SheetHeader>
-
-        <Tabs defaultValue="content" className="mt-6">
+        <div className="px-4">
+        <Tabs defaultValue="content">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="content" className="flex items-center gap-2">
               <Type className="h-4 w-4" />
@@ -1075,6 +1075,7 @@ export function SectionSettingsSidebar({
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
+          </div>
         </div>
       </SheetContent>
     </Sheet>
