@@ -3,6 +3,7 @@
 import React from "react";
 import { SectionRenderer } from "../sections/section-renderer";
 import { SimpleComponentData } from "../types/simple-builder";
+import { SmoothScrollHandler } from "../utils/smooth-scroll";
 
 interface SimplePageRendererProps {
   sections: SimpleComponentData[];
@@ -20,17 +21,20 @@ export function SimplePageRenderer({
   onUpdate,
 }: SimplePageRendererProps) {
   return (
-    <div className="simple-page-renderer">
-      {sections.map((section) => (
-        <SectionRenderer
-          key={section.id}
-          data={section}
-          businessData={businessData}
-          businessCategory={businessCategory}
-          editMode={editMode}
-          onUpdate={(newData) => onUpdate?.(section.id, newData)}
-        />
-      ))}
-    </div>
+    <>
+      <SmoothScrollHandler />
+      <div className="simple-page-renderer">
+        {sections.map((section) => (
+          <SectionRenderer
+            key={section.id}
+            data={section}
+            businessData={businessData}
+            businessCategory={businessCategory}
+            editMode={editMode}
+            onUpdate={(newData) => onUpdate?.(section.id, newData)}
+          />
+        ))}
+      </div>
+    </>
   );
 }

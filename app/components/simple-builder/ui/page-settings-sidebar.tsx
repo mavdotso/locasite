@@ -101,8 +101,8 @@ export function PageSettingsSidebar({
             Page Settings
           </SheetTitle>
         </SheetHeader>
-
-        <form onSubmit={handleSubmit} className="mt-6">
+        <div className="px-4">
+        <form onSubmit={handleSubmit}>
           <Tabs defaultValue="general" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="general">General</TabsTrigger>
@@ -283,7 +283,8 @@ export function PageSettingsSidebar({
               Cancel
             </Button>
           </div>
-        </form>
+          </form>
+          </div>
       </SheetContent>
     </Sheet>
   );

@@ -404,29 +404,57 @@ export function HeaderSection({
           )}
         </div>
 
-        {/* Desktop Menu */}
-        <nav className="hidden md:flex items-center space-x-6">
-          {menuItems
-            .filter((item) => item.enabled !== false)
-            .map((item, index) => (
-              <Link
-                key={index}
-                href={item.link}
-                className="text-foreground hover:text-primary transition-colors"
+        {/* Center section with menu and button */}
+        <div className="hidden md:flex items-center flex-1 justify-end space-x-6">
+          {/* Desktop Menu */}
+          <nav className="flex items-center space-x-6">
+            {menuItems
+              .filter((item) => item.enabled !== false)
+              .map((item, index) => (
+                <Link
+                  key={index}
+                  href={item.link}
+                  className="text-foreground hover:text-primary transition-colors"
+                  contentEditable={editMode}
+                  suppressContentEditableWarning
+                  onBlur={(e) =>
+                    handleMenuItemEdit(
+                      menuItems.indexOf(item),
+                      "label",
+                      e.currentTarget.textContent || "",
+                    )
+                  }
+                >
+                  {item.label}
+                </Link>
+              ))}
+          </nav>
+
+          {/* CTA Button */}
+          {showButton && buttonText && buttonLink && (
+            <Link
+              href={buttonLink}
+              className={cn(
+                "px-6 py-2 rounded-md font-medium",
+                "bg-primary text-white hover:bg-primary/90",
+                "transition-colors",
+              )}
+            >
+              <span
                 contentEditable={editMode}
                 suppressContentEditableWarning
                 onBlur={(e) =>
-                  handleMenuItemEdit(
-                    menuItems.indexOf(item),
-                    "label",
+                  handleContentEdit(
+                    "buttonText",
                     e.currentTarget.textContent || "",
                   )
                 }
               >
-                {item.label}
-              </Link>
-            ))}
-        </nav>
+                {buttonText}
+              </span>
+            </Link>
+          )}
+        </div>
 
         {/* Mobile Menu Button */}
         <button
@@ -463,6 +491,21 @@ export function HeaderSection({
                   {item.label}
                 </Link>
               ))}
+            {showButton && buttonText && buttonLink && (
+              <div className="px-4 pt-2">
+                <Link
+                  href={buttonLink}
+                  className={cn(
+                    "block text-center px-6 py-2 rounded-md font-medium",
+                    "bg-primary text-white hover:bg-primary/90",
+                    "transition-colors",
+                  )}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {buttonText}
+                </Link>
+              </div>
+            )}
           </div>
         </nav>
       )}

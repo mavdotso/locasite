@@ -350,11 +350,35 @@ export function SectionSettingsSidebar({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="#home">Home</SelectItem>
-                        {pageSections.map((section) => (
-                          <SelectItem key={section.id} value={`#${section.id}`}>
-                            {formatFieldName(section.type)}
-                          </SelectItem>
-                        ))}
+                        {pageSections.map((section) => {
+                          // Map section types to user-friendly names
+                          const sectionTypeMap: Record<string, string> = {
+                            "hero-section": "Hero",
+                            "hero-center-bg": "Hero",
+                            "hero-split": "Hero",
+                            "hero-minimal": "Hero",
+                            "about-section": "About",
+                            "about-features": "About",
+                            "about-columns": "About",
+                            "about-timeline": "About",
+                            "services-grid": "Services",
+                            "services-list": "Services",
+                            "services-pricing": "Services",
+                            "gallery-grid": "Gallery",
+                            "gallery-masonry": "Gallery",
+                            "gallery-before-after": "Gallery",
+                            "contact-form-map": "Contact",
+                            "contact-cards": "Contact",
+                            "contact-social": "Contact",
+                            "reviews-section": "Reviews",
+                          };
+                          const sectionName = sectionTypeMap[section.type] || formatFieldName(section.type);
+                          return (
+                            <SelectItem key={section.id} value={`#${section.id}`}>
+                              {sectionName}
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                   </div>

@@ -45,7 +45,7 @@ export const createDefaultPagesSimple = mutation({
         variationId: "header-section",
         order: 0,
         data: {
-          id: "header-1",
+          id: "header",
           type: "header-section",
           content: {
             logo: business.name,
@@ -72,7 +72,7 @@ export const createDefaultPagesSimple = mutation({
         variationId: "hero-section",
         order: 1,
         data: {
-          id: "hero-1",
+          id: "hero",
           type: "hero-section",
           content: {
             title: business.name,
@@ -95,7 +95,7 @@ export const createDefaultPagesSimple = mutation({
         variationId: "about-section",
         order: 2,
         data: {
-          id: "about-1",
+          id: "about",
           type: "about-section",
           content: {
             title: "About Us",
@@ -117,7 +117,7 @@ export const createDefaultPagesSimple = mutation({
         variationId: "reviews-section",
         order: 3,
         data: {
-          id: "reviews-1",
+          id: "reviews",
           type: "reviews-section",
           content: {
             title: "What Our Customers Say",
@@ -158,7 +158,7 @@ export const createDefaultPagesSimple = mutation({
         variationId: "gallery-grid",
         order: 4,
         data: {
-          id: "gallery-1",
+          id: "gallery",
           type: "gallery-grid",
           content: {
             title: "Gallery",
@@ -184,7 +184,7 @@ export const createDefaultPagesSimple = mutation({
         variationId: "contact-form-map",
         order: 5,
         data: {
-          id: "contact-1",
+          id: "contact",
           type: "contact-form-map",
           content: {
             title: "Get in Touch",

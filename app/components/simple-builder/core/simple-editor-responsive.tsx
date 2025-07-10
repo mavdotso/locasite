@@ -77,11 +77,28 @@ export function SimpleEditorResponsive({
       const variation = getVariationById(variationId);
       if (!variation) return;
 
+      // Generate a smart ID based on section type
+      const baseId = variation.template.type.split('-')[0]; // e.g., "hero" from "hero-section"
+      
+      // Count existing sections of the same base type
+      const existingSectionsOfType = pageData.sections.filter(s => {
+        const sectionVariation = getVariationById(s.variationId);
+        return sectionVariation?.template.type.startsWith(baseId);
+      });
+      
+      // Only add number if there's already a section of this type
+      const sectionId = existingSectionsOfType.length > 0 
+        ? `${baseId}-${existingSectionsOfType.length + 1}`
+        : baseId;
+
       const newSection: SectionInstance = {
         id: generateId(),
         variationId: variation.id,
         order: 0, // Will be set properly below
-        data: JSON.parse(JSON.stringify(variation.template)), // Deep clone
+        data: {
+          ...JSON.parse(JSON.stringify(variation.template)), // Deep clone
+          id: sectionId, // Override the ID in the data
+        },
       };
 
       setPageData((prev) => {
@@ -116,7 +133,7 @@ export function SimpleEditorResponsive({
       setIsAddingSectionOpen(false);
       setSelectedSectionId(newSection.id);
     },
-    [],
+    [pageData.sections],
   );
 
   // Update section data
@@ -149,11 +166,29 @@ export function SimpleEditorResponsive({
       );
       if (!sectionToDuplicate) return;
 
+      // Generate a smart ID for the duplicated section
+      const variation = getVariationById(sectionToDuplicate.variationId);
+      if (!variation) return;
+      
+      const baseId = variation.template.type.split('-')[0];
+      
+      // Count all sections of the same base type
+      const existingSectionsOfType = pageData.sections.filter(s => {
+        const sectionVariation = getVariationById(s.variationId);
+        return sectionVariation?.template.type.startsWith(baseId);
+      });
+      
+      // Always add a number for duplicates
+      const sectionDataId = `${baseId}-${existingSectionsOfType.length + 1}`;
+
       const newSection: SectionInstance = {
         id: generateId(),
         variationId: sectionToDuplicate.variationId,
         order: sectionToDuplicate.order + 1,
-        data: JSON.parse(JSON.stringify(sectionToDuplicate.data)), // Deep clone
+        data: {
+          ...JSON.parse(JSON.stringify(sectionToDuplicate.data)), // Deep clone
+          id: sectionDataId, // Override the ID
+        },
       };
 
       setPageData((prev) => {

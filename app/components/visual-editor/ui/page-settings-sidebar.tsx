@@ -321,6 +321,7 @@ export default function PageSettingsSidebar({
             Page Settings
           </SheetTitle>
         </SheetHeader>
+        <div className="px-4">
         <Tabs defaultValue="domain" className="w-full px-4">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="domain">Domain</TabsTrigger>
@@ -708,7 +709,8 @@ export default function PageSettingsSidebar({
                 </Button>
               </div>
             </TabsContent>
-        </Tabs>
+          </Tabs>
+        </div>
       </SheetContent>
     </Sheet>
   );

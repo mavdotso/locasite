@@ -31,7 +31,7 @@ export const headerVariations: SectionVariation[] = [
         padding: "1rem 2rem",
       },
     },
-    editableFields: ["content.logo", "content.menuItems", "content.buttonText"],
+    editableFields: ["content.logo", "content.menuItems", "content.showButton", "content.buttonText", "content.buttonLink"],
   },
   {
     id: "header-classic",
@@ -59,7 +59,7 @@ export const headerVariations: SectionVariation[] = [
         padding: "1rem 2rem",
       },
     },
-    editableFields: ["content.logo", "content.menuItems", "content.buttonText"],
+    editableFields: ["content.logo", "content.menuItems", "content.showButton", "content.buttonText", "content.buttonLink"],
   },
   {
     id: "header-centered",

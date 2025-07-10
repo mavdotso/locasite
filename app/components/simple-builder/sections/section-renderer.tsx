@@ -95,6 +95,7 @@ export function SectionRenderer({
 
   return (
     <section
+      id={data.id}
       className={sectionClasses}
       style={sectionStyle}
       data-section-id={data.id}
