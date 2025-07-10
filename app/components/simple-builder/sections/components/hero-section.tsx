@@ -32,6 +32,7 @@ interface HeroSectionProps {
     | "none";
   accentColor?: string;
   businessCategory?: string;
+  styleOverrides?: React.CSSProperties;
 }
 
 export function HeroSection({
@@ -53,6 +54,7 @@ export function HeroSection({
   decorativeElement = "none",
   accentColor = "#3b82f6",
   businessCategory,
+  styleOverrides,
 }: HeroSectionProps) {
   // Get theme based on business category
   const categoryTheme = getBusinessCategoryTheme(businessCategory);
@@ -173,7 +175,7 @@ export function HeroSection({
       (backgroundImage.startsWith("http") || backgroundImage.startsWith("/"));
 
     return (
-      <div className="relative min-h-[700px] flex items-center justify-center overflow-hidden">
+      <div className="relative min-h-[700px] flex items-center justify-center overflow-hidden" style={styleOverrides}>
         {/* Background Layer */}
         {hasRealImage ? (
           <>
@@ -285,7 +287,7 @@ export function HeroSection({
   // Split Screen Hero
   if (type === "hero-split") {
     return (
-      <div className="grid lg:grid-cols-2 min-h-[700px] overflow-hidden">
+      <div className="grid lg:grid-cols-2 min-h-[700px] overflow-hidden" style={styleOverrides}>
         <div className="flex items-center justify-center p-8 md:p-16 lg:p-20 order-2 lg:order-1">
           <div className="max-w-xl w-full">
             <h1
@@ -367,7 +369,7 @@ export function HeroSection({
 
   // Minimal Hero (default)
   return (
-    <div className="relative py-20 md:py-32 overflow-hidden">
+    <div className="relative py-20 md:py-32 overflow-hidden" style={styleOverrides}>
       {renderDecorativeElement()}
       <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
         <h1

@@ -14,10 +14,10 @@ interface ServicesSectionProps {
   columns?: number;
   editMode?: boolean;
   onUpdate?: (content: ServicesContentUpdate) => void;
-  backgroundColor?: string;
   accentColor?: string;
   cardStyle?: "minimal" | "bordered" | "elevated" | "gradient";
   businessCategory?: string;
+  styleOverrides?: React.CSSProperties;
 }
 
 export function ServicesSection({
@@ -29,10 +29,10 @@ export function ServicesSection({
   columns = 3,
   editMode,
   onUpdate,
-  backgroundColor = "transparent",
   accentColor = "#3b82f6",
   cardStyle = "bordered",
   businessCategory,
+  styleOverrides,
 }: ServicesSectionProps) {
   // Get theme based on business category
   const categoryTheme = getBusinessCategoryTheme(businessCategory);
@@ -42,10 +42,6 @@ export function ServicesSection({
   // Use theme values with fallbacks
   const finalAccentColor = accentColor || themeColors.primary;
   const finalCardStyle = cardStyle || servicesStyles.cardStyle;
-  const finalBackgroundColor =
-    backgroundColor !== "transparent"
-      ? backgroundColor
-      : themeColors.background;
 
   const handleContentEdit = (field: string, value: unknown) => {
     if (onUpdate) {
@@ -133,14 +129,9 @@ export function ServicesSection({
   // Grid layout
   if (type === "services-grid" && services) {
     return (
-      <section
+      <div
         className="py-16 md:py-24"
-        style={{
-          backgroundColor: finalBackgroundColor,
-          backgroundImage: themeColors.backgroundGradient
-            ? themeColors.backgroundGradient
-            : undefined,
-        }}
+        style={styleOverrides}
       >
         <div className="container mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-12">
@@ -248,21 +239,16 @@ export function ServicesSection({
             ))}
           </div>
         </div>
-      </section>
+      </div>
     );
   }
 
   // List layout
   if (type === "services-list" && services) {
     return (
-      <section
+      <div
         className="py-16 md:py-24"
-        style={{
-          backgroundColor: finalBackgroundColor,
-          backgroundImage: themeColors.backgroundGradient
-            ? themeColors.backgroundGradient
-            : undefined,
-        }}
+        style={styleOverrides}
       >
         <div className="container mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-12">
@@ -359,21 +345,16 @@ export function ServicesSection({
             ))}
           </div>
         </div>
-      </section>
+      </div>
     );
   }
 
   // Pricing table
   if (type === "services-pricing" && pricingTiers) {
     return (
-      <section
+      <div
         className="py-16 md:py-24"
-        style={{
-          backgroundColor: finalBackgroundColor,
-          backgroundImage: themeColors.backgroundGradient
-            ? themeColors.backgroundGradient
-            : undefined,
-        }}
+        style={styleOverrides}
       >
         <div className="container mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-12">
@@ -496,21 +477,16 @@ export function ServicesSection({
             ))}
           </div>
         </div>
-      </section>
+      </div>
     );
   }
 
   // Carousel Services
   if (type === "services-carousel" && services) {
     return (
-      <section
+      <div
         className="py-16 md:py-24"
-        style={{
-          backgroundColor: finalBackgroundColor,
-          backgroundImage: themeColors.backgroundGradient
-            ? themeColors.backgroundGradient
-            : undefined,
-        }}
+        style={styleOverrides}
       >
         <div className="container mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-12">
@@ -577,7 +553,7 @@ export function ServicesSection({
             </div>
           </div>
         </div>
-      </section>
+      </div>
     );
   }
 

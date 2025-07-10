@@ -792,6 +792,80 @@ export function SectionSettingsSidebarEnhanced({
       );
     }
 
+    // Handle gallery images array
+    if (fieldName === "images" && Array.isArray(value)) {
+      return (
+        <div key={fullPath} className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label className="text-base font-semibold">{displayName}</Label>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() =>
+                handleArrayItemAdd(fullPath, {
+                  src: "/api/placeholder/400/300",
+                  alt: "Gallery image",
+                })
+              }
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Add Image
+            </Button>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {value.map((image, index) => (
+              <div key={index} className="relative group">
+                <div className="aspect-square rounded-lg overflow-hidden border bg-muted">
+                  {image.src ? (
+                    <img
+                      src={image.src}
+                      alt={image.alt || `Image ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Image className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="h-8 w-8 p-0"
+                    onClick={() => {
+                      const newSrc = prompt("Enter image URL:", image.src);
+                      if (newSrc !== null) {
+                        handleArrayItemChange(fullPath, index, "src", newSrc);
+                      }
+                    }}
+                  >
+                    <Image className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    className="h-8 w-8 p-0"
+                    onClick={() => handleArrayItemRemove(fullPath, index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <Input
+                  className="mt-1 text-xs"
+                  placeholder="Alt text"
+                  value={image.alt || ""}
+                  onChange={(e) =>
+                    handleArrayItemChange(fullPath, index, "alt", e.target.value)
+                  }
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
     // Handle image fields
     if (fieldName.includes("image") || fieldName.includes("Image")) {
       return (
@@ -979,23 +1053,6 @@ export function SectionSettingsSidebarEnhanced({
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label>Margin</Label>
-              <Select
-                value={localData.style?.margin || "0"}
-                onValueChange={(value) => handleStyleChange("margin", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0">None</SelectItem>
-                  <SelectItem value="1rem 0">Small</SelectItem>
-                  <SelectItem value="2rem 0">Medium</SelectItem>
-                  <SelectItem value="4rem 0">Large</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </TabsContent>
         </Tabs>
 

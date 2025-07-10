@@ -18,6 +18,7 @@ interface ReviewsSectionProps {
   editMode?: boolean;
   onUpdate?: (content: Record<string, unknown>) => void;
   businessCategory?: string;
+  styleOverrides?: React.CSSProperties;
 }
 
 export default function ReviewsSection({
@@ -25,6 +26,7 @@ export default function ReviewsSection({
   subtitle,
   reviews = [],
   businessCategory,
+  styleOverrides,
 }: ReviewsSectionProps) {
   // Get theme based on business category
   const categoryTheme = getBusinessCategoryTheme(businessCategory);
@@ -46,14 +48,9 @@ export default function ReviewsSection({
   };
 
   return (
-    <section
+    <div
       className="py-20 px-4"
-      style={{
-        backgroundColor: themeColors.background,
-        backgroundImage: themeColors.backgroundGradient
-          ? themeColors.backgroundGradient
-          : undefined,
-      }}
+      style={styleOverrides}
     >
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-12">
@@ -118,6 +115,6 @@ export default function ReviewsSection({
           </div>
         )}
       </div>
-    </section>
+    </div>
   );
 }

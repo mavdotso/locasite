@@ -23,9 +23,9 @@ interface AboutSectionProps {
   stats?: Array<{ value: string; label: string }>;
   editMode?: boolean;
   onUpdate?: (content: AboutContentUpdate) => void;
-  backgroundColor?: string;
   accentColor?: string;
   businessCategory?: string;
+  styleOverrides?: React.CSSProperties;
 }
 
 export function AboutSection({
@@ -41,9 +41,9 @@ export function AboutSection({
   stats,
   editMode,
   onUpdate,
-  backgroundColor = "transparent",
   accentColor = "#3b82f6",
   businessCategory,
+  styleOverrides,
 }: AboutSectionProps) {
   // Get theme based on business category
   const categoryTheme = getBusinessCategoryTheme(businessCategory);
@@ -51,10 +51,6 @@ export function AboutSection({
 
   // Use theme values with fallbacks
   const finalAccentColor = accentColor || themeColors.primary;
-  const finalBackgroundColor =
-    backgroundColor !== "transparent"
-      ? backgroundColor
-      : themeColors.background;
   const handleContentEdit = (field: string, value: unknown) => {
     if (onUpdate) {
       onUpdate({
@@ -73,14 +69,8 @@ export function AboutSection({
   // Text with side image
   if (type === "about-section") {
     return (
-      <section
+      <div
         className="py-16 md:py-24"
-        style={{
-          backgroundColor: finalBackgroundColor,
-          backgroundImage: themeColors.backgroundGradient
-            ? themeColors.backgroundGradient
-            : undefined,
-        }}
       >
         <div className="container mx-auto px-6">
           <div
@@ -166,14 +156,14 @@ export function AboutSection({
             </div>
           </div>
         </div>
-      </section>
+      </div>
     );
   }
 
   // About with Features
   if (type === "about-features") {
     return (
-      <section className="py-16 md:py-24" style={{ backgroundColor }}>
+      <div className="py-16 md:py-24" style={styleOverrides}>
         <div className="container mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <h2
@@ -227,14 +217,14 @@ export function AboutSection({
             </div>
           )}
         </div>
-      </section>
+      </div>
     );
   }
 
   // Two column text
   if (type === "about-columns") {
     return (
-      <section className="py-16 md:py-24" style={{ backgroundColor }}>
+      <div className="py-16 md:py-24" style={styleOverrides}>
         <div className="container mx-auto px-6">
           <h2
             className="text-3xl md:text-5xl font-bold text-center mb-12"
@@ -279,14 +269,14 @@ export function AboutSection({
             </div>
           </div>
         </div>
-      </section>
+      </div>
     );
   }
 
   // Timeline
   if (type === "about-timeline" && timeline) {
     return (
-      <section className="py-16 md:py-24" style={{ backgroundColor }}>
+      <div className="py-16 md:py-24" style={styleOverrides}>
         <div className="container mx-auto px-6">
           <h2
             className="text-3xl md:text-5xl font-bold text-center mb-16"
@@ -333,13 +323,13 @@ export function AboutSection({
             </div>
           </div>
         </div>
-      </section>
+      </div>
     );
   }
 
   // Minimal about
   return (
-    <section className="py-16 md:py-24" style={{ backgroundColor }}>
+    <div className="py-16 md:py-24" style={styleOverrides}>
       <div className="container mx-auto px-6">
         <div className="max-w-4xl mx-auto text-center">
           <h2
@@ -371,6 +361,6 @@ export function AboutSection({
           </p>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

@@ -15,6 +15,7 @@ interface GallerySectionProps {
   editMode?: boolean;
   onUpdate?: (content: GalleryContentUpdate) => void;
   businessCategory?: string;
+  styleOverrides?: React.CSSProperties;
 }
 
 export function GallerySection({
@@ -26,6 +27,7 @@ export function GallerySection({
   editMode,
   onUpdate,
   businessCategory,
+  styleOverrides,
 }: GallerySectionProps) {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
@@ -62,7 +64,7 @@ export function GallerySection({
     };
 
     return (
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4" style={styleOverrides}>
         {title && (
           <h2
             className="text-3xl md:text-4xl font-bold text-center mb-12"
@@ -141,7 +143,7 @@ export function GallerySection({
   // Masonry gallery
   if (type === "gallery-masonry" && images) {
     return (
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4" style={styleOverrides}>
         {title && (
           <h2
             className="text-3xl md:text-4xl font-bold text-center mb-12"
@@ -202,7 +204,7 @@ export function GallerySection({
   // Before/After gallery
   if (type === "gallery-before-after" && comparisons) {
     return (
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4" style={styleOverrides}>
         {title && (
           <h2
             className="text-3xl md:text-4xl font-bold text-center mb-12"

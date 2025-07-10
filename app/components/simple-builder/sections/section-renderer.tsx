@@ -88,13 +88,10 @@ export function SectionRenderer({
     backgroundColor: data.style?.backgroundColor,
     color: data.style?.textColor,
     padding: data.style?.padding,
-    margin: data.style?.margin,
     textAlign: data.style?.textAlign,
   };
 
-  const sectionClasses = data.type.includes("gallery")
-    ? cn("simple-section", `section-${data.type}`, "py-6 md:py-8")
-    : cn("simple-section", `section-${data.type}`);
+  const sectionClasses = cn("simple-section", `section-${data.type}`);
 
   return (
     <section
@@ -107,6 +104,11 @@ export function SectionRenderer({
         type={data.type}
         editMode={editMode}
         businessCategory={businessCategory}
+        styleOverrides={{
+          backgroundColor: data.style?.backgroundColor,
+          textColor: data.style?.textColor,
+          textAlign: data.style?.textAlign,
+        }}
         onUpdate={(newContent: Record<string, unknown>) => {
           if (onUpdate) {
             onUpdate({

@@ -21,6 +21,7 @@ interface ContactSectionProps {
   editMode?: boolean;
   onUpdate?: (content: ContactContentUpdate) => void;
   businessCategory?: string;
+  styleOverrides?: React.CSSProperties;
 }
 
 const iconMap: Record<string, string> = {
@@ -49,6 +50,7 @@ export function ContactSection({
   editMode,
   onUpdate,
   businessCategory,
+  styleOverrides,
 }: ContactSectionProps) {
   // Get theme based on business category
   const categoryTheme = getBusinessCategoryTheme(businessCategory);
@@ -110,12 +112,7 @@ export function ContactSection({
     return (
       <div
         className="py-16 md:py-24"
-        style={{
-          backgroundColor: themeColors.background,
-          backgroundImage: themeColors.backgroundGradient
-            ? themeColors.backgroundGradient
-            : undefined,
-        }}
+        style={styleOverrides}
       >
         <div className="container mx-auto px-4">
           <h2
@@ -348,12 +345,7 @@ export function ContactSection({
     return (
       <div
         className="py-16 md:py-24"
-        style={{
-          backgroundColor: themeColors.background,
-          backgroundImage: themeColors.backgroundGradient
-            ? themeColors.backgroundGradient
-            : undefined,
-        }}
+        style={styleOverrides}
       >
         <div className="container mx-auto px-4">
           <h2
@@ -403,12 +395,7 @@ export function ContactSection({
     return (
       <div
         className="py-16 md:py-24"
-        style={{
-          backgroundColor: themeColors.background,
-          backgroundImage: themeColors.backgroundGradient
-            ? themeColors.backgroundGradient
-            : undefined,
-        }}
+        style={styleOverrides}
       >
         <div className="container mx-auto px-4 text-center">
           <h2
