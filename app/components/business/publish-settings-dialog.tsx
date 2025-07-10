@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import MediaLibrary from "@/app/components/visual-editor/library/media-library";
+import { toUrlFriendly } from "@/app/lib/url-utils";
 
 interface PublishSettingsDialogProps {
   businessId: Id<"businesses">;
@@ -107,12 +108,7 @@ export function PublishSettingsDialog({
   // Generate initial subdomain suggestion from business name
   useEffect(() => {
     if (businessName && !domain && !subdomainInput) {
-      const suggested = businessName
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, "-")
-        .replace(/--+/g, "-")
-        .replace(/^-|-$/g, "")
-        .substring(0, 30);
+      const suggested = toUrlFriendly(businessName);
       setSubdomainInput(suggested);
     }
   }, [businessName, domain, subdomainInput]);
@@ -284,10 +280,14 @@ export function PublishSettingsDialog({
                     id="subdomain"
                     value={subdomainInput}
                     onChange={(e) => {
-                      setSubdomainInput(
-                        e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '')
-                      );
+                      // Allow user to type, we'll make it URL-friendly on blur
+                      setSubdomainInput(e.target.value);
                       setValidationErrors(prev => ({ ...prev, domain: "" }));
+                    }}
+                    onBlur={(e) => {
+                      // Make URL-friendly on blur
+                      const urlFriendly = toUrlFriendly(e.target.value);
+                      setSubdomainInput(urlFriendly);
                     }}
                     placeholder="your-business"
                     disabled={isPublishing}

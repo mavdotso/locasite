@@ -4,6 +4,7 @@ import { Globe, ArrowRight } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import BusinessLivePreview from "./business-live-preview";
 import { BusinessData } from "@/convex/businesses";
+import { toUrlFriendly } from "@/app/lib/url-utils";
 
 interface BrowserMockupProps {
   previewData: BusinessData | null;
@@ -35,7 +36,7 @@ export function BrowserMockup({
               <div className="mx-auto flex max-w-sm items-center gap-2 rounded-md bg-muted px-3 py-1.5 text-xs text-muted-foreground">
                 <Globe className="h-3 w-3" />
                 {previewData
-                  ? `${previewData.name?.toLowerCase().replace(/\s+/g, "-")}.locasite.com`
+                  ? `${toUrlFriendly(previewData.name || "business")}.locasite.com`
                   : "your-business.locasite.com"}
               </div>
             </div>

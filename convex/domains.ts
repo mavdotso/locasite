@@ -2,6 +2,21 @@ import { v } from "convex/values";
 import { query, mutation, internalMutation } from "./_generated/server";
 import { getUserFromAuth } from './lib/helpers';
 
+// URL-friendly string converter (same logic as frontend)
+function toUrlFriendly(input: string, maxLength: number = 30): string {
+  if (!input) return "";
+  
+  return input
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/--+/g, "-")
+    .replace(/^-|-$/g, "")
+    .substring(0, maxLength)
+    .replace(/-$/, "");
+}
+
 // Get domain by businessId
 export const getByBusinessId = query({
   args: { businessId: v.id("businesses") },
@@ -49,21 +64,16 @@ export const generateSubdomain = mutation({
         // Use custom subdomain if provided, otherwise generate from business name
         let subdomain = args.customSubdomain;
         if (!subdomain) {
-            // Generate subdomain from business name
-            subdomain = business.name
-                .toLowerCase()
-                .replace(/[^a-z0-9]/g, "") // Remove non-alphanumeric characters
-                .replace(/\s+/g, "-"); // Replace spaces with hyphens
+            // Generate subdomain from business name using URL-friendly function
+            subdomain = toUrlFriendly(business.name);
+        } else {
+            // Make sure custom subdomain is also URL-friendly
+            subdomain = toUrlFriendly(subdomain);
         }
 
         // Ensure it's not too short
         if (!subdomain || subdomain.length < 3) {
             subdomain = `business-${Math.floor(Math.random() * 10000)}`;
-        }
-
-        // Ensure it's not too long (DNS label max length is 63 characters)
-        if (subdomain.length > 63) {
-            subdomain = subdomain.substring(0, 60) + Math.floor(Math.random() * 1000);
         }
 
         // Check if subdomain already exists
