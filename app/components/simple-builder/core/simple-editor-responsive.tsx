@@ -8,8 +8,8 @@ import {
 } from "../types/simple-builder";
 import { SectionRenderer } from "../sections/section-renderer";
 import { SectionSelector } from "./section-selector";
-import { PageSettingsSidebar } from "../ui/page-settings-sidebar-enhanced";
-import { SectionSettingsSidebarEnhanced } from "../ui/section-settings-sidebar-enhanced";
+import { PageSettingsSidebar } from "../ui/page-settings-sidebar";
+import { SectionSettingsSidebar } from "../ui/section-settings-sidebar";
 import ResponsiveFrame from "../ui/responsive-frame";
 import CanvasControls, { DeviceSize, deviceSizes } from "../ui/canvas-controls";
 import { ResponsiveStyles } from "../ui/responsive-style-controls";
@@ -48,6 +48,7 @@ export function SimpleEditorResponsive({
   businessData,
   domain,
   isPublished = false,
+  businessId,
   onSaveAction,
   onPublishAction,
 }: SimpleEditorProps) {
@@ -58,6 +59,7 @@ export function SimpleEditorResponsive({
   const [isAddingSectionOpen, setIsAddingSectionOpen] = useState(false);
   const [isPageSettingsOpen, setIsPageSettingsOpen] = useState(false);
   const [isSectionSettingsOpen, setIsSectionSettingsOpen] = useState(false);
+  const [settingsSectionId, setSettingsSectionId] = useState<string | null>(null);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [pendingInsertIndex, setPendingInsertIndex] = useState<number | undefined>(undefined);
 
@@ -220,9 +222,9 @@ export function SimpleEditorResponsive({
     }
   }, [pageData, responsiveStyles, onPublishAction]);
 
-  // Get selected section data
-  const selectedSection = pageData.sections.find(
-    (s) => s.id === selectedSectionId,
+  // Get section for settings sidebar
+  const settingsSection = pageData.sections.find(
+    (s) => s.id === settingsSectionId,
   );
 
   return (
@@ -501,6 +503,7 @@ export function SimpleEditorResponsive({
                                         className="h-8 w-8 p-0"
                                         onClick={(e) => {
                                           e.stopPropagation();
+                                          setSettingsSectionId(section.id);
                                           setIsSectionSettingsOpen(true);
                                         }}
                                         title="Section settings"
@@ -645,19 +648,23 @@ export function SimpleEditorResponsive({
         />
 
         {/* Section Settings Sidebar */}
-        {selectedSection && (
-          <SectionSettingsSidebarEnhanced
+        {settingsSection && (
+          <SectionSettingsSidebar
             isOpen={isSectionSettingsOpen}
-            onClose={() => setIsSectionSettingsOpen(false)}
-            sectionData={selectedSection.data}
-            variationId={selectedSection.variationId}
+            onClose={() => {
+              setIsSectionSettingsOpen(false);
+              setSettingsSectionId(null);
+            }}
+            sectionData={settingsSection.data}
+            variationId={settingsSection.variationId}
+            businessId={businessId}
             pageSections={pageData.sections.map((s) => ({
               id: s.id,
               type: s.variationId,
               content: s.data.content,
             }))}
             onUpdate={(newData) =>
-              handleUpdateSection(selectedSection.id, newData)
+              handleUpdateSection(settingsSection.id, newData)
             }
           />
         )}

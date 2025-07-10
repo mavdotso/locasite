@@ -64,7 +64,8 @@ export function GallerySection({
     };
 
     return (
-      <div className="container mx-auto px-4" style={styleOverrides}>
+      <div className="py-16 md:py-24" style={styleOverrides}>
+        <div className="container mx-auto px-4">
         {title && (
           <h2
             className="text-3xl md:text-4xl font-bold text-center mb-12"
@@ -136,6 +137,7 @@ export function GallerySection({
             </div>
           </div>
         )}
+        </div>
       </div>
     );
   }
@@ -143,7 +145,8 @@ export function GallerySection({
   // Masonry gallery
   if (type === "gallery-masonry" && images) {
     return (
-      <div className="container mx-auto px-4" style={styleOverrides}>
+      <div className="py-16 md:py-24" style={styleOverrides}>
+        <div className="container mx-auto px-4">
         {title && (
           <h2
             className="text-3xl md:text-4xl font-bold text-center mb-12"
@@ -197,6 +200,7 @@ export function GallerySection({
             </div>
           </div>
         )}
+        </div>
       </div>
     );
   }
@@ -204,7 +208,8 @@ export function GallerySection({
   // Before/After gallery
   if (type === "gallery-before-after" && comparisons) {
     return (
-      <div className="container mx-auto px-4" style={styleOverrides}>
+      <div className="py-16 md:py-24" style={styleOverrides}>
+        <div className="container mx-auto px-4">
         {title && (
           <h2
             className="text-3xl md:text-4xl font-bold text-center mb-12"
@@ -251,6 +256,7 @@ export function GallerySection({
               </div>
             </div>
           ))}
+        </div>
         </div>
       </div>
     );

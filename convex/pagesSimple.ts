@@ -61,6 +61,9 @@ export const createDefaultPagesSimple = mutation({
             buttonText: "Get in Touch",
             buttonLink: "#contact",
           },
+          style: {
+            backgroundColor: "#FFFFFF",
+          },
         },
       },
       // 2. Hero section with business photo
@@ -81,6 +84,9 @@ export const createDefaultPagesSimple = mutation({
             overlayOpacity: 40,
             height: "large",
           },
+          style: {
+            backgroundColor: "#F0F7FF",
+          },
         },
       },
       // 3. About section
@@ -99,6 +105,9 @@ export const createDefaultPagesSimple = mutation({
             image: business.photos?.[1] || undefined,
             imagePosition: "right",
             features: [],
+          },
+          style: {
+            backgroundColor: "#FFFFFF",
           },
         },
       },
@@ -138,6 +147,9 @@ export const createDefaultPagesSimple = mutation({
                 },
               ],
           },
+          style: {
+            backgroundColor: "#F0F7FF",
+          },
         },
       },
       // 5. Gallery section
@@ -161,6 +173,9 @@ export const createDefaultPagesSimple = mutation({
                 })) || [],
             columns: 3,
           },
+          style: {
+            backgroundColor: "#FFFFFF",
+          },
         },
       },
       // 6. Contact section
@@ -181,6 +196,9 @@ export const createDefaultPagesSimple = mutation({
             mapUrl: `https://maps.google.com/?q=${encodeURIComponent(business.address)}`,
             showMap: true,
             showForm: true,
+          },
+          style: {
+            backgroundColor: "#F0F7FF",
           },
         },
       },
