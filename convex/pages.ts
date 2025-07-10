@@ -588,12 +588,50 @@ export const updatePage = mutation({
             throw new Error("Domain not found");
         }
 
-        const business = await ctx.db
+        // First try to find business by domainId
+        let business = await ctx.db
             .query("businesses")
             .withIndex("by_domainId", q => q.eq("domainId", domain._id))
             .first();
 
-        if (!business || business.userId !== user._id) {
+        // If not found, try alternative approach - find business that owns this page
+        if (!business) {
+            console.error("No business found by domainId for domain:", domain._id);
+            
+            // Alternative approach: Find all businesses and check which one has this domainId
+            const allBusinesses = await ctx.db
+                .query("businesses")
+                .collect();
+            
+            const businessByDomainId = allBusinesses.find(b => b.domainId === domain._id);
+            
+            if (businessByDomainId) {
+                business = businessByDomainId;
+            } else {
+                console.error("No business found with domainId:", domain._id);
+                console.log("Domain details:", {
+                    id: domain._id,
+                    subdomain: domain.subdomain,
+                    name: domain.name
+                });
+                
+                // Last resort: Check if there's a business with matching name
+                const businessByName = allBusinesses.find(b => b.name === domain.name);
+                
+                if (businessByName) {
+                    business = businessByName;
+                    console.log("Found business by name match:", business._id);
+                } else {
+                    throw new Error("Business not found for this domain");
+                }
+            }
+        }
+        
+        if (business.userId !== user._id) {
+            console.error("User mismatch:", {
+                businessUserId: business.userId,
+                currentUserId: user._id
+            });
             throw new Error("Not authorized to edit this page");
         }
 

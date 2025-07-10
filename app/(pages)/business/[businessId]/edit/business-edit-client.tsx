@@ -38,6 +38,11 @@ export default function BusinessEditClient({
     api.pagesSimple.createDefaultPagesSimple,
   );
   const publishBusiness = useMutation(api.businesses.publish);
+  const syncBusinessDomain = useMutation(api.businessDomainSync.syncBusinessDomain);
+  const syncStatus = useQuery(
+    api.businessDomainSync.checkBusinessDomainSync,
+    business ? { businessId: business._id } : "skip"
+  );
 
   // Handle authentication
   useEffect(() => {
@@ -46,6 +51,27 @@ export default function BusinessEditClient({
       router.push(`/sign-in?redirect=/business/${businessId}/edit`);
     }
   }, [user, businessId, router]);
+
+  // Handle business-domain sync
+  useEffect(() => {
+    if (syncStatus && !syncStatus.synced && business && user) {
+      console.log("Business-domain sync issue detected:", syncStatus.error);
+      // Automatically fix the sync issue
+      syncBusinessDomain({ businessId: business._id })
+        .then((result) => {
+          console.log("Sync result:", result);
+          if (result.success) {
+            toast.success("Business setup completed");
+            // Reload the page to get fresh data
+            window.location.reload();
+          }
+        })
+        .catch((error) => {
+          console.error("Failed to sync business-domain:", error);
+          toast.error("Failed to complete business setup. Please refresh the page.");
+        });
+    }
+  }, [syncStatus, business, user, syncBusinessDomain]);
 
   // Loading state while fetching user or business
   if (user === undefined || business === undefined) {
@@ -262,6 +288,26 @@ export default function BusinessEditClient({
   };
 
   if (!domain || !pages) {
+    // Check if sync is in progress
+    if (syncStatus && !syncStatus.synced) {
+      return (
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+            <p className="text-muted-foreground">Setting up your website...</p>
+            {business && (
+              <p className="text-sm text-muted-foreground mt-2">
+                {business.name}
+              </p>
+            )}
+            <p className="text-xs text-muted-foreground mt-4">
+              This may take a few moments...
+            </p>
+          </div>
+        </div>
+      );
+    }
+    
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">

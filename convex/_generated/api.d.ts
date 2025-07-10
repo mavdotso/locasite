@@ -13,6 +13,7 @@ import type * as analytics from "../analytics.js";
 import type * as applyBusinessTemplate from "../applyBusinessTemplate.js";
 import type * as auth from "../auth.js";
 import type * as businessClaims from "../businessClaims.js";
+import type * as businessDomainSync from "../businessDomainSync.js";
 import type * as businesses from "../businesses.js";
 import type * as businessesActions from "../businessesActions.js";
 import type * as businessesWithDomain from "../businessesWithDomain.js";
@@ -58,6 +59,7 @@ declare const fullApi: ApiFromModules<{
   applyBusinessTemplate: typeof applyBusinessTemplate;
   auth: typeof auth;
   businessClaims: typeof businessClaims;
+  businessDomainSync: typeof businessDomainSync;
   businesses: typeof businesses;
   businessesActions: typeof businessesActions;
   businessesWithDomain: typeof businessesWithDomain;
