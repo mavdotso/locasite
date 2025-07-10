@@ -102,39 +102,7 @@ export const createDefaultPagesSimple = mutation({
           },
         },
       },
-      // 4. Services section
-      {
-        id: "services-1",
-        variationId: "services-grid",
-        order: 3,
-        data: {
-          id: "services-1",
-          type: "services-grid",
-          content: {
-            title: "Our Services",
-            subtitle: "What we offer",
-            services: [
-              {
-                title: "Quality Service",
-                description:
-                  "We provide top-notch service to all our customers",
-                icon: "star",
-              },
-              {
-                title: "Expert Team",
-                description: "Our experienced team is here to help you",
-                icon: "users",
-              },
-              {
-                title: "Best Results",
-                description: "We deliver exceptional results every time",
-                icon: "trophy",
-              },
-            ],
-          },
-        },
-      },
-      // 5. Reviews section
+      // 4. Reviews section
       {
         id: "reviews-1",
         variationId: "reviews-section",
@@ -172,7 +140,7 @@ export const createDefaultPagesSimple = mutation({
           },
         },
       },
-      // 6. Gallery section
+      // 5. Gallery section
       {
         id: "gallery-1",
         variationId: "gallery-grid",
@@ -195,7 +163,7 @@ export const createDefaultPagesSimple = mutation({
           },
         },
       },
-      // 7. Contact section
+      // 6. Contact section
       {
         id: "contact-1",
         variationId: "contact-form-map",
