@@ -1,12 +1,12 @@
 "use client";
 
 import { Id } from "@/convex/_generated/dataModel";
-import AnalyticsDashboardV2 from "@/app/components/dashboard/analytics-dashboard-v2";
+import AnalyticsDashboard from "@/app/components/dashboard/analytics-dashboard";
 
 interface AnalyticsClientProps {
   businessId: Id<"businesses">;
 }
 
 export default function AnalyticsClient({ businessId }: AnalyticsClientProps) {
-  return <AnalyticsDashboardV2 businessId={businessId} />;
+  return <AnalyticsDashboard businessId={businessId} />;
 }

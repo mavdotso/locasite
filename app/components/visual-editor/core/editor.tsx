@@ -13,6 +13,7 @@ import PreviewPanel from "../ui/preview-panel";
 import FieldEditor from "../components/field-editor";
 import { allComponentConfigs as componentConfigs } from "../config/all-components";
 import { Button } from "@/app/components/ui/button";
+import { Badge } from "@/app/components/ui/badge";
 import {
   Save,
   Loader2,
@@ -37,11 +38,19 @@ import {
   TooltipTrigger,
 } from "@/app/components/ui/tooltip";
 import { PublishSettingsDialog } from "@/app/components/business/publish-settings-dialog";
-import { useDebouncedCallback } from "@/app/hooks/use-debounced-callback";
 import { useComponentPreloader } from "@/app/hooks/use-component-preloader";
 import TemplateSelector from "../library/template-selector";
-import PageSettingsSidebar from "../ui/page-settings-sidebar";
 import Logo from "@/app/components/ui/logo";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/app/components/ui/sheet";
+import {
+  PageSettings,
+  PageSettingsData,
+} from "@/app/components/common/page-settings";
 import Link from "next/link";
 
 interface VisualEditorProps {
@@ -88,12 +97,6 @@ export default function VisualEditor({
   const [history, setHistory] = useState<PageData[]>([pageData]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [showHelp, setShowHelp] = useState(false);
-  const [autoSaveEnabled, setAutoSaveEnabled] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("autoSaveEnabled") !== "false";
-    }
-    return true;
-  });
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showPublishDialog, setShowPublishDialog] = useState(false);
@@ -107,6 +110,7 @@ export default function VisualEditor({
   >("canvas");
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [showPageSettings, setShowPageSettings] = useState(false);
+  const [isFullScreenPreview, setIsFullScreenPreview] = useState(false);
   const [seoMetadata, setSeoMetadata] = useState<SEOMetadataState>({
     title: pageData.title || "",
     description: "",
@@ -125,37 +129,6 @@ export default function VisualEditor({
 
   // Preload commonly used components
   useComponentPreloader(componentConfigs);
-  // Auto-save callback
-  const autoSaveCallback = useCallback(
-    async (data: PageData) => {
-      if (!autoSaveEnabled || isSaving) return;
-
-      try {
-        setIsSaving(true);
-        if (onSave) {
-          await onSave(data);
-        } else {
-          await updatePage({
-            pageId,
-            content: JSON.stringify(data),
-          });
-        }
-        setLastSaved(new Date());
-        setHasUnsavedChanges(false);
-      } catch (error) {
-        console.error("Auto-save failed:", error);
-      } finally {
-        setIsSaving(false);
-      }
-    },
-    [autoSaveEnabled, isSaving, onSave, updatePage, pageId],
-  );
-
-  // Debounced auto-save function
-  const debouncedAutoSave = useDebouncedCallback(
-    autoSaveCallback as (...args: unknown[]) => unknown,
-    2000,
-  ); // Auto-save after 2 seconds of inactivity
 
   // Mobile detection and responsive behavior
   useEffect(() => {
@@ -166,6 +139,20 @@ export default function VisualEditor({
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Handle full-screen preview
+  useEffect(() => {
+    const handleEnterFullScreen = () => {
+      setIsFullScreenPreview(true);
+    };
+
+    window.addEventListener("enterFullScreenPreview", handleEnterFullScreen);
+    return () =>
+      window.removeEventListener(
+        "enterFullScreenPreview",
+        handleEnterFullScreen,
+      );
   }, []);
 
   // Auto-switch to canvas on mobile when component is selected
@@ -218,9 +205,8 @@ export default function VisualEditor({
       setPageData(newData);
       addToHistory(newData);
       setHasUnsavedChanges(true);
-      debouncedAutoSave(newData);
     },
-    [pageData, addToHistory, debouncedAutoSave],
+    [pageData, addToHistory],
   );
 
   // Update component layout (handles nested components)
@@ -250,9 +236,8 @@ export default function VisualEditor({
       setPageData(newData);
       addToHistory(newData);
       setHasUnsavedChanges(true);
-      debouncedAutoSave(newData);
     },
-    [pageData, addToHistory, debouncedAutoSave],
+    [pageData, addToHistory],
   );
 
   // Add component
@@ -315,7 +300,6 @@ export default function VisualEditor({
         setPageData(newData);
         addToHistory(newData);
         setHasUnsavedChanges(true);
-        debouncedAutoSave(newData);
         toast.success("Template added successfully");
       } else {
         // Handle regular component
@@ -375,11 +359,10 @@ export default function VisualEditor({
         setPageData(newData);
         addToHistory(newData);
         setHasUnsavedChanges(true);
-        debouncedAutoSave(newData);
         toast.success("Component added");
       }
     },
-    [pageData, addToHistory, debouncedAutoSave, business],
+    [pageData, addToHistory, business],
   );
 
   // Duplicate component (handles nested components)
@@ -433,11 +416,10 @@ export default function VisualEditor({
         setPageData(newData);
         addToHistory(newData);
         setHasUnsavedChanges(true);
-        debouncedAutoSave(newData);
         toast.success("Component duplicated");
       }
     },
-    [pageData, addToHistory, debouncedAutoSave],
+    [pageData, addToHistory],
   );
 
   // Remove component (handles nested components)
@@ -466,13 +448,12 @@ export default function VisualEditor({
       setPageData(newData);
       addToHistory(newData);
       setHasUnsavedChanges(true);
-      debouncedAutoSave(newData);
 
       if (selectedComponentId === id) {
         setSelectedComponentId(null);
       }
     },
-    [pageData, selectedComponentId, addToHistory, debouncedAutoSave],
+    [pageData, selectedComponentId, addToHistory],
   );
 
   // Move component
@@ -580,9 +561,8 @@ export default function VisualEditor({
     setPageData(newData);
     addToHistory(newData);
     setHasUnsavedChanges(true);
-    debouncedAutoSave(newData);
     toast.success("Component pasted");
-  }, [copiedComponent, pageData, addToHistory, debouncedAutoSave]);
+  }, [copiedComponent, pageData, addToHistory]);
 
   // Calculate stats
   const calculateStats = useCallback(() => {
@@ -657,16 +637,43 @@ export default function VisualEditor({
     showStats,
   ]);
 
-  // Auto-save functionality
-  useEffect(() => {
-    if (!autoSaveEnabled || !hasUnsavedChanges || isSaving) return;
+  // Auto-save functionality - removed auto-save on changes
+  // Now only saves when explicitly triggered by user
 
-    const autoSaveTimer = setTimeout(() => {
-      handleSave();
-    }, 3000); // Auto-save after 3 seconds of inactivity
+  // Full-screen preview mode
+  if (isFullScreenPreview) {
+    return (
+      <>
+        {/* Full-screen preview without any UI elements */}
+        <PreviewPanel
+          pageData={pageData}
+          business={business}
+          selectedComponentId={null}
+          onSelectComponent={() => {}}
+          onUpdateComponent={() => {}}
+          onRemoveComponent={() => {}}
+          onMoveComponent={() => {}}
+          onAddComponent={() => {}}
+          isEditMode={false}
+        />
 
-    return () => clearTimeout(autoSaveTimer);
-  }, [pageData, autoSaveEnabled, hasUnsavedChanges, isSaving, handleSave]);
+        {/* Floating controls */}
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
+          <div className="bg-background/95 backdrop-blur-sm border rounded-lg shadow-lg p-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsFullScreenPreview(false)}
+              className="gap-2"
+            >
+              <X className="h-4 w-4" />
+              Exit Preview
+            </Button>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <TooltipProvider>
@@ -714,13 +721,43 @@ export default function VisualEditor({
                 </Tooltip>
               </div>
 
-              {/* Save Status */}
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                {hasUnsavedChanges && !isSaving && (
-                  <div className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
+              {/* Status Badge */}
+              <Badge
+                variant={
+                  business.isPublished
+                    ? hasUnsavedChanges
+                      ? "secondary"
+                      : "default"
+                    : "outline"
+                }
+                className="gap-1.5"
+              >
+                {business.isPublished ? (
+                  hasUnsavedChanges ? (
+                    <>
+                      <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+                      Unsaved Changes
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-2 h-2 bg-green-500 rounded-full" />
+                      Published
+                    </>
+                  )
+                ) : (
+                  <>
+                    <div className="w-2 h-2 bg-muted-foreground rounded-full" />
+                    Draft
+                  </>
                 )}
-                {autoSaveEnabled && lastSaved && !hasUnsavedChanges && (
-                  <span>Saved</span>
+              </Badge>
+
+              {/* Additional Status Info */}
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                {lastSaved && !hasUnsavedChanges && (
+                  <span>
+                    Last saved {new Date(lastSaved).toLocaleTimeString()}
+                  </span>
                 )}
                 {copiedComponent && (
                   <span className="text-primary">Component copied</span>
@@ -750,11 +787,10 @@ export default function VisualEditor({
                   <Button
                     size="sm"
                     onClick={handleSave}
-                    disabled={
-                      isSaving || (!hasUnsavedChanges && !autoSaveEnabled)
-                    }
+                    disabled={isSaving || !hasUnsavedChanges}
                     className="h-8"
                   >
+                    {" "}
                     {isSaving ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
                     ) : (
@@ -768,22 +804,15 @@ export default function VisualEditor({
               </Tooltip>
 
               {/* Page Settings Button */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowPageSettings(true)}
-                    className="h-8 gap-1.5"
-                  >
-                    <Settings className="h-3.5 w-3.5" />
-                    <span className="text-xs">Page Settings</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Domain, SEO & Publishing Settings</p>
-                </TooltipContent>
-              </Tooltip>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowPageSettings(true)}
+                className="h-8 gap-1.5"
+              >
+                <Settings className="h-3.5 w-3.5" />
+                <span className="text-xs">Settings</span>
+              </Button>
             </div>
           </div>
 
@@ -854,26 +883,6 @@ export default function VisualEditor({
                   Drag components from the left sidebar to add them to your
                   page.
                 </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">
-                    Auto-save
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      const newValue = !autoSaveEnabled;
-                      setAutoSaveEnabled(newValue);
-                      localStorage.setItem("autoSaveEnabled", String(newValue));
-                      toast.success(
-                        newValue ? "Auto-save enabled" : "Auto-save disabled",
-                      );
-                    }}
-                    className="h-5 text-xs px-2"
-                  >
-                    {autoSaveEnabled ? "On" : "Off"}
-                  </Button>
-                </div>
               </div>
             </div>
           )}
@@ -1155,46 +1164,74 @@ export default function VisualEditor({
             setPageData(template);
             addToHistory(template);
             setHasUnsavedChanges(true);
-            debouncedAutoSave(template);
             toast.success("Template applied successfully!");
           }}
           currentPageHasContent={pageData.components.length > 0}
         />
 
         {/* Page Settings Sidebar */}
-        <PageSettingsSidebar
-          businessId={businessId}
-          business={business}
-          pageId={pageId}
-          metadata={seoMetadata}
-          isOpen={showPageSettings}
-          onMetadataChange={(newMetadata) => {
-            const updatedMetadata: SEOMetadataState = {
-              title: newMetadata.title,
-              description: newMetadata.description,
-              keywords: newMetadata.keywords,
-              canonicalUrl: newMetadata.canonicalUrl || "",
-              ogTitle: newMetadata.ogTitle || "",
-              ogDescription: newMetadata.ogDescription || "",
-              ogImage: newMetadata.ogImage || "",
-              ogType: newMetadata.ogType || "website",
-              twitterCard: newMetadata.twitterCard || "summary",
-              robots: newMetadata.robots || "index,follow",
-              author: newMetadata.author,
-              structuredData: newMetadata.structuredData || {},
-            };
-            setSeoMetadata(updatedMetadata);
-            // Update page title if changed
-            if (newMetadata.title !== pageData.title) {
-              const newPageData = { ...pageData, title: newMetadata.title };
-              setPageData(newPageData);
-              addToHistory(newPageData);
-              setHasUnsavedChanges(true);
-              debouncedAutoSave(newPageData);
-            }
-          }}
-          onClose={() => setShowPageSettings(false)}
-        />
+        <Sheet open={showPageSettings} onOpenChange={setShowPageSettings}>
+          <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Page Settings
+              </SheetTitle>
+            </SheetHeader>
+            <div className="mt-6">
+              <PageSettings
+                businessId={businessId}
+                business={business}
+                initialData={{
+                  pageTitle: pageData.title || "",
+                  seoTitle: pageData.seoTitle || seoMetadata.title,
+                  seoDescription:
+                    pageData.seoDescription || seoMetadata.description,
+                  seoKeywords:
+                    pageData.seoKeywords || seoMetadata.keywords.join(", "),
+                  ogTitle: pageData.ogTitle || seoMetadata.ogTitle,
+                  ogDescription:
+                    pageData.ogDescription || seoMetadata.ogDescription,
+                  ogImage: pageData.ogImage || seoMetadata.ogImage,
+                }}
+                onSave={(data: PageSettingsData) => {
+                  // Update page data
+                  const newPageData = {
+                    ...pageData,
+                    title: data.pageTitle,
+                    seoTitle: data.seoTitle,
+                    seoDescription: data.seoDescription,
+                    seoKeywords: data.seoKeywords,
+                    ogTitle: data.ogTitle,
+                    ogDescription: data.ogDescription,
+                    ogImage: data.ogImage,
+                  };
+                  setPageData(newPageData);
+                  addToHistory(newPageData);
+                  setHasUnsavedChanges(true);
+
+                  // Update SEO metadata
+                  setSeoMetadata({
+                    ...seoMetadata,
+                    title: data.seoTitle,
+                    description: data.seoDescription,
+                    keywords: data.seoKeywords
+                      .split(",")
+                      .map((k) => k.trim())
+                      .filter(Boolean),
+                    ogTitle: data.ogTitle,
+                    ogDescription: data.ogDescription,
+                    ogImage: data.ogImage,
+                  });
+
+                  setShowPageSettings(false);
+                }}
+                showDomainSettings={false}
+                showPublishButton={false}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
       </DragDropProvider>
     </TooltipProvider>
   );

@@ -40,10 +40,12 @@ export default function BusinessEditClient({
   const createPageWithContent = useMutation(
     api.pagesSimple.createPageWithContent,
   );
-  const syncBusinessDomain = useMutation(api.businessDomainSync.syncBusinessDomain);
+  const syncBusinessDomain = useMutation(
+    api.businessDomainSync.syncBusinessDomain,
+  );
   const syncStatus = useQuery(
     api.businessDomainSync.checkBusinessDomainSync,
-    business ? { businessId: business._id } : "skip"
+    business ? { businessId: business._id } : "skip",
   );
 
   // Handle authentication
@@ -71,7 +73,9 @@ export default function BusinessEditClient({
         })
         .catch((error) => {
           console.error("Failed to sync business-domain:", error);
-          toast.error("Failed to complete business setup. Please refresh the page.");
+          toast.error(
+            "Failed to complete business setup. Please refresh the page.",
+          );
         });
     }
   }, [syncStatus, business, user, pages, syncBusinessDomain]);
@@ -143,10 +147,10 @@ export default function BusinessEditClient({
   if (page?.content) {
     try {
       const parsed = JSON.parse(page.content);
-      console.log("Parsed page content:", { 
-        mode: parsed.mode, 
+      console.log("Parsed page content:", {
+        mode: parsed.mode,
         sectionsCount: parsed.sections?.length,
-        hasContent: !!parsed.sections 
+        hasContent: !!parsed.sections,
       });
 
       // Check if it's already in Simple Mode format
@@ -157,7 +161,11 @@ export default function BusinessEditClient({
           sections: parsed.sections,
           theme: parsed.theme || initialData.theme,
         };
-        console.log("Loaded", initialData.sections.length, "sections from saved content");
+        console.log(
+          "Loaded",
+          initialData.sections.length,
+          "sections from saved content",
+        );
       } else {
         // If no content or it's in Pro mode, create default sections based on business type
         const businessType = detectBusinessType(business);
@@ -224,11 +232,14 @@ export default function BusinessEditClient({
         sections: data.sections,
         theme: data.theme,
       };
-      
+
       console.log("Saving page data:", {
         mode: pageData.mode,
         sectionsCount: pageData.sections.length,
-        sections: pageData.sections.map(s => ({ id: s.id, variationId: s.variationId }))
+        sections: pageData.sections.map((s) => ({
+          id: s.id,
+          variationId: s.variationId,
+        })),
       });
 
       if (page) {
@@ -304,7 +315,7 @@ export default function BusinessEditClient({
         </div>
       );
     }
-    
+
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
@@ -337,7 +348,6 @@ export default function BusinessEditClient({
       businessData={businessData}
       businessId={businessId}
       business={business}
-      domain={domain?.subdomain}
       isPublished={business.isPublished}
       onSaveAction={handleSave}
       onPublishAction={handlePublish}

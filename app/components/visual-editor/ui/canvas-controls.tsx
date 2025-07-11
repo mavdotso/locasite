@@ -2,15 +2,16 @@
 
 import React from "react";
 import { Button } from "@/app/components/ui/button";
-import { 
-  Monitor, 
-  Tablet, 
+import {
+  Monitor,
+  Tablet,
   Smartphone,
   ZoomIn,
   ZoomOut,
   Eye,
   EyeOff,
-  Maximize2
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 import {
   Tooltip,
@@ -29,10 +30,13 @@ import { cn } from "@/app/lib/utils";
 
 export type DeviceSize = "desktop" | "tablet" | "mobile";
 
-export const deviceSizes: Record<DeviceSize, { width: string; icon: typeof Monitor; label: string }> = {
+export const deviceSizes: Record<
+  DeviceSize,
+  { width: string; icon: typeof Monitor; label: string }
+> = {
   desktop: { width: "100%", icon: Monitor, label: "Desktop" },
   tablet: { width: "768px", icon: Tablet, label: "Tablet" },
-  mobile: { width: "375px", icon: Smartphone, label: "Mobile" }
+  mobile: { width: "375px", icon: Smartphone, label: "Mobile" },
 };
 
 interface CanvasControlsProps {
@@ -42,6 +46,8 @@ interface CanvasControlsProps {
   onZoomChange: (zoom: number) => void;
   isPreviewMode?: boolean;
   onPreviewModeChange?: (preview: boolean) => void;
+  isFullScreen?: boolean;
+  onFullScreenChange?: (fullScreen: boolean) => void;
 }
 
 export default function CanvasControls({
@@ -50,7 +56,9 @@ export default function CanvasControls({
   zoom,
   onZoomChange,
   isPreviewMode = false,
-  onPreviewModeChange
+  onPreviewModeChange,
+  isFullScreen = false,
+  onFullScreenChange,
 }: CanvasControlsProps) {
   const zoomPresets = [50, 75, 100, 125, 150];
 
@@ -61,7 +69,12 @@ export default function CanvasControls({
         <div className="flex items-center gap-1 bg-background/95 backdrop-blur-sm border rounded-lg shadow-lg p-1">
           {/* Device Size Controls */}
           <div className="flex items-center gap-0.5 px-1">
-            {(Object.entries(deviceSizes) as [DeviceSize, typeof deviceSizes[DeviceSize]][]).map(([size, config]) => {
+            {(
+              Object.entries(deviceSizes) as [
+                DeviceSize,
+                (typeof deviceSizes)[DeviceSize],
+              ][]
+            ).map(([size, config]) => {
               const Icon = config.icon;
               return (
                 <Tooltip key={size}>
@@ -106,15 +119,19 @@ export default function CanvasControls({
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 px-2 min-w-[60px]">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 px-2 min-w-[60px]"
+                >
                   {zoom}%
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center">
                 <DropdownMenuLabel>Zoom Level</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {zoomPresets.map(preset => (
-                  <DropdownMenuItem 
+                {zoomPresets.map((preset) => (
+                  <DropdownMenuItem
                     key={preset}
                     onClick={() => onZoomChange(preset)}
                     className={cn(zoom === preset && "bg-accent")}
@@ -152,7 +169,6 @@ export default function CanvasControls({
 
           {/* View Options */}
           <div className="flex items-center gap-0.5 px-1">
-
             {onPreviewModeChange && (
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -162,7 +178,11 @@ export default function CanvasControls({
                     onClick={() => onPreviewModeChange(!isPreviewMode)}
                     className="h-8 w-8 p-0"
                   >
-                    {isPreviewMode ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                    {isPreviewMode ? (
+                      <Eye className="h-4 w-4" />
+                    ) : (
+                      <EyeOff className="h-4 w-4" />
+                    )}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -170,10 +190,33 @@ export default function CanvasControls({
                 </TooltipContent>
               </Tooltip>
             )}
+
+            {onFullScreenChange && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={isFullScreen ? "secondary" : "ghost"}
+                    size="sm"
+                    onClick={() => onFullScreenChange(!isFullScreen)}
+                    className="h-8 w-8 p-0"
+                  >
+                    {isFullScreen ? (
+                      <Minimize2 className="h-4 w-4" />
+                    ) : (
+                      <Maximize2 className="h-4 w-4" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>
+                    {isFullScreen ? "Exit full screen" : "Full screen preview"}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            )}
           </div>
         </div>
       </div>
-
     </>
   );
 }

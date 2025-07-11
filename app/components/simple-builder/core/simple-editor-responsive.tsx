@@ -8,7 +8,16 @@ import {
 } from "../types/simple-builder";
 import { SectionRenderer } from "../sections/section-renderer";
 import { SectionSelector } from "./section-selector";
-import { PageSettingsSidebar } from "../ui/page-settings-sidebar";
+import {
+  PageSettings,
+  PageSettingsData,
+} from "@/app/components/common/page-settings";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/app/components/ui/sheet";
 import { SectionSettingsSidebar } from "../ui/section-settings-sidebar";
 import ResponsiveFrame from "../ui/responsive-frame";
 import CanvasControls, { DeviceSize, deviceSizes } from "../ui/canvas-controls";
@@ -39,7 +48,6 @@ import { Id } from "@/convex/_generated/dataModel";
 interface SimpleEditorProps {
   initialData: SimplePageData;
   businessData?: Record<string, string>;
-  domain?: string;
   isPublished?: boolean;
   businessId?: string;
   business?: Record<string, unknown>;
@@ -51,7 +59,6 @@ interface SimpleEditorProps {
 export function SimpleEditorResponsive({
   initialData,
   businessData,
-  domain,
   isPublished = false,
   businessId,
   business,
@@ -65,9 +72,13 @@ export function SimpleEditorResponsive({
   const [isAddingSectionOpen, setIsAddingSectionOpen] = useState(false);
   const [isPageSettingsOpen, setIsPageSettingsOpen] = useState(false);
   const [isSectionSettingsOpen, setIsSectionSettingsOpen] = useState(false);
-  const [settingsSectionId, setSettingsSectionId] = useState<string | null>(null);
+  const [settingsSectionId, setSettingsSectionId] = useState<string | null>(
+    null,
+  );
   const [isPreviewMode, setIsPreviewMode] = useState(false);
-  const [pendingInsertIndex, setPendingInsertIndex] = useState<number | undefined>(undefined);
+  const [pendingInsertIndex, setPendingInsertIndex] = useState<
+    number | undefined
+  >(undefined);
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
 
   // Responsive preview states
@@ -85,18 +96,19 @@ export function SimpleEditorResponsive({
       if (!variation) return;
 
       // Generate a smart ID based on section type
-      const baseId = variation.template.type.split('-')[0]; // e.g., "hero" from "hero-section"
-      
+      const baseId = variation.template.type.split("-")[0]; // e.g., "hero" from "hero-section"
+
       // Count existing sections of the same base type
-      const existingSectionsOfType = pageData.sections.filter(s => {
+      const existingSectionsOfType = pageData.sections.filter((s) => {
         const sectionVariation = getVariationById(s.variationId);
         return sectionVariation?.template.type.startsWith(baseId);
       });
-      
+
       // Only add number if there's already a section of this type
-      const sectionId = existingSectionsOfType.length > 0 
-        ? `${baseId}-${existingSectionsOfType.length + 1}`
-        : baseId;
+      const sectionId =
+        existingSectionsOfType.length > 0
+          ? `${baseId}-${existingSectionsOfType.length + 1}`
+          : baseId;
 
       const newSection: SectionInstance = {
         id: generateId(),
@@ -110,22 +122,24 @@ export function SimpleEditorResponsive({
 
       setPageData((prev) => {
         // Sort sections by order first to work with visual order
-        const sortedSections = [...prev.sections].sort((a, b) => a.order - b.order);
-        
+        const sortedSections = [...prev.sections].sort(
+          (a, b) => a.order - b.order,
+        );
+
         let newSections: SectionInstance[];
-        
+
         if (insertAfterIndex !== undefined) {
           // Insert after the specified index
           newSections = [
             ...sortedSections.slice(0, insertAfterIndex + 1),
             newSection,
-            ...sortedSections.slice(insertAfterIndex + 1)
+            ...sortedSections.slice(insertAfterIndex + 1),
           ];
         } else {
           // Add to end
           newSections = [...sortedSections, newSection];
         }
-        
+
         // Reassign order values based on new positions
         newSections.forEach((section, idx) => {
           section.order = idx;
@@ -176,15 +190,15 @@ export function SimpleEditorResponsive({
       // Generate a smart ID for the duplicated section
       const variation = getVariationById(sectionToDuplicate.variationId);
       if (!variation) return;
-      
-      const baseId = variation.template.type.split('-')[0];
-      
+
+      const baseId = variation.template.type.split("-")[0];
+
       // Count all sections of the same base type
-      const existingSectionsOfType = pageData.sections.filter(s => {
+      const existingSectionsOfType = pageData.sections.filter((s) => {
         const sectionVariation = getVariationById(s.variationId);
         return sectionVariation?.template.type.startsWith(baseId);
       });
-      
+
       // Always add a number for duplicates
       const sectionDataId = `${baseId}-${existingSectionsOfType.length + 1}`;
 
@@ -634,8 +648,14 @@ export function SimpleEditorResponsive({
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           // Find the sorted index for insertion
-                                          const sortedSections = pageData.sections.sort((a, b) => a.order - b.order);
-                                          const sortedIndex = sortedSections.findIndex(s => s.id === section.id);
+                                          const sortedSections =
+                                            pageData.sections.sort(
+                                              (a, b) => a.order - b.order,
+                                            );
+                                          const sortedIndex =
+                                            sortedSections.findIndex(
+                                              (s) => s.id === section.id,
+                                            );
                                           setPendingInsertIndex(sortedIndex); // Insert after current section
                                           setIsAddingSectionOpen(true);
                                         }}
@@ -680,26 +700,45 @@ export function SimpleEditorResponsive({
         )}
 
         {/* Page Settings Sidebar */}
-        <PageSettingsSidebar
-          isOpen={isPageSettingsOpen}
-          onClose={() => setIsPageSettingsOpen(false)}
-          pageTitle={pageData.pageTitle || "Untitled Page"}
-          domain={domain}
-          seoTitle={pageData.seoTitle}
-          seoDescription={pageData.seoDescription}
-          seoKeywords={pageData.seoKeywords}
-          ogTitle={pageData.ogTitle}
-          ogDescription={pageData.ogDescription}
-          ogImage={pageData.ogImage}
-          isPublished={isPublished}
-          businessId={businessId}
-          onUpdate={(settings) => {
-            setPageData((prev) => ({
-              ...prev,
-              ...settings,
-            }));
-          }}
-        />
+        <Sheet open={isPageSettingsOpen} onOpenChange={setIsPageSettingsOpen}>
+          <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Page Settings
+              </SheetTitle>
+            </SheetHeader>
+            <div className="mt-6">
+              <PageSettings
+                businessId={businessId as Id<"businesses">}
+                initialData={{
+                  pageTitle: pageData.pageTitle || "Untitled Page",
+                  seoTitle: pageData.seoTitle || "",
+                  seoDescription: pageData.seoDescription || "",
+                  seoKeywords: pageData.seoKeywords || "",
+                  ogTitle: pageData.ogTitle || "",
+                  ogDescription: pageData.ogDescription || "",
+                  ogImage: pageData.ogImage || "",
+                }}
+                onSave={(data: PageSettingsData) => {
+                  setPageData((prev) => ({
+                    ...prev,
+                    pageTitle: data.pageTitle,
+                    seoTitle: data.seoTitle,
+                    seoDescription: data.seoDescription,
+                    seoKeywords: data.seoKeywords,
+                    ogTitle: data.ogTitle,
+                    ogDescription: data.ogDescription,
+                    ogImage: data.ogImage,
+                  }));
+                  setIsPageSettingsOpen(false);
+                }}
+                showDomainSettings={false}
+                showPublishButton={false}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
 
         {/* Section Settings Sidebar */}
         {settingsSection && (
@@ -727,7 +766,9 @@ export function SimpleEditorResponsive({
         {businessId && (
           <PublishSettingsDialog
             businessId={businessId as Id<"businesses">}
-            businessName={business?.name as string || businessData?.name || "Business"}
+            businessName={
+              (business?.name as string) || businessData?.name || "Business"
+            }
             open={isPublishDialogOpen}
             onOpenChange={setIsPublishDialogOpen}
             pageData={pageData}

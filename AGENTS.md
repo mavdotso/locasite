@@ -20,6 +20,7 @@ npx knip                   # Find unused dependencies/exports
 - **Colors**: FORBIDDEN: `text-gray-*`, `bg-gray-*`, `border-gray-*`, `text-black`, `bg-white`, `text-slate-*`. Use semantic colors: `text-muted-foreground`, `bg-muted`, `bg-background`, `bg-card`, `border-border`
 - **Components**: Use functional components with React Server Components where possible
 - **Naming**: Use `dash-dir` for directories, `handleEvent` for event handlers
+- **File Creation**: When rewriting a component from scratch, ALWAYS overwrite the existing file directly. NEVER create files with `-v2`, `-new`, or similar suffixes
 - **Imports**: Group imports by external/internal, sort alphabetically
 - **Error Handling**: Use early returns, implement error boundaries
 - **Styling**: Use Tailwind classes only, no CSS or style tags

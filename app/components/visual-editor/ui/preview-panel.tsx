@@ -358,6 +358,13 @@ const PreviewPanel = React.memo(function PreviewPanel({
           onZoomChange={setZoom}
           isPreviewMode={isPreviewMode}
           onPreviewModeChange={setIsPreviewMode}
+          isFullScreen={false}
+          onFullScreenChange={(fullScreen) => {
+            if (fullScreen) {
+              // Trigger full-screen preview in parent
+              window.dispatchEvent(new CustomEvent("enterFullScreenPreview"));
+            }
+          }}
         />
       )}
     </div>
