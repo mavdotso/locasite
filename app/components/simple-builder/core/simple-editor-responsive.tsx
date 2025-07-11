@@ -285,24 +285,38 @@ export function SimpleEditorResponsive({
     return (
       <TooltipProvider>
         {/* Full-screen preview without any UI elements */}
-        <div className="h-screen w-screen overflow-hidden relative bg-muted/30">
-          <div className="h-full overflow-hidden flex items-center justify-center p-4">
-            <div
-              className="flex items-start justify-center"
-              style={{
-                transform: `scale(${zoom / 100})`,
-                transformOrigin: "center center",
-                height: `${100 / (zoom / 100)}%`,
-                width: "100%",
-              }}
-            >
+        <div className="h-screen w-screen overflow-hidden relative">
+          {deviceSize === "desktop" ? (
+            // For desktop, render directly without iframe
+            <div className="h-full w-full overflow-auto bg-background">
+              {pageData.sections.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <p className="text-muted-foreground">
+                    No sections to preview
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  {pageData.sections
+                    .sort((a, b) => a.order - b.order)
+                    .map((section) => (
+                      <SectionRenderer
+                        key={section.id}
+                        data={section.data}
+                        editMode={false}
+                        businessData={businessData}
+                        onUpdate={() => {}}
+                      />
+                    ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            // For tablet/mobile, use ResponsiveFrame
+            <div className="h-full overflow-hidden flex items-center justify-center bg-muted/30">
               <ResponsiveFrame
-                width={
-                  deviceSize === "desktop"
-                    ? "100%"
-                    : deviceSizes[deviceSize].width
-                }
-                className="bg-background shadow-xl"
+                width={deviceSizes[deviceSize].width}
+                className="bg-background h-full shadow-xl"
               >
                 <div className="min-h-full">
                   {pageData.sections.length === 0 ? (
@@ -329,7 +343,7 @@ export function SimpleEditorResponsive({
                 </div>
               </ResponsiveFrame>
             </div>
-          </div>
+          )}
 
           {/* Canvas Controls - Only Device Size */}
           <CanvasControls
@@ -520,7 +534,7 @@ export function SimpleEditorResponsive({
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      setPendingInsertIndex(undefined); // Add to end
+                      setPendingInsertIndex(undefined); 
                       setIsAddingSectionOpen(true);
                     }}
                     className="w-full"
@@ -562,7 +576,7 @@ export function SimpleEditorResponsive({
                           </p>
                           <Button
                             onClick={() => {
-                              setPendingInsertIndex(undefined); // Add as first section
+                              setPendingInsertIndex(undefined); 
                               setIsAddingSectionOpen(true);
                             }}
                             size="lg"
@@ -697,7 +711,7 @@ export function SimpleEditorResponsive({
                                           sortedSections.findIndex(
                                             (s) => s.id === section.id,
                                           );
-                                        setPendingInsertIndex(sortedIndex); // Insert after current section
+                                        setPendingInsertIndex(sortedIndex); 
                                         setIsAddingSectionOpen(true);
                                       }}
                                     >
