@@ -92,6 +92,16 @@ export default defineSchema({
     // Publishing state
     isPublished: v.optional(v.boolean()),
     publishedAt: v.optional(v.number()),
+
+    // SEO and branding
+    favicon: v.optional(v.string()), // URL to custom favicon
+    faviconStorageId: v.optional(v.id("_storage")), // Convex storage ID for favicon
+    seoTitle: v.optional(v.string()), // Custom SEO title
+    seoDescription: v.optional(v.string()), // Custom SEO description
+    seoKeywords: v.optional(v.array(v.string())), // Custom SEO keywords
+    ogImage: v.optional(v.string()), // Custom OG image URL
+    ogImageStorageId: v.optional(v.id("_storage")), // Convex storage ID for OG image
+
     // Draft content - stores unsaved changes
     draftContent: v.optional(
       v.object({
@@ -232,21 +242,21 @@ export default defineSchema({
             ),
           }),
         ),
-    specialOffers: v.optional(
-      v.object({
-        title: v.string(),
-        offers: v.array(
+        specialOffers: v.optional(
           v.object({
             title: v.string(),
-            description: v.string(),
-            validUntil: v.string(),
-            code: v.optional(v.string()),
+            offers: v.array(
+              v.object({
+                title: v.string(),
+                description: v.string(),
+                validUntil: v.string(),
+                code: v.optional(v.string()),
+              }),
+            ),
           }),
         ),
       }),
     ),
-  }),
-),
     // Google Business Profile integration
     googleBusinessAuth: v.optional(
       v.object({
@@ -268,11 +278,12 @@ export default defineSchema({
             v.literal("unverified"),
             v.literal("pending"),
             v.literal("verified"),
-            v.literal("failed")
-          )
+            v.literal("failed"),
+          ),
         ),
       }),
-    ),  })
+    ),
+  })
     .index("by_placeId", ["placeId"])
     .index("by_userId", ["userId"])
     .index("by_domainId", ["domainId"])
@@ -371,18 +382,20 @@ export default defineSchema({
     visitorId: v.string(), // UUID generated client-side
     firstSeen: v.number(),
     lastSeen: v.number(),
-    
+
     // Device information
     userAgent: v.optional(v.string()),
-    deviceType: v.optional(v.union(v.literal("desktop"), v.literal("mobile"), v.literal("tablet"))),
+    deviceType: v.optional(
+      v.union(v.literal("desktop"), v.literal("mobile"), v.literal("tablet")),
+    ),
     browser: v.optional(v.string()),
     os: v.optional(v.string()),
-    
+
     // Location data (from IP)
     country: v.optional(v.string()),
     region: v.optional(v.string()),
     city: v.optional(v.string()),
-    
+
     // Referrer information
     referrerDomain: v.optional(v.string()),
     referrerPath: v.optional(v.string()),
@@ -400,19 +413,19 @@ export default defineSchema({
     domainId: v.optional(v.id("domains")),
     visitorId: v.string(),
     sessionId: v.string(), // UUID for session tracking
-    
+
     // Page information
     path: v.string(),
     title: v.optional(v.string()),
-    
+
     // Timing
     timestamp: v.number(),
     timeOnPage: v.optional(v.number()), // in seconds
-    
+
     // Interaction data
     scrollDepth: v.optional(v.number()), // percentage 0-100
     clicks: v.optional(v.number()),
-    
+
     // Technical details
     loadTime: v.optional(v.number()), // in milliseconds
     screenWidth: v.optional(v.number()),
@@ -430,17 +443,17 @@ export default defineSchema({
     businessId: v.id("businesses"),
     visitorId: v.string(),
     sessionId: v.string(),
-    
+
     // Event details
     eventType: v.string(), // e.g., "click", "form_submit", "scroll", "contact"
     eventCategory: v.optional(v.string()), // e.g., "engagement", "conversion"
     eventLabel: v.optional(v.string()),
     eventValue: v.optional(v.number()),
-    
+
     // Context
     path: v.string(),
     timestamp: v.number(),
-    
+
     // Additional data
     metadata: v.optional(v.any()), // JSON data for event-specific info
   })
@@ -457,20 +470,20 @@ export default defineSchema({
     sessionId: v.string(),
     visitorId: v.string(),
     businessId: v.id("businesses"),
-    
+
     // Session timing
     startTime: v.number(),
     endTime: v.optional(v.number()),
     duration: v.optional(v.number()), // in seconds
-    
+
     // Session data
     pageCount: v.number(),
     eventCount: v.number(),
-    
+
     // Entry/Exit pages
     entryPage: v.string(),
     exitPage: v.optional(v.string()),
-    
+
     // Conversion tracking
     hasConverted: v.boolean(),
     conversionType: v.optional(v.string()), // e.g., "contact", "call", "direction"

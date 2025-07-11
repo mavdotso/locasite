@@ -3,6 +3,11 @@ import { api } from "@/convex/_generated/api";
 import BusinessPageRenderer from "@/app/components/business/business-page-renderer";
 import { Metadata } from "next";
 import { fetchQuery } from "convex/nextjs";
+import {
+  generateLocalBusinessStructuredData,
+  generateBreadcrumbStructuredData,
+  generateWebsiteStructuredData,
+} from "@/app/lib/structured-data";
 
 interface PageProps {
   params: Promise<{
@@ -40,30 +45,35 @@ export async function generateMetadata({
 
     const businessData = business[0];
 
-    const businessName = domain.name || businessData.name || "Business";
+    // Use custom SEO settings if available, otherwise fall back to defaults
+    const businessName =
+      businessData.seoTitle || domain.name || businessData.name || "Business";
     const businessDescription =
+      businessData.seoDescription ||
       businessData.description ||
       `${businessName} - Located at ${businessData.address}. ${businessData.hours ? "Visit us today!" : "Contact us for more information."}`;
 
-    return {
-      title: businessName,
-      description: businessDescription,
-      keywords: [
-        businessName,
-        "local business",
-        businessData.address?.split(",").slice(-2).join(",").trim() || "local",
-        "business",
-        "local business",
-        ...(businessData.description?.split(" ").slice(0, 5) || []),
-      ],
-      openGraph: {
-        type: "website",
-        locale: "en_US",
-        url: `/${businessDomain}`,
-        siteName: "Locasite",
-        title: businessName,
-        description: businessDescription,
-        images: businessData.photos
+    // Combine custom keywords with auto-generated ones
+    const keywords = [
+      ...(businessData.seoKeywords || []),
+      businessName,
+      "local business",
+      businessData.address?.split(",").slice(-2).join(",").trim() || "local",
+      "business",
+      ...(businessData.description?.split(" ").slice(0, 5) || []),
+    ].filter((keyword, index, self) => self.indexOf(keyword) === index); // Remove duplicates
+
+    // Use custom OG image if available
+    const ogImages = businessData.ogImage
+      ? [
+          {
+            url: businessData.ogImage,
+            width: 1200,
+            height: 630,
+            alt: businessName,
+          },
+        ]
+      : businessData.photos
           ?.slice(0, 4)
           .map((photo: string, index: number) => ({
             url: photo,
@@ -77,18 +87,50 @@ export async function generateMetadata({
             height: 630,
             alt: businessName,
           },
-        ],
+        ];
+
+    const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
+    const fullUrl = `https://${businessDomain}.${rootDomain}`;
+
+    return {
+      title: businessName,
+      description: businessDescription,
+      keywords,
+      metadataBase: new URL(fullUrl),
+      icons: {
+        icon: businessData.favicon || `/api/favicon/${businessDomain}`,
+        shortcut: businessData.favicon || `/api/favicon/${businessDomain}`,
+        apple: businessData.favicon || `/api/favicon/${businessDomain}`,
+      },
+      openGraph: {
+        type: "website",
+        locale: "en_US",
+        url: fullUrl,
+        siteName: businessName,
+        title: businessName,
+        description: businessDescription,
+        images: ogImages,
       },
       twitter: {
         card: "summary_large_image",
         title: businessName,
         description: businessDescription,
-        images: businessData.photos?.[0]
-          ? [businessData.photos[0]]
-          : ["/default-business-og.png"],
+        images: businessData.ogImage
+          ? [businessData.ogImage]
+          : businessData.photos?.[0]
+            ? [businessData.photos[0]]
+            : ["/default-business-og.png"],
       },
       alternates: {
-        canonical: `/${businessDomain}`,
+        canonical: fullUrl,
+      },
+      robots: {
+        index: businessData.isPublished !== false,
+        follow: businessData.isPublished !== false,
+        googleBot: {
+          index: businessData.isPublished !== false,
+          follow: businessData.isPublished !== false,
+        },
       },
       other: {
         ...(businessData.address?.includes(",") && {
@@ -169,36 +211,54 @@ export default async function BusinessPage({ params }: PageProps) {
       );
     }
 
-    return (
-      <div className="flex flex-col min-h-screen">
-        {!businessData.userId && (
-          <div className="px-4 py-2 bg-amber-50 border-b border-amber-200">
-            <div className="container flex items-center justify-between mx-auto">
-              <div>
-                <p className="text-sm font-medium text-amber-800">
-                  Are you the owner of this business?
-                </p>
-                <p className="text-xs text-amber-600">
-                  Claim your business to manage information and respond to
-                  customers
-                </p>
-              </div>
-              <a
-                href={`/${businessDomain}/claim/${businessData._id}`}
-                className="px-4 py-2 text-sm font-medium text-white transition-colors rounded-md bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
-              >
-                Claim this Business
-              </a>
-            </div>
-          </div>
-        )}
+    const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
+    const fullDomain = `${businessDomain}.${rootDomain}`;
 
-        <BusinessPageRenderer
-          business={businessData}
-          pageContent={page?.content || JSON.stringify({ sections: [] })}
+    // Generate structured data
+    const structuredData = [
+      generateLocalBusinessStructuredData(businessData, fullDomain),
+      generateBreadcrumbStructuredData(businessData.name, fullDomain),
+      generateWebsiteStructuredData(businessData.name, fullDomain),
+    ];
+
+    return (
+      <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(structuredData),
+          }}
         />
-        {/* TODO: Enable only on free plans? <BusinessFooter businessName={domain.name} /> */}
-      </div>
+        <div className="flex flex-col min-h-screen">
+          {!businessData.userId && (
+            <div className="px-4 py-2 bg-amber-50 border-b border-amber-200">
+              <div className="container flex items-center justify-between mx-auto">
+                <div>
+                  <p className="text-sm font-medium text-amber-800">
+                    Are you the owner of this business?
+                  </p>
+                  <p className="text-xs text-amber-600">
+                    Claim your business to manage information and respond to
+                    customers
+                  </p>
+                </div>
+                <a
+                  href={`/${businessDomain}/claim/${businessData._id}`}
+                  className="px-4 py-2 text-sm font-medium text-white transition-colors rounded-md bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+                >
+                  Claim this Business
+                </a>
+              </div>
+            </div>
+          )}
+
+          <BusinessPageRenderer
+            business={businessData}
+            pageContent={page?.content || JSON.stringify({ sections: [] })}
+          />
+          {/* TODO: Enable only on free plans? <BusinessFooter businessName={domain.name} /> */}
+        </div>
+      </>
     );
   } catch (error) {
     console.error("Error loading business page:", error);

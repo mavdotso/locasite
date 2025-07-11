@@ -11,12 +11,13 @@ bun run lint               # Run ESLint
 npx convex dev             # Run Convex development server
 npx convex deploy          # Deploy Convex functions
 npx convex codegen         # Generate Convex types
+npx knip                   # Find unused dependencies/exports
 ```
 
 ## Code Style Guidelines
 
 - **TypeScript**: NEVER use `any`. Use proper types from `convex/_generated/dataModel` and `convex/_generated/server`
-- **Colors**: Use semantic color classes (e.g., `text-muted-foreground` instead of `text-gray-500`)
+- **Colors**: FORBIDDEN: `text-gray-*`, `bg-gray-*`, `border-gray-*`, `text-black`, `bg-white`, `text-slate-*`. Use semantic colors: `text-muted-foreground`, `bg-muted`, `bg-background`, `bg-card`, `border-border`
 - **Components**: Use functional components with React Server Components where possible
 - **Naming**: Use `dash-dir` for directories, `handleEvent` for event handlers
 - **Imports**: Group imports by external/internal, sort alphabetically

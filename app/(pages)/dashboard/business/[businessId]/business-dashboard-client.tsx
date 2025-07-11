@@ -1,40 +1,58 @@
 "use client";
 
 import { Button } from "@/app/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/app/components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/app/components/ui/tabs";
 import { Id } from "@/convex/_generated/dataModel";
-import { 
-  Edit3, 
-  Globe, 
-  MessageSquare, 
-  BarChart3, 
+import {
+  Edit3,
+  Globe,
+  MessageSquare,
+  BarChart3,
   ExternalLink,
   Shield,
   ArrowLeft,
-  Loader2
+  Loader2,
+  Search,
 } from "lucide-react";
 import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { notFound } from "next/navigation";
+import { SeoSettings } from "@/app/components/business/seo-settings";
 
 interface BusinessDashboardClientProps {
   businessId: Id<"businesses">;
 }
 
-export default function BusinessDashboardClient({ 
-  businessId 
+export default function BusinessDashboardClient({
+  businessId,
 }: BusinessDashboardClientProps) {
   const router = useRouter();
-  
+  const searchParams = useSearchParams();
+  const defaultTab = searchParams.get("tab") || "overview";
+
   // All hooks must be called before any conditional returns
   const user = useQuery(api.auth.currentUser);
   const business = useQuery(api.businesses.getById, { id: businessId });
   const domain = useQuery(api.domains.getByBusinessId, { businessId });
-  const unreadCount = useQuery(api.contactMessages.getUnreadCount, { businessId });
-  
+  const unreadCount = useQuery(api.contactMessages.getUnreadCount, {
+    businessId,
+  });
+
   // Handle authentication
   useEffect(() => {
     if (user === null) {
@@ -42,7 +60,7 @@ export default function BusinessDashboardClient({
       router.push(`/sign-in?redirect=/dashboard/business/${businessId}`);
     }
   }, [user, businessId, router]);
-  
+
   // Loading state while fetching user or business
   if (user === undefined || business === undefined) {
     return (
@@ -51,7 +69,7 @@ export default function BusinessDashboardClient({
       </div>
     );
   }
-  
+
   // User not authenticated (null)
   if (user === null) {
     return (
@@ -60,12 +78,12 @@ export default function BusinessDashboardClient({
       </div>
     );
   }
-  
+
   // Business not found
   if (business === null) {
     return notFound();
   }
-  
+
   // Check ownership - only allow owner to access dashboard
   if (business.userId && business.userId !== user._id) {
     router.push(`/dashboard/sites`);
@@ -75,7 +93,7 @@ export default function BusinessDashboardClient({
       </div>
     );
   }
-  
+
   const isPublished = !!domain;
   const canClaim = !business.userId;
 
@@ -97,15 +115,18 @@ export default function BusinessDashboardClient({
           <div>
             <h1 className="text-3xl font-bold">{business.name}</h1>
             <p className="text-muted-foreground mt-2">
-              {isPublished 
-                ? `Published at ${domain?.subdomain}.locasite.com` 
-                : "Not published yet"
-              }
+              {isPublished
+                ? `Published at ${domain?.subdomain}.locasite.com`
+                : "Not published yet"}
             </p>
           </div>
           {isPublished && (
             <Button variant="outline" asChild>
-              <a href={`/${domain?.subdomain}`} target="_blank" rel="noopener noreferrer">
+              <a
+                href={`/${domain?.subdomain}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <ExternalLink className="mr-2 h-4 w-4" />
                 View Live Site
               </a>
@@ -114,156 +135,262 @@ export default function BusinessDashboardClient({
         </div>
       </div>
 
-      {/* Quick Actions Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Edit3 className="h-5 w-5" />
-              Visual Editor
-            </CardTitle>
-            <CardDescription>
-              Customize your website design and content
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild className="w-full">
-              <Link href={`/business/${business._id}/edit`}>
-                Open Editor
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+      {/* Tabs */}
+      <Tabs defaultValue={defaultTab} className="space-y-4">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="editor">Editor</TabsTrigger>
+          <TabsTrigger value="messages">
+            Messages
+            {(unreadCount || 0) > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 text-xs bg-red-500 text-white rounded-full">
+                {unreadCount}
+              </span>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="seo">
+            <Search className="h-4 w-4 mr-1" />
+            SEO
+          </TabsTrigger>
+        </TabsList>
 
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5" />
-              Messages
-              {(unreadCount || 0) > 0 && (
-                <span className="ml-1 px-2 py-0.5 text-xs bg-red-500 text-white rounded-full">
-                  {unreadCount}
-                </span>
-              )}
-            </CardTitle>
-            <CardDescription>
-              View contact form submissions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild className="w-full" variant="outline">
-              <Link href={`/dashboard/business/${business._id}/messages`}>
-                View Messages
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Edit3 className="h-5 w-5" />
+                  Visual Editor
+                </CardTitle>
+                <CardDescription>
+                  Customize your website design and content
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild className="w-full">
+                  <Link href={`/business/${business._id}/edit`}>
+                    Open Editor
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
-              Analytics
-            </CardTitle>
-            <CardDescription>
-              Track visitor insights and performance
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild className="w-full" variant="outline">
-              <Link href={`/dashboard/business/${business._id}/analytics`}>
-                View Analytics
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5" />
+                  Messages
+                  {(unreadCount || 0) > 0 && (
+                    <span className="ml-1 px-2 py-0.5 text-xs bg-red-500 text-white rounded-full">
+                      {unreadCount}
+                    </span>
+                  )}
+                </CardTitle>
+                <CardDescription>View contact form submissions</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild className="w-full" variant="outline">
+                  <Link href={`/dashboard/business/${business._id}/messages`}>
+                    View Messages
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Globe className="h-5 w-5" />
-              Domain Settings
-            </CardTitle>
-            <CardDescription>
-              {isPublished ? "Manage your website domain" : "Publish your website"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild className="w-full" variant={isPublished ? "outline" : "default"}>
-              <Link href={`/dashboard/business/${business._id}/domain`}>
-                {isPublished ? "Manage Domain" : "Publish Website"}
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Analytics
+                </CardTitle>
+                <CardDescription>
+                  Track visitor insights and performance
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild className="w-full" variant="outline">
+                  <Link href={`/dashboard/business/${business._id}/analytics`}>
+                    View Analytics
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
 
-        {canClaim && (
-          <Card className="hover:shadow-lg transition-shadow border-yellow-200 bg-yellow-50">
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Globe className="h-5 w-5" />
+                  Domain Settings
+                </CardTitle>
+                <CardDescription>
+                  {isPublished
+                    ? "Manage your website domain"
+                    : "Publish your website"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  asChild
+                  className="w-full"
+                  variant={isPublished ? "outline" : "default"}
+                >
+                  <Link href={`/dashboard/business/${business._id}/domain`}>
+                    {isPublished ? "Manage Domain" : "Publish Website"}
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            {canClaim && (
+              <Card className="hover:shadow-lg transition-shadow border-yellow-200 bg-yellow-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5" />
+                    Claim Business
+                  </CardTitle>
+                  <CardDescription>
+                    Verify ownership to manage this listing
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button asChild className="w-full" variant="outline">
+                    <Link
+                      href={`/${domain?.subdomain || business._id}/claim/${business._id}`}
+                    >
+                      Claim This Business
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Business Info Card */}
+          <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                Claim Business
-              </CardTitle>
+              <CardTitle>Business Information</CardTitle>
               <CardDescription>
-                Verify ownership to manage this listing
+                Basic details about your business
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button asChild className="w-full" variant="outline">
-                <Link href={`/${domain?.subdomain || business._id}/claim/${business._id}`}>
-                  Claim This Business
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <h4 className="font-medium text-sm text-muted-foreground">
+                    Name
+                  </h4>
+                  <p className="mt-1">{business.name}</p>
+                </div>
+                <div>
+                  <h4 className="font-medium text-sm text-muted-foreground">
+                    Address
+                  </h4>
+                  <p className="mt-1">{business.address}</p>
+                </div>
+                {business.phone && (
+                  <div>
+                    <h4 className="font-medium text-sm text-muted-foreground">
+                      Phone
+                    </h4>
+                    <p className="mt-1">{business.phone}</p>
+                  </div>
+                )}
+                {business.email && (
+                  <div>
+                    <h4 className="font-medium text-sm text-muted-foreground">
+                      Email
+                    </h4>
+                    <p className="mt-1">{business.email}</p>
+                  </div>
+                )}
+                {business.website && (
+                  <div>
+                    <h4 className="font-medium text-sm text-muted-foreground">
+                      Website
+                    </h4>
+                    <p className="mt-1">{business.website}</p>
+                  </div>
+                )}
+                {business.description && (
+                  <div className="md:col-span-2">
+                    <h4 className="font-medium text-sm text-muted-foreground">
+                      Description
+                    </h4>
+                    <p className="mt-1">{business.description}</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Editor Tab */}
+        <TabsContent value="editor">
+          <Card>
+            <CardHeader>
+              <CardTitle>Visual Editor</CardTitle>
+              <CardDescription>
+                Design and customize your business website
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild size="lg" className="w-full">
+                <Link href={`/business/${business._id}/edit`}>
+                  <Edit3 className="mr-2 h-5 w-5" />
+                  Open Visual Editor
                 </Link>
               </Button>
             </CardContent>
           </Card>
-        )}
-      </div>
+        </TabsContent>
 
-      {/* Business Info Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Business Information</CardTitle>
-          <CardDescription>
-            Basic details about your business
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <h4 className="font-medium text-sm text-muted-foreground">Name</h4>
-              <p className="mt-1">{business.name}</p>
-            </div>
-            <div>
-              <h4 className="font-medium text-sm text-muted-foreground">Address</h4>
-              <p className="mt-1">{business.address}</p>
-            </div>
-            {business.phone && (
-              <div>
-                <h4 className="font-medium text-sm text-muted-foreground">Phone</h4>
-                <p className="mt-1">{business.phone}</p>
-              </div>
-            )}
-            {business.email && (
-              <div>
-                <h4 className="font-medium text-sm text-muted-foreground">Email</h4>
-                <p className="mt-1">{business.email}</p>
-              </div>
-            )}
-            {business.website && (
-              <div>
-                <h4 className="font-medium text-sm text-muted-foreground">Website</h4>
-                <p className="mt-1">{business.website}</p>
-              </div>
-            )}
-            {business.description && (
-              <div className="md:col-span-2">
-                <h4 className="font-medium text-sm text-muted-foreground">Description</h4>
-                <p className="mt-1">{business.description}</p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+        {/* Messages Tab */}
+        <TabsContent value="messages">
+          <Card>
+            <CardHeader>
+              <CardTitle>Customer Messages</CardTitle>
+              <CardDescription>
+                View and manage contact form submissions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild size="lg" className="w-full">
+                <Link href={`/dashboard/business/${business._id}/messages`}>
+                  <MessageSquare className="mr-2 h-5 w-5" />
+                  View All Messages
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Analytics Tab */}
+        <TabsContent value="analytics">
+          <Card>
+            <CardHeader>
+              <CardTitle>Analytics Dashboard</CardTitle>
+              <CardDescription>
+                Track your website performance and visitor insights
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild size="lg" className="w-full">
+                <Link href={`/dashboard/business/${business._id}/analytics`}>
+                  <BarChart3 className="mr-2 h-5 w-5" />
+                  View Analytics
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* SEO Tab */}
+        <TabsContent value="seo">
+          <SeoSettings businessId={businessId} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
