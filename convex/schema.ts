@@ -93,6 +93,17 @@ export default defineSchema({
     isPublished: v.optional(v.boolean()),
     publishedAt: v.optional(v.number()),
 
+    // Publishing permissions
+    canPublish: v.optional(v.boolean()), // Can this business publish their site
+    verificationRequired: v.optional(v.boolean()), // Does this business need verification (default: true)
+    publishingBlocked: v.optional(v.boolean()), // Is publishing temporarily blocked
+    publishingBlockReason: v.optional(v.string()), // Reason for blocking
+    lastVerificationCheck: v.optional(v.number()), // Last verification timestamp
+    verificationMethod: v.optional(
+      v.union(v.literal("google"), v.literal("email"), v.literal("manual")),
+    ),
+    verificationCompletedAt: v.optional(v.number()),
+
     // SEO and branding
     favicon: v.optional(v.string()), // URL to custom favicon
     faviconStorageId: v.optional(v.id("_storage")), // Convex storage ID for favicon
@@ -306,6 +317,16 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.optional(v.number()),
     notes: v.optional(v.string()),
+
+    // Email verification fields
+    emailVerificationToken: v.optional(v.string()),
+    emailVerificationExpiry: v.optional(v.number()),
+    magicLinkSent: v.optional(v.boolean()),
+    verificationAttempts: v.optional(v.number()),
+
+    // Admin review fields
+    adminNotes: v.optional(v.string()),
+    documentsUploaded: v.optional(v.array(v.string())),
   })
     .index("by_business", ["businessId"])
     .index("by_user", ["userId"])
