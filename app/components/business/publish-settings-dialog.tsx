@@ -110,16 +110,39 @@ export function PublishSettingsDialog({
   const publishBusiness = useMutation(api.businesses.publish);
   const generateUploadUrl = useMutation(api.storage.generateUploadUrl);
   const uploadFavicon = useMutation(api.businessSeo.uploadFavicon);
+  const updateSeoSettings = useMutation(api.businessSeo.updateSeoSettings);
   const business = useQuery(api.businesses.getById, { id: businessId });
 
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
 
-  // Initialize favicon from business data
+  // Initialize favicon and SEO settings from business data
   useEffect(() => {
-    if (business?.favicon) {
-      setFavicon(business.favicon);
+    if (business) {
+      if (business.favicon) {
+        setFavicon(business.favicon);
+      }
+
+      // Initialize SEO settings if they exist
+      setSeoSettings((prev) => ({
+        pageTitle: pageData?.pageTitle || prev.pageTitle,
+        seoTitle: business.seoTitle || pageData?.seoTitle || prev.seoTitle,
+        seoDescription:
+          business.seoDescription ||
+          pageData?.seoDescription ||
+          prev.seoDescription,
+        seoKeywords:
+          business.seoKeywords?.join(", ") ||
+          pageData?.seoKeywords ||
+          prev.seoKeywords,
+      }));
+
+      setSocialSettings((prev) => ({
+        ogTitle: pageData?.ogTitle || prev.ogTitle,
+        ogDescription: pageData?.ogDescription || prev.ogDescription,
+        ogImage: business.ogImage || pageData?.ogImage || prev.ogImage,
+      }));
     }
-  }, [business]);
+  }, [business, pageData]);
 
   // Handle favicon upload
   const handleFaviconUpload = async (
@@ -284,6 +307,20 @@ export function PublishSettingsDialog({
         subdomain = result.subdomain;
       }
 
+      // Save SEO settings to the business
+      await updateSeoSettings({
+        businessId,
+        seoTitle: seoSettings.seoTitle || undefined,
+        seoDescription: seoSettings.seoDescription || undefined,
+        seoKeywords: seoSettings.seoKeywords
+          ? seoSettings.seoKeywords
+              .split(",")
+              .map((k) => k.trim())
+              .filter((k) => k)
+          : undefined,
+        ogImage: socialSettings.ogImage || undefined,
+      });
+
       // Upload favicon if we have a new one
       if (faviconStorageId) {
         await uploadFavicon({ businessId, storageId: faviconStorageId });
@@ -333,7 +370,7 @@ export function PublishSettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Publish Website Settings</DialogTitle>
           <DialogDescription>
@@ -342,8 +379,12 @@ export function PublishSettingsDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
-          <TabsList className="grid w-full grid-cols-3">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="mt-4 flex-1 flex flex-col min-h-0"
+        >
+          <TabsList className="grid w-full grid-cols-3 flex-shrink-0">
             <TabsTrigger value="domain" className="flex items-center gap-2">
               <Globe className="h-4 w-4" />
               Domain
@@ -366,338 +407,348 @@ export function PublishSettingsDialog({
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="domain" className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <Label htmlFor="subdomain">Website Address</Label>
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Input
-                    id="subdomain"
-                    value={subdomainInput}
-                    onChange={(e) => {
-                      // Allow user to type, we'll make it URL-friendly on blur
-                      setSubdomainInput(e.target.value);
-                      setValidationErrors((prev) => ({ ...prev, domain: "" }));
-                    }}
-                    onBlur={(e) => {
-                      // Make URL-friendly on blur
-                      const urlFriendly = toUrlFriendly(e.target.value);
-                      setSubdomainInput(urlFriendly);
-                    }}
-                    placeholder="your-business"
-                    disabled={isPublishing}
-                    className={cn(
-                      "pr-8",
-                      validationErrors.domain && "border-destructive",
-                    )}
-                  />
-                  {subdomainInput.length >= 3 && !validationErrors.domain && (
-                    <Check className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-green-600" />
-                  )}
-                </div>
-                <span className="flex items-center px-3 text-sm text-muted-foreground bg-muted rounded-md">
-                  .{rootDomain}
-                </span>
-              </div>
-              {validationErrors.domain && (
-                <p className="text-xs text-destructive">
-                  {validationErrors.domain}
-                </p>
-              )}
-              <p className="text-xs text-muted-foreground">
-                Letters, numbers, and hyphens only. At least 3 characters.
-              </p>
-            </div>
-
-            {subdomainInput && !validationErrors.domain && (
-              <Alert>
-                <Globe className="h-4 w-4" />
-                <AlertDescription>
-                  Your website will be available at:{" "}
-                  <span className="font-medium">
-                    {process.env.NODE_ENV === "development"
-                      ? `http://${subdomainInput}.localhost:3000`
-                      : `https://${subdomainInput}.${rootDomain}`}
-                  </span>
-                </AlertDescription>
-              </Alert>
-            )}
-          </TabsContent>
-
-          <TabsContent value="seo" className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <Label htmlFor="pageTitle">Page Title</Label>
-              <Input
-                id="pageTitle"
-                value={seoSettings.pageTitle}
-                onChange={(e) => {
-                  setSeoSettings((prev) => ({
-                    ...prev,
-                    pageTitle: e.target.value,
-                  }));
-                  setValidationErrors((prev) => ({ ...prev, pageTitle: "" }));
-                }}
-                placeholder="My Business"
-                disabled={isPublishing}
-                className={
-                  validationErrors.pageTitle ? "border-destructive" : ""
-                }
-              />
-              {validationErrors.pageTitle && (
-                <p className="text-xs text-destructive">
-                  {validationErrors.pageTitle}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="seoTitle">SEO Title</Label>
-              <div className="relative">
-                <Input
-                  id="seoTitle"
-                  value={seoSettings.seoTitle}
-                  onChange={(e) => {
-                    setSeoSettings((prev) => ({
-                      ...prev,
-                      seoTitle: e.target.value,
-                    }));
-                    setValidationErrors((prev) => ({ ...prev, seoTitle: "" }));
-                  }}
-                  placeholder="My Business | Best Service in Town"
-                  disabled={isPublishing}
-                  className={
-                    validationErrors.seoTitle ? "border-destructive" : ""
-                  }
-                />
-                <span
-                  className={cn(
-                    "absolute right-2 top-1/2 -translate-y-1/2 text-xs",
-                    seoSettings.seoTitle.length > 60
-                      ? "text-destructive"
-                      : "text-muted-foreground",
-                  )}
-                >
-                  {seoSettings.seoTitle.length}/60
-                </span>
-              </div>
-              {validationErrors.seoTitle && (
-                <p className="text-xs text-destructive">
-                  {validationErrors.seoTitle}
-                </p>
-              )}
-              <p className="text-xs text-muted-foreground">
-                Appears in search results and browser tabs
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="seoDescription">SEO Description</Label>
-              <div className="relative">
-                <Textarea
-                  id="seoDescription"
-                  value={seoSettings.seoDescription}
-                  onChange={(e) => {
-                    setSeoSettings((prev) => ({
-                      ...prev,
-                      seoDescription: e.target.value,
-                    }));
-                    setValidationErrors((prev) => ({
-                      ...prev,
-                      seoDescription: "",
-                    }));
-                  }}
-                  placeholder="We provide the best service in town..."
-                  rows={3}
-                  disabled={isPublishing}
-                  className={
-                    validationErrors.seoDescription ? "border-destructive" : ""
-                  }
-                />
-                <span
-                  className={cn(
-                    "absolute right-2 bottom-2 text-xs",
-                    seoSettings.seoDescription.length > 160
-                      ? "text-destructive"
-                      : "text-muted-foreground",
-                  )}
-                >
-                  {seoSettings.seoDescription.length}/160
-                </span>
-              </div>
-              {validationErrors.seoDescription && (
-                <p className="text-xs text-destructive">
-                  {validationErrors.seoDescription}
-                </p>
-              )}
-              <p className="text-xs text-muted-foreground">
-                Appears in search results below the title
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="seoKeywords">Keywords</Label>
-              <Input
-                id="seoKeywords"
-                value={seoSettings.seoKeywords}
-                onChange={(e) =>
-                  setSeoSettings((prev) => ({
-                    ...prev,
-                    seoKeywords: e.target.value,
-                  }))
-                }
-                placeholder="restaurant, food, dining, local"
-                disabled={isPublishing}
-              />
-              <p className="text-xs text-muted-foreground">
-                Comma-separated keywords (optional)
-              </p>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="social" className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <Label>Favicon</Label>
-              <div className="flex items-center gap-4">
-                {favicon && (
-                  <div className="relative">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={favicon}
-                      alt="Favicon preview"
-                      className="w-8 h-8 rounded border"
+          <div className="flex-1 overflow-y-auto min-h-0 px-1 pb-4">
+            <TabsContent value="domain" className="space-y-4 mt-4 pr-2">
+              <div className="space-y-2">
+                <Label htmlFor="subdomain">Website Address</Label>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Input
+                      id="subdomain"
+                      value={subdomainInput}
+                      onChange={(e) => {
+                        // Allow user to type, we'll make it URL-friendly on blur
+                        setSubdomainInput(e.target.value);
+                        setValidationErrors((prev) => ({
+                          ...prev,
+                          domain: "",
+                        }));
+                      }}
+                      onBlur={(e) => {
+                        // Make URL-friendly on blur
+                        const urlFriendly = toUrlFriendly(e.target.value);
+                        setSubdomainInput(urlFriendly);
+                      }}
+                      placeholder="your-business"
+                      disabled={isPublishing}
+                      className={cn(
+                        "pr-8",
+                        validationErrors.domain && "border-destructive",
+                      )}
                     />
+                    {subdomainInput.length >= 3 && !validationErrors.domain && (
+                      <Check className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-green-600" />
+                    )}
                   </div>
+                  <span className="flex items-center px-3 text-sm text-muted-foreground bg-muted rounded-md">
+                    .{rootDomain}
+                  </span>
+                </div>
+                {validationErrors.domain && (
+                  <p className="text-xs text-destructive">
+                    {validationErrors.domain}
+                  </p>
                 )}
-                <input
-                  ref={faviconInputRef}
-                  type="file"
-                  accept="image/png,image/x-icon,image/svg+xml,.ico"
-                  onChange={handleFaviconUpload}
-                  className="hidden"
+                <p className="text-xs text-muted-foreground">
+                  Letters, numbers, and hyphens only. At least 3 characters.
+                </p>
+              </div>
+
+              {subdomainInput && !validationErrors.domain && (
+                <Alert>
+                  <Globe className="h-4 w-4" />
+                  <AlertDescription>
+                    Your website will be available at:{" "}
+                    <span className="font-medium">
+                      {process.env.NODE_ENV === "development"
+                        ? `http://${subdomainInput}.localhost:3000`
+                        : `https://${subdomainInput}.${rootDomain}`}
+                    </span>
+                  </AlertDescription>
+                </Alert>
+              )}
+            </TabsContent>
+
+            <TabsContent value="seo" className="space-y-4 mt-4 pr-2">
+              <div className="space-y-2">
+                <Label htmlFor="pageTitle">Page Title</Label>
+                <Input
+                  id="pageTitle"
+                  value={seoSettings.pageTitle}
+                  onChange={(e) => {
+                    setSeoSettings((prev) => ({
+                      ...prev,
+                      pageTitle: e.target.value,
+                    }));
+                    setValidationErrors((prev) => ({ ...prev, pageTitle: "" }));
+                  }}
+                  placeholder="My Business"
+                  disabled={isPublishing}
+                  className={
+                    validationErrors.pageTitle ? "border-destructive" : ""
+                  }
+                />
+                {validationErrors.pageTitle && (
+                  <p className="text-xs text-destructive">
+                    {validationErrors.pageTitle}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="seoTitle">SEO Title</Label>
+                <div className="relative">
+                  <Input
+                    id="seoTitle"
+                    value={seoSettings.seoTitle}
+                    onChange={(e) => {
+                      setSeoSettings((prev) => ({
+                        ...prev,
+                        seoTitle: e.target.value,
+                      }));
+                      setValidationErrors((prev) => ({
+                        ...prev,
+                        seoTitle: "",
+                      }));
+                    }}
+                    placeholder="My Business | Best Service in Town"
+                    disabled={isPublishing}
+                    className={
+                      validationErrors.seoTitle ? "border-destructive" : ""
+                    }
+                  />
+                  <span
+                    className={cn(
+                      "absolute right-2 top-1/2 -translate-y-1/2 text-xs",
+                      seoSettings.seoTitle.length > 60
+                        ? "text-destructive"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    {seoSettings.seoTitle.length}/60
+                  </span>
+                </div>
+                {validationErrors.seoTitle && (
+                  <p className="text-xs text-destructive">
+                    {validationErrors.seoTitle}
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Appears in search results and browser tabs
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="seoDescription">SEO Description</Label>
+                <div className="relative">
+                  <Textarea
+                    id="seoDescription"
+                    value={seoSettings.seoDescription}
+                    onChange={(e) => {
+                      setSeoSettings((prev) => ({
+                        ...prev,
+                        seoDescription: e.target.value,
+                      }));
+                      setValidationErrors((prev) => ({
+                        ...prev,
+                        seoDescription: "",
+                      }));
+                    }}
+                    placeholder="We provide the best service in town..."
+                    rows={3}
+                    disabled={isPublishing}
+                    className={
+                      validationErrors.seoDescription
+                        ? "border-destructive"
+                        : ""
+                    }
+                  />
+                  <span
+                    className={cn(
+                      "absolute right-2 bottom-2 text-xs",
+                      seoSettings.seoDescription.length > 160
+                        ? "text-destructive"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    {seoSettings.seoDescription.length}/160
+                  </span>
+                </div>
+                {validationErrors.seoDescription && (
+                  <p className="text-xs text-destructive">
+                    {validationErrors.seoDescription}
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Appears in search results below the title
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="seoKeywords">Keywords</Label>
+                <Input
+                  id="seoKeywords"
+                  value={seoSettings.seoKeywords}
+                  onChange={(e) =>
+                    setSeoSettings((prev) => ({
+                      ...prev,
+                      seoKeywords: e.target.value,
+                    }))
+                  }
+                  placeholder="restaurant, food, dining, local"
                   disabled={isPublishing}
                 />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => faviconInputRef.current?.click()}
-                  disabled={isPublishing}
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  {favicon ? "Change Favicon" : "Upload Favicon"}
-                </Button>
-                {favicon && (
+                <p className="text-xs text-muted-foreground">
+                  Comma-separated keywords (optional)
+                </p>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="social" className="space-y-4 mt-4 pr-2">
+              <div className="space-y-2">
+                <Label>Favicon</Label>
+                <div className="flex items-center gap-4">
+                  {favicon && (
+                    <div className="relative">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={favicon}
+                        alt="Favicon preview"
+                        className="w-8 h-8 rounded border"
+                      />
+                    </div>
+                  )}
+                  <input
+                    ref={faviconInputRef}
+                    type="file"
+                    accept="image/png,image/x-icon,image/svg+xml,.ico"
+                    onChange={handleFaviconUpload}
+                    className="hidden"
+                    disabled={isPublishing}
+                  />
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                      setFavicon("");
-                      setFaviconStorageId(null);
-                    }}
+                    onClick={() => faviconInputRef.current?.click()}
                     disabled={isPublishing}
                   >
-                    <X className="h-4 w-4" />
+                    <Upload className="h-4 w-4 mr-2" />
+                    {favicon ? "Change Favicon" : "Upload Favicon"}
                   </Button>
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Recommended: 32x32px PNG, ICO, or SVG. This icon appears in
-                browser tabs.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="ogTitle">Social Media Title</Label>
-              <Input
-                id="ogTitle"
-                value={socialSettings.ogTitle}
-                onChange={(e) =>
-                  setSocialSettings((prev) => ({
-                    ...prev,
-                    ogTitle: e.target.value,
-                  }))
-                }
-                placeholder="My Business"
-                disabled={isPublishing}
-              />
-              <p className="text-xs text-muted-foreground">
-                Title when shared on Facebook, Twitter, etc.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="ogDescription">Social Media Description</Label>
-              <Textarea
-                id="ogDescription"
-                value={socialSettings.ogDescription}
-                onChange={(e) =>
-                  setSocialSettings((prev) => ({
-                    ...prev,
-                    ogDescription: e.target.value,
-                  }))
-                }
-                placeholder="Check out our amazing services..."
-                rows={3}
-                disabled={isPublishing}
-              />
-              <p className="text-xs text-muted-foreground">
-                Description when shared on social media
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Social Media Image</Label>
-              {socialSettings.ogImage && (
-                <div className="relative aspect-video rounded-lg overflow-hidden border bg-muted mb-2">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={socialSettings.ogImage}
-                    alt="Social media preview"
-                    className="w-full h-full object-cover"
-                  />
+                  {favicon && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setFavicon("");
+                        setFaviconStorageId(null);
+                      }}
+                      disabled={isPublishing}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
-              )}
-              <MediaLibrary
-                businessId={businessId}
-                onSelect={(url) => {
-                  setSocialSettings((prev) => ({ ...prev, ogImage: url }));
-                }}
-                trigger={
+                <p className="text-xs text-muted-foreground">
+                  Recommended: 32x32px PNG, ICO, or SVG. This icon appears in
+                  browser tabs.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="ogTitle">Social Media Title</Label>
+                <Input
+                  id="ogTitle"
+                  value={socialSettings.ogTitle}
+                  onChange={(e) =>
+                    setSocialSettings((prev) => ({
+                      ...prev,
+                      ogTitle: e.target.value,
+                    }))
+                  }
+                  placeholder="My Business"
+                  disabled={isPublishing}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Title when shared on Facebook, Twitter, etc.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="ogDescription">Social Media Description</Label>
+                <Textarea
+                  id="ogDescription"
+                  value={socialSettings.ogDescription}
+                  onChange={(e) =>
+                    setSocialSettings((prev) => ({
+                      ...prev,
+                      ogDescription: e.target.value,
+                    }))
+                  }
+                  placeholder="Check out our amazing services..."
+                  rows={3}
+                  disabled={isPublishing}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Description when shared on social media
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Social Media Image</Label>
+                {socialSettings.ogImage && (
+                  <div className="relative aspect-video rounded-lg overflow-hidden border bg-muted mb-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={socialSettings.ogImage}
+                      alt="Social media preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <MediaLibrary
+                  businessId={businessId}
+                  onSelect={(url) => {
+                    setSocialSettings((prev) => ({ ...prev, ogImage: url }));
+                  }}
+                  trigger={
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      disabled={isPublishing}
+                    >
+                      <ImageIcon className="h-4 w-4 mr-2" />
+                      {socialSettings.ogImage ? "Change Image" : "Select Image"}
+                    </Button>
+                  }
+                  fileTypes={["image/*"]}
+                />
+                {socialSettings.ogImage && (
                   <Button
                     variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setSocialSettings((prev) => ({ ...prev, ogImage: "" }))
+                    }
                     className="w-full"
                     disabled={isPublishing}
                   >
-                    <ImageIcon className="h-4 w-4 mr-2" />
-                    {socialSettings.ogImage ? "Change Image" : "Select Image"}
+                    <X className="h-4 w-4 mr-2" />
+                    Remove Image
                   </Button>
-                }
-                fileTypes={["image/*"]}
-              />
-              {socialSettings.ogImage && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    setSocialSettings((prev) => ({ ...prev, ogImage: "" }))
-                  }
-                  className="w-full"
-                  disabled={isPublishing}
-                >
-                  <X className="h-4 w-4 mr-2" />
-                  Remove Image
-                </Button>
-              )}
-              <p className="text-xs text-muted-foreground">
-                Recommended size: 1200x630px. Appears when shared on social
-                media.
-              </p>
-            </div>
-          </TabsContent>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Recommended size: 1200x630px. Appears when shared on social
+                  media.
+                </p>
+              </div>
+            </TabsContent>
+          </div>
         </Tabs>
 
-        <DialogFooter className="mt-6">
+        <DialogFooter className="mt-6 flex-shrink-0">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}

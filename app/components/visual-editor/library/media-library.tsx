@@ -179,7 +179,10 @@ export default function MediaLibrary({
       );
     } else {
       if (onSelect) {
-        trackUsage({ mediaId: mediaFile._id });
+        // Only track usage for actual media library items, not Google-scraped images
+        if (!mediaFile._id.startsWith("google-")) {
+          trackUsage({ mediaId: mediaFile._id });
+        }
         onSelect(mediaFile.url, mediaFile._id);
         setIsOpen(false);
       }
@@ -192,9 +195,11 @@ export default function MediaLibrary({
         .filter((file) => selectedFiles.includes(file._id))
         .map((file) => file.url);
 
-      // Track usage for all selected files
+      // Track usage for all selected files (except Google-scraped images)
       selectedFiles.forEach((mediaId) => {
-        trackUsage({ mediaId: mediaId as Id<"mediaLibrary"> });
+        if (!mediaId.startsWith("google-")) {
+          trackUsage({ mediaId: mediaId as Id<"mediaLibrary"> });
+        }
       });
 
       onSelect(selectedUrls.join(","), selectedFiles.join(","));
@@ -238,47 +243,49 @@ export default function MediaLibrary({
         <div className="px-6 py-4 border-b">
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search files..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search files..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
 
-            <Select value={selectedFolder} onValueChange={setSelectedFolder}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Select folder" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Files</SelectItem>
-                {folders?.map((folder) => (
-                  <SelectItem key={folder} value={folder}>
-                    {folder === "google-business" ? "Google Business Photos" : folder}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              <Select value={selectedFolder} onValueChange={setSelectedFolder}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Select folder" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Files</SelectItem>
+                  {folders?.map((folder) => (
+                    <SelectItem key={folder} value={folder}>
+                      {folder === "google-business"
+                        ? "Google Business Photos"
+                        : folder}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-            <div className="flex items-center gap-2">
-              <Button
-                variant={viewMode === "grid" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("grid")}
-              >
-                <Grid3X3 className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === "list" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("list")}
-              >
-                <List className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={viewMode === "grid" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setViewMode("grid")}
+                >
+                  <Grid3X3 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "list" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-          </div>
 
             {allowMultiple && selectedFiles.length > 0 && (
               <div className="flex items-center gap-2">
@@ -398,7 +405,8 @@ export default function MediaLibrary({
         <DialogFooter className="px-6 py-4 border-t">
           <div className="flex justify-between items-center w-full">
             <div className="text-sm text-muted-foreground">
-              {filteredFiles.length} file{filteredFiles.length !== 1 ? 's' : ''} found
+              {filteredFiles.length} file{filteredFiles.length !== 1 ? "s" : ""}{" "}
+              found
             </div>
             <Button
               size="default"
