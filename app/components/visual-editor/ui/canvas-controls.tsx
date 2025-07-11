@@ -9,9 +9,7 @@ import {
   ZoomIn,
   ZoomOut,
   Eye,
-  EyeOff,
   Maximize2,
-  Minimize2,
 } from "lucide-react";
 import {
   Tooltip,
@@ -44,8 +42,6 @@ interface CanvasControlsProps {
   onDeviceSizeChange: (size: DeviceSize) => void;
   zoom: number;
   onZoomChange: (zoom: number) => void;
-  isPreviewMode?: boolean;
-  onPreviewModeChange?: (preview: boolean) => void;
   isFullScreen?: boolean;
   onFullScreenChange?: (fullScreen: boolean) => void;
 }
@@ -55,8 +51,6 @@ export default function CanvasControls({
   onDeviceSizeChange,
   zoom,
   onZoomChange,
-  isPreviewMode = false,
-  onPreviewModeChange,
   isFullScreen = false,
   onFullScreenChange,
 }: CanvasControlsProps) {
@@ -169,48 +163,20 @@ export default function CanvasControls({
 
           {/* View Options */}
           <div className="flex items-center gap-0.5 px-1">
-            {onPreviewModeChange && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant={isPreviewMode ? "secondary" : "ghost"}
-                    size="sm"
-                    onClick={() => onPreviewModeChange(!isPreviewMode)}
-                    className="h-8 w-8 p-0"
-                  >
-                    {isPreviewMode ? (
-                      <Eye className="h-4 w-4" />
-                    ) : (
-                      <EyeOff className="h-4 w-4" />
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{isPreviewMode ? "Exit preview" : "Preview mode"}</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
-
             {onFullScreenChange && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant={isFullScreen ? "secondary" : "ghost"}
+                    variant="ghost"
                     size="sm"
                     onClick={() => onFullScreenChange(!isFullScreen)}
                     className="h-8 w-8 p-0"
                   >
-                    {isFullScreen ? (
-                      <Minimize2 className="h-4 w-4" />
-                    ) : (
-                      <Maximize2 className="h-4 w-4" />
-                    )}
+                    <Eye className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>
-                    {isFullScreen ? "Exit full screen" : "Full screen preview"}
-                  </p>
+                  <p>Full screen preview</p>
                 </TooltipContent>
               </Tooltip>
             )}

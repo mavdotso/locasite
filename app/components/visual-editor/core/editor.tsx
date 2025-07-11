@@ -655,21 +655,21 @@ export default function VisualEditor({
           onMoveComponent={() => {}}
           onAddComponent={() => {}}
           isEditMode={false}
+          showCanvasControls={true}
+          hideZoomControls={true}
         />
 
-        {/* Floating controls */}
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
-          <div className="bg-background/95 backdrop-blur-sm border rounded-lg shadow-lg p-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsFullScreenPreview(false)}
-              className="gap-2"
-            >
-              <X className="h-4 w-4" />
-              Exit Preview
-            </Button>
-          </div>
+        {/* Exit button */}
+        <div className="fixed top-4 right-4 z-50">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsFullScreenPreview(false)}
+            className="gap-2 bg-background/95 backdrop-blur-sm border shadow-lg"
+          >
+            <X className="h-4 w-4" />
+            Exit Preview
+          </Button>
         </div>
       </>
     );

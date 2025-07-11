@@ -9,7 +9,7 @@ import {
   ZoomIn,
   ZoomOut,
   Eye,
-  EyeOff,
+  X,
 } from "lucide-react";
 import {
   Tooltip,
@@ -42,8 +42,10 @@ interface CanvasControlsProps {
   onDeviceSizeChangeAction: (size: DeviceSize) => void;
   zoom: number;
   onZoomChangeAction: (zoom: number) => void;
-  isPreviewMode?: boolean;
-  onPreviewModeChangeAction?: (preview: boolean) => void;
+  onFullScreenPreviewAction?: () => void;
+  onExitFullScreenAction?: () => void;
+  hideZoomControls?: boolean;
+  isFullScreen?: boolean;
 }
 
 export default function CanvasControls({
@@ -51,8 +53,10 @@ export default function CanvasControls({
   onDeviceSizeChangeAction,
   zoom,
   onZoomChangeAction,
-  isPreviewMode = false,
-  onPreviewModeChangeAction,
+  onFullScreenPreviewAction,
+  onExitFullScreenAction,
+  hideZoomControls = false,
+  isFullScreen = false,
 }: CanvasControlsProps) {
   const zoomPresets = [50, 75, 100, 125, 150];
 
@@ -90,94 +94,116 @@ export default function CanvasControls({
             })}
           </div>
 
-          <div className="w-px h-6 bg-border" />
+          {!hideZoomControls && (
+            <>
+              <div className="w-px h-6 bg-border" />
 
-          {/* Zoom Controls */}
-          <div className="flex items-center gap-0.5 px-1">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onZoomChangeAction(Math.max(25, zoom - 10))}
-                  className="h-8 w-8 p-0"
-                  disabled={zoom <= 25}
-                >
-                  <ZoomOut className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Zoom out</p>
-              </TooltipContent>
-            </Tooltip>
+              {/* Zoom Controls */}
+              <div className="flex items-center gap-0.5 px-1">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        onZoomChangeAction(Math.max(25, zoom - 10))
+                      }
+                      className="h-8 w-8 p-0"
+                      disabled={zoom <= 25}
+                    >
+                      <ZoomOut className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Zoom out</p>
+                  </TooltipContent>
+                </Tooltip>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 px-2 min-w-[60px]"
-                >
-                  {zoom}%
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="center">
-                <DropdownMenuLabel>Zoom Level</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {zoomPresets.map((preset) => (
-                  <DropdownMenuItem
-                    key={preset}
-                    onClick={() => onZoomChangeAction(preset)}
-                    className={cn(zoom === preset && "bg-accent")}
-                  >
-                    {preset}%
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2 min-w-[60px]"
+                    >
+                      {zoom}%
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center">
+                    <DropdownMenuLabel>Zoom Level</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {zoomPresets.map((preset) => (
+                      <DropdownMenuItem
+                        key={preset}
+                        onClick={() => onZoomChangeAction(preset)}
+                        className={cn(zoom === preset && "bg-accent")}
+                      >
+                        {preset}%
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onZoomChangeAction(Math.min(200, zoom + 10))}
-                  className="h-8 w-8 p-0"
-                  disabled={zoom >= 200}
-                >
-                  <ZoomIn className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Zoom in</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        onZoomChangeAction(Math.min(200, zoom + 10))
+                      }
+                      className="h-8 w-8 p-0"
+                      disabled={zoom >= 200}
+                    >
+                      <ZoomIn className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Zoom in</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
 
-          <div className="w-px h-6 bg-border" />
+              <div className="w-px h-6 bg-border" />
+            </>
+          )}
 
           {/* View Options */}
           <div className="flex items-center gap-0.5 px-1">
-            {onPreviewModeChangeAction && (
+            {isFullScreen && onExitFullScreenAction ? (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant={isPreviewMode ? "secondary" : "ghost"}
+                    variant="ghost"
                     size="sm"
-                    onClick={() => onPreviewModeChangeAction(!isPreviewMode)}
+                    onClick={onExitFullScreenAction}
                     className="h-8 w-8 p-0"
                   >
-                    {isPreviewMode ? (
-                      <Eye className="h-4 w-4" />
-                    ) : (
-                      <EyeOff className="h-4 w-4" />
-                    )}
+                    <X className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>{isPreviewMode ? "Exit preview" : "Preview mode"}</p>
+                  <p>Exit preview</p>
                 </TooltipContent>
               </Tooltip>
+            ) : (
+              onFullScreenPreviewAction && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={onFullScreenPreviewAction}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Full screen preview</p>
+                  </TooltipContent>
+                </Tooltip>
+              )
             )}
           </div>
         </div>

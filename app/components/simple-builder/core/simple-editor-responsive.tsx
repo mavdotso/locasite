@@ -28,7 +28,6 @@ import { Button } from "@/app/components/ui/button";
 import {
   Plus,
   Settings,
-  Eye,
   Save,
   Rocket,
   ChevronUp,
@@ -75,7 +74,8 @@ export function SimpleEditorResponsive({
   const [settingsSectionId, setSettingsSectionId] = useState<string | null>(
     null,
   );
-  const [isPreviewMode, setIsPreviewMode] = useState(false);
+
+  const [isFullScreenPreview, setIsFullScreenPreview] = useState(false);
   const [pendingInsertIndex, setPendingInsertIndex] = useState<
     number | undefined
   >(undefined);
@@ -280,6 +280,72 @@ export function SimpleEditorResponsive({
     (s) => s.id === settingsSectionId,
   );
 
+  // Full-screen preview mode
+  if (isFullScreenPreview) {
+    return (
+      <TooltipProvider>
+        {/* Full-screen preview without any UI elements */}
+        <div className="h-screen w-screen overflow-hidden relative bg-muted/30">
+          <div className="h-full overflow-hidden flex items-center justify-center p-4">
+            <div
+              className="flex items-start justify-center"
+              style={{
+                transform: `scale(${zoom / 100})`,
+                transformOrigin: "center center",
+                height: `${100 / (zoom / 100)}%`,
+                width: "100%",
+              }}
+            >
+              <ResponsiveFrame
+                width={
+                  deviceSize === "desktop"
+                    ? "100%"
+                    : deviceSizes[deviceSize].width
+                }
+                className="bg-background shadow-xl"
+              >
+                <div className="min-h-full">
+                  {pageData.sections.length === 0 ? (
+                    <div className="flex items-center justify-center h-full">
+                      <p className="text-muted-foreground">
+                        No sections to preview
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      {pageData.sections
+                        .sort((a, b) => a.order - b.order)
+                        .map((section) => (
+                          <SectionRenderer
+                            key={section.id}
+                            data={section.data}
+                            editMode={false}
+                            businessData={businessData}
+                            onUpdate={() => {}}
+                          />
+                        ))}
+                    </div>
+                  )}
+                </div>
+              </ResponsiveFrame>
+            </div>
+          </div>
+
+          {/* Canvas Controls - Only Device Size */}
+          <CanvasControls
+            deviceSize={deviceSize}
+            onDeviceSizeChangeAction={setDeviceSize}
+            zoom={100}
+            onZoomChangeAction={() => {}}
+            onExitFullScreenAction={() => setIsFullScreenPreview(false)}
+            hideZoomControls={true}
+            isFullScreen={true}
+          />
+        </div>
+      </TooltipProvider>
+    );
+  }
+
   return (
     <TooltipProvider>
       <div className="simple-editor h-screen flex flex-col">
@@ -313,21 +379,6 @@ export function SimpleEditorResponsive({
                 >
                   <Settings className="h-4 w-4" />
                   Page Settings
-                </Button>
-
-                <div className="h-6 w-px bg-border" />
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsPreviewMode(!isPreviewMode)}
-                  className={cn(
-                    "flex items-center gap-2",
-                    isPreviewMode && "bg-accent",
-                  )}
-                >
-                  <Eye className="h-4 w-4" />
-                  {isPreviewMode ? "Edit" : "Preview"}
                 </Button>
 
                 <div className="h-6 w-px bg-border" />
@@ -502,12 +553,7 @@ export function SimpleEditorResponsive({
                   }
                   className="bg-background shadow-xl"
                 >
-                  <div
-                    className={cn(
-                      "min-h-full",
-                      isPreviewMode && "pointer-events-none",
-                    )}
-                  >
+                  <div className="min-h-full">
                     {pageData.sections.length === 0 ? (
                       <div className="flex items-center justify-center h-full">
                         <div className="text-center">
@@ -540,7 +586,7 @@ export function SimpleEditorResponsive({
                                   ]
                                 : undefined;
                             const shouldHide = sectionStyles?.hideOnDevice;
-                            if (shouldHide && isPreviewMode) {
+                            if (shouldHide) {
                               return null;
                             }
 
@@ -549,19 +595,15 @@ export function SimpleEditorResponsive({
                                 key={section.id}
                                 className={cn(
                                   "relative group",
-                                  !isPreviewMode &&
-                                    "hover:ring-2 hover:ring-primary/50",
+                                  "hover:ring-2 hover:ring-primary/50",
                                   selectedSectionId === section.id &&
                                     "ring-2 ring-primary",
-                                  shouldHide && !isPreviewMode && "opacity-50",
+                                  shouldHide && "opacity-50",
                                 )}
-                                onClick={() =>
-                                  !isPreviewMode &&
-                                  setSelectedSectionId(section.id)
-                                }
+                                onClick={() => setSelectedSectionId(section.id)}
                               >
                                 {/* Section Controls */}
-                                {!isPreviewMode && (
+                                {
                                   <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <div className="flex items-center gap-1 bg-background rounded-md shadow-lg p-1">
                                       <Button
@@ -609,7 +651,7 @@ export function SimpleEditorResponsive({
                                       </Button>
                                     </div>
                                   </div>
-                                )}
+                                }
 
                                 {/* Section Content with Responsive Styles */}
                                 <div
@@ -629,7 +671,7 @@ export function SimpleEditorResponsive({
                                 >
                                   <SectionRenderer
                                     data={section.data}
-                                    editMode={!isPreviewMode}
+                                    editMode={true}
                                     businessData={businessData}
                                     onUpdate={(newData) =>
                                       handleUpdateSection(section.id, newData)
@@ -638,32 +680,31 @@ export function SimpleEditorResponsive({
                                 </div>
 
                                 {/* Add Section Button */}
-                                {!isPreviewMode &&
-                                  index < pageData.sections.length - 1 && (
-                                    <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                                      <Button
-                                        size="sm"
-                                        variant="secondary"
-                                        className="h-8 shadow-lg"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          // Find the sorted index for insertion
-                                          const sortedSections =
-                                            pageData.sections.sort(
-                                              (a, b) => a.order - b.order,
-                                            );
-                                          const sortedIndex =
-                                            sortedSections.findIndex(
-                                              (s) => s.id === section.id,
-                                            );
-                                          setPendingInsertIndex(sortedIndex); // Insert after current section
-                                          setIsAddingSectionOpen(true);
-                                        }}
-                                      >
-                                        <Plus className="h-4 w-4" />
-                                      </Button>
-                                    </div>
-                                  )}
+                                {index < pageData.sections.length - 1 && (
+                                  <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Button
+                                      size="sm"
+                                      variant="secondary"
+                                      className="h-8 shadow-lg"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        // Find the sorted index for insertion
+                                        const sortedSections =
+                                          pageData.sections.sort(
+                                            (a, b) => a.order - b.order,
+                                          );
+                                        const sortedIndex =
+                                          sortedSections.findIndex(
+                                            (s) => s.id === section.id,
+                                          );
+                                        setPendingInsertIndex(sortedIndex); // Insert after current section
+                                        setIsAddingSectionOpen(true);
+                                      }}
+                                    >
+                                      <Plus className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                )}
                               </div>
                             );
                           })}
@@ -679,8 +720,7 @@ export function SimpleEditorResponsive({
               onDeviceSizeChangeAction={setDeviceSize}
               zoom={zoom}
               onZoomChangeAction={setZoom}
-              isPreviewMode={isPreviewMode}
-              onPreviewModeChangeAction={setIsPreviewMode}
+              onFullScreenPreviewAction={() => setIsFullScreenPreview(true)}
             />
           </div>
         </div>

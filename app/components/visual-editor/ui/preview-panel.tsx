@@ -10,6 +10,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 import NestedDropZone from "../drag-drop/nested-drop-zone";
 import ColumnsDropZone from "../drag-drop/columns-drop-zone";
 import CanvasControls, { DeviceSize, deviceSizes } from "./canvas-controls";
+import CanvasControlsPreview from "./canvas-controls-preview";
 import ResponsiveFrame from "../components/responsive-frame";
 import VirtualizedComponentList from "../components/virtualized-component-list";
 
@@ -29,6 +30,8 @@ interface PreviewPanelProps {
   ) => void;
   onDuplicateComponent?: (id: string) => void;
   isEditMode?: boolean;
+  showCanvasControls?: boolean;
+  hideZoomControls?: boolean;
 }
 
 const PreviewPanel = React.memo(function PreviewPanel({
@@ -42,10 +45,11 @@ const PreviewPanel = React.memo(function PreviewPanel({
   onAddComponent,
   onDuplicateComponent,
   isEditMode = true,
+  showCanvasControls = true,
+  hideZoomControls = false,
 }: PreviewPanelProps) {
   const [deviceSize, setDeviceSize] = useState<DeviceSize>("desktop");
   const [zoom, setZoom] = useState(100);
-  const [isPreviewMode, setIsPreviewMode] = useState(false);
   const { draggedItem } = useDragDrop();
 
   const handleDrop = (index: number, parentId?: string) => {
@@ -202,7 +206,7 @@ const PreviewPanel = React.memo(function PreviewPanel({
     ],
   );
 
-  const effectiveEditMode = isEditMode && !isPreviewMode;
+  const effectiveEditMode = isEditMode;
 
   return (
     <div className="h-full relative bg-muted/30">
@@ -350,23 +354,28 @@ const PreviewPanel = React.memo(function PreviewPanel({
         </div>
       </div>
       {/* Canvas Controls */}
-      {isEditMode && (
-        <CanvasControls
-          deviceSize={deviceSize}
-          onDeviceSizeChange={setDeviceSize}
-          zoom={zoom}
-          onZoomChange={setZoom}
-          isPreviewMode={isPreviewMode}
-          onPreviewModeChange={setIsPreviewMode}
-          isFullScreen={false}
-          onFullScreenChange={(fullScreen) => {
-            if (fullScreen) {
-              // Trigger full-screen preview in parent
-              window.dispatchEvent(new CustomEvent("enterFullScreenPreview"));
-            }
-          }}
-        />
-      )}
+      {isEditMode &&
+        showCanvasControls &&
+        (hideZoomControls ? (
+          <CanvasControlsPreview
+            deviceSize={deviceSize}
+            onDeviceSizeChangeAction={setDeviceSize}
+          />
+        ) : (
+          <CanvasControls
+            deviceSize={deviceSize}
+            onDeviceSizeChange={setDeviceSize}
+            zoom={zoom}
+            onZoomChange={setZoom}
+            isFullScreen={false}
+            onFullScreenChange={(fullScreen) => {
+              if (fullScreen) {
+                // Trigger full-screen preview in parent
+                window.dispatchEvent(new CustomEvent("enterFullScreenPreview"));
+              }
+            }}
+          />
+        ))}
     </div>
   );
 });
