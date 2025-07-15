@@ -16,8 +16,7 @@ SCHEMA >
     `conversion_type` Nullable(String) `json:$.conversionType`,
     `bounce` Bool `json:$.bounce`
 
-ENGINE "ReplacingMergeTree"
-ENGINE_VER "end_time"
+ENGINE "MergeTree"
 ENGINE_PARTITION_KEY "toYYYYMM(start_time)"
 ENGINE_SORTING_KEY "business_id, session_id, start_time"
 ENGINE_TTL "start_time + toIntervalDay(90)"

@@ -6,7 +6,7 @@ SQL >
     %
     WITH
         toDateTime({{DateTime(start_time, '2024-01-01 00:00:00')}}) AS start_time,
-        toDateTime({{DateTime(end_time, 'now()')}}) AS end_time
+        toDateTime({{DateTime(end_time, '2024-12-31 23:59:59')}}) AS end_time
     SELECT
         countDistinct(visitor_id) AS unique_visitors,
         count() AS total_page_views,
@@ -24,7 +24,7 @@ SQL >
     %
     WITH
         toDateTime({{DateTime(start_time, '2024-01-01 00:00:00')}}) AS start_dt,
-        toDateTime({{DateTime(end_time, 'now()')}}) AS end_dt
+        toDateTime({{DateTime(end_time, '2024-12-31 23:59:59')}}) AS end_dt
     SELECT
         avg(duration) AS avg_session_duration,
         avg(page_count) AS avg_pages_per_session,

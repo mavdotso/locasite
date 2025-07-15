@@ -6,7 +6,7 @@ SQL >
     %
     WITH
         toDateTime({{DateTime(start_time, '2024-01-01 00:00:00')}}) AS start_time,
-        toDateTime({{DateTime(end_time, 'now()')}}) AS end_time
+        toDateTime({{DateTime(end_time, '2024-12-31 23:59:59')}}) AS end_time
     SELECT
         path,
         count() AS views,

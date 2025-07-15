@@ -158,7 +158,7 @@ export class TinybirdClient {
     startTime?: Date,
     endTime?: Date,
   ) {
-    return this.query("analytics_summary", {
+    return this.query("api_analytics_summary", {
       business_id: businessId,
       start_time:
         startTime?.toISOString() ||
@@ -173,7 +173,7 @@ export class TinybirdClient {
     startTime?: Date,
     endTime?: Date,
   ) {
-    return this.query("top_pages", {
+    return this.query("api_top_pages", {
       business_id: businessId,
       limit,
       start_time:
@@ -184,7 +184,7 @@ export class TinybirdClient {
   }
 
   async getRealTimeVisitors(businessId: string) {
-    return this.query("real_time_visitors", {
+    return this.query("api_real_time_visitors", {
       business_id: businessId,
     });
   }
