@@ -59,6 +59,7 @@
     "@types/react-dom": "^19.1.6",
     "@types/react-window": "^1.8.8",
     "eslint": "^9.31.0",
+    "eslint-config-next": "^15.4.1",
     "knip": "^5.60.2",
     "typescript": "^5.8.3"
   }
