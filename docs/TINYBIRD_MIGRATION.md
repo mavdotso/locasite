@@ -8,6 +8,18 @@ Locasite now supports Tinybird for scalable analytics data storage and querying.
 - The analytics dashboard can switch between data sources
 - Tinybird handles long-term storage and complex analytics queries
 
+## Current Status
+
+✅ **Tinybird is now deployed and ready to use!**
+
+- All data sources and endpoints are deployed to Tinybird Cloud
+- Test data has been loaded for development
+- The analytics dashboard has been updated to support Tinybird
+- API endpoints are available:
+  - `api_analytics_summary` - Overall analytics metrics
+  - `api_top_pages` - Top pages by view count
+  - `api_real_time_visitors` - Active visitors in last 5 minutes
+
 ## Setup Instructions
 
 ### 1. Create a Tinybird Account
@@ -24,8 +36,13 @@ cd tinybird
 # Authenticate with Tinybird
 tb login
 
-# Deploy data sources and pipes
-tb deploy
+# Deploy data sources and pipes to cloud
+tb --cloud deploy
+
+# Load test data (optional)
+tb --cloud datasource append page_views fixtures/page_views.ndjson
+tb --cloud datasource append events fixtures/events.ndjson
+tb --cloud datasource append sessions fixtures/sessions.ndjson
 ```
 
 ### 3. Configure Environment Variables
@@ -37,9 +54,18 @@ NEXT_PUBLIC_TINYBIRD_API_URL=https://api.tinybird.co
 NEXT_PUBLIC_TINYBIRD_TOKEN=your_token_here
 ```
 
-Get your token from the Tinybird UI under "Tokens" section.
+To get your token:
 
-### 4. Test the Integration
+1. Go to the Tinybird UI (run `tb --cloud open`)
+2. Navigate to "Tokens" section
+3. Create a new token with read permissions for endpoints
+4. Copy the token value
+
+### 4. Enable Tinybird Analytics
+
+The analytics dashboard now automatically uses Tinybird when the environment variables are configured. The dashboard includes a toggle to switch between Convex and Tinybird data sources.
+
+### 5. Test the Integration
 
 1. Start your development server:
 
@@ -49,7 +75,9 @@ Get your token from the Tinybird UI under "Tokens" section.
 
 2. Visit a published business site to generate page views
 
-3. Check the analytics dashboard and switch between Convex and Tinybird data sources
+3. Go to the analytics dashboard at `/dashboard/business/[businessId]/analytics`
+
+4. Use the data source toggle to switch between Convex and Tinybird
 
 ## Architecture
 
