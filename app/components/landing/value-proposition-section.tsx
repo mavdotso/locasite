@@ -69,15 +69,15 @@ const features = [
 
 export default function ValuePropositionSection() {
   return (
-    <section className="py-24 bg-background">
+    <section className="py-24 bg-gradient-to-b from-white to-blue-50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary mb-4">
+          <div className="inline-flex items-center gap-2 rounded-full bg-blue-100 border border-blue-200 px-4 py-1.5 text-sm font-medium text-blue-700 mb-4">
             Why Choose Locasite
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
             Everything You Need to
-            <span className="text-primary"> Succeed Online</span>
+            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"> Succeed Online</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             We handle the technical details so you can focus on running your business. 
@@ -112,13 +112,13 @@ export default function ValuePropositionSection() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a 
               href="#create" 
-              className="inline-flex items-center justify-center rounded-md bg-primary px-8 py-3 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
+              className="inline-flex items-center justify-center rounded-md bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-3 text-sm font-medium text-white shadow-lg transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl"
             >
               Start Building Your Website
             </a>
             <a 
               href="#demo" 
-              className="inline-flex items-center justify-center rounded-md border border-input bg-background px-8 py-3 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+              className="inline-flex items-center justify-center rounded-md border border-blue-200 bg-white px-8 py-3 text-sm font-medium text-blue-700 shadow-sm transition-colors hover:bg-blue-50"
             >
               Watch Demo
             </a>
