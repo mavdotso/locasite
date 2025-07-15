@@ -23,8 +23,8 @@ NODE session_metrics
 SQL >
     %
     WITH
-        toDateTime({{DateTime(start_time, '2024-01-01 00:00:00')}}) AS start_time,
-        toDateTime({{DateTime(end_time, 'now()')}}) AS end_time
+        toDateTime({{DateTime(start_time, '2024-01-01 00:00:00')}}) AS start_dt,
+        toDateTime({{DateTime(end_time, 'now()')}}) AS end_dt
     SELECT
         avg(duration) AS avg_session_duration,
         avg(page_count) AS avg_pages_per_session,
@@ -34,8 +34,8 @@ SQL >
     FROM sessions
     WHERE
         business_id = {{String(business_id)}}
-        AND start_time >= start_time
-        AND start_time <= end_time
+        AND start_time >= start_dt
+        AND start_time <= end_dt
 
 NODE combined_summary
 SQL >
