@@ -1,9 +1,15 @@
-import { mutation, query, internalMutation, internalQuery, action } from './_generated/server';
-import { v } from 'convex/values';
-import { Doc, Id } from './_generated/dataModel';
-import { getUserFromAuth } from './lib/helpers';
-import { auth } from './auth';
+import {
+  mutation,
+  query,
+  internalMutation,
+  internalQuery,
+  action,
+} from "./_generated/server";
+import { v } from "convex/values";
+import { Doc } from "./_generated/dataModel";
+import { getUserFromAuth } from "./lib/helpers";
 import { internal } from "./_generated/api";
+import { checkRateLimit, RATE_LIMITS } from "./lib/rateLimiting";
 
 // Internal mutation to create a business claim
 export const internal_createBusinessClaim = internalMutation({
@@ -15,11 +21,10 @@ export const internal_createBusinessClaim = internalMutation({
     // Check if there's already a pending claim for this business by this user
     const existingClaim = await ctx.db
       .query("businessClaims")
-      .withIndex("by_business_status", q =>
-        q.eq("businessId", args.businessId)
-          .eq("status", "pending")
+      .withIndex("by_business_status", (q) =>
+        q.eq("businessId", args.businessId).eq("status", "pending"),
       )
-      .filter(q => q.eq(q.field("userId"), args.userId))
+      .filter((q) => q.eq(q.field("userId"), args.userId))
       .first();
 
     if (existingClaim) {
@@ -36,7 +41,7 @@ export const internal_createBusinessClaim = internalMutation({
     });
 
     return claimId;
-  }
+  },
 });
 
 // Internal mutation to approve a claim
@@ -66,21 +71,31 @@ export const internal_approveClaim = internalMutation({
     });
 
     return true;
-  }
+  },
 });
 
 // Request to claim a business with verification method
 export const claimBusiness = mutation({
   args: {
     businessId: v.id("businesses"),
-    verificationMethod: v.optional(v.union(
-      v.literal("google"),
-      v.literal("email"),
-      v.literal("phone")
-    ))
+    verificationMethod: v.optional(
+      v.union(v.literal("google"), v.literal("email"), v.literal("phone")),
+    ),
   },
   handler: async (ctx, args) => {
     const user = await getUserFromAuth(ctx);
+
+    // Check rate limiting
+    const rateLimit = await checkRateLimit(
+      ctx.db,
+      user._id,
+      RATE_LIMITS.businessClaim,
+    );
+    if (!rateLimit.allowed) {
+      throw new Error(
+        `Rate limit exceeded. You can try again in ${Math.ceil((rateLimit.resetTime - Date.now()) / 1000 / 60)} minutes.`,
+      );
+    }
 
     // Check if the business exists
     const business = await ctx.db.get(args.businessId);
@@ -101,23 +116,25 @@ export const claimBusiness = mutation({
     // Check for existing pending claims by this user
     const existingClaim = await ctx.db
       .query("businessClaims")
-      .withIndex("by_business_status", q =>
-        q.eq("businessId", args.businessId)
-          .eq("status", "pending")
+      .withIndex("by_business_status", (q) =>
+        q.eq("businessId", args.businessId).eq("status", "pending"),
       )
-      .filter(q => q.eq(q.field("userId"), user._id))
+      .filter((q) => q.eq(q.field("userId"), user._id))
       .first();
 
     if (existingClaim) {
       return {
         claimId: existingClaim._id,
         message: "You already have a pending claim for this business.",
-        requiresGoogleAuth: (args.verificationMethod || "google") === "google"
+        requiresGoogleAuth: (args.verificationMethod || "google") === "google",
       };
     }
 
     // Create the claim
-    const claimData: Omit<Doc<"businessClaims">, "_id" | "_creationTime" | "updatedAt" | "notes"> = {
+    const claimData: Omit<
+      Doc<"businessClaims">,
+      "_id" | "_creationTime" | "updatedAt" | "notes"
+    > = {
       businessId: args.businessId,
       userId: user._id,
       status: "pending",
@@ -135,17 +152,23 @@ export const claimBusiness = mutation({
     const claimId = await ctx.db.insert("businessClaims", claimData);
 
     const verificationMessage = {
-      google: "Please complete Google Business Profile verification to claim this business.",
-      email: "We'll send verification instructions to the business email address.",
-      phone: "We'll call or text the business phone number for verification."
+      google:
+        "Please complete Google Business Profile verification to claim this business.",
+      email:
+        "We'll send verification instructions to the business email address.",
+      phone: "We'll call or text the business phone number for verification.",
     };
 
     return {
       claimId,
-      message: verificationMessage[args.verificationMethod || "google" as keyof typeof verificationMessage],
-      requiresGoogleAuth: args.verificationMethod === "google"
+      message:
+        verificationMessage[
+          args.verificationMethod ||
+            ("google" as keyof typeof verificationMessage)
+        ],
+      requiresGoogleAuth: args.verificationMethod === "google",
     };
-  }
+  },
 });
 
 // Get claim by ID
@@ -167,7 +190,7 @@ export const getClaimById = query({
     }
 
     return claim;
-  }
+  },
 });
 
 // Internal query to get a claim by ID
@@ -177,7 +200,7 @@ export const internal_getClaimById = internalQuery({
   },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.claimId);
-  }
+  },
 });
 
 // Internal query to get business by ID
@@ -187,7 +210,7 @@ export const internal_getBusinessById = internalQuery({
   },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.id);
-  }
+  },
 });
 
 // Action to verify Google Business Profile ownership
@@ -198,18 +221,24 @@ export const verifyGoogleBusinessOwnership = action({
   },
   handler: async (ctx, args) => {
     // Get the claim details
-    const claim = await ctx.runQuery(internal.businessClaims.internal_getClaimById, {
-      claimId: args.claimId
-    });
+    const claim = await ctx.runQuery(
+      internal.businessClaims.internal_getClaimById,
+      {
+        claimId: args.claimId,
+      },
+    );
 
     if (!claim) {
       throw new Error("Claim not found");
     }
 
     // Get the business details
-    const business = await ctx.runQuery(internal.businesses.internal_getBusinessById, {
-      id: claim.businessId
-    });
+    const business = await ctx.runQuery(
+      internal.businesses.internal_getBusinessById,
+      {
+        id: claim.businessId,
+      },
+    );
 
     if (!business) {
       throw new Error("Business not found");
@@ -223,23 +252,28 @@ export const verifyGoogleBusinessOwnership = action({
         {
           headers: {
             Authorization: `Bearer ${args.googleAccessToken}`,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
         // If the response is not OK, the user doesn't have access to this business
-        await ctx.runMutation(internal.businessClaims.internal_updateClaimStatus, {
-          claimId: args.claimId,
-          status: "rejected",
-          googleVerificationStatus: "failed",
-          notes: "Google verification failed: User does not have access to this business"
-        });
+        await ctx.runMutation(
+          internal.businessClaims.internal_updateClaimStatus,
+          {
+            claimId: args.claimId,
+            status: "rejected",
+            googleVerificationStatus: "failed",
+            notes:
+              "Google verification failed: User does not have access to this business",
+          },
+        );
 
         return {
           success: false,
-          message: "Could not verify ownership with Google. You don't appear to have access to this business listing."
+          message:
+            "Could not verify ownership with Google. You don't appear to have access to this business listing.",
         };
       }
 
@@ -247,29 +281,35 @@ export const verifyGoogleBusinessOwnership = action({
       // Approve the claim automatically
       await ctx.runMutation(internal.businessClaims.internal_approveClaim, {
         claimId: args.claimId,
-        notes: "Automatically approved via Google Business Profile verification",
+        notes:
+          "Automatically approved via Google Business Profile verification",
       });
 
       return {
         success: true,
-        message: "Google Business Profile ownership verified. Your claim has been approved!"
+        message:
+          "Google Business Profile ownership verified. Your claim has been approved!",
       };
     } catch (error) {
       console.error("Error verifying Google Business ownership:", error);
 
-      await ctx.runMutation(internal.businessClaims.internal_updateClaimStatus, {
-        claimId: args.claimId,
-        status: "pending",
-        googleVerificationStatus: "failed",
-        notes: `Google verification error: ${error}`
-      });
+      await ctx.runMutation(
+        internal.businessClaims.internal_updateClaimStatus,
+        {
+          claimId: args.claimId,
+          status: "pending",
+          googleVerificationStatus: "failed",
+          notes: `Google verification error: ${error}`,
+        },
+      );
 
       return {
         success: false,
-        message: "Error verifying ownership with Google. Please try again later."
+        message:
+          "Error verifying ownership with Google. Please try again later.",
       };
     }
-  }
+  },
 });
 
 // Internal mutation to update claim status
@@ -279,12 +319,12 @@ export const internal_updateClaimStatus = internalMutation({
     status: v.union(
       v.literal("pending"),
       v.literal("approved"),
-      v.literal("rejected")
+      v.literal("rejected"),
     ),
     googleVerificationStatus: v.union(
       v.literal("pending"),
       v.literal("verified"),
-      v.literal("failed")
+      v.literal("failed"),
     ),
     notes: v.optional(v.string()),
   },
@@ -297,7 +337,7 @@ export const internal_updateClaimStatus = internalMutation({
     });
 
     return true;
-  }
+  },
 });
 
 // Get all claims by a user with business details
@@ -308,7 +348,7 @@ export const getClaimsByUser = query({
 
     const claims = await ctx.db
       .query("businessClaims")
-      .withIndex("by_user", q => q.eq("userId", user._id))
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
 
     // Fetch business details for each claim
@@ -317,13 +357,13 @@ export const getClaimsByUser = query({
         const business = await ctx.db.get(claim.businessId);
         return {
           ...claim,
-          business
+          business,
         };
-      })
+      }),
     );
 
     return claimsWithBusiness;
-  }
+  },
 });
 
 // Check if a business is claimable
@@ -343,18 +383,19 @@ export const isBusinessClaimable = query({
     // Check if there are any pending claims
     const pendingClaims = await ctx.db
       .query("businessClaims")
-      .withIndex("by_business_status", q =>
-        q.eq("businessId", args.businessId)
-          .eq("status", "pending")
+      .withIndex("by_business_status", (q) =>
+        q.eq("businessId", args.businessId).eq("status", "pending"),
       )
       .collect();
 
     // Check if current user has pending claim (if authenticated)
     let userHasPendingClaim = false;
     try {
-      const userId = await auth.getUserId(ctx);
-      if (userId) {
-        const userClaim = pendingClaims.find(claim => claim.userId === userId);
+      const user = await getUserFromAuth(ctx);
+      if (user) {
+        const userClaim = pendingClaims.find(
+          (claim) => claim.userId === user._id,
+        );
         userHasPendingClaim = !!userClaim;
       }
     } catch {
@@ -365,15 +406,15 @@ export const isBusinessClaimable = query({
       isClaimable,
       hasPendingClaims: pendingClaims.length > 0,
       pendingClaimsCount: pendingClaims.length,
-      userHasPendingClaim
+      userHasPendingClaim,
     };
-  }
+  },
 });
 
 // Cancel a pending claim
 export const cancelClaim = mutation({
   args: {
-    claimId: v.id("businessClaims")
+    claimId: v.id("businessClaims"),
   },
   handler: async (ctx, args) => {
     const user = await getUserFromAuth(ctx);
@@ -394,9 +435,49 @@ export const cancelClaim = mutation({
     await ctx.db.patch(args.claimId, {
       status: "rejected",
       updatedAt: Date.now(),
-      notes: "Cancelled by user"
+      notes: "Cancelled by user",
     });
 
     return true;
-  }
+  },
+});
+
+// Check if current user has verified Google Business ownership for a business
+export const isGoogleBusinessOwner = query({
+  args: {
+    businessId: v.id("businesses"),
+  },
+  handler: async (ctx, args) => {
+    try {
+      const user = await getUserFromAuth(ctx);
+      
+      // Check if there's an approved claim with Google verification for this business and user
+      const approvedClaim = await ctx.db
+        .query("businessClaims")
+        .withIndex("by_business_status", (q) =>
+          q.eq("businessId", args.businessId).eq("status", "approved"),
+        )
+        .filter((q) => 
+          q.and(
+            q.eq(q.field("userId"), user._id),
+            q.eq(q.field("verificationMethod"), "google"),
+            q.eq(q.field("googleVerificationStatus"), "verified")
+          )
+        )
+        .first();
+      
+      return {
+        isOwner: !!approvedClaim,
+        hasGoogleVerification: !!approvedClaim,
+        claimId: approvedClaim?._id,
+      };
+    } catch {
+      // User not authenticated
+      return {
+        isOwner: false,
+        hasGoogleVerification: false,
+        claimId: undefined,
+      };
+    }
+  },
 });

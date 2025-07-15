@@ -727,7 +727,13 @@ export const MenuPriceListSection: ComponentConfig = {
           });
         return { name, items };
       }
-      return cat as unknown as Category;
+      // cat is already a Category object
+      const catObj = cat as Record<string, unknown>;
+      if (typeof catObj === "object" && catObj !== null && "name" in catObj) {
+        return catObj as unknown as Category;
+      }
+      // Fallback for unexpected format
+      return { name: "Unknown", items: [] };
     });
 
     if (layout === "tabs") {
@@ -937,7 +943,15 @@ export const SpecialOffersSection: ComponentConfig = {
         const [offerTitle, description, validUntil, code] = offer.split("|");
         return { title: offerTitle, description, validUntil, code };
       }
-      return offer as unknown as Offer;
+      const offerObj = offer as Record<string, unknown>;
+      if (
+        typeof offerObj === "object" &&
+        offerObj !== null &&
+        "title" in offerObj
+      ) {
+        return offerObj as unknown as Offer;
+      }
+      return { title: "Unknown Offer", description: "", validUntil: "" };
     });
 
     if (layout === "banner") {
@@ -1080,7 +1094,15 @@ export const FAQSection: ComponentConfig = {
         const [question, answer] = faq.split("|");
         return { question, answer };
       }
-      return faq as unknown as FAQ;
+      const faqObj = faq as Record<string, unknown>;
+      if (
+        typeof faqObj === "object" &&
+        faqObj !== null &&
+        "question" in faqObj
+      ) {
+        return faqObj as unknown as FAQ;
+      }
+      return { question: "Unknown Question", answer: "" };
     });
 
     if (layout === "cards") {
@@ -1768,7 +1790,20 @@ export const BeforeAfterSection: ComponentConfig = {
         const [title, description, beforeImage, afterImage] = item.split("|");
         return { title, description, beforeImage, afterImage };
       }
-      return item as unknown as BeforeAfterItem;
+      const itemObj = item as Record<string, unknown>;
+      if (
+        typeof itemObj === "object" &&
+        itemObj !== null &&
+        "title" in itemObj
+      ) {
+        return itemObj as unknown as BeforeAfterItem;
+      }
+      return {
+        title: "Unknown",
+        description: "",
+        beforeImage: "",
+        afterImage: "",
+      };
     });
 
     return (
@@ -1974,7 +2009,15 @@ export const ProcessTimelineSection: ComponentConfig = {
         const [number, title, description, icon] = step.split("|");
         return { number, title, description, icon };
       }
-      return step as unknown as ProcessStep;
+      const stepObj = step as Record<string, unknown>;
+      if (
+        typeof stepObj === "object" &&
+        stepObj !== null &&
+        "title" in stepObj
+      ) {
+        return stepObj as unknown as ProcessStep;
+      }
+      return { number: "1", title: "Unknown Step", description: "" };
     });
 
     if (layout === "cards") {
@@ -2216,7 +2259,15 @@ export const StatsCounterSection: ComponentConfig = {
         const [number, label, suffix, icon] = stat.split("|");
         return { number, label, suffix: suffix || "", icon };
       }
-      return stat as unknown as Stat;
+      const statObj = stat as Record<string, unknown>;
+      if (
+        typeof statObj === "object" &&
+        statObj !== null &&
+        "number" in statObj
+      ) {
+        return statObj as unknown as Stat;
+      }
+      return { number: "0", label: "Unknown" };
     });
 
     const bgClass =
