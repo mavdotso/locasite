@@ -441,3 +441,43 @@ export const cancelClaim = mutation({
     return true;
   },
 });
+
+// Check if current user has verified Google Business ownership for a business
+export const isGoogleBusinessOwner = query({
+  args: {
+    businessId: v.id("businesses"),
+  },
+  handler: async (ctx, args) => {
+    try {
+      const user = await getUserFromAuth(ctx);
+      
+      // Check if there's an approved claim with Google verification for this business and user
+      const approvedClaim = await ctx.db
+        .query("businessClaims")
+        .withIndex("by_business_status", (q) =>
+          q.eq("businessId", args.businessId).eq("status", "approved"),
+        )
+        .filter((q) => 
+          q.and(
+            q.eq(q.field("userId"), user._id),
+            q.eq(q.field("verificationMethod"), "google"),
+            q.eq(q.field("googleVerificationStatus"), "verified")
+          )
+        )
+        .first();
+      
+      return {
+        isOwner: !!approvedClaim,
+        hasGoogleVerification: !!approvedClaim,
+        claimId: approvedClaim?._id,
+      };
+    } catch {
+      // User not authenticated
+      return {
+        isOwner: false,
+        hasGoogleVerification: false,
+        claimId: undefined,
+      };
+    }
+  },
+});
