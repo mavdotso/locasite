@@ -30,7 +30,6 @@ import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
 import { notFound } from "next/navigation";
 import { SeoSettings } from "@/app/components/business/seo-settings";
 import AnalyticsOverview from "@/app/components/dashboard/analytics-overview";
@@ -54,25 +53,8 @@ export default function BusinessDashboardClient({
     businessId,
   });
 
-  // Handle authentication
-  useEffect(() => {
-    if (user === null) {
-      // User is not authenticated, redirect to sign-in with redirect back to this page
-      router.push(`/sign-in?redirect=/dashboard/business/${businessId}`);
-    }
-  }, [user, businessId, router]);
-
-  // Loading state while fetching user or business
-  if (user === undefined || business === undefined) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  // User not authenticated (null)
-  if (user === null) {
+  // Loading state while fetching business data
+  if (business === undefined) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -86,7 +68,8 @@ export default function BusinessDashboardClient({
   }
 
   // Check ownership - only allow owner to access dashboard
-  if (business.userId && business.userId !== user._id) {
+  // At this point, user is guaranteed to be defined due to auth guard
+  if (business.userId && user && business.userId !== user._id) {
     router.push(`/dashboard/sites`);
     return (
       <div className="flex items-center justify-center h-screen">

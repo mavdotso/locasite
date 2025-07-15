@@ -1,5 +1,6 @@
 import { Id } from "@/convex/_generated/dataModel";
 import BusinessEditClient from "./business-edit-client";
+import { AuthGuard } from "@/app/components/auth/auth-guard";
 
 export default async function BusinessEditPage({
   params,
@@ -8,7 +9,10 @@ export default async function BusinessEditPage({
 }) {
   const resolvedParams = await params;
   const businessId = resolvedParams.businessId as Id<"businesses">;
-  
-  // Client-side auth and ownership checks will be handled in BusinessEditClient
-  return <BusinessEditClient businessId={businessId} />;
+
+  return (
+    <AuthGuard loadingMessage="Loading editor...">
+      <BusinessEditClient businessId={businessId} />
+    </AuthGuard>
+  );
 }

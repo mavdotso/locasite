@@ -48,14 +48,6 @@ export default function BusinessEditClient({
     business ? { businessId: business._id } : "skip",
   );
 
-  // Handle authentication
-  useEffect(() => {
-    if (user === null) {
-      // User is not authenticated, redirect to sign-in with redirect back to this page
-      router.push(`/sign-in?redirect=/business/${businessId}/edit`);
-    }
-  }, [user, businessId, router]);
-
   // Handle business-domain sync
   useEffect(() => {
     if (syncStatus && !syncStatus.synced && business && user && !pages) {
@@ -80,17 +72,8 @@ export default function BusinessEditClient({
     }
   }, [syncStatus, business, user, pages, syncBusinessDomain]);
 
-  // Loading state while fetching user or business
-  if (user === undefined || business === undefined) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  // User not authenticated (null)
-  if (user === null) {
+  // Loading state while fetching business
+  if (business === undefined) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -104,7 +87,8 @@ export default function BusinessEditClient({
   }
 
   // Check ownership - only allow owner to edit
-  if (business.userId && business.userId !== user._id) {
+  // Note: user is guaranteed to be defined if we reach this point (auth guard should handle null case)
+  if (business.userId && user && business.userId !== user._id) {
     router.push(`/dashboard/sites`);
     return (
       <div className="flex items-center justify-center h-screen">

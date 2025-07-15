@@ -3,7 +3,13 @@ import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import MessageList from "@/app/components/messages/message-list";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -14,16 +20,14 @@ interface MessagesPageProps {
   }>;
 }
 
-export default async function BusinessMessagesPage({ params }: MessagesPageProps) {
+export default async function BusinessMessagesPage({
+  params,
+}: MessagesPageProps) {
   const { businessId } = await params;
   const businessIdTyped = businessId as Id<"businesses">;
 
-  // Server-side auth check
+  // Get current user (auth is handled by dashboard layout)
   const user = await fetchQuery(api.auth.currentUser, {});
-  
-  if (!user) {
-    redirect(`/sign-in?redirect=/dashboard/business/${businessId}/messages`);
-  }
 
   // Get business from database
   const business = await fetchQuery(api.businesses.getById, {
@@ -35,18 +39,20 @@ export default async function BusinessMessagesPage({ params }: MessagesPageProps
   }
 
   // Check ownership
-  if (business.userId && business.userId !== user._id) {
+  if (business.userId && user && business.userId !== user._id) {
     redirect("/dashboard/sites");
   }
 
   // Get domain to check if published
-  const domain = await fetchQuery(api.domains.getByBusinessId, { businessId: businessIdTyped });
+  const domain = await fetchQuery(api.domains.getByBusinessId, {
+    businessId: businessIdTyped,
+  });
 
   // Fetch contact messages
   const messages = await fetchQuery(api.contactMessages.getByBusiness, {
     businessId: business._id,
   });
-  
+
   // Get unread count
   const unreadCount = await fetchQuery(api.contactMessages.getUnreadCount, {
     businessId: business._id,
@@ -97,7 +103,7 @@ export default async function BusinessMessagesPage({ params }: MessagesPageProps
           </CardDescription>
         </CardHeader>
       </Card>
-      
+
       <MessageList initialMessages={messages} />
     </div>
   );
