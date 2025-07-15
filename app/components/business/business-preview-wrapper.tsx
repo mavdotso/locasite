@@ -113,12 +113,18 @@ export function BusinessPreviewWrapper({
   const { signIn } = useAuthActions();
   const router = useRouter();
   const user = useQuery(api.auth.currentUser);
-  
+
   // Get the domain for this business
-  const domain = useQuery(api.domains.getByBusinessId, business ? { businessId } : "skip");
-  
+  const domain = useQuery(
+    api.domains.getByBusinessId,
+    business ? { businessId } : "skip",
+  );
+
   // Get the homepage for this domain
-  const page = useQuery(api.pages.getHomepageByDomain, domain ? { domainId: domain._id } : "skip");
+  const page = useQuery(
+    api.pages.getHomepageByDomain,
+    domain ? { domainId: domain._id } : "skip",
+  );
 
   if (!business) {
     return <div>Business not found</div>;
@@ -172,7 +178,7 @@ export function BusinessPreviewWrapper({
     // Create the same default content that the edit page creates
     const businessType = detectBusinessType(business);
     const preset = getPresetByType(businessType);
-    
+
     const initialData: SimplePageData = {
       title: business.name || "Welcome",
       sections: [],
@@ -181,7 +187,7 @@ export function BusinessPreviewWrapper({
           primary: "#000000",
           secondary: "#666666",
           accent: "#0066cc",
-          background: "#ffffff",
+          background: "#ffffff", // Default white background for preview
           text: "#333333",
           muted: "#f5f5f5",
         },
@@ -261,14 +267,14 @@ export function BusinessPreviewWrapper({
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-lg font-semibold">{business.name} - Preview</h1>
-              <p className="text-sm text-muted-foreground">This is how your website will look</p>
+              <h1 className="text-lg font-semibold">
+                {business.name} - Preview
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                This is how your website will look
+              </p>
             </div>
-            <Button 
-              size="lg" 
-              onClick={handleCreateWebsite}
-              className="gap-2"
-            >
+            <Button size="lg" onClick={handleCreateWebsite} className="gap-2">
               <Sparkles className="w-4 h-4" />
               Create this website
               <ArrowRight className="w-4 h-4" />
@@ -278,10 +284,7 @@ export function BusinessPreviewWrapper({
       </div>
 
       {/* Business Page Content - Preview only renders simple mode */}
-      <BusinessPreviewRenderer 
-        business={business}
-        pageContent={pageContent}
-      />
+      <BusinessPreviewRenderer business={business} pageContent={pageContent} />
     </div>
   );
 }

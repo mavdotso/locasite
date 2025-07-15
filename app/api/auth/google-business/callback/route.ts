@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     try {
       tokens = await exchangeCodeForTokens(code);
     } catch (tokenError) {
-      console.error("Token exchange error:", tokenError);
+      // Token exchange failed - error details in redirect
       return NextResponse.redirect(
         new URL(
           `/dashboard?error=token_exchange_failed&details=${encodeURIComponent(String(tokenError))}`,

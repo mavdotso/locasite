@@ -42,7 +42,7 @@ export const sendVerificationEmail = action({
     args,
   ): Promise<{ success: boolean; message: string; email?: string }> => {
     // Get the business and claim details
-    const business: any = await ctx.runQuery(
+    const business = await ctx.runQuery(
       internal.businesses.internal_getBusinessById,
       {
         id: args.businessId,
@@ -78,14 +78,8 @@ export const sendVerificationEmail = action({
       },
     );
 
-    // In a real implementation, you would send an email here
-    // For now, we'll just log the verification URL
-    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}&businessId=${args.businessId}`;
-
-    console.log("Verification email would be sent to:", business.email);
-    console.log("Verification URL:", verificationUrl);
-
     // TODO: Integrate with email service (SendGrid, Resend, etc.)
+    // const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}&businessId=${args.businessId}`;
     // await sendEmail({
     //   to: business.email,
     //   subject: `Verify your ownership of ${business.name}`,

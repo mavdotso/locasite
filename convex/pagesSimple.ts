@@ -51,9 +51,7 @@ export const createPageWithContent = mutation({
       lastEditedAt: Date.now(),
     });
 
-    console.log(
-      `Created page ${pageId} for business ${args.businessId} with custom content`,
-    );
+    // Page created successfully
 
     return { pageId };
   },
@@ -298,9 +296,7 @@ export const createDefaultPagesSimple = mutation({
       lastEditedAt: Date.now(),
     });
 
-    console.log(
-      `Created simple mode page ${pageId} for business ${args.businessId} with 6 sections`,
-    );
+    // Simple mode page created successfully
 
     return { pageId };
   },

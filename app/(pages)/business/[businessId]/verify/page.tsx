@@ -1,15 +1,22 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
-import { Button } from '@/app/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/app/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/app/components/ui/alert';
-import { Loader, CheckCircle, XCircle, ExternalLink } from 'lucide-react';
-import { toast } from 'sonner';
+import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
+import { Button } from "@/app/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/app/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/app/components/ui/alert";
+import { Loader, CheckCircle, XCircle, ExternalLink } from "lucide-react";
+import { toast } from "sonner";
 
 interface VerifyPageProps {
   params: Promise<{
@@ -20,94 +27,107 @@ interface VerifyPageProps {
 export default function VerifyBusinessPage({ params }: VerifyPageProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const claimId = searchParams.get('claimId');
-  const status = searchParams.get('status');
-  const message = searchParams.get('message');
-  const [paramsData, setParamsData] = useState<{ businessId: string } | null>(null);
-  const [verificationStatus, setVerificationStatus] = useState<'idle' | 'verifying' | 'success' | 'error'>('idle');
-  const [errorMessage, setErrorMessage] = useState<string>('');
+  const claimId = searchParams.get("claimId");
+  const status = searchParams.get("status");
+  const message = searchParams.get("message");
+  const [paramsData, setParamsData] = useState<{ businessId: string } | null>(
+    null,
+  );
+  const [verificationStatus, setVerificationStatus] = useState<
+    "idle" | "verifying" | "success" | "error"
+  >("idle");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   useEffect(() => {
-    params.then(p => setParamsData(p));
+    params.then((p) => setParamsData(p));
   }, [params]);
 
   useEffect(() => {
     // Handle OAuth callback status
-    if (status === 'success') {
-      setVerificationStatus('success');
-      toast.success('Business verified successfully!', {
-        description: 'You can now manage this business listing.'
+    if (status === "success") {
+      setVerificationStatus("success");
+      toast.success("Business verified successfully!", {
+        description: "You can now manage this business listing.",
       });
-    } else if (status === 'failed') {
-      setVerificationStatus('error');
-      setErrorMessage(message || 'Verification failed');
-      toast.error('Verification failed', {
-        description: message || 'Could not verify business ownership'
+    } else if (status === "failed") {
+      setVerificationStatus("error");
+      setErrorMessage(message || "Verification failed");
+      toast.error("Verification failed", {
+        description: message || "Could not verify business ownership",
       });
     }
   }, [status, message]);
 
   const businessId = paramsData?.businessId as Id<"businesses"> | undefined;
-  const business = useQuery(api.businesses.getById, businessId ? { id: businessId } : "skip");
-  const claim = useQuery(api.businessClaims.getClaimById, claimId ? { claimId: claimId as Id<"businessClaims"> } : "skip");
+  const business = useQuery(
+    api.businesses.getById,
+    businessId ? { id: businessId } : "skip",
+  );
+  const claim = useQuery(
+    api.businessClaims.getClaimById,
+    claimId ? { claimId: claimId as Id<"businessClaims"> } : "skip",
+  );
 
   const handleGoogleVerification = async () => {
-    setVerificationStatus('verifying');
-    setErrorMessage('');
+    setVerificationStatus("verifying");
+    setErrorMessage("");
 
     try {
-      const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_BUSINESS_CLIENT_ID;
+      const GOOGLE_CLIENT_ID =
+        process.env.NEXT_PUBLIC_GOOGLE_BUSINESS_CLIENT_ID;
       const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL;
       const REDIRECT_URI = `${CONVEX_URL}/google-business/callback`;
       const SCOPES = [
-        'https://www.googleapis.com/auth/business.manage',
-        'openid',
-        'email',
-        'profile'
-      ].join(' ');
-      
+        "https://www.googleapis.com/auth/business.manage",
+        "openid",
+        "email",
+        "profile",
+      ].join(" ");
+
       if (!GOOGLE_CLIENT_ID) {
-        throw new Error('Google Business OAuth is not configured. Please contact support.');
+        throw new Error(
+          "Google Business OAuth is not configured. Please contact support.",
+        );
       }
-      
+
       // Generate CSRF token for security
-      const csrfToken = Math.random().toString(36).substring(2, 15);
-      
+      const csrfToken = crypto.randomUUID();
+
       // Create state parameter with claim ID and CSRF token
       const stateData = {
         claimId: claimId,
         csrfToken: csrfToken,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
-      const state = Buffer.from(JSON.stringify(stateData)).toString('base64');
-      
+      const state = Buffer.from(JSON.stringify(stateData)).toString("base64");
+
       // Build OAuth URL with all required parameters
       const params = new URLSearchParams({
         client_id: GOOGLE_CLIENT_ID,
         redirect_uri: REDIRECT_URI,
-        response_type: 'code',
+        response_type: "code",
         scope: SCOPES,
-        access_type: 'offline',
-        prompt: 'consent',
+        access_type: "offline",
+        prompt: "consent",
         state: state,
-        include_granted_scopes: 'true'
+        include_granted_scopes: "true",
       });
-      
+
       const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
-      
+
       // Store CSRF token in session storage for validation later
-      sessionStorage.setItem('oauth_csrf_token', csrfToken);
-      
+      sessionStorage.setItem("oauth_csrf_token", csrfToken);
+
       // Redirect to Google OAuth
       window.location.href = authUrl;
-      
     } catch (error: unknown) {
-      console.error('Verification error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to verify ownership';
-      setVerificationStatus('error');
+      console.error("Verification error:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to verify ownership";
+      setVerificationStatus("error");
       setErrorMessage(errorMessage);
-      toast.error('Verification failed', {
-        description: errorMessage
+      toast.error("Verification failed", {
+        description: errorMessage,
       });
     }
   };
@@ -133,7 +153,7 @@ export default function VerifyBusinessPage({ params }: VerifyPageProps) {
     );
   }
 
-  if (claim.status === 'approved' || verificationStatus === 'success') {
+  if (claim.status === "approved" || verificationStatus === "success") {
     return (
       <Card className="mx-auto w-full max-w-2xl">
         <CardHeader>
@@ -142,7 +162,8 @@ export default function VerifyBusinessPage({ params }: VerifyPageProps) {
             <CardTitle>Business Claimed Successfully!</CardTitle>
           </div>
           <CardDescription>
-            You have successfully claimed {business.name}. You can now manage this business listing.
+            You have successfully claimed {business.name}. You can now manage
+            this business listing.
           </CardDescription>
         </CardHeader>
         <CardFooter>
@@ -159,21 +180,26 @@ export default function VerifyBusinessPage({ params }: VerifyPageProps) {
       <CardHeader>
         <CardTitle>Verify Ownership of {business.name}</CardTitle>
         <CardDescription>
-          To complete your claim, please verify that you have access to this business on Google Business Profile.
+          To complete your claim, please verify that you have access to this
+          business on Google Business Profile.
         </CardDescription>
       </CardHeader>
-      
+
       <CardContent className="space-y-6">
         <div className="p-4 bg-muted rounded-lg">
-          <h3 className="font-medium text-foreground mb-2">Why verification is required?</h3>
+          <h3 className="font-medium text-foreground mb-2">
+            Why verification is required?
+          </h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li>• Ensures only legitimate business owners can manage listings</li>
+            <li>
+              • Ensures only legitimate business owners can manage listings
+            </li>
             <li>• Protects businesses from unauthorized claims</li>
             <li>• Maintains trust and authenticity on the platform</li>
           </ul>
         </div>
 
-        {verificationStatus === 'error' && (
+        {verificationStatus === "error" && (
           <Alert variant="destructive">
             <XCircle className="h-4 w-4" />
             <AlertTitle>Verification Failed</AlertTitle>
@@ -182,19 +208,21 @@ export default function VerifyBusinessPage({ params }: VerifyPageProps) {
         )}
 
         <div className="p-4 border rounded-lg">
-          <h3 className="font-medium mb-3">Google Business Profile Verification</h3>
+          <h3 className="font-medium mb-3">
+            Google Business Profile Verification
+          </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Click the button below to connect your Google account and verify ownership. 
-            You&rsquo;ll be redirected to Google to authorize access to your business listings.
+            Click the button below to connect your Google account and verify
+            ownership. You&rsquo;ll be redirected to Google to authorize access
+            to your business listings.
           </p>
-          
 
-          <Button 
+          <Button
             onClick={handleGoogleVerification}
-            disabled={verificationStatus === 'verifying'}
+            disabled={verificationStatus === "verifying"}
             className="w-full"
           >
-            {verificationStatus === 'verifying' ? (
+            {verificationStatus === "verifying" ? (
               <>
                 <Loader className="mr-2 h-4 w-4 animate-spin" />
                 Verifying...
@@ -208,16 +236,16 @@ export default function VerifyBusinessPage({ params }: VerifyPageProps) {
           </Button>
         </div>
       </CardContent>
-      
+
       <CardFooter className="flex justify-between">
-        <Button 
-          variant="outline" 
-          onClick={() => router.push('/dashboard/claims')}
+        <Button
+          variant="outline"
+          onClick={() => router.push("/dashboard/claims")}
         >
           View All Claims
         </Button>
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           onClick={() => router.push(`/business/${business._id}`)}
         >
           Return to Business Page
