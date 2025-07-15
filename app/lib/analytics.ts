@@ -1,6 +1,7 @@
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { ConvexClient } from "convex/browser";
+import { getTinybirdClient } from "./tinybird";
 
 // Analytics configuration
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
@@ -31,18 +32,18 @@ function getVisitorId(): string {
 function getSessionId(): string {
   const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
   const now = Date.now();
-  
+
   // Check if session has expired
   if (lastActivity && now - parseInt(lastActivity) > SESSION_TIMEOUT) {
     localStorage.removeItem(SESSION_ID_KEY);
   }
-  
+
   let sessionId = localStorage.getItem(SESSION_ID_KEY);
   if (!sessionId) {
     sessionId = generateUUID();
     localStorage.setItem(SESSION_ID_KEY, sessionId);
   }
-  
+
   localStorage.setItem(LAST_ACTIVITY_KEY, now.toString());
   return sessionId;
 }
@@ -57,7 +58,11 @@ function parseUserAgent() {
   // Detect device type
   if (/tablet|ipad|playbook|silk/i.test(ua)) {
     deviceType = "tablet";
-  } else if (/mobile|iphone|ipod|android|blackberry|opera|mini|windows\sce|palm|smartphone|iemobile/i.test(ua)) {
+  } else if (
+    /mobile|iphone|ipod|android|blackberry|opera|mini|windows\sce|palm|smartphone|iemobile/i.test(
+      ua,
+    )
+  ) {
     deviceType = "mobile";
   }
 
@@ -65,7 +70,8 @@ function parseUserAgent() {
   if (ua.indexOf("Chrome") > -1) browser = "Chrome";
   else if (ua.indexOf("Safari") > -1) browser = "Safari";
   else if (ua.indexOf("Firefox") > -1) browser = "Firefox";
-  else if (ua.indexOf("MSIE") > -1 || ua.indexOf("Trident/") > -1) browser = "IE";
+  else if (ua.indexOf("MSIE") > -1 || ua.indexOf("Trident/") > -1)
+    browser = "IE";
   else if (ua.indexOf("Edge") > -1) browser = "Edge";
 
   // Detect OS
@@ -106,6 +112,7 @@ function parseUTMParams() {
 
 export class Analytics {
   private convex: ConvexClient;
+  private tinybird = getTinybirdClient();
   private businessId: Id<"businesses">;
   private domainId?: Id<"domains">;
   private visitorId: string;
@@ -115,14 +122,21 @@ export class Analytics {
   private clicks: number = 0;
   private maxScrollDepth: number = 0;
   private isInitialized: boolean = false;
+  private useTinybird: boolean;
 
-  constructor(convexUrl: string, businessId: Id<"businesses">, domainId?: Id<"domains">) {
+  constructor(
+    convexUrl: string,
+    businessId: Id<"businesses">,
+    domainId?: Id<"domains">,
+  ) {
     this.convex = new ConvexClient(convexUrl);
     this.businessId = businessId;
     this.domainId = domainId;
     this.visitorId = getVisitorId();
     this.sessionId = getSessionId();
     this.startTime = Date.now();
+    // Enable Tinybird if token is configured
+    this.useTinybird = !!process.env.NEXT_PUBLIC_TINYBIRD_TOKEN;
   }
 
   async init() {
@@ -155,6 +169,21 @@ export class Analytics {
           entryPage: window.location.pathname,
         });
         sessionStorage.setItem(`session_${this.sessionId}`, "1");
+
+        // Also create session in Tinybird
+        if (this.useTinybird) {
+          await this.tinybird.updateSession({
+            sessionId: this.sessionId,
+            visitorId: this.visitorId,
+            businessId: this.businessId,
+            startTime: Math.floor(Date.now() / 1000), // Convert to seconds for Tinybird
+            pageCount: 1,
+            eventCount: 0,
+            entryPage: window.location.pathname,
+            hasConverted: false,
+            bounce: true,
+          });
+        }
       }
 
       // Track page view
@@ -169,21 +198,57 @@ export class Analytics {
 
   private async trackPageView() {
     try {
-      const loadTime = performance.timing
-        ? performance.timing.loadEventEnd - performance.timing.navigationStart
+      const navigation = performance.getEntriesByType(
+        "navigation",
+      )[0] as PerformanceNavigationTiming;
+      const loadTime = navigation
+        ? Math.round(navigation.loadEventEnd - navigation.fetchStart)
         : undefined;
 
-      this.pageViewId = await this.convex.mutation(api.analytics.trackPageView, {
-        businessId: this.businessId,
-        domainId: this.domainId,
-        visitorId: this.visitorId,
-        sessionId: this.sessionId,
-        path: window.location.pathname,
-        title: document.title,
-        loadTime: loadTime && loadTime > 0 ? loadTime : undefined,
-        screenWidth: window.screen.width,
-        screenHeight: window.screen.height,
-      });
+      // Track in Convex for real-time features
+      this.pageViewId = await this.convex.mutation(
+        api.analytics.trackPageView,
+        {
+          businessId: this.businessId,
+          domainId: this.domainId,
+          visitorId: this.visitorId,
+          sessionId: this.sessionId,
+          path: window.location.pathname,
+          title: document.title,
+          loadTime: loadTime && loadTime > 0 ? loadTime : undefined,
+          screenWidth: window.screen.width,
+          screenHeight: window.screen.height,
+        },
+      );
+
+      // Also track in Tinybird for analytics
+      if (this.useTinybird) {
+        const { deviceType, browser, os } = parseUserAgent();
+        const referrerData = parseReferrer();
+        const utmData = parseUTMParams();
+
+        await this.tinybird.trackPageView({
+          timestamp: Math.floor(Date.now() / 1000), // Convert to seconds for Tinybird
+          businessId: this.businessId,
+          domainId: this.domainId,
+          visitorId: this.visitorId,
+          sessionId: this.sessionId,
+          path: window.location.pathname,
+          title: document.title,
+          referrer: document.referrer || undefined,
+          userAgent: navigator.userAgent,
+          deviceType,
+          browser,
+          os,
+          screenWidth: window.screen.width,
+          screenHeight: window.screen.height,
+          viewportWidth: window.innerWidth,
+          viewportHeight: window.innerHeight,
+          loadTime: loadTime || undefined,
+          ...referrerData,
+          ...utmData,
+        });
+      }
     } catch (error) {
       console.error("Page view tracking error:", error);
     }
@@ -198,9 +263,11 @@ export class Analytics {
     // Track scroll depth
     let ticking = false;
     const updateScrollDepth = () => {
-      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
       const scrolled = window.scrollY;
-      const scrollDepth = scrollHeight > 0 ? (scrolled / scrollHeight) * 100 : 0;
+      const scrollDepth =
+        scrollHeight > 0 ? (scrolled / scrollHeight) * 100 : 0;
       this.maxScrollDepth = Math.max(this.maxScrollDepth, scrollDepth);
       ticking = false;
     };
@@ -230,13 +297,48 @@ export class Analytics {
 
     try {
       const timeOnPage = Math.floor((Date.now() - this.startTime) / 1000);
-      
+
       await this.convex.mutation(api.analytics.updatePageView, {
         pageViewId: this.pageViewId,
         timeOnPage,
         scrollDepth: Math.round(this.maxScrollDepth),
         clicks: this.clicks,
       });
+
+      // Update session in Tinybird with end time
+      if (this.useTinybird) {
+        const sessionData = sessionStorage.getItem(
+          `session_data_${this.sessionId}`,
+        );
+        const pageCount = sessionData
+          ? JSON.parse(sessionData).pageCount + 1
+          : 1;
+        const eventCount = sessionData ? JSON.parse(sessionData).eventCount : 0;
+
+        await this.tinybird.updateSession({
+          sessionId: this.sessionId,
+          visitorId: this.visitorId,
+          businessId: this.businessId,
+          startTime: Math.floor(this.startTime / 1000), // Convert to seconds for Tinybird
+          endTime: Math.floor(Date.now() / 1000), // Convert to seconds for Tinybird
+          duration: timeOnPage,
+          pageCount,
+          eventCount,
+          entryPage: window.location.pathname,
+          exitPage: window.location.pathname,
+          hasConverted: false,
+          bounce: pageCount === 1,
+        });
+
+        // Update session data in storage
+        sessionStorage.setItem(
+          `session_data_${this.sessionId}`,
+          JSON.stringify({
+            pageCount,
+            eventCount,
+          }),
+        );
+      }
     } catch (error) {
       console.error("Page view update error:", error);
     }
@@ -248,9 +350,10 @@ export class Analytics {
     eventCategory?: string,
     eventLabel?: string,
     eventValue?: number,
-    metadata?: Record<string, unknown>
+    metadata?: Record<string, unknown>,
   ) {
     try {
+      // Track in Convex
       await this.convex.mutation(api.analytics.trackEvent, {
         businessId: this.businessId,
         visitorId: this.visitorId,
@@ -262,6 +365,22 @@ export class Analytics {
         path: window.location.pathname,
         metadata,
       });
+
+      // Also track in Tinybird
+      if (this.useTinybird) {
+        await this.tinybird.trackEvent({
+          timestamp: Math.floor(Date.now() / 1000), // Convert to seconds for Tinybird
+          businessId: this.businessId,
+          visitorId: this.visitorId,
+          sessionId: this.sessionId,
+          eventType,
+          eventCategory,
+          eventLabel,
+          eventValue,
+          path: window.location.pathname,
+          metadata,
+        });
+      }
     } catch (error) {
       console.error("Event tracking error:", error);
     }
@@ -273,7 +392,13 @@ export class Analytics {
   }
 
   async trackFormSubmit(formName: string, details?: Record<string, unknown>) {
-    await this.trackEvent("form_submit", "engagement", formName, undefined, details);
+    await this.trackEvent(
+      "form_submit",
+      "engagement",
+      formName,
+      undefined,
+      details,
+    );
   }
 
   async trackClick(element: string, details?: Record<string, unknown>) {

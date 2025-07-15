@@ -1,0 +1,19 @@
+DESCRIPTION >
+    Custom events tracked on Locasite websites
+
+SCHEMA >
+    `timestamp` DateTime `json:$.timestamp`,
+    `business_id` String `json:$.businessId`,
+    `visitor_id` String `json:$.visitorId`,
+    `session_id` String `json:$.sessionId`,
+    `event_type` String `json:$.eventType`,
+    `event_category` Nullable(String) `json:$.eventCategory`,
+    `event_label` Nullable(String) `json:$.eventLabel`,
+    `event_value` Nullable(Float64) `json:$.eventValue`,
+    `path` String `json:$.path`,
+    `metadata` Nullable(String) `json:$.metadata`
+
+ENGINE "MergeTree"
+ENGINE_PARTITION_KEY "toYYYYMM(timestamp)"
+ENGINE_SORTING_KEY "business_id, event_type, timestamp"
+ENGINE_TTL "timestamp + toIntervalDay(90)"

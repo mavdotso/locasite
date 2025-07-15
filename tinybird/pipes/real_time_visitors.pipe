@@ -1,0 +1,14 @@
+DESCRIPTION >
+    Get real-time visitor count for a business
+
+NODE active_visitors
+SQL >
+    %
+    SELECT
+        countDistinct(visitor_id) AS active_visitors,
+        count() AS page_views_last_5_min,
+        countDistinct(session_id) AS active_sessions
+    FROM page_views
+    WHERE
+        business_id = {{String(business_id)}}
+        AND timestamp >= now() - INTERVAL 5 MINUTE

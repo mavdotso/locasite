@@ -1,0 +1,24 @@
+DESCRIPTION >
+    Get top pages by views for a business
+
+NODE top_pages_query
+SQL >
+    %
+    WITH
+        toDateTime({{DateTime(start_time, '2024-01-01 00:00:00')}}) AS start_time,
+        toDateTime({{DateTime(end_time, 'now()')}}) AS end_time
+    SELECT
+        path,
+        count() AS views,
+        countDistinct(visitor_id) AS unique_visitors,
+        avg(load_time) AS avg_load_time
+    FROM page_views
+    WHERE
+        business_id = {{String(business_id)}}
+        AND timestamp >= start_time
+        AND timestamp <= end_time
+    GROUP BY path
+    ORDER BY views DESC
+    LIMIT {{Int32(limit, 10)}}
+
+TYPE ENDPOINT
