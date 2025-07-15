@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -51,13 +51,16 @@ export default function AnalyticsDashboardTinybird({
     user && !businessId ? { userId: user._id } : "skip",
   );
 
-  // Get time range dates
-  const timeRanges = {
-    "24h": subDays(new Date(), 1),
-    "7d": subDays(new Date(), 7),
-    "30d": subDays(new Date(), 30),
-    "90d": subDays(new Date(), 90),
-  };
+  // Get time range dates - memoized to prevent infinite re-renders
+  const timeRanges = useMemo(
+    () => ({
+      "24h": subDays(new Date(), 1),
+      "7d": subDays(new Date(), 7),
+      "30d": subDays(new Date(), 30),
+      "90d": subDays(new Date(), 90),
+    }),
+    [],
+  );
 
   // Convex analytics data
   const convexAnalytics = useQuery(
@@ -68,6 +71,15 @@ export default function AnalyticsDashboardTinybird({
   );
 
   // Tinybird analytics data
+  const shouldUseTinybird = businessId && dataSource === "tinybird";
+
+  // Memoize the time range object to prevent infinite re-renders
+  const tinybirdTimeRange = useMemo(
+    () =>
+      shouldUseTinybird ? { start: timeRanges[selectedTimeRange] } : undefined,
+    [shouldUseTinybird, selectedTimeRange, timeRanges],
+  );
+
   const {
     summary: tinybirdSummary,
     topPages: tinybirdTopPages,
@@ -75,8 +87,8 @@ export default function AnalyticsDashboardTinybird({
     loading: tinybirdLoading,
     error: tinybirdError,
   } = useTinybirdAnalytics(
-    businessId && dataSource === "tinybird" ? businessId : "",
-    { start: timeRanges[selectedTimeRange] },
+    shouldUseTinybird ? businessId : null,
+    tinybirdTimeRange,
   );
 
   // If no businessId provided, use the first published business

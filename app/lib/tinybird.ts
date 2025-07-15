@@ -152,6 +152,11 @@ export class TinybirdClient {
     }
   }
 
+  // Helper function to format date for Tinybird (YYYY-MM-DD HH:MM:SS format)
+  private formatDateForTinybird(date: Date): string {
+    return date.toISOString().split(".")[0].replace("T", " ");
+  }
+
   // Analytics queries
   async getAnalyticsSummary(
     businessId: string,
@@ -160,10 +165,14 @@ export class TinybirdClient {
   ) {
     return this.query("api_analytics_summary", {
       business_id: businessId,
-      start_time:
-        startTime?.toISOString() ||
-        new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-      end_time: endTime?.toISOString() || new Date().toISOString(),
+      start_time: startTime
+        ? this.formatDateForTinybird(startTime)
+        : this.formatDateForTinybird(
+            new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+          ),
+      end_time: endTime
+        ? this.formatDateForTinybird(endTime)
+        : this.formatDateForTinybird(new Date()),
     });
   }
 
@@ -176,10 +185,14 @@ export class TinybirdClient {
     return this.query("api_top_pages", {
       business_id: businessId,
       limit,
-      start_time:
-        startTime?.toISOString() ||
-        new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-      end_time: endTime?.toISOString() || new Date().toISOString(),
+      start_time: startTime
+        ? this.formatDateForTinybird(startTime)
+        : this.formatDateForTinybird(
+            new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+          ),
+      end_time: endTime
+        ? this.formatDateForTinybird(endTime)
+        : this.formatDateForTinybird(new Date()),
     });
   }
 

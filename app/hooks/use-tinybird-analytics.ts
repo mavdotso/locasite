@@ -28,7 +28,7 @@ interface RealTimeVisitors {
 }
 
 export function useTinybirdAnalytics(
-  businessId: string,
+  businessId: string | null | undefined,
   timeRange?: { start?: Date; end?: Date },
 ) {
   const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
@@ -96,15 +96,51 @@ export function useTinybirdAnalytics(
     return () => clearInterval(interval);
   }, [businessId, timeRange?.start, timeRange?.end]);
 
+  const refetch = async () => {
+    if (!businessId) return;
+
+    try {
+      setLoading(true);
+      const tinybird = getTinybirdClient();
+
+      // Fetch analytics summary
+      const summaryResponse = await tinybird.getAnalyticsSummary(
+        businessId,
+        timeRange?.start,
+        timeRange?.end,
+      );
+      if (summaryResponse.data && summaryResponse.data.length > 0) {
+        setSummary(summaryResponse.data[0]);
+      }
+
+      // Fetch top pages
+      const topPagesResponse = await tinybird.getTopPages(
+        businessId,
+        10,
+        timeRange?.start,
+        timeRange?.end,
+      );
+      setTopPages(topPagesResponse.data || []);
+
+      // Fetch real-time visitors
+      const realTimeResponse = await tinybird.getRealTimeVisitors(businessId);
+      if (realTimeResponse.data && realTimeResponse.data.length > 0) {
+        setRealTimeVisitors(realTimeResponse.data[0]);
+      }
+    } catch (err) {
+      setError(err as Error);
+      console.error("Failed to fetch Tinybird analytics:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     summary,
     topPages,
     realTimeVisitors,
     loading,
     error,
-    refetch: () => {
-      // Trigger a refetch by changing a dependency
-      setLoading(true);
-    },
+    refetch,
   };
 }
