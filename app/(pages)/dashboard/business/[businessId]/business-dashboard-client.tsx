@@ -33,6 +33,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { notFound } from "next/navigation";
 import { SeoSettings } from "@/app/components/business/seo-settings";
+import AnalyticsOverview from "@/app/components/dashboard/analytics-overview";
 
 interface BusinessDashboardClientProps {
   businessId: Id<"businesses">;
@@ -368,22 +369,7 @@ export default function BusinessDashboardClient({
 
         {/* Analytics Tab */}
         <TabsContent value="analytics">
-          <Card>
-            <CardHeader>
-              <CardTitle>Analytics Dashboard</CardTitle>
-              <CardDescription>
-                Track your website performance and visitor insights
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild size="lg" className="w-full">
-                <Link href={`/dashboard/business/${business._id}/analytics`}>
-                  <BarChart3 className="mr-2 h-5 w-5" />
-                  View Analytics
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <AnalyticsOverview businessId={businessId} />
         </TabsContent>
 
         {/* SEO Tab */}
