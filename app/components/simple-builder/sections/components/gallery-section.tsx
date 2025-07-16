@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import { ConvexImage } from "@/app/components/common/convex-image";
 import { cn } from "@/app/lib/utils";
 import { GalleryContentUpdate, GalleryImage, Comparison } from "./types";
 import { getBusinessCategoryTheme } from "../../core/business-category-themes";
@@ -16,6 +17,7 @@ interface GallerySectionProps {
   onUpdate?: (content: GalleryContentUpdate) => void;
   businessCategory?: string;
   styleOverrides?: React.CSSProperties;
+  businessId?: string;
 }
 
 export function GallerySection({
@@ -28,6 +30,7 @@ export function GallerySection({
   onUpdate,
   businessCategory,
   styleOverrides,
+  businessId,
 }: GallerySectionProps) {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
@@ -66,77 +69,78 @@ export function GallerySection({
     return (
       <div className="py-16 md:py-24" style={styleOverrides}>
         <div className="container mx-auto px-4">
-        {title && (
-          <h2
-            className="text-3xl md:text-4xl font-bold text-center mb-12"
-            style={{ color: themeColors.textPrimary }}
-            contentEditable={editMode}
-            suppressContentEditableWarning
-            onBlur={(e) =>
-              handleContentEdit("title", e.currentTarget.textContent || "")
-            }
-          >
-            {title}
-          </h2>
-        )}
-        <div
-          className={cn(
-            "grid",
-            columns === 2 && "md:grid-cols-2",
-            columns === 3 && "md:grid-cols-3",
-            columns === 4 && "md:grid-cols-4",
-          )}
-          style={{ gap: galleryStyles.spacing }}
-        >
-          {images.map((image, index) => (
-            <div
-              key={index}
-              className={cn(
-                "relative aspect-square cursor-pointer overflow-hidden transition-all duration-300",
-                getHoverEffect(),
-              )}
-              style={{
-                borderRadius: galleryStyles.borderRadius,
-                boxShadow:
-                  galleryStyles.hoverEffect === "overlay"
-                    ? "0 4px 6px -1px rgb(0 0 0 / 0.1)"
-                    : undefined,
-              }}
-              onClick={() => setSelectedImage(image)}
+          {title && (
+            <h2
+              className="text-3xl md:text-4xl font-bold text-center mb-12"
+              style={{ color: themeColors.textPrimary }}
+              contentEditable={editMode}
+              suppressContentEditableWarning
+              onBlur={(e) =>
+                handleContentEdit("title", e.currentTarget.textContent || "")
+              }
             >
-              <Image
-                src={image.src}
-                alt={image.alt}
-                fill
-                className="object-cover transition-transform duration-300"
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* Lightbox */}
-        {selectedImage && (
+              {title}
+            </h2>
+          )}
           <div
-            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
-            onClick={() => setSelectedImage(null)}
+            className={cn(
+              "grid",
+              columns === 2 && "md:grid-cols-2",
+              columns === 3 && "md:grid-cols-3",
+              columns === 4 && "md:grid-cols-4",
+            )}
+            style={{ gap: galleryStyles.spacing }}
           >
-            <div className="relative max-w-4xl max-h-[90vh]">
-              <Image
-                src={selectedImage.src}
-                alt={selectedImage.alt}
-                width={800}
-                height={600}
-                className="object-contain"
-              />
-              <button
-                className="absolute top-4 right-4 text-white text-2xl"
-                onClick={() => setSelectedImage(null)}
+            {images.map((image, index) => (
+              <div
+                key={index}
+                className={cn(
+                  "relative aspect-square cursor-pointer overflow-hidden transition-all duration-300",
+                  getHoverEffect(),
+                )}
+                style={{
+                  borderRadius: galleryStyles.borderRadius,
+                  boxShadow:
+                    galleryStyles.hoverEffect === "overlay"
+                      ? "0 4px 6px -1px rgb(0 0 0 / 0.1)"
+                      : undefined,
+                }}
+                onClick={() => setSelectedImage(image)}
               >
-                ✕
-              </button>
-            </div>
+                <ConvexImage
+                  src={image.src}
+                  alt={image.alt}
+                  fill
+                  className="object-cover transition-transform duration-300"
+                  businessId={businessId}
+                />{" "}
+              </div>
+            ))}
           </div>
-        )}
+
+          {/* Lightbox */}
+          {selectedImage && (
+            <div
+              className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+              onClick={() => setSelectedImage(null)}
+            >
+              <div className="relative max-w-4xl max-h-[90vh]">
+                <Image
+                  src={selectedImage.src}
+                  alt={selectedImage.alt}
+                  width={800}
+                  height={600}
+                  className="object-contain"
+                />
+                <button
+                  className="absolute top-4 right-4 text-white text-2xl"
+                  onClick={() => setSelectedImage(null)}
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -147,59 +151,60 @@ export function GallerySection({
     return (
       <div className="py-16 md:py-24" style={styleOverrides}>
         <div className="container mx-auto px-4">
-        {title && (
-          <h2
-            className="text-3xl md:text-4xl font-bold text-center mb-12"
-            contentEditable={editMode}
-            suppressContentEditableWarning
-            onBlur={(e) =>
-              handleContentEdit("title", e.currentTarget.textContent || "")
-            }
-          >
-            {title}
-          </h2>
-        )}
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-4">
-          {images.map((image, index) => (
-            <div
-              key={index}
-              className="mb-4 break-inside-avoid cursor-pointer"
-              onClick={() => setSelectedImage(image)}
+          {title && (
+            <h2
+              className="text-3xl md:text-4xl font-bold text-center mb-12"
+              contentEditable={editMode}
+              suppressContentEditableWarning
+              onBlur={(e) =>
+                handleContentEdit("title", e.currentTarget.textContent || "")
+              }
             >
-              <Image
-                src={image.src}
-                alt={image.alt}
-                width={400}
-                height={300}
-                className="w-full rounded-lg hover:opacity-90 transition-opacity"
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* Lightbox */}
-        {selectedImage && (
-          <div
-            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
-            onClick={() => setSelectedImage(null)}
-          >
-            <div className="relative max-w-4xl max-h-[90vh]">
-              <Image
-                src={selectedImage.src}
-                alt={selectedImage.alt}
-                width={800}
-                height={600}
-                className="object-contain"
-              />
-              <button
-                className="absolute top-4 right-4 text-white text-2xl"
-                onClick={() => setSelectedImage(null)}
+              {title}
+            </h2>
+          )}
+          <div className="columns-1 md:columns-2 lg:columns-3 gap-4">
+            {images.map((image, index) => (
+              <div
+                key={index}
+                className="mb-4 break-inside-avoid cursor-pointer"
+                onClick={() => setSelectedImage(image)}
               >
-                ✕
-              </button>
-            </div>
+                <ConvexImage
+                  src={image.src}
+                  alt={image.alt}
+                  width={800}
+                  height={600}
+                  className="object-contain"
+                  businessId={businessId}
+                />
+              </div>
+            ))}
           </div>
-        )}
+
+          {/* Lightbox */}
+          {selectedImage && (
+            <div
+              className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+              onClick={() => setSelectedImage(null)}
+            >
+              <div className="relative max-w-4xl max-h-[90vh]">
+                <Image
+                  src={selectedImage.src}
+                  alt={selectedImage.alt}
+                  width={800}
+                  height={600}
+                  className="object-contain"
+                />
+                <button
+                  className="absolute top-4 right-4 text-white text-2xl"
+                  onClick={() => setSelectedImage(null)}
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -210,53 +215,55 @@ export function GallerySection({
     return (
       <div className="py-16 md:py-24" style={styleOverrides}>
         <div className="container mx-auto px-4">
-        {title && (
-          <h2
-            className="text-3xl md:text-4xl font-bold text-center mb-12"
-            contentEditable={editMode}
-            suppressContentEditableWarning
-            onBlur={(e) =>
-              handleContentEdit("title", e.currentTarget.textContent || "")
-            }
-          >
-            {title}
-          </h2>
-        )}
-        <div className="grid md:grid-cols-2 gap-8">
-          {comparisons.map((comparison, index) => (
-            <div key={index} className="space-y-4">
-              <h3 className="text-xl font-semibold text-center">
-                {comparison.title}
-              </h3>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="relative">
-                  <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-sm">
-                    Before
+          {title && (
+            <h2
+              className="text-3xl md:text-4xl font-bold text-center mb-12"
+              contentEditable={editMode}
+              suppressContentEditableWarning
+              onBlur={(e) =>
+                handleContentEdit("title", e.currentTarget.textContent || "")
+              }
+            >
+              {title}
+            </h2>
+          )}
+          <div className="grid md:grid-cols-2 gap-8">
+            {comparisons.map((comparison, index) => (
+              <div key={index} className="space-y-4">
+                <h3 className="text-xl font-semibold text-center">
+                  {comparison.title}
+                </h3>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="relative">
+                    <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-sm">
+                      Before
+                    </div>
+                    <ConvexImage
+                      src={comparison.before.src}
+                      alt={comparison.before.alt}
+                      width={800}
+                      height={600}
+                      className="object-contain"
+                      businessId={businessId}
+                    />
                   </div>
-                  <Image
-                    src={comparison.before.src}
-                    alt={comparison.before.alt}
-                    width={400}
-                    height={300}
-                    className="w-full rounded-lg"
-                  />
-                </div>
-                <div className="relative">
-                  <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-sm">
-                    After
+                  <div className="relative">
+                    <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-sm">
+                      After
+                    </div>
+                    <ConvexImage
+                      src={comparison.after.src}
+                      alt={comparison.after.alt}
+                      width={400}
+                      height={300}
+                      className="w-full h-full object-cover rounded-lg"
+                      businessId={businessId}
+                    />
                   </div>
-                  <Image
-                    src={comparison.after.src}
-                    alt={comparison.after.alt}
-                    width={400}
-                    height={300}
-                    className="w-full rounded-lg"
-                  />
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
         </div>
       </div>
     );

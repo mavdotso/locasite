@@ -45,6 +45,7 @@ import { cn } from "@/app/lib/utils";
 import { Doc } from "@/convex/_generated/dataModel";
 import Link from "next/link";
 import Image from "next/image";
+import { ConvexImage } from "@/app/components/common/convex-image";
 
 // TODO: Future refactoring to split this large file into smaller modules
 
@@ -2087,19 +2088,21 @@ export const GalleryGridBlock: ComponentConfig = {
               onClick={() => openLightbox(index)}
             >
               {aspectRatio === "auto" ? (
-                <Image
+                <ConvexImage
                   src={image}
                   alt={`Gallery image ${index + 1}`}
                   width={600}
                   height={400}
                   className="w-full h-auto"
+                  businessId={businessData?._id}
                 />
               ) : (
-                <Image
+                <ConvexImage
                   src={image}
                   alt={`Gallery image ${index + 1}`}
                   fill
                   className="object-cover"
+                  businessId={businessData?._id}
                 />
               )}
             </div>
@@ -2144,12 +2147,13 @@ export const GalleryGridBlock: ComponentConfig = {
                 </>
               )}
 
-              <Image
+              <ConvexImage
                 src={galleryImages[currentImage]}
                 alt={`Gallery image ${currentImage + 1}`}
                 width={1200}
                 height={800}
                 className="max-w-full max-h-full object-contain"
+                businessId={businessData?._id}
               />
             </div>
           </div>

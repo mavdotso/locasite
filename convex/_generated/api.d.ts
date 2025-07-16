@@ -41,6 +41,7 @@ import type * as reviewFilter from "../reviewFilter.js";
 import type * as storage from "../storage.js";
 import type * as storeBusinessImages from "../storeBusinessImages.js";
 import type * as themes from "../themes.js";
+import type * as uploadBusinessImages from "../uploadBusinessImages.js";
 
 import type {
   ApiFromModules,
@@ -89,6 +90,7 @@ declare const fullApi: ApiFromModules<{
   storage: typeof storage;
   storeBusinessImages: typeof storeBusinessImages;
   themes: typeof themes;
+  uploadBusinessImages: typeof uploadBusinessImages;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 

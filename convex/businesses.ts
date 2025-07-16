@@ -197,7 +197,6 @@ export const internal_getBusinessById = internalQuery({
 });
 
 // ==================== PUBLIC FUNCTIONS ====================
-
 // Create a new business entry
 export const create = mutation({
   args: {
@@ -897,11 +896,14 @@ export const createBusinessFromPendingData = mutation({
     const { domainId } = await ctx.runMutation(api.domains.generateSubdomain, {
       businessId,
     });
-    
+
     // Verify the business has domainId set
     const businessWithDomain = await ctx.db.get(businessId);
     if (!businessWithDomain?.domainId) {
-      console.error("Business domainId not set after generateSubdomain", { businessId, domainId });
+      console.error("Business domainId not set after generateSubdomain", {
+        businessId,
+        domainId,
+      });
       // Try to set it again
       await ctx.db.patch(businessId, { domainId });
     }
@@ -948,7 +950,21 @@ export const createBusinessFromPendingData = mutation({
       });
 
       // Update business with theme
-      await ctx.db.patch(businessId, { themeId });
+      await ctx.db.patch(businessId, {
+        themeId,
+      });
+    }
+
+    // Schedule image upload to Convex storage
+    if (args.businessData.photos && args.businessData.photos.length > 0) {
+      await ctx.scheduler.runAfter(
+        0,
+        api.uploadBusinessImages.uploadGoogleMapsImages,
+        {
+          businessId,
+          imageUrls: args.businessData.photos,
+        },
+      );
     }
 
     return { businessId, domainId };

@@ -41,7 +41,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import Image from "next/image";
+import { ConvexImage } from "@/app/components/common/convex-image";
 import EditButton from "@/app/components/ui/edit-button";
 import ViewButton from "@/app/components/ui/view-button";
 import { PublishSettingsDialog } from "@/app/components/business/publish-settings-dialog";
@@ -241,12 +241,13 @@ export default function SitesManagement() {
                 {/* Site Preview */}
                 <div className="aspect-video bg-muted rounded-lg flex items-center justify-center overflow-hidden">
                   {business.photos && business.photos[0] ? (
-                    <Image
+                    <ConvexImage
                       src={business.photos[0]}
                       alt={business.name}
                       width={400}
                       height={225}
                       className="w-full h-full object-cover"
+                      businessId={business._id}
                     />
                   ) : (
                     <Globe className="w-8 h-8 text-muted-foreground/50" />
