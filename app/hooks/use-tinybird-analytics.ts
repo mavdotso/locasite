@@ -27,6 +27,13 @@ interface RealTimeVisitors {
   active_sessions: number;
 }
 
+interface VisitorCountry {
+  country: string;
+  unique_visitors: number;
+  total_visits: number;
+  avg_visits_per_visitor: number;
+}
+
 export function useTinybirdAnalytics(
   businessId: string | null | undefined,
   timeRange?: { start?: Date; end?: Date },
@@ -35,6 +42,9 @@ export function useTinybirdAnalytics(
   const [topPages, setTopPages] = useState<TopPage[]>([]);
   const [realTimeVisitors, setRealTimeVisitors] =
     useState<RealTimeVisitors | null>(null);
+  const [visitorCountries, setVisitorCountries] = useState<VisitorCountry[]>(
+    [],
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -70,6 +80,14 @@ export function useTinybirdAnalytics(
         if (realTimeResponse.data && realTimeResponse.data.length > 0) {
           setRealTimeVisitors(realTimeResponse.data[0]);
         }
+
+        // Fetch visitor countries
+        const countriesResponse = await tinybird.getVisitorCountries(
+          businessId,
+          timeRange?.start,
+          timeRange?.end,
+        );
+        setVisitorCountries(countriesResponse.data || []);
       } catch (err) {
         setError(err as Error);
         console.error("Failed to fetch Tinybird analytics:", err);
@@ -127,6 +145,14 @@ export function useTinybirdAnalytics(
       if (realTimeResponse.data && realTimeResponse.data.length > 0) {
         setRealTimeVisitors(realTimeResponse.data[0]);
       }
+
+      // Fetch visitor countries
+      const countriesResponse = await tinybird.getVisitorCountries(
+        businessId,
+        timeRange?.start,
+        timeRange?.end,
+      );
+      setVisitorCountries(countriesResponse.data || []);
     } catch (err) {
       setError(err as Error);
       console.error("Failed to fetch Tinybird analytics:", err);
@@ -139,6 +165,7 @@ export function useTinybirdAnalytics(
     summary,
     topPages,
     realTimeVisitors,
+    visitorCountries,
     loading,
     error,
     refetch,

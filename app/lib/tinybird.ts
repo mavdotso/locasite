@@ -154,7 +154,14 @@ export class TinybirdClient {
 
   // Helper function to format date for Tinybird (YYYY-MM-DD HH:MM:SS format)
   private formatDateForTinybird(date: Date): string {
-    return date.toISOString().split(".")[0].replace("T", " ");
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    const hours = String(date.getUTCHours()).padStart(2, "0");
+    const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+    const seconds = String(date.getUTCSeconds()).padStart(2, "0");
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   }
 
   // Analytics queries
@@ -199,6 +206,24 @@ export class TinybirdClient {
   async getRealTimeVisitors(businessId: string) {
     return this.query("api_real_time_visitors", {
       business_id: businessId,
+    });
+  }
+
+  async getVisitorCountries(
+    businessId: string,
+    startTime?: Date,
+    endTime?: Date,
+  ) {
+    return this.query("api_visitor_countries", {
+      business_id: businessId,
+      start_time: startTime
+        ? this.formatDateForTinybird(startTime)
+        : this.formatDateForTinybird(
+            new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+          ),
+      end_time: endTime
+        ? this.formatDateForTinybird(endTime)
+        : this.formatDateForTinybird(new Date()),
     });
   }
 }

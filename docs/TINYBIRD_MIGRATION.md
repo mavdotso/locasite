@@ -104,7 +104,7 @@ The application provides two ways to query analytics:
 
 ### Dashboard Integration
 
-The new analytics dashboard component (`analytics-dashboard-tinybird.tsx`) allows switching between data sources:
+The analytics dashboard component (`analytics-dashboard.tsx`) uses Tinybird as the primary data source:
 
 - Use Convex for real-time features
 - Use Tinybird for historical analytics and better performance at scale

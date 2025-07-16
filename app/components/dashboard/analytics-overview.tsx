@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -36,8 +36,6 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { useTinybirdAnalytics } from "@/app/hooks/use-tinybird-analytics";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import Link from "next/link";
 import { subDays, format } from "date-fns";
@@ -50,20 +48,10 @@ export default function AnalyticsOverview({
   businessId,
 }: AnalyticsOverviewProps) {
   const [timeRange, setTimeRange] = useState<"7d" | "30d">("7d");
-  const [dataSource, setDataSource] = useState<"convex" | "tinybird">("convex");
-
-  // Check if Tinybird is configured
-  const isTinybirdConfigured = !!process.env.NEXT_PUBLIC_TINYBIRD_TOKEN;
 
   // Get time range dates
   const startDate =
     timeRange === "7d" ? subDays(new Date(), 7) : subDays(new Date(), 30);
-
-  // Convex analytics
-  const convexAnalytics = useQuery(
-    api.analytics.getBusinessAnalytics,
-    dataSource === "convex" ? { businessId, timeRange } : "skip",
-  );
 
   // Tinybird analytics
   const {
@@ -71,44 +59,21 @@ export default function AnalyticsOverview({
     topPages: tinybirdTopPages,
     realTimeVisitors: tinybirdRealTime,
     loading: tinybirdLoading,
-  } = useTinybirdAnalytics(
-    businessId && dataSource === "tinybird" && isTinybirdConfigured
-      ? businessId
-      : "",
-    { start: startDate },
-  );
+  } = useTinybirdAnalytics(businessId, { start: startDate });
 
-  // Use Tinybird if configured, otherwise fall back to Convex
-  useEffect(() => {
-    if (isTinybirdConfigured) {
-      setDataSource("tinybird");
-    }
-  }, [isTinybirdConfigured]);
-
-  const isLoading =
-    dataSource === "convex" ? !convexAnalytics : tinybirdLoading;
+  const isLoading = tinybirdLoading;
 
   // Normalize data
-  const analyticsData =
-    dataSource === "convex" && convexAnalytics
-      ? {
-          totalPageViews: convexAnalytics.summary.totalPageViews,
-          uniqueVisitors: convexAnalytics.summary.uniqueVisitors,
-          avgSessionDuration: convexAnalytics.summary.avgSessionDuration,
-          conversionRate: convexAnalytics.summary.conversionRate,
-          topPages: convexAnalytics.topPages.slice(0, 5),
-          recentActivity: convexAnalytics.recentSessions.length,
-        }
-      : {
-          totalPageViews: tinybirdSummary?.total_page_views || 0,
-          uniqueVisitors: tinybirdSummary?.unique_visitors || 0,
-          avgSessionDuration: tinybirdSummary?.avg_session_duration || 0,
-          conversionRate: tinybirdSummary?.conversion_rate || 0,
-          topPages: (tinybirdTopPages || [])
-            .slice(0, 5)
-            .map((p) => ({ path: p.path, views: p.views })),
-          recentActivity: tinybirdRealTime?.active_visitors || 0,
-        };
+  const analyticsData = {
+    totalPageViews: tinybirdSummary?.total_page_views || 0,
+    uniqueVisitors: tinybirdSummary?.unique_visitors || 0,
+    avgSessionDuration: tinybirdSummary?.avg_session_duration || 0,
+    conversionRate: tinybirdSummary?.conversion_rate || 0,
+    topPages: (tinybirdTopPages || [])
+      .slice(0, 5)
+      .map((p) => ({ path: p.path, views: p.views })),
+    recentActivity: tinybirdRealTime?.active_visitors || 0,
+  };
 
   // Generate chart data
   const generateDailyData = () => {

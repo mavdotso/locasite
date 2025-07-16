@@ -1,0 +1,28 @@
+DESCRIPTION >
+    Get visitor breakdown by country with visit frequency
+
+NODE visitor_countries
+SQL >
+    %
+    SELECT 
+        country,
+        countDistinct(visitor_id) as unique_visitors,
+        count() as total_visits,
+        avg(visits_per_visitor) as avg_visits_per_visitor
+    FROM (
+        SELECT 
+            country,
+            visitor_id,
+            count() as visits_per_visitor
+        FROM page_views
+        WHERE 
+            business_id = {{String(business_id)}}
+            AND timestamp >= toDateTime({{DateTime(start_time, '2024-01-01 00:00:00')}})
+            AND timestamp <= toDateTime({{DateTime(end_time, '2024-12-31 23:59:59')}})
+        GROUP BY country, visitor_id
+    )
+    GROUP BY country
+    ORDER BY unique_visitors DESC
+    LIMIT 20
+
+TYPE ENDPOINT
