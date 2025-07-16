@@ -1,22 +1,28 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useQuery, useMutation } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { Id, Doc } from '@/convex/_generated/dataModel';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
-import { Button } from '@/app/components/ui/button';
-import { Badge } from '@/app/components/ui/badge';
-import { Input } from '@/app/components/ui/input';
+import { useState } from "react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Id, Doc } from "@/convex/_generated/dataModel";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/app/components/ui/card";
+import { Button } from "@/app/components/ui/button";
+import { Badge } from "@/app/components/ui/badge";
+import { Input } from "@/app/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/app/components/ui/dropdown-menu';
-import { 
-  Globe, 
+} from "@/app/components/ui/dropdown-menu";
+import {
+  Globe,
   Plus,
   Edit3,
   Search,
@@ -31,88 +37,103 @@ import {
   Settings,
   Shield,
   MessageSquare,
-  BarChart3
-} from 'lucide-react';
-import Link from 'next/link';
-import { toast } from 'sonner';
-import Image from 'next/image';
-import EditButton from '@/app/components/ui/edit-button';
-import ViewButton from '@/app/components/ui/view-button';
-import { PublishSettingsDialog } from '@/app/components/business/publish-settings-dialog';
+  BarChart3,
+} from "lucide-react";
+import Link from "next/link";
+import { toast } from "sonner";
+import Image from "next/image";
+import EditButton from "@/app/components/ui/edit-button";
+import ViewButton from "@/app/components/ui/view-button";
+import { PublishSettingsDialog } from "@/app/components/business/publish-settings-dialog";
 
-type SiteStatus = 'all' | 'published' | 'draft' | 'pending';
+type SiteStatus = "all" | "published" | "draft" | "pending";
 
 export default function SitesManagement() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<SiteStatus>('all');
-  const [publishDialogBusiness, setPublishDialogBusiness] = useState<{ id: Id<"businesses">, name: string } | null>(null);
-  
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<SiteStatus>("all");
+  const [publishDialogBusiness, setPublishDialogBusiness] = useState<{
+    id: Id<"businesses">;
+    name: string;
+  } | null>(null);
+
   const user = useQuery(api.auth.currentUser);
-  const userBusinesses = useQuery(api.businesses.listByUser, 
-    user ? { userId: user._id } : 'skip'
+  const userBusinesses = useQuery(
+    api.businesses.listByUser,
+    user ? { userId: user._id } : "skip",
   );
 
   const deleteBusiness = useMutation(api.businesses.remove);
   const unpublishBusiness = useMutation(api.businesses.unpublish);
 
   // Filter businesses based on search and status
-  const filteredBusinesses = userBusinesses?.filter((business: Doc<"businesses">) => {
-    const matchesSearch = business.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         business.address.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesStatus = statusFilter === 'all' || 
-      (statusFilter === 'published' && business.isPublished) ||
-      (statusFilter === 'draft' && !business.isPublished && business.userId) ||
-      (statusFilter === 'pending' && !business.userId);
-    
-    return matchesSearch && matchesStatus;
-  }) || [];
+  const filteredBusinesses =
+    userBusinesses?.filter((business: Doc<"businesses">) => {
+      const matchesSearch =
+        business.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        business.address.toLowerCase().includes(searchQuery.toLowerCase());
 
-  const handleDeleteSite = async (businessId: Id<"businesses">, businessName: string) => {
-    if (window.confirm(`Are you sure you want to delete "${businessName}"? This action cannot be undone.`)) {
+      const matchesStatus =
+        statusFilter === "all" ||
+        (statusFilter === "published" && business.isPublished) ||
+        (statusFilter === "draft" &&
+          !business.isPublished &&
+          business.userId) ||
+        (statusFilter === "pending" && !business.userId);
+
+      return matchesSearch && matchesStatus;
+    }) || [];
+
+  const handleDeleteSite = async (
+    businessId: Id<"businesses">,
+    businessName: string,
+  ) => {
+    if (
+      window.confirm(
+        `Are you sure you want to delete "${businessName}"? This action cannot be undone.`,
+      )
+    ) {
       try {
         await deleteBusiness({ id: businessId });
-        toast.success('Site deleted successfully');
+        toast.success("Site deleted successfully");
       } catch (error) {
-        console.error('Error deleting site:', error);
-        toast.error('Failed to delete site');
+        console.error("Error deleting site:", error);
+        toast.error("Failed to delete site");
       }
     }
   };
 
-
   const handleUnpublish = async (businessId: Id<"businesses">) => {
     try {
       await unpublishBusiness({ businessId });
-      toast.success('Site unpublished successfully');
+      toast.success("Site unpublished successfully");
     } catch (error) {
-      console.error('Error unpublishing site:', error);
-      toast.error('Failed to unpublish site');
+      console.error("Error unpublishing site:", error);
+      toast.error("Failed to unpublish site");
     }
   };
 
   const getSiteStatus = (business: Doc<"businesses">) => {
-    if (business.isPublished) return 'published';
-    if (business.userId) return 'draft';
-    return 'unclaimed';
+    if (business.isPublished) return "published";
+    if (business.userId) return "draft";
+    return "unclaimed";
   };
 
   const getStatusBadge = (business: Doc<"businesses">) => {
     const status = getSiteStatus(business);
     const isOwned = business.userId === user?._id;
-    
+
     if (!business.userId) {
       return <Badge className="bg-yellow-100 text-yellow-800">Unclaimed</Badge>;
     }
-    
+
     if (!isOwned) {
       return <Badge className="bg-blue-100 text-blue-800">Not Owned</Badge>;
     }
-    
+
     switch (status) {
-      case 'published':
+      case "published":
         return <Badge className="bg-green-100 text-green-800">Published</Badge>;
-      case 'draft':
+      case "draft":
         return <Badge variant="outline">Draft</Badge>;
       default:
         return <Badge variant="outline">Unknown</Badge>;
@@ -121,9 +142,15 @@ export default function SitesManagement() {
 
   const statusCounts = {
     all: userBusinesses?.length || 0,
-    published: userBusinesses?.filter((b: Doc<"businesses">) => b.isPublished).length || 0,
-    draft: userBusinesses?.filter((b: Doc<"businesses">) => !b.isPublished && b.userId).length || 0,
-    pending: userBusinesses?.filter((b: Doc<"businesses">) => !b.userId).length || 0,
+    published:
+      userBusinesses?.filter((b: Doc<"businesses">) => b.isPublished).length ||
+      0,
+    draft:
+      userBusinesses?.filter(
+        (b: Doc<"businesses">) => !b.isPublished && b.userId,
+      ).length || 0,
+    pending:
+      userBusinesses?.filter((b: Doc<"businesses">) => !b.userId).length || 0,
   };
 
   if (!user) {
@@ -152,7 +179,7 @@ export default function SitesManagement() {
             />
           </div>
         </div>
-        
+
         <div className="flex gap-2">
           <Button variant="outline" size="sm">
             <Filter className="w-4 h-4 mr-2" />
@@ -169,30 +196,38 @@ export default function SitesManagement() {
 
       {/* Status Filter Tabs */}
       <div className="flex gap-1 bg-muted p-1 rounded-lg w-fit">
-        {(['all', 'published', 'draft', 'pending'] as SiteStatus[]).map((status) => (
-          <button
-            key={status}
-            onClick={() => setStatusFilter(status)}
-            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-              statusFilter === status
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {status.charAt(0).toUpperCase() + status.slice(1)} ({statusCounts[status]})
-          </button>
-        ))}
+        {(["all", "published", "draft", "pending"] as SiteStatus[]).map(
+          (status) => (
+            <button
+              key={status}
+              onClick={() => setStatusFilter(status)}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                statusFilter === status
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {status.charAt(0).toUpperCase() + status.slice(1)} (
+              {statusCounts[status]})
+            </button>
+          ),
+        )}
       </div>
 
       {/* Sites Grid */}
       {filteredBusinesses.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredBusinesses.map((business: Doc<"businesses">) => (
-            <Card key={business._id} className="group hover:shadow-lg transition-all duration-200">
+            <Card
+              key={business._id}
+              className="group hover:shadow-lg transition-all duration-200"
+            >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-lg line-clamp-1">{business.name}</CardTitle>
+                    <CardTitle className="text-lg line-clamp-1">
+                      {business.name}
+                    </CardTitle>
                     <CardDescription className="flex items-center gap-1 mt-1">
                       <MapPin className="w-3 h-3" />
                       <span className="line-clamp-1">{business.address}</span>
@@ -201,13 +236,13 @@ export default function SitesManagement() {
                   {getStatusBadge(business)}
                 </div>
               </CardHeader>
-              
+
               <CardContent className="space-y-4">
                 {/* Site Preview */}
                 <div className="aspect-video bg-muted rounded-lg flex items-center justify-center overflow-hidden">
                   {business.photos && business.photos[0] ? (
-                    <Image 
-                      src={business.photos[0]} 
+                    <Image
+                      src={business.photos[0]}
                       alt={business.name}
                       width={400}
                       height={225}
@@ -228,7 +263,10 @@ export default function SitesManagement() {
                   )}
                   <div className="flex items-center gap-2">
                     <Calendar className="w-3 h-3" />
-                    <span>Created {new Date(business.createdAt).toLocaleDateString()}</span>
+                    <span>
+                      Created{" "}
+                      {new Date(business.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
                 </div>
 
@@ -238,27 +276,46 @@ export default function SitesManagement() {
                     // Owned businesses
                     business.isPublished ? (
                       <>
-                        <Button asChild size="sm" variant="outline" className="flex-1">
+                        <Button
+                          asChild
+                          size="sm"
+                          variant="outline"
+                          className="flex-1"
+                        >
                           <Link href={`/dashboard/business/${business._id}`}>
                             <Settings className="w-3 h-3 mr-1" />
                             Manage
                           </Link>
                         </Button>
-                        <EditButton businessId={business._id} size="sm" className="flex-1">
+                        <EditButton
+                          businessId={business._id}
+                          size="sm"
+                          className="flex-1"
+                        >
                           <Edit3 className="w-3 h-3 mr-1" />
                           Edit
                         </EditButton>
                       </>
                     ) : (
                       <>
-                        <EditButton businessId={business._id} size="sm" variant="outline" className="flex-1">
+                        <EditButton
+                          businessId={business._id}
+                          size="sm"
+                          variant="outline"
+                          className="flex-1"
+                        >
                           <Edit3 className="w-3 h-3 mr-1" />
                           Edit
                         </EditButton>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           className="flex-1"
-                          onClick={() => setPublishDialogBusiness({ id: business._id, name: business.name })}
+                          onClick={() =>
+                            setPublishDialogBusiness({
+                              id: business._id,
+                              name: business.name,
+                            })
+                          }
                         >
                           <Globe className="w-3 h-3 mr-1" />
                           Publish
@@ -268,7 +325,12 @@ export default function SitesManagement() {
                   ) : !business.userId ? (
                     // Unclaimed businesses
                     <>
-                      <ViewButton businessId={business._id} size="sm" variant="outline" className="flex-1">
+                      <ViewButton
+                        businessId={business._id}
+                        size="sm"
+                        variant="outline"
+                        className="flex-1"
+                      >
                         <Eye className="w-3 h-3 mr-1" />
                         View
                       </ViewButton>
@@ -281,21 +343,22 @@ export default function SitesManagement() {
                     </>
                   ) : (
                     // Owned by someone else
-                    <ViewButton businessId={business._id} size="sm" variant="outline" className="w-full">
+                    <ViewButton
+                      businessId={business._id}
+                      size="sm"
+                      variant="outline"
+                      className="w-full"
+                    >
                       <Eye className="w-3 h-3 mr-1" />
                       View Site
                     </ViewButton>
                   )}
-                  
+
                   {/* More Actions - Only for owned businesses */}
                   {business.userId === user?._id && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          className="px-2"
-                        >
+                        <Button size="sm" variant="ghost" className="px-2">
                           <MoreHorizontal className="w-3 h-3" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -307,36 +370,46 @@ export default function SitesManagement() {
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href={`/dashboard/business/${business._id}/messages`}>
+                          <Link
+                            href={`/dashboard/business/${business._id}/messages`}
+                          >
                             <MessageSquare className="w-3 h-3 mr-2" />
                             Messages
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href={`/dashboard/business/${business._id}/domain`}>
+                          <Link
+                            href={`/dashboard/business/${business._id}/domain`}
+                          >
                             <Settings className="w-3 h-3 mr-2" />
                             Domain Settings
                           </Link>
                         </DropdownMenuItem>
+                        {/* Coming Soon: Business Verification
                         <DropdownMenuItem asChild>
                           <Link href={`/dashboard/businesses/${business._id}/verify`}>
                             <Shield className="w-3 h-3 mr-2" />
                             Verify Business
                           </Link>
                         </DropdownMenuItem>
+                        */}
                         {business.isPublished && (
                           <>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => handleUnpublish(business._id)}>
+                            <DropdownMenuItem
+                              onClick={() => handleUnpublish(business._id)}
+                            >
                               <Lock className="w-3 h-3 mr-2" />
                               Unpublish
                             </DropdownMenuItem>
                           </>
                         )}
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           className="text-destructive"
-                          onClick={() => handleDeleteSite(business._id, business.name)}
+                          onClick={() =>
+                            handleDeleteSite(business._id, business.name)
+                          }
                         >
                           <Trash className="w-3 h-3 mr-2" />
                           Delete
@@ -350,16 +423,26 @@ export default function SitesManagement() {
                 {business.isPublished && business.userId === user?._id && (
                   <div className="grid grid-cols-3 gap-2 pt-2 border-t">
                     <div className="text-center">
-                      <div className="text-sm font-medium text-foreground">0</div>
+                      <div className="text-sm font-medium text-foreground">
+                        0
+                      </div>
                       <div className="text-xs text-muted-foreground">Views</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-sm font-medium text-foreground">0</div>
-                      <div className="text-xs text-muted-foreground">Messages</div>
+                      <div className="text-sm font-medium text-foreground">
+                        0
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Messages
+                      </div>
                     </div>
                     <div className="text-center">
-                      <div className="text-sm font-medium text-foreground">0</div>
-                      <div className="text-xs text-muted-foreground">Visitors</div>
+                      <div className="text-sm font-medium text-foreground">
+                        0
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Visitors
+                      </div>
                     </div>
                   </div>
                 )}
@@ -370,23 +453,34 @@ export default function SitesManagement() {
       ) : (
         <Card className="p-12 text-center">
           <div className="text-muted-foreground">
-            {searchQuery || statusFilter !== 'all' ? (
+            {searchQuery || statusFilter !== "all" ? (
               <>
                 <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-medium text-foreground mb-2">No sites found</h3>
-                <p className="mb-4">Try adjusting your search or filter criteria.</p>
-                <Button variant="outline" onClick={() => {
-                  setSearchQuery('');
-                  setStatusFilter('all');
-                }}>
+                <h3 className="text-lg font-medium text-foreground mb-2">
+                  No sites found
+                </h3>
+                <p className="mb-4">
+                  Try adjusting your search or filter criteria.
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setStatusFilter("all");
+                  }}
+                >
                   Clear filters
                 </Button>
               </>
             ) : (
               <>
                 <Globe className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-medium text-foreground mb-2">No sites yet</h3>
-                <p className="mb-4">Create your first business website to get started.</p>
+                <h3 className="text-lg font-medium text-foreground mb-2">
+                  No sites yet
+                </h3>
+                <p className="mb-4">
+                  Create your first business website to get started.
+                </p>
                 <Button asChild>
                   <Link href="/dashboard/sites/new">
                     <Plus className="w-4 h-4 mr-2" />
@@ -398,7 +492,7 @@ export default function SitesManagement() {
           </div>
         </Card>
       )}
-      
+
       {/* Publish Settings Dialog */}
       {publishDialogBusiness && (
         <PublishSettingsDialog

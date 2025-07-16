@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { subDays } from "date-fns";
+import { ComingSoonOverlay } from "@/app/components/ui/coming-soon-overlay";
 
 interface AnalyticsDashboardProps {
   businessId?: Id<"businesses">;
@@ -174,106 +175,117 @@ export default function AnalyticsDashboard({
   ];
 
   return (
-    <div className="space-y-8">
-      {/* Header with Controls */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-        <div>
-          <h2 className="text-2xl font-bold">Analytics Overview</h2>
-          <p className="text-muted-foreground">
-            Track your website performance and visitor behavior
-          </p>
-        </div>
-
-        <div className="flex gap-2 items-center">
-          {/* Time Range Selector */}
-          <div className="flex gap-1 bg-muted p-1 rounded-lg">
-            {(["24h", "7d", "30d", "90d"] as const).map((range) => (
-              <button
-                key={range}
-                onClick={() => setSelectedTimeRange(range)}
-                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  selectedTimeRange === range
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {range === "24h"
-                  ? "24 hours"
-                  : range === "7d"
-                    ? "7 days"
-                    : range === "30d"
-                      ? "30 days"
-                      : "90 days"}
-              </button>
-            ))}
+    <div className="relative">
+      <div className="space-y-8">
+        {/* Header with Controls */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+          <div>
+            <h2 className="text-2xl font-bold">Analytics Overview</h2>
+            <p className="text-muted-foreground">
+              Track your website performance and visitor behavior
+            </p>
           </div>
-        </div>
-      </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map((stat, index) => (
-          <Card key={index}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    {stat.title}
-                  </p>
-                  <p className="text-2xl font-bold text-foreground mt-1">
-                    {stat.value}
-                  </p>
-                </div>
-                <div className={`p-3 rounded-lg ${stat.bgColor}`}>
-                  <stat.icon className={`w-6 h-6 ${stat.color}`} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Visitor Countries */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Visitor Countries</CardTitle>
-          <CardDescription>
-            Where your visitors come from and how often they visit
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {tinybirdCountries && tinybirdCountries.length > 0 ? (
-            <div className="space-y-4">
-              {tinybirdCountries.map((country, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="font-medium text-foreground">
-                      {country.country || "Unknown"}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {country.unique_visitors.toLocaleString()} unique visitors
-                      • {country.avg_visits_per_visitor.toFixed(1)} visits per
-                      visitor
-                    </p>
-                  </div>
-                  <div className="text-right ml-4">
-                    <p className="font-medium text-foreground">
-                      {country.total_visits.toLocaleString()}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      total visits
-                    </p>
-                  </div>
-                </div>
+          <div className="flex gap-2 items-center">
+            {/* Time Range Selector */}
+            <div className="flex gap-1 bg-muted p-1 rounded-lg">
+              {(["24h", "7d", "30d", "90d"] as const).map((range) => (
+                <button
+                  key={range}
+                  onClick={() => setSelectedTimeRange(range)}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                    selectedTimeRange === range
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {range === "24h"
+                    ? "24 hours"
+                    : range === "7d"
+                      ? "7 days"
+                      : range === "30d"
+                        ? "30 days"
+                        : "90 days"}
+                </button>
               ))}
             </div>
-          ) : (
-            <p className="text-center text-muted-foreground py-8">
-              No visitor data yet
-            </p>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {statCards.map((stat, index) => (
+            <Card key={index}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {stat.title}
+                    </p>
+                    <p className="text-2xl font-bold text-foreground mt-1">
+                      {stat.value}
+                    </p>
+                  </div>
+                  <div className={`p-3 rounded-lg ${stat.bgColor}`}>
+                    <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Visitor Countries */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Visitor Countries</CardTitle>
+            <CardDescription>
+              Where your visitors come from and how often they visit
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {tinybirdCountries && tinybirdCountries.length > 0 ? (
+              <div className="space-y-4">
+                {tinybirdCountries.map((country, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex-1">
+                      <p className="font-medium text-foreground">
+                        {country.country || "Unknown"}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {country.unique_visitors.toLocaleString()} unique
+                        visitors • {country.avg_visits_per_visitor.toFixed(1)}{" "}
+                        visits per visitor
+                      </p>
+                    </div>
+                    <div className="text-right ml-4">
+                      <p className="font-medium text-foreground">
+                        {country.total_visits.toLocaleString()}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        total visits
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground py-8">
+                No visitor data yet
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Coming Soon Overlay */}
+      <ComingSoonOverlay
+        title="Analytics Coming Soon"
+        description="We're working on bringing you powerful analytics to track your website's performance. Stay tuned!"
+      />
     </div>
   );
 }
