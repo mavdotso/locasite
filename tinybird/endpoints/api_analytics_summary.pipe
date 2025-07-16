@@ -1,0 +1,56 @@
+DESCRIPTION >
+    Get analytics summary for a business within a time range
+
+NODE analytics_metrics
+SQL >
+    %
+    WITH
+        toDateTime({{DateTime(start_time, '2024-01-01 00:00:00')}}) AS start_time,
+        toDateTime({{DateTime(end_time, '2024-12-31 23:59:59')}}) AS end_time
+    SELECT
+        countDistinct(visitor_id) AS unique_visitors,
+        count() AS total_page_views,
+        countDistinct(session_id) AS total_sessions,
+        avg(load_time) AS avg_load_time,
+        countIf(path = '/') AS homepage_views
+    FROM page_views
+    WHERE
+        business_id = {{String(business_id)}}
+        AND timestamp >= start_time
+        AND timestamp <= end_time
+
+NODE session_metrics
+SQL >
+    %
+    WITH
+        toDateTime({{DateTime(start_time, '2024-01-01 00:00:00')}}) AS start_dt,
+        toDateTime({{DateTime(end_time, '2024-12-31 23:59:59')}}) AS end_dt
+    SELECT
+        avg(duration) AS avg_session_duration,
+        avg(page_count) AS avg_pages_per_session,
+        countIf(has_converted) AS total_conversions,
+        countIf(has_converted) * 100.0 / count() AS conversion_rate,
+        countIf(bounce) * 100.0 / count() AS bounce_rate
+    FROM sessions
+    WHERE
+        business_id = {{String(business_id)}}
+        AND start_time >= start_dt
+        AND start_time <= end_dt
+
+NODE combined_summary
+SQL >
+    SELECT
+        a.unique_visitors,
+        a.total_page_views,
+        a.total_sessions,
+        a.avg_load_time,
+        a.homepage_views,
+        s.avg_session_duration,
+        s.avg_pages_per_session,
+        s.total_conversions,
+        s.conversion_rate,
+        s.bounce_rate
+    FROM analytics_metrics a
+    CROSS JOIN session_metrics s
+
+TYPE ENDPOINT

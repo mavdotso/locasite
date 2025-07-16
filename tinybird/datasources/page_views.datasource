@@ -1,0 +1,32 @@
+DESCRIPTION >
+    Page view events from Locasite websites
+
+SCHEMA >
+    `timestamp` DateTime `json:$.timestamp`,
+    `business_id` String `json:$.businessId`,
+    `domain_id` Nullable(String) `json:$.domainId`,
+    `visitor_id` String `json:$.visitorId`,
+    `session_id` String `json:$.sessionId`,
+    `path` String `json:$.path`,
+    `title` Nullable(String) `json:$.title`,
+    `referrer` Nullable(String) `json:$.referrer`,
+    `user_agent` Nullable(String) `json:$.userAgent`,
+    `device_type` Nullable(String) `json:$.deviceType`,
+    `browser` Nullable(String) `json:$.browser`,
+    `os` Nullable(String) `json:$.os`,
+    `screen_width` Nullable(Int32) `json:$.screenWidth`,
+    `screen_height` Nullable(Int32) `json:$.screenHeight`,
+    `viewport_width` Nullable(Int32) `json:$.viewportWidth`,
+    `viewport_height` Nullable(Int32) `json:$.viewportHeight`,
+    `load_time` Nullable(Int32) `json:$.loadTime`,
+    `country` Nullable(String) `json:$.country`,
+    `region` Nullable(String) `json:$.region`,
+    `city` Nullable(String) `json:$.city`,
+    `utm_source` Nullable(String) `json:$.utmSource`,
+    `utm_medium` Nullable(String) `json:$.utmMedium`,
+    `utm_campaign` Nullable(String) `json:$.utmCampaign`
+
+ENGINE "MergeTree"
+ENGINE_PARTITION_KEY "toYYYYMM(timestamp)"
+ENGINE_SORTING_KEY "business_id, timestamp"
+ENGINE_TTL "timestamp + toIntervalDay(90)"

@@ -1,6 +1,5 @@
-import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { ConvexClient } from "convex/browser";
+import { getTinybirdClient } from "./tinybird";
 
 // Analytics configuration
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
@@ -31,18 +30,18 @@ function getVisitorId(): string {
 function getSessionId(): string {
   const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
   const now = Date.now();
-  
+
   // Check if session has expired
   if (lastActivity && now - parseInt(lastActivity) > SESSION_TIMEOUT) {
     localStorage.removeItem(SESSION_ID_KEY);
   }
-  
+
   let sessionId = localStorage.getItem(SESSION_ID_KEY);
   if (!sessionId) {
     sessionId = generateUUID();
     localStorage.setItem(SESSION_ID_KEY, sessionId);
   }
-  
+
   localStorage.setItem(LAST_ACTIVITY_KEY, now.toString());
   return sessionId;
 }
@@ -57,7 +56,11 @@ function parseUserAgent() {
   // Detect device type
   if (/tablet|ipad|playbook|silk/i.test(ua)) {
     deviceType = "tablet";
-  } else if (/mobile|iphone|ipod|android|blackberry|opera|mini|windows\sce|palm|smartphone|iemobile/i.test(ua)) {
+  } else if (
+    /mobile|iphone|ipod|android|blackberry|opera|mini|windows\sce|palm|smartphone|iemobile/i.test(
+      ua,
+    )
+  ) {
     deviceType = "mobile";
   }
 
@@ -65,7 +68,8 @@ function parseUserAgent() {
   if (ua.indexOf("Chrome") > -1) browser = "Chrome";
   else if (ua.indexOf("Safari") > -1) browser = "Safari";
   else if (ua.indexOf("Firefox") > -1) browser = "Firefox";
-  else if (ua.indexOf("MSIE") > -1 || ua.indexOf("Trident/") > -1) browser = "IE";
+  else if (ua.indexOf("MSIE") > -1 || ua.indexOf("Trident/") > -1)
+    browser = "IE";
   else if (ua.indexOf("Edge") > -1) browser = "Edge";
 
   // Detect OS
@@ -105,19 +109,17 @@ function parseUTMParams() {
 }
 
 export class Analytics {
-  private convex: ConvexClient;
+  private tinybird = getTinybirdClient();
   private businessId: Id<"businesses">;
   private domainId?: Id<"domains">;
   private visitorId: string;
   private sessionId: string;
-  private pageViewId?: Id<"pageViews">;
   private startTime: number;
   private clicks: number = 0;
   private maxScrollDepth: number = 0;
   private isInitialized: boolean = false;
 
-  constructor(convexUrl: string, businessId: Id<"businesses">, domainId?: Id<"domains">) {
-    this.convex = new ConvexClient(convexUrl);
+  constructor(businessId: Id<"businesses">, domainId?: Id<"domains">) {
     this.businessId = businessId;
     this.domainId = domainId;
     this.visitorId = getVisitorId();
@@ -130,29 +132,19 @@ export class Analytics {
     this.isInitialized = true;
 
     try {
-      // Create or update visitor
-      const { deviceType, browser, os } = parseUserAgent();
-      const referrerData = parseReferrer();
-      const utmData = parseUTMParams();
-
-      await this.convex.mutation(api.analytics.upsertVisitor, {
-        visitorId: this.visitorId,
-        userAgent: navigator.userAgent,
-        deviceType,
-        browser,
-        os,
-        ...referrerData,
-        ...utmData,
-      });
-
-      // Create session if new
+      // Create session in Tinybird
       const sessionExists = sessionStorage.getItem(`session_${this.sessionId}`);
       if (!sessionExists) {
-        await this.convex.mutation(api.analytics.createSession, {
+        await this.tinybird.updateSession({
           sessionId: this.sessionId,
           visitorId: this.visitorId,
           businessId: this.businessId,
+          startTime: Math.floor(this.startTime / 1000), // Convert to seconds for Tinybird
+          pageCount: 1,
+          eventCount: 0,
           entryPage: window.location.pathname,
+          hasConverted: false,
+          bounce: true,
         });
         sessionStorage.setItem(`session_${this.sessionId}`, "1");
       }
@@ -169,23 +161,40 @@ export class Analytics {
 
   private async trackPageView() {
     try {
-      const loadTime = performance.timing
-        ? performance.timing.loadEventEnd - performance.timing.navigationStart
+      const navigation = performance.getEntriesByType(
+        "navigation",
+      )[0] as PerformanceNavigationTiming;
+      const loadTime = navigation
+        ? Math.round(navigation.loadEventEnd - navigation.fetchStart)
         : undefined;
 
-      this.pageViewId = await this.convex.mutation(api.analytics.trackPageView, {
+      const { deviceType, browser, os } = parseUserAgent();
+      const referrerData = parseReferrer();
+      const utmData = parseUTMParams();
+
+      await this.tinybird.trackPageView({
+        timestamp: Math.floor(Date.now() / 1000), // Convert to seconds for Tinybird
         businessId: this.businessId,
         domainId: this.domainId,
         visitorId: this.visitorId,
         sessionId: this.sessionId,
         path: window.location.pathname,
         title: document.title,
-        loadTime: loadTime && loadTime > 0 ? loadTime : undefined,
+        referrer: document.referrer || undefined,
+        userAgent: navigator.userAgent,
+        deviceType,
+        browser,
+        os,
         screenWidth: window.screen.width,
         screenHeight: window.screen.height,
+        viewportWidth: window.innerWidth,
+        viewportHeight: window.innerHeight,
+        loadTime: loadTime || undefined,
+        ...referrerData,
+        ...utmData,
       });
     } catch (error) {
-      console.error("Page view tracking error:", error);
+      console.error("Failed to track page view:", error);
     }
   }
 
@@ -198,9 +207,12 @@ export class Analytics {
     // Track scroll depth
     let ticking = false;
     const updateScrollDepth = () => {
-      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const scrolled = window.scrollY;
-      const scrollDepth = scrollHeight > 0 ? (scrolled / scrollHeight) * 100 : 0;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const scrollTop = window.scrollY;
+      const clientHeight = window.innerHeight;
+      const scrollDepth = Math.round(
+        ((scrollTop + clientHeight) / scrollHeight) * 100,
+      );
       this.maxScrollDepth = Math.max(this.maxScrollDepth, scrollDepth);
       ticking = false;
     };
@@ -212,46 +224,45 @@ export class Analytics {
       }
     });
 
-    // Update page view data before unload
+    // Track page unload
     window.addEventListener("beforeunload", () => {
-      this.updatePageViewData();
-    });
-
-    // Update page view data on visibility change
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) {
-        this.updatePageViewData();
-      }
+      this.trackPageUnload();
     });
   }
 
-  private async updatePageViewData() {
-    if (!this.pageViewId) return;
-
+  private async trackPageUnload() {
     try {
-      const timeOnPage = Math.floor((Date.now() - this.startTime) / 1000);
-      
-      await this.convex.mutation(api.analytics.updatePageView, {
-        pageViewId: this.pageViewId,
-        timeOnPage,
-        scrollDepth: Math.round(this.maxScrollDepth),
-        clicks: this.clicks,
+      const timeOnPage = Math.round((Date.now() - this.startTime) / 1000);
+
+      // Update session
+      await this.tinybird.updateSession({
+        sessionId: this.sessionId,
+        visitorId: this.visitorId,
+        businessId: this.businessId,
+        startTime: Math.floor(this.startTime / 1000),
+        endTime: Math.floor(Date.now() / 1000),
+        duration: timeOnPage,
+        pageCount: 1, // This would need to be tracked properly
+        eventCount: this.clicks,
+        entryPage: window.location.pathname,
+        exitPage: window.location.pathname,
+        hasConverted: false,
+        bounce: timeOnPage < 10, // Consider it a bounce if less than 10 seconds
       });
     } catch (error) {
-      console.error("Page view update error:", error);
+      console.error("Failed to track page unload:", error);
     }
   }
 
-  // Public methods for tracking custom events
   async trackEvent(
     eventType: string,
     eventCategory?: string,
     eventLabel?: string,
     eventValue?: number,
-    metadata?: Record<string, unknown>
   ) {
     try {
-      await this.convex.mutation(api.analytics.trackEvent, {
+      await this.tinybird.trackEvent({
+        timestamp: Math.floor(Date.now() / 1000),
         businessId: this.businessId,
         visitorId: this.visitorId,
         sessionId: this.sessionId,
@@ -260,31 +271,42 @@ export class Analytics {
         eventLabel,
         eventValue,
         path: window.location.pathname,
-        metadata,
+        metadata: undefined,
       });
     } catch (error) {
-      console.error("Event tracking error:", error);
+      console.error("Failed to track event:", error);
     }
   }
 
-  // Convenience methods for common events
-  async trackContact(method: string, details?: Record<string, unknown>) {
-    await this.trackEvent("contact", "conversion", method, undefined, details);
-  }
+  async trackConversion(conversionType: string = "contact") {
+    try {
+      await this.trackEvent("conversion", "engagement", conversionType);
 
-  async trackFormSubmit(formName: string, details?: Record<string, unknown>) {
-    await this.trackEvent("form_submit", "engagement", formName, undefined, details);
+      // Update session to mark as converted
+      await this.tinybird.updateSession({
+        sessionId: this.sessionId,
+        visitorId: this.visitorId,
+        businessId: this.businessId,
+        hasConverted: true,
+        conversionType,
+        startTime: Math.floor(this.startTime / 1000),
+        pageCount: 1,
+        eventCount: this.clicks,
+        entryPage: window.location.pathname,
+        bounce: false,
+      });
+    } catch (error) {
+      console.error("Failed to track conversion:", error);
+    }
   }
+}
 
-  async trackClick(element: string, details?: Record<string, unknown>) {
-    await this.trackEvent("click", "engagement", element, undefined, details);
-  }
-
-  async trackShare(platform: string) {
-    await this.trackEvent("share", "engagement", platform);
-  }
-
-  async trackSearch(query: string) {
-    await this.trackEvent("search", "engagement", query);
-  }
+// Initialize analytics on page load
+export function initAnalytics(
+  businessId: Id<"businesses">,
+  domainId?: Id<"domains">,
+) {
+  const analytics = new Analytics(businessId, domainId);
+  analytics.init();
+  return analytics;
 }

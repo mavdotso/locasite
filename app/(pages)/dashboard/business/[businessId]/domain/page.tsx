@@ -11,25 +11,21 @@ export default async function BusinessDomainPage({
 }) {
   const resolvedParams = await params;
   const businessId = resolvedParams.businessId as Id<"businesses">;
-  
-  // Server-side auth check
+
+  // Get current user (auth is handled by dashboard layout)
   const user = await fetchQuery(api.auth.currentUser, {});
-  
-  if (!user) {
-    redirect(`/sign-in?redirect=/dashboard/business/${businessId}/domain`);
-  }
-  
+
   // Fetch initial data
   const business = await fetchQuery(api.businesses.getById, { id: businessId });
-  
+
   if (!business) {
     redirect("/dashboard/sites");
   }
-  
+
   // Check ownership
-  if (business.userId && business.userId !== user._id) {
+  if (business.userId && user && business.userId !== user._id) {
     redirect("/dashboard/sites");
   }
-  
+
   return <DomainPageClient businessId={businessId} />;
 }

@@ -13,16 +13,14 @@ interface AnalyticsPageProps {
   }>;
 }
 
-export default async function BusinessAnalyticsPage({ params }: AnalyticsPageProps) {
+export default async function BusinessAnalyticsPage({
+  params,
+}: AnalyticsPageProps) {
   const { businessId } = await params;
   const businessIdTyped = businessId as Id<"businesses">;
 
-  // Server-side auth check
+  // Get current user (auth is handled by dashboard layout)
   const user = await fetchQuery(api.auth.currentUser, {});
-  
-  if (!user) {
-    redirect(`/sign-in?redirect=/dashboard/business/${businessId}/analytics`);
-  }
 
   // Get business from database
   const business = await fetchQuery(api.businesses.getById, {
@@ -34,7 +32,7 @@ export default async function BusinessAnalyticsPage({ params }: AnalyticsPagePro
   }
 
   // Check ownership
-  if (business.userId && business.userId !== user._id) {
+  if (business.userId && user && business.userId !== user._id) {
     redirect("/dashboard/sites");
   }
 
@@ -51,9 +49,7 @@ export default async function BusinessAnalyticsPage({ params }: AnalyticsPagePro
 
       <div className="mb-8">
         <h1 className="text-3xl font-bold">{business.name}</h1>
-        <p className="text-muted-foreground mt-2">
-          Analytics & Performance
-        </p>
+        <p className="text-muted-foreground mt-2">Analytics & Performance</p>
       </div>
 
       <AnalyticsClient businessId={businessIdTyped} />
