@@ -24,15 +24,18 @@ export default function BusinessEditClient({
 
   // All hooks must be called before any conditional returns
   const user = useQuery(api.auth.currentUser);
-  const business = useQuery(api.businesses.getById, { id: businessId });
-  const domain = useQuery(
-    api.domains.getByBusinessId,
-    business ? { businessId: business._id } : "skip",
-  );
-  const pages = useQuery(
-    api.pages.listByDomain,
-    domain ? { domainId: domain._id } : "skip",
-  );
+
+  // Use compound query to fetch all related data in one call
+  const editData = useQuery(api.businessEditData.getBusinessEditData, {
+    businessId,
+  });
+
+  const business = editData?.business;
+  const domain = editData?.domain;
+  const pages = editData?.pages;
+  const syncStatus = editData?.syncStatus;
+
+  // Mutations
   const updatePage = useMutation(api.pages.updatePage);
   const createDefaultPages = useMutation(
     api.pagesSimple.createDefaultPagesSimple,
@@ -42,10 +45,6 @@ export default function BusinessEditClient({
   );
   const syncBusinessDomain = useMutation(
     api.businessDomainSync.syncBusinessDomain,
-  );
-  const syncStatus = useQuery(
-    api.businessDomainSync.checkBusinessDomainSync,
-    business ? { businessId: business._id } : "skip",
   );
 
   // Handle business-domain sync
@@ -73,7 +72,7 @@ export default function BusinessEditClient({
   }, [syncStatus, business, user, pages, syncBusinessDomain]);
 
   // Loading state while fetching business
-  if (business === undefined) {
+  if (editData === undefined) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -82,7 +81,7 @@ export default function BusinessEditClient({
   }
 
   // Business not found
-  if (business === null) {
+  if (editData === null || !business) {
     return notFound();
   }
 

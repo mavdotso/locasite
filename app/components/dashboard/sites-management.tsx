@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id, Doc } from "@/convex/_generated/dataModel";
+import { useDashboardData } from "@/app/components/providers/dashboard-provider";
 import {
   Card,
   CardContent,
@@ -56,11 +57,7 @@ export default function SitesManagement() {
     name: string;
   } | null>(null);
 
-  const user = useQuery(api.auth.currentUser);
-  const userBusinesses = useQuery(
-    api.businesses.listByUser,
-    user ? { userId: user._id } : "skip",
-  );
+  const { user, businesses: userBusinesses } = useDashboardData();
 
   const deleteBusiness = useMutation(api.businesses.remove);
   const unpublishBusiness = useMutation(api.businesses.unpublish);

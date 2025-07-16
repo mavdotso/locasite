@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { useDashboardData } from "@/app/components/providers/dashboard-provider";
 import { useTinybirdAnalytics } from "@/app/hooks/use-tinybird-analytics";
 import {
   Card,
@@ -37,11 +36,7 @@ export default function AnalyticsDashboard({
     "24h" | "7d" | "30d" | "90d"
   >("30d");
 
-  const user = useQuery(api.auth.currentUser);
-  const userBusinesses = useQuery(
-    api.businesses.listByUser,
-    user && !businessId ? { userId: user._id } : "skip",
-  );
+  const { user, businesses: userBusinesses } = useDashboardData();
 
   // Get time range dates - memoized to prevent infinite re-renders
   const timeRanges = useMemo(

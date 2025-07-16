@@ -2,10 +2,12 @@
 
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { Card } from "@/app/components/ui/card";
 import { Loader2 } from "lucide-react";
+import {
+  useAuthState,
+  useCurrentUser,
+} from "@/app/components/providers/dashboard-provider";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -18,7 +20,8 @@ export function AuthGuard({
 }: AuthGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const user = useQuery(api.auth.currentUser);
+  const user = useCurrentUser();
+  const { isLoading } = useAuthState();
 
   useEffect(() => {
     // Only redirect if we've checked auth and user is definitely not authenticated
@@ -30,7 +33,7 @@ export function AuthGuard({
   }, [user, pathname, router]);
 
   // Show loading state while checking authentication
-  if (user === undefined) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-muted flex items-center justify-center p-4">
         <Card className="w-full max-w-md p-8">
