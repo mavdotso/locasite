@@ -1,5 +1,3 @@
-"use client";
-
 import { Search, Palette, Globe } from "lucide-react";
 
 const steps = [
