@@ -70,7 +70,7 @@ export default function BusinessDashboardClient({
   // Check ownership - only allow owner to access dashboard
   // At this point, user is guaranteed to be defined due to auth guard
   if (business.userId && user && business.userId !== user._id) {
-    router.push(`/dashboard/sites`);
+    router.push(`/dashboard`);
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -86,7 +86,7 @@ export default function BusinessDashboardClient({
       {/* Back Button */}
       <div className="mb-6">
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/dashboard/sites">
+          <Link href="/dashboard">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Sites
           </Link>

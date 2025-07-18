@@ -22,8 +22,7 @@ interface SectionRendererProps {
 }
 
 // Map of section types to their components
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const sectionComponents: Record<string, React.ComponentType<any>> = {
+const sectionComponents = {
   // Header variations
   "header-section": HeaderSection,
   "header-classic": HeaderSection,
@@ -67,7 +66,9 @@ export function SectionRenderer({
   businessData,
   businessCategory,
 }: SectionRendererProps) {
-  const Component = sectionComponents[data.type];
+  const Component = sectionComponents[
+    data.type as keyof typeof sectionComponents
+  ] as React.ComponentType<Record<string, unknown>>;
 
   if (!Component) {
     console.warn(`Unknown section type: ${data.type}`);
@@ -101,13 +102,13 @@ export function SectionRenderer({
       data-section-id={data.id}
     >
       <Component
-        {...processedContent}
+        {...(processedContent as Record<string, unknown>)}
         type={data.type}
         editMode={editMode}
         businessCategory={businessCategory}
         styleOverrides={{
           backgroundColor: data.style?.backgroundColor,
-          textColor: data.style?.textColor,
+          color: data.style?.textColor,
           textAlign: data.style?.textAlign,
         }}
         onUpdate={(newContent: Record<string, unknown>) => {

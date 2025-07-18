@@ -54,11 +54,23 @@ import {
   Hash,
   AtSign,
   Building,
+  Loader2,
 } from "lucide-react";
 import { SimpleComponentData } from "../types/simple-builder";
 import type { SimpleStyleOptions } from "../types/simple-builder";
 import { getVariationById } from "../sections/section-variations";
-import MediaLibrary from "@/app/components/visual-editor/library/media-library";
+import dynamic from "next/dynamic";
+
+const MediaLibrary = dynamic(
+  () => import("@/app/components/visual-editor/library/media-library"),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    ),
+  },
+);
 
 interface SectionSettingsSidebarProps {
   isOpen: boolean;
@@ -372,9 +384,14 @@ export function SectionSettingsSidebar({
                             "contact-social": "Contact",
                             "reviews-section": "Reviews",
                           };
-                          const sectionName = sectionTypeMap[section.type] || formatFieldName(section.type);
+                          const sectionName =
+                            sectionTypeMap[section.type] ||
+                            formatFieldName(section.type);
                           return (
-                            <SelectItem key={section.id} value={`#${section.id}`}>
+                            <SelectItem
+                              key={section.id}
+                              value={`#${section.id}`}
+                            >
                               {sectionName}
                             </SelectItem>
                           );
@@ -723,7 +740,10 @@ export function SectionSettingsSidebar({
                         <SelectItem value="5">
                           <div className="flex items-center gap-1">
                             {[...Array(5)].map((_, i) => (
-                              <Star key={i} className="h-4 w-4 fill-amber-500 text-amber-500" />
+                              <Star
+                                key={i}
+                                className="h-4 w-4 fill-amber-500 text-amber-500"
+                              />
                             ))}
                             <span className="ml-2">5 stars</span>
                           </div>
@@ -731,7 +751,10 @@ export function SectionSettingsSidebar({
                         <SelectItem value="4">
                           <div className="flex items-center gap-1">
                             {[...Array(4)].map((_, i) => (
-                              <Star key={i} className="h-4 w-4 fill-amber-500 text-amber-500" />
+                              <Star
+                                key={i}
+                                className="h-4 w-4 fill-amber-500 text-amber-500"
+                              />
                             ))}
                             <Star className="h-4 w-4 text-muted-foreground/30" />
                             <span className="ml-2">4 stars</span>
@@ -740,10 +763,16 @@ export function SectionSettingsSidebar({
                         <SelectItem value="3">
                           <div className="flex items-center gap-1">
                             {[...Array(3)].map((_, i) => (
-                              <Star key={i} className="h-4 w-4 fill-amber-500 text-amber-500" />
+                              <Star
+                                key={i}
+                                className="h-4 w-4 fill-amber-500 text-amber-500"
+                              />
                             ))}
                             {[...Array(2)].map((_, i) => (
-                              <Star key={i + 3} className="h-4 w-4 text-muted-foreground/30" />
+                              <Star
+                                key={i + 3}
+                                className="h-4 w-4 text-muted-foreground/30"
+                              />
                             ))}
                             <span className="ml-2">3 stars</span>
                           </div>
@@ -751,10 +780,16 @@ export function SectionSettingsSidebar({
                         <SelectItem value="2">
                           <div className="flex items-center gap-1">
                             {[...Array(2)].map((_, i) => (
-                              <Star key={i} className="h-4 w-4 fill-amber-500 text-amber-500" />
+                              <Star
+                                key={i}
+                                className="h-4 w-4 fill-amber-500 text-amber-500"
+                              />
                             ))}
                             {[...Array(3)].map((_, i) => (
-                              <Star key={i + 2} className="h-4 w-4 text-muted-foreground/30" />
+                              <Star
+                                key={i + 2}
+                                className="h-4 w-4 text-muted-foreground/30"
+                              />
                             ))}
                             <span className="ml-2">2 stars</span>
                           </div>
@@ -763,7 +798,10 @@ export function SectionSettingsSidebar({
                           <div className="flex items-center gap-1">
                             <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
                             {[...Array(4)].map((_, i) => (
-                              <Star key={i + 1} className="h-4 w-4 text-muted-foreground/30" />
+                              <Star
+                                key={i + 1}
+                                className="h-4 w-4 text-muted-foreground/30"
+                              />
                             ))}
                             <span className="ml-2">1 star</span>
                           </div>
@@ -829,8 +867,8 @@ export function SectionSettingsSidebar({
               businessId={businessId}
               onSelect={(url) => {
                 // Extract business name from the URL or use a default
-                const altText = url.includes("google") 
-                  ? "Business gallery image" 
+                const altText = url.includes("google")
+                  ? "Business gallery image"
                   : "Gallery image";
                 handleArrayItemAdd(fullPath, {
                   src: url,
@@ -861,7 +899,10 @@ export function SectionSettingsSidebar({
                     </>
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Image className="h-8 w-8 text-muted-foreground" aria-label="Empty image placeholder" />
+                      <Image
+                        className="h-8 w-8 text-muted-foreground"
+                        aria-label="Empty image placeholder"
+                      />
                     </div>
                   )}
                 </div>
@@ -896,7 +937,12 @@ export function SectionSettingsSidebar({
                   placeholder="Alt text"
                   value={image.alt || ""}
                   onChange={(e) =>
-                    handleArrayItemChange(fullPath, index, "alt", e.target.value)
+                    handleArrayItemChange(
+                      fullPath,
+                      index,
+                      "alt",
+                      e.target.value,
+                    )
                   }
                 />
               </div>
@@ -995,143 +1041,146 @@ export function SectionSettingsSidebar({
           <SheetTitle>Section Settings</SheetTitle>
         </SheetHeader>
         <div className="px-4">
-        <Tabs defaultValue="content">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="content" className="flex items-center gap-2">
-              <Type className="h-4 w-4" />
-              Content
-            </TabsTrigger>
-            <TabsTrigger value="style" className="flex items-center gap-2">
-              <Palette className="h-4 w-4" />
-              Style
-            </TabsTrigger>
-            <TabsTrigger value="layout" className="flex items-center gap-2">
-              <Layout className="h-4 w-4" />
-              Layout
-            </TabsTrigger>
-          </TabsList>
+          <Tabs defaultValue="content">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="content" className="flex items-center gap-2">
+                <Type className="h-4 w-4" />
+                Content
+              </TabsTrigger>
+              <TabsTrigger value="style" className="flex items-center gap-2">
+                <Palette className="h-4 w-4" />
+                Style
+              </TabsTrigger>
+              <TabsTrigger value="layout" className="flex items-center gap-2">
+                <Layout className="h-4 w-4" />
+                Layout
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Content Tab */}
-          <TabsContent value="content" className="space-y-4 mt-4">
-            {variation.editableFields.map((field) => {
-              const fieldParts = field.split(".");
-              if (fieldParts[0] === "content" && fieldParts.length > 1) {
-                return renderField(fieldParts.slice(1).join("."), "content");
-              }
-              return renderField(field);
-            })}
-          </TabsContent>
+            {/* Content Tab */}
+            <TabsContent value="content" className="space-y-4 mt-4">
+              {variation.editableFields.map((field) => {
+                const fieldParts = field.split(".");
+                if (fieldParts[0] === "content" && fieldParts.length > 1) {
+                  return renderField(fieldParts.slice(1).join("."), "content");
+                }
+                return renderField(field);
+              })}
+            </TabsContent>
 
-          {/* Style Tab */}
-          <TabsContent value="style" className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <Label>Background Color</Label>
-              <div className="flex gap-2">
-                <Input
-                  type="color"
-                  value={localData.style?.backgroundColor || "#ffffff"}
-                  onChange={(e) =>
-                    handleStyleChange("backgroundColor", e.target.value)
-                  }
-                  className="w-20"
-                />
-                <Input
-                  value={localData.style?.backgroundColor || "#ffffff"}
-                  onChange={(e) =>
-                    handleStyleChange("backgroundColor", e.target.value)
-                  }
-                  placeholder="#ffffff"
-                />
+            {/* Style Tab */}
+            <TabsContent value="style" className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label>Background Color</Label>
+                <div className="flex gap-2">
+                  <Input
+                    type="color"
+                    value={localData.style?.backgroundColor || "#ffffff"}
+                    onChange={(e) =>
+                      handleStyleChange("backgroundColor", e.target.value)
+                    }
+                    className="w-20"
+                  />
+                  <Input
+                    value={localData.style?.backgroundColor || "#ffffff"}
+                    onChange={(e) =>
+                      handleStyleChange("backgroundColor", e.target.value)
+                    }
+                    placeholder="#ffffff"
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label>Text Color</Label>
-              <div className="flex gap-2">
-                <Input
-                  type="color"
-                  value={localData.style?.textColor || "#000000"}
-                  onChange={(e) =>
-                    handleStyleChange("textColor", e.target.value)
-                  }
-                  className="w-20"
-                />
-                <Input
-                  value={localData.style?.textColor || "#000000"}
-                  onChange={(e) =>
-                    handleStyleChange("textColor", e.target.value)
-                  }
-                  placeholder="#000000"
-                />
+              <div className="space-y-2">
+                <Label>Text Color</Label>
+                <div className="flex gap-2">
+                  <Input
+                    type="color"
+                    value={localData.style?.textColor || "#000000"}
+                    onChange={(e) =>
+                      handleStyleChange("textColor", e.target.value)
+                    }
+                    className="w-20"
+                  />
+                  <Input
+                    value={localData.style?.textColor || "#000000"}
+                    onChange={(e) =>
+                      handleStyleChange("textColor", e.target.value)
+                    }
+                    placeholder="#000000"
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label>Text Alignment</Label>
-              <Select
-                value={localData.style?.textAlign || "left"}
-                onValueChange={(value) => handleStyleChange("textAlign", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="left">Left</SelectItem>
-                  <SelectItem value="center">Center</SelectItem>
-                  <SelectItem value="right">Right</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+              <div className="space-y-2">
+                <Label>Text Alignment</Label>
+                <Select
+                  value={localData.style?.textAlign || "left"}
+                  onValueChange={(value) =>
+                    handleStyleChange("textAlign", value)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="left">Left</SelectItem>
+                    <SelectItem value="center">Center</SelectItem>
+                    <SelectItem value="right">Right</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div className="space-y-2">
-              <Label>Font Size</Label>
-              <Select
-                value={localData.style?.fontSize || "medium"}
-                onValueChange={(value) => handleStyleChange("fontSize", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="small">Small</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="large">Large</SelectItem>
-                  <SelectItem value="xlarge">Extra Large</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </TabsContent>
+              <div className="space-y-2">
+                <Label>Font Size</Label>
+                <Select
+                  value={localData.style?.fontSize || "medium"}
+                  onValueChange={(value) =>
+                    handleStyleChange("fontSize", value)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="small">Small</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="large">Large</SelectItem>
+                    <SelectItem value="xlarge">Extra Large</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </TabsContent>
 
-          {/* Layout Tab */}
-          <TabsContent value="layout" className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <Label>Padding</Label>
-              <Select
-                value={localData.style?.padding || "4rem 2rem"}
-                onValueChange={(value) => handleStyleChange("padding", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="2rem 1rem">Small</SelectItem>
-                  <SelectItem value="4rem 2rem">Medium</SelectItem>
-                  <SelectItem value="6rem 3rem">Large</SelectItem>
-                  <SelectItem value="8rem 4rem">Extra Large</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Layout Tab */}
+            <TabsContent value="layout" className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label>Padding</Label>
+                <Select
+                  value={localData.style?.padding || "4rem 2rem"}
+                  onValueChange={(value) => handleStyleChange("padding", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="2rem 1rem">Small</SelectItem>
+                    <SelectItem value="4rem 2rem">Medium</SelectItem>
+                    <SelectItem value="6rem 3rem">Large</SelectItem>
+                    <SelectItem value="8rem 4rem">Extra Large</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </TabsContent>
+          </Tabs>
 
-          </TabsContent>
-        </Tabs>
-
-        <div className="flex gap-2 mt-6">
-          <Button onClick={handleSave} className="flex-1">
-            Save Changes
-          </Button>
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
+          <div className="flex gap-2 mt-6">
+            <Button onClick={handleSave} className="flex-1">
+              Save Changes
+            </Button>
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
           </div>
         </div>
       </SheetContent>

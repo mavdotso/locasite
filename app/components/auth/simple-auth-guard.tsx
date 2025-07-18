@@ -1,39 +1,35 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Card } from "@/app/components/ui/card";
 import { Loader2 } from "lucide-react";
-import {
-  useAuthState,
-  useCurrentUser,
-} from "@/app/components/providers/dashboard-provider";
 
-interface AuthGuardProps {
+interface SimpleAuthGuardProps {
   children: React.ReactNode;
   loadingMessage?: string;
 }
 
-export function AuthGuard({
+export function SimpleAuthGuard({
   children,
   loadingMessage = "Loading...",
-}: AuthGuardProps) {
+}: SimpleAuthGuardProps) {
   const router = useRouter();
-  const pathname = usePathname();
-  const user = useCurrentUser();
-  const { isLoading } = useAuthState();
+  const user = useQuery(api.auth.currentUser);
 
   useEffect(() => {
     // Only redirect if we've checked auth and user is definitely not authenticated
     if (user === null) {
       // Store the current path for redirect after login
-      const redirectPath = pathname;
-      router.push(`/sign-in?redirect=${encodeURIComponent(redirectPath)}`);
+      const currentPath = window.location.pathname;
+      router.push(`/sign-in?redirect=${encodeURIComponent(currentPath)}`);
     }
-  }, [user, pathname, router]);
+  }, [user, router]);
 
   // Show loading state while checking authentication
-  if (isLoading) {
+  if (user === undefined) {
     return (
       <div className="min-h-screen bg-muted flex items-center justify-center p-4">
         <Card className="w-full max-w-md p-8">

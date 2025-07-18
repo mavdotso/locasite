@@ -351,6 +351,7 @@ interface SimplePageData {
 3. **Missing Alt Attributes**: All images must have alt attributes
 4. **Excessive Client Components**: Minimize `use client` usage
 5. **Query Duplication**: Fetch data at parent level and pass as props
+6. **Comments**: Don't generate unnecessary comments in code. Only generate comments if the code you're generating is very complex, it's not obvious of what it does. Don't describe changes in comments.
 
 ### Testing and Validation
 

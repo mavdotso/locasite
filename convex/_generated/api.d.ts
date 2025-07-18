@@ -13,6 +13,7 @@ import type * as applyBusinessTemplate from "../applyBusinessTemplate.js";
 import type * as auth from "../auth.js";
 import type * as businessClaims from "../businessClaims.js";
 import type * as businessDomainSync from "../businessDomainSync.js";
+import type * as businessEditData from "../businessEditData.js";
 import type * as businessPublishing from "../businessPublishing.js";
 import type * as businessSeo from "../businessSeo.js";
 import type * as businesses from "../businesses.js";
@@ -41,6 +42,7 @@ import type * as reviewFilter from "../reviewFilter.js";
 import type * as storage from "../storage.js";
 import type * as storeBusinessImages from "../storeBusinessImages.js";
 import type * as themes from "../themes.js";
+import type * as uploadBusinessImages from "../uploadBusinessImages.js";
 
 import type {
   ApiFromModules,
@@ -61,6 +63,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   businessClaims: typeof businessClaims;
   businessDomainSync: typeof businessDomainSync;
+  businessEditData: typeof businessEditData;
   businessPublishing: typeof businessPublishing;
   businessSeo: typeof businessSeo;
   businesses: typeof businesses;
@@ -89,6 +92,7 @@ declare const fullApi: ApiFromModules<{
   storage: typeof storage;
   storeBusinessImages: typeof storeBusinessImages;
   themes: typeof themes;
+  uploadBusinessImages: typeof uploadBusinessImages;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 
