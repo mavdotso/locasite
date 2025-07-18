@@ -4,6 +4,7 @@ import React from "react";
 import { ContactContentUpdate, ContactCard, SocialLink } from "./types";
 import { getBusinessCategoryTheme } from "../../core/business-category-themes";
 import { cn } from "@/app/lib/utils";
+import { GoogleMap } from "@/app/components/common/google-map";
 
 interface ContactSectionProps {
   type: string;
@@ -110,10 +111,7 @@ export function ContactSection({
   // Contact form with map
   if (type === "contact-form-map") {
     return (
-      <div
-        className="py-16 md:py-24"
-        style={styleOverrides}
-      >
+      <div className="py-16 md:py-24" style={styleOverrides}>
         <div className="container mx-auto px-4">
           <h2
             className="text-3xl md:text-4xl font-bold text-center mb-12"
@@ -324,15 +322,12 @@ export function ContactSection({
             </div>
 
             {/* Map */}
-            {showMap && (
-              <div
-                className="h-[400px] rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: themeColors.cardBackground }}
-              >
-                <p style={{ color: themeColors.textSecondary }}>
-                  Map will be displayed here
-                </p>
-              </div>
+            {showMap && address && (
+              <GoogleMap
+                address={address}
+                height="h-[400px]"
+                className="shadow-lg"
+              />
             )}
           </div>
         </div>
@@ -343,10 +338,7 @@ export function ContactSection({
   // Contact cards
   if (type === "contact-cards" && cards) {
     return (
-      <div
-        className="py-16 md:py-24"
-        style={styleOverrides}
-      >
+      <div className="py-16 md:py-24" style={styleOverrides}>
         <div className="container mx-auto px-4">
           <h2
             className="text-3xl md:text-4xl font-bold text-center mb-12"
@@ -393,10 +385,7 @@ export function ContactSection({
   // Social links
   if (type === "contact-social" && socialLinks) {
     return (
-      <div
-        className="py-16 md:py-24"
-        style={styleOverrides}
-      >
+      <div className="py-16 md:py-24" style={styleOverrides}>
         <div className="container mx-auto px-4 text-center">
           <h2
             className="text-3xl md:text-4xl font-bold mb-12"

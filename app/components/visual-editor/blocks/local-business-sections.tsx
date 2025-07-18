@@ -1,33 +1,34 @@
 import React from "react";
 import { ComponentConfig } from "@/app/types/visual-editor";
 import {
-  Clock,
   MapPin,
-  Calendar,
-  Tag,
-  HelpCircle,
+  Phone,
+  Mail,
+  Clock,
   Map,
-  Menu,
-  Car,
+  Calendar,
   Star,
-  MessageSquare,
-  Image as ImageIcon,
+  ChevronRight,
   Award,
+  Users,
   Zap,
   Shield,
   Heart,
-  Globe,
   CheckCircle,
-  Wrench,
-  ChevronRight,
-  Megaphone,
   Briefcase,
-  Mail,
-  ChartBar,
+  Globe,
+  Tag,
   Info,
-  Phone,
-  Users,
+  HelpCircle,
+  Menu,
+  Car,
+  Wrench,
+  Image as ImageIcon,
+  MessageSquare,
+  Megaphone,
+  BarChart,
 } from "lucide-react";
+import { GoogleMap } from "@/app/components/common/google-map";
 import { Button } from "@/app/components/ui/button";
 import {
   Card,
@@ -540,13 +541,7 @@ export const LocationDirectionsSection: ComponentConfig = {
 
           <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
             {showMap === "yes" && businessData?.address && (
-              <div className="rounded-lg overflow-hidden shadow-lg">
-                <iframe
-                  src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(businessData.address)}`}
-                  className="w-full h-96"
-                  allowFullScreen
-                />
-              </div>
+              <GoogleMap address={businessData.address} className="shadow-lg" />
             )}
 
             <div className="space-y-6">
@@ -3141,7 +3136,7 @@ export const ServicesDetailedSection: ComponentConfig = {
       tool: Wrench,
       users: Users,
       clock: Clock,
-      chart: ChartBar,
+      chart: BarChart,
     };
 
     if (layout === "list") {
@@ -3751,15 +3746,11 @@ export const ContactSection: ComponentConfig = {
                 </div>
 
                 {showMap && business?.address && (
-                  <div className="aspect-[4/3] bg-muted rounded-lg">
-                    <iframe
-                      src={`https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${encodeURIComponent(business.address)}`}
-                      width="100%"
-                      height="100%"
-                      className="rounded-lg"
-                      loading="lazy"
-                    />
-                  </div>
+                  <GoogleMap
+                    address={business.address}
+                    height="h-full aspect-[4/3]"
+                    className="rounded-lg"
+                  />
                 )}
               </div>
 
