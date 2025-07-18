@@ -96,7 +96,7 @@ export default function AnalyticsDashboard({
             Publish your first site to start tracking analytics.
           </p>
           <Button asChild>
-            <Link href="/dashboard/sites">View Your Sites</Link>
+            <Link href="/dashboard">View Your Sites</Link>
           </Button>
         </div>
       </Card>

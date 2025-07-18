@@ -14,6 +14,7 @@ export default function HeroSection() {
     previewData,
     handleGeneratePreview,
     handleCreateWebsite,
+    isUserLoading,
   } = useBusinessScraper();
 
   return (
@@ -88,7 +89,7 @@ export default function HeroSection() {
             <BrowserMockup
               previewData={previewData}
               onCreateWebsite={handleCreateWebsite}
-              isLoading={isLoading}
+              isLoading={isLoading || isUserLoading}
             />
           </div>
         </div>

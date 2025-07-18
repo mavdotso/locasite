@@ -28,19 +28,19 @@ export default async function BusinessAnalyticsPage({
   });
 
   if (!business) {
-    redirect("/dashboard/sites");
+    redirect("/dashboard");
   }
 
   // Check ownership
   if (business.userId && user && business.userId !== user._id) {
-    redirect("/dashboard/sites");
+    redirect("/dashboard");
   }
 
   return (
     <div className="container p-8 mx-auto">
       <div className="mb-6">
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/dashboard/sites">
+          <Link href="/dashboard">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Sites
           </Link>

@@ -3,6 +3,9 @@
 import { useBusinessScraper } from "@/app/hooks/use-business-scraper";
 import { BusinessURLInput } from "@/app/components/business/business-url-input";
 import { BrowserMockup } from "@/app/components/business/browser-mockup";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/app/components/ui/button";
 
 export default function NewSitePage() {
   const {
@@ -16,6 +19,14 @@ export default function NewSitePage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
+      {/* Back button */}
+      <Button variant="ghost" size="sm" asChild className="mb-6">
+        <Link href="/dashboard">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Dashboard
+        </Link>
+      </Button>
+
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-foreground">Create New Site</h1>
         <p className="text-muted-foreground mt-2">

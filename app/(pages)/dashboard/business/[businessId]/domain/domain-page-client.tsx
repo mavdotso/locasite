@@ -32,7 +32,7 @@ export default function DomainPageClient({
     <div className="container max-w-2xl py-8">
       <div className="mb-6">
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/dashboard/sites">
+          <Link href="/dashboard">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Sites
           </Link>

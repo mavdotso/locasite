@@ -88,7 +88,7 @@ export default function BusinessEditClient({
   // Check ownership - only allow owner to edit
   // Note: user is guaranteed to be defined if we reach this point (auth guard should handle null case)
   if (business.userId && user && business.userId !== user._id) {
-    router.push(`/dashboard/sites`);
+    router.push(`/dashboard`);
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
