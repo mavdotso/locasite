@@ -159,6 +159,12 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
           (photo: GooglePlacePhoto) =>
             `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo.photo_reference}&key=${apiKey}`,
         ) || [],
+      // We'll store the original Google URLs here and upload them to Convex after business creation
+      googlePhotoUrls:
+        place.photos?.map(
+          (photo: GooglePlacePhoto) =>
+            `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo.photo_reference}&key=${apiKey}`,
+        ) || [],
       description:
         place.editorial_summary?.overview ||
         generateDefaultDescription(place.name, place.types?.[0]),

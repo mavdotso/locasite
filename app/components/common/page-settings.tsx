@@ -30,7 +30,18 @@ import { Doc } from "@/convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
-import MediaLibrary from "@/app/components/visual-editor/library/media-library";
+import dynamic from "next/dynamic";
+
+const MediaLibrary = dynamic(
+  () => import("@/app/components/visual-editor/library/media-library"),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    ),
+  },
+);
 import { toUrlFriendly } from "@/app/lib/url-utils";
 
 export interface PageSettingsData {

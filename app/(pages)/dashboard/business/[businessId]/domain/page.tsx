@@ -19,12 +19,12 @@ export default async function BusinessDomainPage({
   const business = await fetchQuery(api.businesses.getById, { id: businessId });
 
   if (!business) {
-    redirect("/dashboard/sites");
+    redirect("/dashboard");
   }
 
   // Check ownership
   if (business.userId && user && business.userId !== user._id) {
-    redirect("/dashboard/sites");
+    redirect("/dashboard");
   }
 
   return <DomainPageClient businessId={businessId} />;

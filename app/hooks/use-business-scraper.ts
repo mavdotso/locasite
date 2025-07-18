@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { BusinessData } from "@/convex/businesses";
 import { toast } from "sonner";
+import { useAuthActions } from "@convex-dev/auth/react";
 
 export interface UseBusinessScraperResult {
   url: string;
@@ -16,6 +17,7 @@ export interface UseBusinessScraperResult {
   handleGeneratePreview: () => Promise<void>;
   handleCreateWebsite: () => Promise<void>;
   resetPreview: () => void;
+  isUserLoading: boolean;
 }
 
 export function useBusinessScraper(): UseBusinessScraperResult {
@@ -24,6 +26,8 @@ export function useBusinessScraper(): UseBusinessScraperResult {
   const [previewData, setPreviewData] = useState<BusinessData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { signIn } = useAuthActions();
+  const user = useQuery(api.auth.currentUser);
   const createFromPending = useMutation(
     api.businesses.createBusinessFromPendingData,
   );
@@ -54,7 +58,7 @@ export function useBusinessScraper(): UseBusinessScraperResult {
 
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL || "";
 
@@ -107,8 +111,36 @@ export function useBusinessScraper(): UseBusinessScraperResult {
   const handleCreateWebsite = async () => {
     if (!previewData) return;
 
+    // Check if user is authenticated
+    if (user === undefined) {
+      // Still loading user state
+      return;
+    }
+
+    if (user === null) {
+      // User is definitely not authenticated
+      // Store the preview data and URL in session storage
+      sessionStorage.setItem("pendingBusinessUrl", url);
+      sessionStorage.setItem(
+        "pendingBusinessData",
+        JSON.stringify(previewData),
+      );
+
+      // Redirect to sign in
+      toast.info("Please sign in to create your website");
+      try {
+        await signIn("google");
+      } catch (error) {
+        console.error("Sign in error:", error);
+        toast.error("Failed to redirect to sign in. Please try again.");
+      }
+      return;
+    }
+
     setIsLoading(true);
     try {
+      console.log("Creating website for user:", user);
+
       // For the preview, we need to fetch the full business data again
       const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL || "";
       const deploymentName = convexUrl.split("//")[1]?.split(".")[0];
@@ -123,25 +155,47 @@ export function useBusinessScraper(): UseBusinessScraperResult {
       });
 
       const data = await response.json();
+      console.log("Full response from scraper:", data);
 
       if (data.error) {
         throw new Error(data.error);
       }
 
+      // Extract the business data from the response
+      let scrapedBusinessData = null;
       if (data.success && data.data) {
-        const result = await createFromPending({
-          businessData: data.data,
-          aiContent: null,
-        });
-
-        if (result.businessId) {
-          toast.success("Website created successfully!");
-          router.push(`/business/${result.businessId}/edit`);
-        }
+        scrapedBusinessData = data.data;
       } else if (data.businessData) {
-        // Fallback for different response format
+        scrapedBusinessData = data.businessData;
+      } else if (data.business) {
+        scrapedBusinessData = data.business;
+      } else {
+        // If the response IS the business data directly
+        if (data.name && data.placeId) {
+          scrapedBusinessData = data;
+        }
+      }
+
+      if (!scrapedBusinessData) {
+        throw new Error("No business data found in response");
+      }
+
+      try {
+        console.log("Raw business data:", scrapedBusinessData);
+
+        // Fix the photo field name mismatch
+        const businessData = { ...scrapedBusinessData } as BusinessData & {
+          googlePhotoUrls?: string[];
+        };
+        if ("googlePhotoUrls" in businessData && businessData.googlePhotoUrls) {
+          businessData.photos = businessData.googlePhotoUrls;
+          delete businessData.googlePhotoUrls;
+        }
+
+        console.log("Business data being sent to mutation:", businessData);
+
         const result = await createFromPending({
-          businessData: data.businessData,
+          businessData,
           aiContent: null,
         });
 
@@ -149,6 +203,9 @@ export function useBusinessScraper(): UseBusinessScraperResult {
           toast.success("Website created successfully!");
           router.push(`/business/${result.businessId}/edit`);
         }
+      } catch (mutationError) {
+        console.error("Mutation error:", mutationError);
+        throw mutationError;
       }
     } catch (error) {
       console.error("Error creating website:", error);
@@ -156,14 +213,9 @@ export function useBusinessScraper(): UseBusinessScraperResult {
         error instanceof Error
           ? error.message
           : "Failed to create website. Please try again.";
-      
-      if (errorMessage.includes("Unauthorized") || errorMessage.includes("logged in")) {
-        toast.error("You must be signed in to create a website. Please sign in and try again.");
-        setError("You must be signed in to create a website");
-      } else {
-        toast.error(errorMessage);
-        setError(errorMessage);
-      }
+
+      toast.error(errorMessage);
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -183,5 +235,6 @@ export function useBusinessScraper(): UseBusinessScraperResult {
     handleGeneratePreview,
     handleCreateWebsite,
     resetPreview,
+    isUserLoading: user === undefined,
   };
 }

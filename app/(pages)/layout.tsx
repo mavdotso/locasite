@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import "../globals.css";
 import { Toaster } from "sonner";
 import { ConvexClientProvider } from "../components/providers/convex-client-provider";
+import { AuthRedirectHandler } from "../components/auth/auth-redirect-handler";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,34 +19,46 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: {
     default: "Locasite - Professional Business Websites",
-    template: "%s | Locasite"
+    template: "%s | Locasite",
   },
-  description: "Create professional websites for your business in minutes. Import from Google Maps, customize with AI, and get online instantly. Perfect for local businesses.",
-  keywords: ["business website", "local business", "website builder", "Google Maps", "AI website", "professional websites"],
+  description:
+    "Create professional websites for your business in minutes. Import from Google Maps, customize with AI, and get online instantly. Perfect for local businesses.",
+  keywords: [
+    "business website",
+    "local business",
+    "website builder",
+    "Google Maps",
+    "AI website",
+    "professional websites",
+  ],
   authors: [{ name: "Locasite Team" }],
   creator: "Locasite",
   publisher: "Locasite",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  ),
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "/",
     siteName: "Locasite",
     title: "Locasite - Professional Business Websites",
-    description: "Create professional websites for your business in minutes. Import from Google Maps, customize with AI, and get online instantly.",
+    description:
+      "Create professional websites for your business in minutes. Import from Google Maps, customize with AI, and get online instantly.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "Locasite - Professional Business Websites",
-      }
+      },
     ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Locasite - Professional Business Websites",
-    description: "Create professional websites for your business in minutes. Import from Google Maps, customize with AI, and get online instantly.",
+    description:
+      "Create professional websites for your business in minutes. Import from Google Maps, customize with AI, and get online instantly.",
     images: ["/og-image.png"],
     creator: "@locasite",
   },
@@ -64,19 +77,27 @@ export const metadata: Metadata = {
     google: process.env.GOOGLE_SITE_VERIFICATION,
   },
   icons: {
-    icon: '/favicon.svg',
+    icon: "/favicon.svg",
   },
 };
 
-export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <ConvexAuthNextjsServerProvider>
           <ConvexClientProvider>
+            <AuthRedirectHandler />
             {children}
           </ConvexClientProvider>
         </ConvexAuthNextjsServerProvider>
