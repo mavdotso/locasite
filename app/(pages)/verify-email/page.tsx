@@ -34,13 +34,16 @@ export default function VerifyEmailPage() {
     // Verify the token
     const verifyToken = async () => {
       try {
-        const response = await fetch("/api/verification/verify-token", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_CONVEX_URL}/verification/verify-token`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ token, businessId }),
           },
-          body: JSON.stringify({ token, businessId }),
-        });
+        );
 
         const result = await response.json();
 
