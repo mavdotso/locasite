@@ -98,9 +98,15 @@ export async function generateMetadata({
       keywords,
       metadataBase: new URL(fullUrl),
       icons: {
-        icon: businessData.favicon || `/api/favicon/${businessDomain}`,
-        shortcut: businessData.favicon || `/api/favicon/${businessDomain}`,
-        apple: businessData.favicon || `/api/favicon/${businessDomain}`,
+        icon:
+          businessData.favicon ||
+          `${process.env.NEXT_PUBLIC_CONVEX_URL}/favicon/${businessDomain}`,
+        shortcut:
+          businessData.favicon ||
+          `${process.env.NEXT_PUBLIC_CONVEX_URL}/favicon/${businessDomain}`,
+        apple:
+          businessData.favicon ||
+          `${process.env.NEXT_PUBLIC_CONVEX_URL}/favicon/${businessDomain}`,
       },
       openGraph: {
         type: "website",

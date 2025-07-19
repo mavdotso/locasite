@@ -61,12 +61,18 @@ export default async function middleware(
   ) {
     if (pathname === "/sitemap.xml") {
       return NextResponse.rewrite(
-        new URL(`/api/sitemap/${hostname}`, request.url),
+        new URL(
+          `${process.env.NEXT_PUBLIC_CONVEX_URL}/sitemap/${hostname}`,
+          request.url,
+        ),
       );
     }
     if (pathname === "/robots.txt") {
       return NextResponse.rewrite(
-        new URL(`/api/robots/${hostname}`, request.url),
+        new URL(
+          `${process.env.NEXT_PUBLIC_CONVEX_URL}/robots/${hostname}`,
+          request.url,
+        ),
       );
     }
   }
@@ -106,18 +112,27 @@ export default async function middleware(
     // Handle sitemap.xml and robots.txt specially
     if (pathname === "/sitemap.xml") {
       return NextResponse.rewrite(
-        new URL(`/api/sitemap/${subdomain}`, request.url),
+        new URL(
+          `${process.env.NEXT_PUBLIC_CONVEX_URL}/sitemap/${subdomain}`,
+          request.url,
+        ),
       );
     }
     if (pathname === "/robots.txt") {
       return NextResponse.rewrite(
-        new URL(`/api/robots/${subdomain}`, request.url),
+        new URL(
+          `${process.env.NEXT_PUBLIC_CONVEX_URL}/robots/${subdomain}`,
+          request.url,
+        ),
       );
     }
     // Handle favicon requests
     if (pathname === "/favicon.ico" || pathname === "/favicon.svg") {
       return NextResponse.rewrite(
-        new URL(`/api/favicon/${subdomain}`, request.url),
+        new URL(
+          `${process.env.NEXT_PUBLIC_CONVEX_URL}/favicon/${subdomain}`,
+          request.url,
+        ),
       );
     }
 

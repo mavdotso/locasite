@@ -1,11 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, CheckCircle, AlertCircle, Building2 } from "lucide-react";
@@ -15,22 +21,27 @@ interface BusinessVerificationProps {
   businessId: Id<"businesses">;
 }
 
-export function BusinessVerification({ businessId }: BusinessVerificationProps) {
+export function BusinessVerification({
+  businessId,
+}: BusinessVerificationProps) {
   const business = useQuery(api.businesses.getById, { id: businessId });
+  const claimBusiness = useMutation(api.businessClaims.claimBusiness);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
 
   const handleConnectGoogle = async () => {
     try {
       setIsConnecting(true);
-      const response = await fetch(`/api/auth/google-business?businessId=${businessId}`);
-      
-      if (!response.ok) {
-        throw new Error("Failed to get authentication URL");
-      }
+      // First create a claim
+      const result = await claimBusiness({
+        businessId,
+        verificationMethod: "google",
+      });
 
-      const { authUrl } = await response.json();
-      window.location.href = authUrl;
+      if (result.requiresGoogleAuth) {
+        // Redirect directly to the Convex HTTP endpoint
+        window.location.href = `${process.env.NEXT_PUBLIC_CONVEX_URL}/auth/google-business?claimId=${result.claimId}`;
+      }
     } catch (error) {
       console.error("Error connecting to Google:", error);
       toast.error("Failed to connect to Google Business Profile");
@@ -39,7 +50,10 @@ export function BusinessVerification({ businessId }: BusinessVerificationProps) 
     }
   };
 
-  const handleVerifyBusiness = async (_accountId: string, _locationId: string) => {
+  const handleVerifyBusiness = async (
+    _accountId: string,
+    _locationId: string,
+  ) => {
     try {
       setIsVerifying(true);
       // TODO: Implement verification check
@@ -73,7 +87,8 @@ export function BusinessVerification({ businessId }: BusinessVerificationProps) 
             Business Verification
           </CardTitle>
           <CardDescription>
-            Verify your ownership of {business.name} to unlock additional features
+            Verify your ownership of {business.name} to unlock additional
+            features
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -148,7 +163,8 @@ export function BusinessVerification({ businessId }: BusinessVerificationProps) 
                   <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                      Your business is not yet verified. Select an account below to verify ownership.
+                      Your business is not yet verified. Select an account below
+                      to verify ownership.
                     </AlertDescription>
                   </Alert>
                 )}
@@ -179,7 +195,9 @@ export function BusinessVerification({ businessId }: BusinessVerificationProps) 
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleVerifyBusiness(account.accountId, "")}
+                            onClick={() =>
+                              handleVerifyBusiness(account.accountId, "")
+                            }
                             disabled={isVerifying}
                           >
                             {isVerifying ? (
@@ -227,7 +245,8 @@ export function BusinessVerification({ businessId }: BusinessVerificationProps) 
         <CardHeader>
           <CardTitle>Alternative Verification Methods</CardTitle>
           <CardDescription>
-            If you can&apos;t verify through Google Business Profile, try these alternatives
+            If you can&apos;t verify through Google Business Profile, try these
+            alternatives
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
