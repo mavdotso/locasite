@@ -1,11 +1,11 @@
-import { httpRouter } from "convex/server";
-import { httpAction } from "./_generated/server";
 import { auth } from "./auth";
+import router from "./router";
+import { httpAction } from "./_generated/server";
 import { scrapeGoogleMaps } from "./lib/scrape";
 import { api, internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 
-const http = httpRouter();
+const http = router;
 
 auth.addHttpRoutes(http);
 

@@ -396,4 +396,53 @@ export default defineSchema({
     .index("by_file_type", ["fileType"])
     .index("by_created_at", ["createdAt"])
     .index("by_not_deleted", ["isDeleted"]),
+
+  // Stripe customer records
+  stripeCustomers: defineTable({
+    userId: v.id("users"),
+    stripeCustomerId: v.string(),
+  }).index("by_user", ["userId"]),
+
+  // Stripe subscription records
+  stripeSubscriptions: defineTable({
+    customerId: v.string(),
+    subscriptionId: v.optional(v.string()),
+    status: v.string(),
+    priceId: v.optional(v.string()),
+    planType: v.optional(
+      v.union(
+        v.literal("FREE"),
+        v.literal("PROFESSIONAL"),
+        v.literal("BUSINESS"),
+      ),
+    ),
+    currentPeriodStart: v.optional(v.number()),
+    currentPeriodEnd: v.optional(v.number()),
+    cancelAtPeriodEnd: v.optional(v.boolean()),
+    paymentMethod: v.optional(
+      v.object({
+        brand: v.optional(v.string()),
+        last4: v.optional(v.string()),
+      }),
+    ),
+  }).index("by_customerId", ["customerId"]),
+
+  // Payment records
+  payments: defineTable({
+    userId: v.id("users"),
+    amount: v.number(),
+    status: v.union(
+      v.literal("created"),
+      v.literal("pending"),
+      v.literal("completed"),
+      v.literal("failed"),
+    ),
+    stripeSessionId: v.string(),
+    createdAt: v.number(),
+    completedAt: v.optional(v.number()),
+    stripeId: v.optional(v.string()),
+  })
+    .index("stripeSessionId", ["stripeSessionId"])
+    .index("stripeId", ["stripeId"])
+    .index("by_user", ["userId"]),
 });
