@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import BusinessPageRenderer from "@/app/components/business/business-page-renderer";
+import { BusinessFooter } from "@/app/components/business/business-footer";
 import { Metadata } from "next";
 import { fetchQuery } from "convex/nextjs";
 import {
@@ -207,6 +208,25 @@ export default async function BusinessPage({ params }: PageProps) {
       notFound();
     }
 
+    // Get business owner's subscription status
+    let showWatermark = true;
+    if (businessData.userId) {
+      const subscription = await fetchQuery(
+        api.subscriptions.getUserSubscriptionByUserId,
+        {
+          userId: businessData.userId,
+        },
+      ).catch(() => null);
+
+      if (
+        subscription &&
+        subscription.planType !== "FREE" &&
+        ["active", "trialing"].includes(subscription.status)
+      ) {
+        showWatermark = false;
+      }
+    }
+
     // Content parsing is now handled by BusinessPageRenderer
     if (!page.content) {
       return (
@@ -262,7 +282,11 @@ export default async function BusinessPage({ params }: PageProps) {
             business={businessData}
             pageContent={page?.content || JSON.stringify({ sections: [] })}
           />
-          {/* TODO: Enable only on free plans? <BusinessFooter businessName={domain.name} /> */}
+
+          <BusinessFooter
+            businessName={businessData.name}
+            showWatermark={showWatermark}
+          />
         </div>
       </>
     );

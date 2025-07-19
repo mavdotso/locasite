@@ -15,15 +15,43 @@ import {
   Calendar,
   MapPin,
   ExternalLink,
+  Sparkles,
+  Zap,
+  Crown,
 } from "lucide-react";
 import Link from "next/link";
 import { ConvexImage } from "@/app/components/common/convex-image";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { useSubscription } from "@/app/hooks/use-subscription";
+import { SUBSCRIPTION_PLANS } from "@/convex/lib/plans";
 
 export default function DashboardPage() {
   const { user, businesses: userBusinesses } = useDashboardData();
+  const { planType } = useSubscription();
+
+  const getPlanIcon = () => {
+    switch (planType) {
+      case "PROFESSIONAL":
+        return <Zap className="h-4 w-4" />;
+      case "BUSINESS":
+        return <Crown className="h-4 w-4" />;
+      default:
+        return <Sparkles className="h-4 w-4" />;
+    }
+  };
+
+  const getPlanColor = () => {
+    switch (planType) {
+      case "PROFESSIONAL":
+        return "default";
+      case "BUSINESS":
+        return "secondary";
+      default:
+        return "outline";
+    }
+  };
 
   if (!user) {
     return (
@@ -64,18 +92,34 @@ export default function DashboardPage() {
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">My Sites</h1>
-          <p className="text-muted-foreground">
-            Manage all your business websites in one place
-          </p>
+        <div className="flex items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">My Sites</h1>
+            <p className="text-muted-foreground">
+              Manage all your business websites in one place
+            </p>
+          </div>
+          <Badge variant={getPlanColor()} className="flex items-center gap-1">
+            {getPlanIcon()}
+            {SUBSCRIPTION_PLANS[planType].name}
+          </Badge>
         </div>
-        <Button asChild>
-          <Link href="/dashboard/new">
-            <Plus className="w-4 h-4 mr-2" />
-            Create New Site
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          {planType === "FREE" && (
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/settings">
+                <Sparkles className="w-4 h-4 mr-2" />
+                Upgrade
+              </Link>
+            </Button>
+          )}
+          <Button asChild>
+            <Link href="/dashboard/new">
+              <Plus className="w-4 h-4 mr-2" />
+              Create New Site
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Business Cards Grid */}
@@ -177,7 +221,7 @@ function BusinessCard({ business }: { business: Doc<"businesses"> }) {
         {business.isPublished && domain ? (
           <Button asChild size="sm" className="w-full h-9">
             <a
-              href={`https://${domain.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'locasite.xyz'}`}
+              href={`https://${domain.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz"}`}
               target="_blank"
               rel="noopener noreferrer"
             >

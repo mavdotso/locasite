@@ -86,6 +86,55 @@ export const subscribe = action({
   },
 });
 
+// Get user's current subscription by userId (for server-side queries)
+export const getUserSubscriptionByUserId = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, args) => {
+    // Get customer record
+    const customer = await ctx.db
+      .query("stripeCustomers")
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .first();
+
+    if (!customer) {
+      return {
+        planType: "FREE" as PlanType,
+        status: "active",
+        cancelAtPeriodEnd: false,
+      };
+    }
+
+    // Get subscription
+    const subscription = await ctx.db
+      .query("stripeSubscriptions")
+      .withIndex("by_customerId", (q) =>
+        q.eq("customerId", customer.stripeCustomerId),
+      )
+      .first();
+
+    if (
+      !subscription ||
+      !["active", "trialing"].includes(subscription.status)
+    ) {
+      return {
+        planType: "FREE" as PlanType,
+        status: "active",
+        cancelAtPeriodEnd: false,
+      };
+    }
+
+    return {
+      subscriptionId: subscription.subscriptionId,
+      planType: subscription.planType || "FREE",
+      status: subscription.status,
+      currentPeriodEnd: subscription.currentPeriodEnd,
+      cancelAtPeriodEnd: subscription.cancelAtPeriodEnd || false,
+      paymentMethod: subscription.paymentMethod,
+      plan: SUBSCRIPTION_PLANS[subscription.planType || "FREE"],
+    };
+  },
+});
+
 // Get user's current subscription
 export const getUserSubscription = query({
   args: {},
