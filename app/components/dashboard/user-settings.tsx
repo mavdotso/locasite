@@ -3,8 +3,19 @@
 import { useState } from "react";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useDashboardData } from "@/app/components/providers/dashboard-provider";
-import { useQuery, useAction } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import {
+  User,
+  Bell,
+  Shield,
+  Key,
+  Smartphone,
+  AlertTriangle,
+  Trash2,
+} from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/app/components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,9 +23,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/components/ui/card";
-import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
+import { Separator } from "@/app/components/ui/separator";
 import {
   Tabs,
   TabsContent,
@@ -22,39 +33,12 @@ import {
   TabsTrigger,
 } from "@/app/components/ui/tabs";
 import { Badge } from "@/app/components/ui/badge";
-import { Separator } from "@/app/components/ui/separator";
-import {
-  User,
-  Bell,
-  Shield,
-  CreditCard,
-  Smartphone,
-  Key,
-  Trash2,
-  AlertTriangle,
-  Check,
-  X,
-  ExternalLink,
-  Loader2,
-} from "lucide-react";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
 export default function UserSettings() {
   const { user, businesses: userBusinesses } = useDashboardData();
-  const router = useRouter();
 
   // Subscription data
   const subscription = useQuery(api.subscriptions.getUserSubscription);
-  const cancelSubscription = useAction(api.subscriptions.cancelSubscription);
-  const reactivateSubscription = useAction(
-    api.subscriptions.reactivateSubscription,
-  );
-  const createPortalSession = useAction(
-    api.subscriptions.createCustomerPortalSession,
-  );
-
-  const [loadingAction, setLoadingAction] = useState<string | null>(null);
 
   // Form states
   const [profileData, setProfileData] = useState({
@@ -88,56 +72,6 @@ export default function UserSettings() {
       )
     ) {
       toast.error("Account deletion is not yet implemented");
-    }
-  };
-
-  const handleCancelSubscription = async () => {
-    if (
-      !window.confirm(
-        "Are you sure you want to cancel your subscription? You'll continue to have access until the end of your billing period.",
-      )
-    ) {
-      return;
-    }
-
-    try {
-      setLoadingAction("cancel");
-      await cancelSubscription();
-      toast.success(
-        "Subscription cancelled. You'll continue to have access until the end of your billing period.",
-      );
-    } catch (error) {
-      console.error("Error canceling subscription:", error);
-      toast.error("Failed to cancel subscription");
-    } finally {
-      setLoadingAction(null);
-    }
-  };
-
-  const handleReactivateSubscription = async () => {
-    try {
-      setLoadingAction("reactivate");
-      await reactivateSubscription();
-      toast.success("Subscription reactivated successfully!");
-    } catch (error) {
-      console.error("Error reactivating subscription:", error);
-      toast.error("Failed to reactivate subscription");
-    } finally {
-      setLoadingAction(null);
-    }
-  };
-
-  const handleManageSubscription = async () => {
-    try {
-      setLoadingAction("portal");
-      const portalUrl = await createPortalSession();
-      if (portalUrl) {
-        window.location.href = portalUrl;
-      }
-    } catch (error) {
-      console.error("Error opening billing portal:", error);
-      toast.error("Failed to open billing portal");
-      setLoadingAction(null);
     }
   };
 
@@ -186,8 +120,6 @@ export default function UserSettings() {
   };
 
   const currentPlan = subscription?.planType || "FREE";
-  const features =
-    planFeatures[currentPlan as keyof typeof planFeatures] || planFeatures.FREE;
 
   return (
     <Tabs defaultValue="profile" className="space-y-6">
@@ -203,10 +135,6 @@ export default function UserSettings() {
         <TabsTrigger value="security" className="flex items-center gap-2">
           <Shield className="w-4 h-4" />
           Security
-        </TabsTrigger>
-        <TabsTrigger value="billing" className="flex items-center gap-2">
-          <CreditCard className="w-4 h-4" />
-          Billing
         </TabsTrigger>
       </TabsList>
 
@@ -523,177 +451,6 @@ export default function UserSettings() {
                 <Trash2 className="w-4 h-4 mr-2" />
                 Delete Account
               </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
-
-      {/* Billing Settings */}
-      <TabsContent value="billing" className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Billing & Subscription</CardTitle>
-            <CardDescription>
-              Manage your subscription and billing information.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Current Plan */}
-            <div className="p-6 bg-muted rounded-lg">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold mb-1">
-                    {subscription?.plan?.name || "Free"} Plan
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {subscription?.plan?.name === "Free"
-                      ? "You're on the free plan. Upgrade to unlock more features."
-                      : `$${(subscription?.plan?.price || 0) / 100}/month`}
-                  </p>
-
-                  {subscription?.status === "active" &&
-                    subscription?.cancelAtPeriodEnd && (
-                      <Badge variant="destructive" className="mb-4">
-                        Cancels on{" "}
-                        {new Date(
-                          subscription.currentPeriodEnd! * 1000,
-                        ).toLocaleDateString()}
-                      </Badge>
-                    )}
-
-                  {/* Plan Features */}
-                  <div className="space-y-2 mt-4">
-                    {features.map((feature, index) => (
-                      <div key={index} className="flex items-center gap-2">
-                        {feature.included ? (
-                          <Check className="w-4 h-4 text-green-600" />
-                        ) : (
-                          <X className="w-4 h-4 text-muted-foreground/50" />
-                        )}
-                        <span
-                          className={`text-sm ${!feature.included && "text-muted-foreground"}`}
-                        >
-                          {feature.text}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  {currentPlan === "FREE" ? (
-                    <Button onClick={() => router.push("/#pricing")}>
-                      Upgrade Plan
-                    </Button>
-                  ) : (
-                    <>
-                      <Button
-                        variant="outline"
-                        onClick={handleManageSubscription}
-                        disabled={loadingAction === "portal"}
-                      >
-                        {loadingAction === "portal" ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <>
-                            Manage Billing
-                            <ExternalLink className="w-3 h-3 ml-2" />
-                          </>
-                        )}
-                      </Button>
-
-                      {subscription?.cancelAtPeriodEnd ? (
-                        <Button
-                          variant="default"
-                          size="sm"
-                          onClick={handleReactivateSubscription}
-                          disabled={loadingAction === "reactivate"}
-                        >
-                          {loadingAction === "reactivate" ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            "Reactivate"
-                          )}
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={handleCancelSubscription}
-                          disabled={loadingAction === "cancel"}
-                        >
-                          {loadingAction === "cancel" ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            "Cancel Plan"
-                          )}
-                        </Button>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Payment Method */}
-            {subscription?.paymentMethod && (
-              <>
-                <Separator />
-                <div>
-                  <h4 className="font-medium mb-4">Payment Method</h4>
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <CreditCard className="w-5 h-5 text-muted-foreground" />
-                      <div>
-                        <div className="font-medium capitalize">
-                          {subscription.paymentMethod.brand} ••••{" "}
-                          {subscription.paymentMethod.last4}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          Expires{" "}
-                          {subscription.currentPeriodEnd
-                            ? new Date(
-                                subscription.currentPeriodEnd * 1000,
-                              ).toLocaleDateString()
-                            : "N/A"}
-                        </div>
-                      </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleManageSubscription}
-                    >
-                      Update
-                    </Button>
-                  </div>
-                </div>
-              </>
-            )}
-
-            <Separator />
-
-            {/* Billing History */}
-            <div className="space-y-4">
-              <h4 className="font-medium">Billing History</h4>
-              <div className="text-center py-8 text-muted-foreground">
-                <div className="text-sm">
-                  {currentPlan === "FREE"
-                    ? "No billing history available"
-                    : "View your billing history in the customer portal"}
-                </div>
-                {currentPlan !== "FREE" && (
-                  <Button
-                    variant="link"
-                    size="sm"
-                    className="mt-2"
-                    onClick={handleManageSubscription}
-                  >
-                    Open Customer Portal
-                    <ExternalLink className="w-3 h-3 ml-1" />
-                  </Button>
-                )}
-              </div>
             </div>
           </CardContent>
         </Card>

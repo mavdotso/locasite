@@ -16,8 +16,6 @@ import {
   MapPin,
   ExternalLink,
   Sparkles,
-  Zap,
-  Crown,
 } from "lucide-react";
 import Link from "next/link";
 import { ConvexImage } from "@/app/components/common/convex-image";
@@ -25,7 +23,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useSubscription } from "@/app/hooks/use-subscription";
-import { SUBSCRIPTION_PLANS } from "@/convex/lib/plans";
+import { canCreateBusiness } from "@/convex/lib/plans";
 
 export default function DashboardPage() {
   const { user } = useDashboardData();
@@ -33,27 +31,6 @@ export default function DashboardPage() {
   const businessesWithMetadata = useQuery(
     api.dashboardData.getUserBusinessesWithMetadata,
   );
-  const getPlanIcon = () => {
-    switch (planType) {
-      case "PROFESSIONAL":
-        return <Zap className="h-4 w-4" />;
-      case "BUSINESS":
-        return <Crown className="h-4 w-4" />;
-      default:
-        return <Sparkles className="h-4 w-4" />;
-    }
-  };
-
-  const getPlanColor = () => {
-    switch (planType) {
-      case "PROFESSIONAL":
-        return "default";
-      case "BUSINESS":
-        return "secondary";
-      default:
-        return "outline";
-    }
-  };
 
   if (!user) {
     return (
@@ -94,6 +71,10 @@ export default function DashboardPage() {
   }
 
   const ownedBusinesses = businessesWithMetadata || [];
+  const canCreateMoreSites = canCreateBusiness(
+    planType,
+    ownedBusinesses.length,
+  );
 
   if (ownedBusinesses.length === 0) {
     return (
@@ -104,12 +85,21 @@ export default function DashboardPage() {
           <p className="text-muted-foreground mb-8 text-lg">
             Create your first business website to get started.
           </p>
-          <Button asChild size="lg">
-            <Link href="/dashboard/new">
-              <Plus className="w-5 h-5 mr-2" />
-              Create Your First Site
-            </Link>
-          </Button>
+          {canCreateMoreSites ? (
+            <Button asChild size="lg">
+              <Link href="/dashboard/new">
+                <Plus className="w-5 h-5 mr-2" />
+                Create Your First Site
+              </Link>
+            </Button>
+          ) : (
+            <Button asChild size="lg" variant="outline">
+              <Link href="/dashboard/billing">
+                <Sparkles className="w-5 h-5 mr-2" />
+                Upgrade to Create Sites
+              </Link>
+            </Button>
+          )}
         </Card>
       </div>
     );
@@ -119,33 +109,28 @@ export default function DashboardPage() {
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">My Sites</h1>
-            <p className="text-muted-foreground">
-              Manage all your business websites in one place
-            </p>
-          </div>
-          <Badge variant={getPlanColor()} className="flex items-center gap-1">
-            {getPlanIcon()}
-            {SUBSCRIPTION_PLANS[planType].name}
-          </Badge>
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">My Sites</h1>
+          <p className="text-muted-foreground">
+            Manage all your business websites in one place
+          </p>
         </div>
         <div className="flex items-center gap-2">
-          {planType === "FREE" && (
+          {canCreateMoreSites ? (
+            <Button asChild>
+              <Link href="/dashboard/new">
+                <Plus className="w-4 h-4 mr-2" />
+                Create New Site
+              </Link>
+            </Button>
+          ) : (
             <Button variant="outline" asChild>
-              <Link href="/dashboard/settings">
+              <Link href="/dashboard/billing">
                 <Sparkles className="w-4 h-4 mr-2" />
-                Upgrade
+                Upgrade to Create New Site
               </Link>
             </Button>
           )}
-          <Button asChild>
-            <Link href="/dashboard/new">
-              <Plus className="w-4 h-4 mr-2" />
-              Create New Site
-            </Link>
-          </Button>
         </div>
       </div>
 
