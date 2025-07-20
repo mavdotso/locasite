@@ -15,7 +15,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect } from "react";
 
-export default function BusinessEditClient({
+export default function BusinessEdit({
   businessId,
 }: {
   businessId: Id<"businesses">;

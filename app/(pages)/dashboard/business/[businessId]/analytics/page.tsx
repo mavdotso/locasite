@@ -5,7 +5,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/app/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import AnalyticsClient from "./analytics-client";
+import AnalyticsPage from "./analytics-page";
 
 interface AnalyticsPageProps {
   params: Promise<{
@@ -52,7 +52,7 @@ export default async function BusinessAnalyticsPage({
         <p className="text-muted-foreground mt-2">Analytics & Performance</p>
       </div>
 
-      <AnalyticsClient businessId={businessIdTyped} />
+      <AnalyticsPage businessId={businessIdTyped} />
     </div>
   );
 }

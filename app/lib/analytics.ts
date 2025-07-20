@@ -300,13 +300,3 @@ export class Analytics {
     }
   }
 }
-
-// Initialize analytics on page load
-export function initAnalytics(
-  businessId: Id<"businesses">,
-  domainId?: Id<"domains">,
-) {
-  const analytics = new Analytics(businessId, domainId);
-  analytics.init();
-  return analytics;
-}

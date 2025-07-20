@@ -33,27 +33,3 @@ export function useAnalytics({
 
   return analyticsRef.current;
 }
-
-// Hook for tracking specific events
-export function useEventTracking(
-  businessId?: Id<"businesses">,
-  domainId?: Id<"domains">,
-) {
-  const analytics = useAnalytics({
-    businessId: businessId!,
-    domainId,
-    enabled: !!businessId,
-  });
-
-  return {
-    trackEvent: (
-      eventType: string,
-      eventCategory?: string,
-      eventLabel?: string,
-      eventValue?: number,
-    ) =>
-      analytics?.trackEvent(eventType, eventCategory, eventLabel, eventValue),
-    trackConversion: (conversionType?: string) =>
-      analytics?.trackConversion(conversionType),
-  };
-}

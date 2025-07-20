@@ -8,14 +8,18 @@ import { Button } from "@/app/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-export default function DomainPageClient({
+export default function DomainPage({
   businessId,
 }: {
   businessId: Id<"businesses">;
 }) {
-  const business = useQuery(api.businesses.getById, { id: businessId });
-  const domain = useQuery(api.domains.getByBusinessId, { businessId });
-  
+  const dashboardData = useQuery(api.dashboardData.getDashboardBusinessData, {
+    businessId,
+  });
+
+  const business = dashboardData?.business;
+  const domain = dashboardData?.domain;
+
   if (business === undefined || domain === undefined) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -23,11 +27,11 @@ export default function DomainPageClient({
       </div>
     );
   }
-  
+
   if (!business) {
     return null;
   }
-  
+
   return (
     <div className="container max-w-2xl py-8">
       <div className="mb-6">
@@ -38,22 +42,26 @@ export default function DomainPageClient({
           </Link>
         </Button>
       </div>
-      
+
       <div className="mb-8">
         <h1 className="text-3xl font-bold">{business.name}</h1>
         <p className="text-muted-foreground mt-2">
           Manage your website&apos;s domain settings
         </p>
       </div>
-      
+
       <DomainSelector
         businessId={businessId}
-        currentDomain={domain ? {
-          subdomain: domain.subdomain,
-          customDomain: domain.customDomain,
-          domainType: domain.domainType,
-          isVerified: domain.isVerified
-        } : undefined}
+        currentDomain={
+          domain
+            ? {
+                subdomain: domain.subdomain,
+                customDomain: domain.customDomain,
+                domainType: domain.domainType,
+                isVerified: domain.isVerified,
+              }
+            : undefined
+        }
       />
     </div>
   );

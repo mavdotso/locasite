@@ -20,6 +20,7 @@ import type * as businesses from "../businesses.js";
 import type * as businessesActions from "../businessesActions.js";
 import type * as businessesWithDomain from "../businessesWithDomain.js";
 import type * as contactMessages from "../contactMessages.js";
+import type * as dashboardData from "../dashboardData.js";
 import type * as domains from "../domains.js";
 import type * as emailVerification from "../emailVerification.js";
 import type * as http from "../http.js";
@@ -76,6 +77,7 @@ declare const fullApi: ApiFromModules<{
   businessesActions: typeof businessesActions;
   businessesWithDomain: typeof businessesWithDomain;
   contactMessages: typeof contactMessages;
+  dashboardData: typeof dashboardData;
   domains: typeof domains;
   emailVerification: typeof emailVerification;
   http: typeof http;

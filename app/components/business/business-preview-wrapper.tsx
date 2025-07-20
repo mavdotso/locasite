@@ -2,8 +2,8 @@
 
 import { Preloaded, usePreloadedQuery, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
-import BusinessPreviewRenderer from "./business-preview-renderer";
+import { Id, Doc } from "@/convex/_generated/dataModel";
+import { SectionRenderer } from "@/app/components/simple-builder/sections/section-renderer";
 import { Button } from "@/app/components/ui/button";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useRouter } from "next/navigation";
@@ -260,6 +260,88 @@ export function BusinessPreviewWrapper({
     pageContent = JSON.stringify(pageData);
   }
 
+  // Render the business preview content
+  const renderBusinessPreview = (
+    business: Doc<"businesses">,
+    pageContent: string,
+  ) => {
+    // Parse the page content
+    let parsedContent: {
+      mode?: "simple" | "pro";
+      sections?: SectionInstance[];
+      theme?: SimplePageData["theme"];
+    };
+
+    try {
+      parsedContent = JSON.parse(pageContent);
+    } catch (e) {
+      console.error("Failed to parse page content", e);
+      return <main className="flex-grow"></main>;
+    }
+
+    // Prepare business data for template variable replacement
+    const businessData = {
+      businessName: business.name,
+      businessAddress: business.address,
+      businessPhone: business.phone,
+      businessEmail: business.email,
+      businessDescription: business.description,
+      businessHours: business.hours,
+      businessWebsite: business.website,
+      businessPhotos: business.photos,
+      businessMainPhoto: business.photos?.[0],
+    };
+
+    // Only render simple mode sections
+    if (parsedContent.sections) {
+      return (
+        <main className="flex-grow">
+          {/* Apply theme if available */}
+          {parsedContent.theme && (
+            <style jsx global>{`
+              :root {
+                --simple-primary: ${parsedContent.theme.colors.primary};
+                --simple-secondary: ${parsedContent.theme.colors.secondary};
+                --simple-accent: ${parsedContent.theme.colors.accent};
+                --simple-background: ${parsedContent.theme.colors.background};
+                --simple-text: ${parsedContent.theme.colors.text};
+                --simple-muted: ${parsedContent.theme.colors.muted};
+                --simple-font-heading: ${parsedContent.theme.fonts.heading};
+                --simple-font-body: ${parsedContent.theme.fonts.body};
+              }
+              .simple-section {
+                font-family: var(--simple-font-body);
+              }
+              .simple-section h1,
+              .simple-section h2,
+              .simple-section h3,
+              .simple-section h4,
+              .simple-section h5,
+              .simple-section h6 {
+                font-family: var(--simple-font-heading);
+              }
+            `}</style>
+          )}
+
+          {/* Render sections */}
+          {parsedContent.sections
+            .sort((a, b) => a.order - b.order)
+            .map((section) => (
+              <SectionRenderer
+                key={section.id}
+                data={section.data}
+                businessData={businessData}
+                editMode={false}
+              />
+            ))}
+        </main>
+      );
+    }
+
+    // No content to render
+    return <main className="flex-grow"></main>;
+  };
+
   return (
     <div className="relative">
       {/* Sticky CTA Bar */}
@@ -284,7 +366,7 @@ export function BusinessPreviewWrapper({
       </div>
 
       {/* Business Page Content - Preview only renders simple mode */}
-      <BusinessPreviewRenderer business={business} pageContent={pageContent} />
+      {renderBusinessPreview(business, pageContent)}
     </div>
   );
 }

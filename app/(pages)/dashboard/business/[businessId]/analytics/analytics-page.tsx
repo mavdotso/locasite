@@ -15,11 +15,11 @@ import {
 import { Button } from "@/app/components/ui/button";
 import { BarChart3, TrendingUp, Users, MousePointerClick } from "lucide-react";
 
-interface AnalyticsClientProps {
+interface AnalyticsPageProps {
   businessId: Id<"businesses">;
 }
 
-export default function AnalyticsClient({ businessId }: AnalyticsClientProps) {
+export default function AnalyticsPage({ businessId }: AnalyticsPageProps) {
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const { planType, canUseFeature } = useSubscription();
 

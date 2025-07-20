@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import DomainPageClient from "./domain-page-client";
+import DomainPage from "./domain-page";
 
 export default async function BusinessDomainPage({
   params,
@@ -27,5 +27,5 @@ export default async function BusinessDomainPage({
     redirect("/dashboard");
   }
 
-  return <DomainPageClient businessId={businessId} />;
+  return <DomainPage businessId={businessId} />;
 }

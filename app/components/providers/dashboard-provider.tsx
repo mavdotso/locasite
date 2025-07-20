@@ -67,9 +67,3 @@ export function useCurrentUser() {
   const { user } = useDashboardData();
   return user;
 }
-
-// Helper hook for auth state
-export function useAuthState() {
-  const { isAuthenticated, isLoading, authChecked } = useDashboardData();
-  return { isAuthenticated, isLoading, authChecked };
-}

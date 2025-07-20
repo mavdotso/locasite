@@ -1,5 +1,5 @@
 import { Id } from "@/convex/_generated/dataModel";
-import BusinessEditClient from "./business-edit-client";
+import BusinessEdit from "./business-edit";
 import { SimpleAuthGuard } from "@/app/components/auth/simple-auth-guard";
 
 export default async function BusinessEditPage({
@@ -12,7 +12,7 @@ export default async function BusinessEditPage({
 
   return (
     <SimpleAuthGuard loadingMessage="Loading editor...">
-      <BusinessEditClient businessId={businessId} />
+      <BusinessEdit businessId={businessId} />
     </SimpleAuthGuard>
   );
 }

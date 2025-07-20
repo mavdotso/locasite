@@ -28,9 +28,11 @@ import { useSubscription } from "@/app/hooks/use-subscription";
 import { SUBSCRIPTION_PLANS } from "@/convex/lib/plans";
 
 export default function DashboardPage() {
-  const { user, businesses: userBusinesses } = useDashboardData();
+  const { user } = useDashboardData();
   const { planType } = useSubscription();
-
+  const businessesWithMetadata = useQuery(
+    api.dashboardData.getUserBusinessesWithMetadata,
+  );
   const getPlanIcon = () => {
     switch (planType) {
       case "PROFESSIONAL":
@@ -64,9 +66,34 @@ export default function DashboardPage() {
     );
   }
 
-  const ownedBusinesses =
-    userBusinesses?.filter((b: Doc<"businesses">) => b.userId === user._id) ||
-    [];
+  // Show loading state while data is being fetched
+  if (businessesWithMetadata === undefined) {
+    return (
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-muted rounded w-1/4 mb-2"></div>
+          <div className="h-4 bg-muted rounded w-1/3 mb-8"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="overflow-hidden">
+                <div className="aspect-[16/9] bg-muted"></div>
+                <div className="p-5 space-y-3">
+                  <div className="h-5 bg-muted rounded w-3/4"></div>
+                  <div className="h-4 bg-muted rounded w-1/2"></div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="h-9 bg-muted rounded"></div>
+                    <div className="h-9 bg-muted rounded"></div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const ownedBusinesses = businessesWithMetadata || [];
 
   if (ownedBusinesses.length === 0) {
     return (
@@ -124,7 +151,7 @@ export default function DashboardPage() {
 
       {/* Business Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {ownedBusinesses.map((business: Doc<"businesses">) => (
+        {ownedBusinesses.map((business) => (
           <BusinessCard key={business._id} business={business} />
         ))}
       </div>
@@ -132,13 +159,15 @@ export default function DashboardPage() {
   );
 }
 
-function BusinessCard({ business }: { business: Doc<"businesses"> }) {
-  const unreadCount = useQuery(api.contactMessages.getUnreadCount, {
-    businessId: business._id,
-  });
-  const domain = useQuery(api.domains.getByBusinessId, {
-    businessId: business._id,
-  });
+function BusinessCard({
+  business,
+}: {
+  business: Doc<"businesses"> & {
+    domain: Doc<"domains"> | null;
+    unreadCount: number;
+  };
+}) {
+  const { domain, unreadCount } = business;
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -243,7 +272,7 @@ function BusinessCard({ business }: { business: Doc<"businesses"> }) {
         <div className="mt-4 pt-4 border-t">
           <p className="text-xs text-muted-foreground flex items-center gap-1">
             <Calendar className="w-3 h-3" />
-            Created {new Date(business.createdAt).toLocaleDateString()}
+            Created {new Date(business._creationTime).toLocaleDateString()}
           </p>
         </div>
       </div>

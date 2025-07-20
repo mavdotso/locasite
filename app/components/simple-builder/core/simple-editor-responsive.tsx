@@ -21,11 +21,11 @@ import {
 import { SectionSettingsSidebar } from "../ui/section-settings-sidebar";
 import ResponsiveFrame from "../ui/responsive-frame";
 import CanvasControls, { DeviceSize, deviceSizes } from "../ui/canvas-controls";
-import { ResponsiveStyles } from "../ui/responsive-style-controls";
+
 import { getVariationById } from "../sections/section-variations";
 import { cn } from "@/app/lib/utils";
 import { Button } from "@/app/components/ui/button";
-import EditorErrorBoundary from "@/app/components/common/editor-error-boundary";
+import UnifiedErrorBoundary from "@/app/components/common/unified-error-boundary";
 import {
   Plus,
   Settings,
@@ -85,7 +85,6 @@ export function SimpleEditorResponsive({
   // Responsive preview states
   const [deviceSize, setDeviceSize] = useState<DeviceSize>("desktop");
   const [zoom, setZoom] = useState(100);
-  const [responsiveStyles] = useState<Record<string, ResponsiveStyles>>({});
 
   // Generate unique ID
   const generateId = () => Math.random().toString(36).substring(2, 9);
@@ -259,14 +258,9 @@ export function SimpleEditorResponsive({
   // Save changes
   const handleSave = useCallback(() => {
     if (onSaveAction) {
-      // Include responsive styles in the page data
-      const enhancedPageData = {
-        ...pageData,
-        responsiveStyles,
-      };
-      onSaveAction(enhancedPageData);
+      onSaveAction(pageData);
     }
-  }, [pageData, responsiveStyles, onSaveAction]);
+  }, [pageData, onSaveAction]);
 
   // Publish changes
   const handlePublish = useCallback(() => {
@@ -362,7 +356,7 @@ export function SimpleEditorResponsive({
   }
 
   return (
-    <EditorErrorBoundary onSaveRecovery={handleSave}>
+    <UnifiedErrorBoundary variant="editor" onSaveRecovery={handleSave}>
       <TooltipProvider>
         <div className="simple-editor h-screen flex flex-col">
           {/* Editor Header */}
@@ -593,19 +587,6 @@ export function SimpleEditorResponsive({
                           {pageData.sections
                             .sort((a, b) => a.order - b.order)
                             .map((section, index) => {
-                              const sectionStyles =
-                                deviceSize !== "desktop"
-                                  ? responsiveStyles[section.id]?.[
-                                      deviceSize === "tablet"
-                                        ? "tablet"
-                                        : "mobile"
-                                    ]
-                                  : undefined;
-                              const shouldHide = sectionStyles?.hideOnDevice;
-                              if (shouldHide) {
-                                return null;
-                              }
-
                               return (
                                 <div
                                   key={section.id}
@@ -614,7 +595,6 @@ export function SimpleEditorResponsive({
                                     "hover:ring-2 hover:ring-primary/50",
                                     selectedSectionId === section.id &&
                                       "ring-2 ring-primary",
-                                    shouldHide && "opacity-50",
                                   )}
                                   onClick={() =>
                                     setSelectedSectionId(section.id)
@@ -672,21 +652,7 @@ export function SimpleEditorResponsive({
                                   }
 
                                   {/* Section Content with Responsive Styles */}
-                                  <div
-                                    className={cn(
-                                      sectionStyles?.padding &&
-                                        `p-${sectionStyles.padding}`,
-                                      sectionStyles?.margin &&
-                                        `m-${sectionStyles.margin}`,
-                                      sectionStyles?.fontSize,
-                                      sectionStyles?.textAlign &&
-                                        `text-${sectionStyles.textAlign}`,
-                                      sectionStyles?.stackVertically &&
-                                        "flex flex-col",
-                                      sectionStyles?.columnGap &&
-                                        `gap-${sectionStyles.columnGap}`,
-                                    )}
-                                  >
+                                  <div>
                                     <SectionRenderer
                                       data={section.data}
                                       editMode={true}
@@ -838,17 +804,13 @@ export function SimpleEditorResponsive({
               }}
               onPublishComplete={() => {
                 if (onPublishAction) {
-                  const enhancedPageData = {
-                    ...pageData,
-                    responsiveStyles,
-                  };
-                  onPublishAction(enhancedPageData);
+                  onPublishAction(pageData);
                 }
               }}
             />
           )}
         </div>
       </TooltipProvider>
-    </EditorErrorBoundary>
+    </UnifiedErrorBoundary>
   );
 }

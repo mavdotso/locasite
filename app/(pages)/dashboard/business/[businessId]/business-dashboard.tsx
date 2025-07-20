@@ -34,25 +34,26 @@ import { notFound } from "next/navigation";
 import { SeoSettings } from "@/app/components/business/seo-settings";
 import AnalyticsOverview from "@/app/components/dashboard/analytics-overview";
 
-interface BusinessDashboardClientProps {
+interface BusinessDashboardProps {
   businessId: Id<"businesses">;
 }
 
-export default function BusinessDashboardClient({
+export default function BusinessDashboard({
   businessId,
-}: BusinessDashboardClientProps) {
+}: BusinessDashboardProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const defaultTab = searchParams.get("tab") || "overview";
 
-  // All hooks must be called before any conditional returns
-  const user = useQuery(api.auth.currentUser);
-  const business = useQuery(api.businesses.getById, { id: businessId });
-  const domain = useQuery(api.domains.getByBusinessId, { businessId });
-  const unreadCount = useQuery(api.contactMessages.getUnreadCount, {
+  // Use compound query to fetch all data in one call
+  const dashboardData = useQuery(api.dashboardData.getDashboardBusinessData, {
     businessId,
   });
+  const user = useQuery(api.auth.currentUser);
 
+  const business = dashboardData?.business;
+  const domain = dashboardData?.domain;
+  const unreadCount = dashboardData?.unreadCount ?? 0;
   // Loading state while fetching business data
   if (business === undefined) {
     return (
