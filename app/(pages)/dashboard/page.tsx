@@ -94,7 +94,7 @@ export default function DashboardPage() {
           ) : (
             <Button asChild size="lg" variant="outline">
               <Link href="/dashboard/billing">
-                <Sparkles className="w-5 h-5 mr-2" />
+                <Sparkles className="w-4 h-4 mr-2" />
                 Upgrade to Create Sites
               </Link>
             </Button>
@@ -123,10 +123,10 @@ export default function DashboardPage() {
               </Link>
             </Button>
           ) : (
-            <Button variant="outline" asChild>
+            <Button asChild size="lg" variant="outline">
               <Link href="/dashboard/billing">
                 <Sparkles className="w-4 h-4 mr-2" />
-                Upgrade to Create New Site
+                Upgrade to Create Sites
               </Link>
             </Button>
           )}
@@ -194,7 +194,6 @@ function BusinessCard({
           </p>
         </div>
 
-        {/* Action Buttons Grid - At bottom */}
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
             <Button asChild size="sm" variant="outline" className="h-9">
@@ -229,14 +228,13 @@ function BusinessCard({
             </Button>
 
             <Button asChild size="sm" variant="outline" className="h-9">
-              <Link href={`/dashboard/business/${business._id}/domain`}>
+              <Link href={`/dashboard/business/${business._id}/settings`}>
                 <Settings className="w-3.5 h-3.5 mr-1.5" />
                 Settings
               </Link>
             </Button>
           </div>
 
-          {/* View Site Button */}
           {business.isPublished && domain ? (
             <Button asChild size="sm" className="w-full h-9">
               <a
@@ -256,7 +254,7 @@ function BusinessCard({
               variant="secondary"
               className="w-full h-9"
             >
-              <Link href={`/dashboard/business/${business._id}/domain`}>
+              <Link href={`/dashboard/business/${business._id}/settings`}>
                 <Globe className="w-3.5 h-3.5 mr-1.5" />
                 Publish Site
               </Link>
