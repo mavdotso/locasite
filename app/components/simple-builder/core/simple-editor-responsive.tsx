@@ -296,6 +296,7 @@ export function SimpleEditorResponsive({
                         data={section.data}
                         editMode={false}
                         businessData={businessData}
+                        businessId={businessId}
                         onUpdate={() => {}}
                       />
                     ))}
@@ -326,6 +327,7 @@ export function SimpleEditorResponsive({
                             data={section.data}
                             editMode={false}
                             businessData={businessData}
+                            businessId={businessId}
                             onUpdate={() => {}}
                           />
                         ))}
@@ -653,6 +655,7 @@ export function SimpleEditorResponsive({
                                       data={section.data}
                                       editMode={true}
                                       businessData={businessData}
+                                      businessId={businessId}
                                       onUpdate={(newData) =>
                                         handleUpdateSection(section.id, newData)
                                       }

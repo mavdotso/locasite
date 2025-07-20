@@ -322,6 +322,7 @@ export function BusinessPreviewWrapper({
                 key={section.id}
                 data={section.data}
                 businessData={businessData}
+                businessId={business._id}
                 editMode={false}
               />
             ))}

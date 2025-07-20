@@ -1,10 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { ContactContentUpdate, ContactCard, SocialLink } from "./types";
 import { getBusinessCategoryTheme } from "../../core/business-category-themes";
 import { cn } from "@/app/lib/utils";
 import { GoogleMap } from "@/app/components/common/google-map";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 
 interface ContactSectionProps {
   type: string;
@@ -19,10 +22,12 @@ interface ContactSectionProps {
   hours?: string;
   cards?: ContactCard[];
   socialLinks?: SocialLink[];
-  editMode?: boolean;
-  onUpdate?: (content: ContactContentUpdate) => void;
   businessCategory?: string;
+  accentColor?: string;
+  editMode?: boolean;
+  onContentUpdate?: (update: ContactContentUpdate) => void;
   styleOverrides?: React.CSSProperties;
+  businessId?: string | Id<"businesses">;
 }
 
 const iconMap: Record<string, string> = {
@@ -49,33 +54,76 @@ export function ContactSection({
   cards,
   socialLinks,
   editMode,
-  onUpdate,
+  onContentUpdate,
   businessCategory,
   styleOverrides,
+  businessId,
 }: ContactSectionProps) {
   const categoryTheme = getBusinessCategoryTheme(businessCategory);
   const themeColors = categoryTheme.colors;
   const contactStyles = categoryTheme.sectionStyles.contact;
 
-  // Use theme values with fallbacks
   const finalAccentColor = themeColors.primary;
 
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "success" | "error"
+  >("idle");
+
+  const sendMessage = useMutation(api.contactMessages.send);
+
   const handleContentEdit = (field: string, value: unknown) => {
-    if (onUpdate) {
-      onUpdate({
-        title,
-        subtitle,
-        showForm,
-        showMap,
-        showInfo,
-        address,
-        phone,
-        email,
-        hours,
-        cards,
-        socialLinks,
+    if (onContentUpdate) {
+      onContentUpdate({
         [field]: value,
+      } as ContactContentUpdate);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!businessId || editMode) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitStatus("idle");
+
+    try {
+      if (
+        !formData.name.trim() ||
+        !formData.email.trim() ||
+        !formData.message.trim()
+      ) {
+        setSubmitStatus("error");
+        setTimeout(() => setSubmitStatus("idle"), 5000);
+        return;
+      }
+
+      await sendMessage({
+        businessId: businessId as Id<"businesses">,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone?.trim() || undefined,
+        message: formData.message.trim(),
       });
+
+      setSubmitStatus("success");
+      setFormData({ name: "", email: "", phone: "", message: "" });
+
+      setTimeout(() => setSubmitStatus("idle"), 5000);
+    } catch (_error) {
+      setSubmitStatus("error");
+      setTimeout(() => setSubmitStatus("idle"), 5000);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -268,12 +316,18 @@ export function ContactSection({
                         ? themeColors.cardBorder
                         : undefined,
                   }}
-                  onSubmit={(e) => e.preventDefault()}
+                  onSubmit={handleSubmit}
                 >
                   <input
                     type="text"
                     placeholder="Your Name"
                     className="w-full px-4 py-2 rounded-md"
+                    required
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                    disabled={isSubmitting || editMode}
                     style={{
                       backgroundColor: themeColors.background,
                       borderColor: themeColors.cardBorder,
@@ -286,6 +340,29 @@ export function ContactSection({
                     type="email"
                     placeholder="Your Email"
                     className="w-full px-4 py-2 rounded-md"
+                    required
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                    disabled={isSubmitting || editMode}
+                    style={{
+                      backgroundColor: themeColors.background,
+                      borderColor: themeColors.cardBorder,
+                      color: themeColors.textPrimary,
+                      borderWidth: "1px",
+                      borderStyle: "solid",
+                    }}
+                  />
+                  <input
+                    type="tel"
+                    placeholder="Your Phone (optional)"
+                    className="w-full px-4 py-2 rounded-md"
+                    value={formData.phone}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone: e.target.value })
+                    }
+                    disabled={isSubmitting || editMode}
                     style={{
                       backgroundColor: themeColors.background,
                       borderColor: themeColors.cardBorder,
@@ -298,6 +375,12 @@ export function ContactSection({
                     placeholder="Your Message"
                     rows={4}
                     className="w-full px-4 py-2 rounded-md"
+                    required
+                    value={formData.message}
+                    onChange={(e) =>
+                      setFormData({ ...formData, message: e.target.value })
+                    }
+                    disabled={isSubmitting || editMode}
                     style={{
                       backgroundColor: themeColors.background,
                       borderColor: themeColors.cardBorder,
@@ -306,15 +389,33 @@ export function ContactSection({
                       borderStyle: "solid",
                     }}
                   />
+                  {submitStatus === "success" && (
+                    <div className="p-3 rounded-md text-green-800 bg-green-100">
+                      Thank you! Your message has been sent successfully.
+                    </div>
+                  )}
+                  {submitStatus === "error" && (
+                    <div className="p-3 rounded-md text-red-800 bg-red-100">
+                      Sorry, there was an error sending your message. Please try
+                      again.
+                    </div>
+                  )}
                   <button
                     type="submit"
                     className={getButtonStyles()}
+                    disabled={isSubmitting || editMode || !businessId}
                     style={{
                       backgroundColor: finalAccentColor,
                       color: "#ffffff",
+                      opacity:
+                        isSubmitting || editMode || !businessId ? 0.5 : 1,
+                      cursor:
+                        isSubmitting || editMode || !businessId
+                          ? "not-allowed"
+                          : "pointer",
                     }}
                   >
-                    Send Message
+                    {isSubmitting ? "Sending..." : "Send Message"}
                   </button>
                 </form>
               )}
