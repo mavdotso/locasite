@@ -47,7 +47,6 @@ export default function ColumnsDropZone({
   const { draggedItem } = useDragDrop();
   const config = componentConfigs[component.type];
 
-  // Get column count from props
   const columnCount = parseInt((component.props.columns as string) || "2");
 
   if (!config || component.type !== "ColumnsBlock") {
@@ -92,7 +91,6 @@ export default function ColumnsDropZone({
   ): number => {
     if (!component.children) return dropIndex;
 
-    // Get all children with their metadata preserved
     const allChildren = component.children.map((child, idx) => ({
       child,
       originalIndex: idx,
@@ -142,7 +140,6 @@ export default function ColumnsDropZone({
     // Distribute children to columns based on metadata
     if (component.children) {
       component.children.forEach((child, index) => {
-        // Get columnIndex from metadata, ensuring it's valid for current column count
         let columnIndex = child.metadata?.columnIndex as number | undefined;
 
         // If columnIndex is undefined or out of bounds, redistribute
@@ -185,7 +182,6 @@ export default function ColumnsDropZone({
       });
     }
 
-    // Create the columns layout directly
     const gap = (component.props.gap as string) || "medium";
     const stackOnMobile = (component.props.stackOnMobile as string) || "yes";
     const direction = (component.props.direction as string) || "row";

@@ -45,7 +45,6 @@ export function AboutSection({
   businessCategory,
   styleOverrides,
 }: AboutSectionProps) {
-  // Get theme based on business category
   const categoryTheme = getBusinessCategoryTheme(businessCategory);
   const themeColors = categoryTheme.colors;
 

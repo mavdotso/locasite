@@ -635,7 +635,6 @@ export function getBusinessCategoryTheme(
     landscaping: "home_services",
   };
 
-  // Check category mapping
   for (const [key, value] of Object.entries(categoryMap)) {
     if (normalizedCategory.includes(key) || key.includes(normalizedCategory)) {
       return businessCategoryThemes[value];

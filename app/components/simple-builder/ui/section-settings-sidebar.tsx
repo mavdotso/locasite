@@ -102,7 +102,6 @@ const iconMap: Record<string, React.ReactNode> = {
 
 // Helper function to format field names
 const formatFieldName = (fieldName: string): string => {
-  // Handle special cases
   const specialCases: Record<string, string> = {
     ctaText: "Call to Action Text",
     ctaLink: "Call to Action Link",
@@ -214,7 +213,6 @@ export function SectionSettingsSidebar({
     return current;
   };
 
-  // Handle array fields (menuItems, services, etc.)
   const handleArrayItemChange = (
     arrayPath: string,
     index: number,
@@ -251,7 +249,6 @@ export function SectionSettingsSidebar({
     const fieldName = field.split(".").pop() || field;
     const displayName = formatFieldName(fieldName);
 
-    // Handle boolean fields (switches)
     if (typeof value === "boolean") {
       return (
         <div
@@ -272,7 +269,6 @@ export function SectionSettingsSidebar({
       );
     }
 
-    // Handle menu items array for header
     if (fieldName === "menuItems" && Array.isArray(value)) {
       return (
         <div key={fullPath} className="space-y-4">
@@ -416,7 +412,6 @@ export function SectionSettingsSidebar({
       );
     }
 
-    // Handle services array
     if (fieldName === "services" && Array.isArray(value)) {
       return (
         <div key={fullPath} className="space-y-4">
@@ -580,7 +575,6 @@ export function SectionSettingsSidebar({
       );
     }
 
-    // Handle social links array
     if (fieldName === "socialLinks" && Array.isArray(value)) {
       return (
         <div key={fullPath} className="space-y-4">
@@ -669,7 +663,6 @@ export function SectionSettingsSidebar({
       );
     }
 
-    // Handle reviews array
     if (fieldName === "reviews" && Array.isArray(value)) {
       return (
         <div key={fullPath} className="space-y-4">
@@ -857,7 +850,6 @@ export function SectionSettingsSidebar({
       );
     }
 
-    // Handle gallery images array
     if (fieldName === "images" && Array.isArray(value)) {
       return (
         <div key={fullPath} className="space-y-4">
@@ -952,7 +944,6 @@ export function SectionSettingsSidebar({
       );
     }
 
-    // Handle image fields
     if (fieldName.includes("image") || fieldName.includes("Image")) {
       return (
         <div key={fullPath} className="space-y-2">
@@ -1000,7 +991,6 @@ export function SectionSettingsSidebar({
       );
     }
 
-    // Handle textarea fields
     if (
       fieldName.includes("content") ||
       fieldName.includes("description") ||

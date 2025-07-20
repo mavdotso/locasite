@@ -98,7 +98,6 @@ export function useBusinessScraper(): UseBusinessScraperResult {
         throw new Error("No business data returned");
       }
     } catch (error) {
-      console.error("Error scraping business:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error occurred";
       toast.error(`Failed to generate preview: ${errorMessage}`);
@@ -111,7 +110,6 @@ export function useBusinessScraper(): UseBusinessScraperResult {
   const handleCreateWebsite = async () => {
     if (!previewData) return;
 
-    // Check if user is authenticated
     if (user === undefined) {
       // Still loading user state
       return;
@@ -131,7 +129,7 @@ export function useBusinessScraper(): UseBusinessScraperResult {
       try {
         await signIn("google");
       } catch (error) {
-        console.error("Sign in error:", error);
+        console.error("Error redirecting to sign in:", error);
         toast.error("Failed to redirect to sign in. Please try again.");
       }
       return;
@@ -139,8 +137,6 @@ export function useBusinessScraper(): UseBusinessScraperResult {
 
     setIsLoading(true);
     try {
-      console.log("Creating website for user:", user);
-
       // For the preview, we need to fetch the full business data again
       const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL || "";
       const deploymentName = convexUrl.split("//")[1]?.split(".")[0];
@@ -155,7 +151,6 @@ export function useBusinessScraper(): UseBusinessScraperResult {
       });
 
       const data = await response.json();
-      console.log("Full response from scraper:", data);
 
       if (data.error) {
         throw new Error(data.error);
@@ -181,8 +176,6 @@ export function useBusinessScraper(): UseBusinessScraperResult {
       }
 
       try {
-        console.log("Raw business data:", scrapedBusinessData);
-
         // Fix the photo field name mismatch
         const businessData = { ...scrapedBusinessData } as BusinessData & {
           googlePhotoUrls?: string[];
@@ -191,8 +184,6 @@ export function useBusinessScraper(): UseBusinessScraperResult {
           businessData.photos = businessData.googlePhotoUrls;
           delete businessData.googlePhotoUrls;
         }
-
-        console.log("Business data being sent to mutation:", businessData);
 
         const result = await createFromPending({
           businessData,
@@ -204,11 +195,9 @@ export function useBusinessScraper(): UseBusinessScraperResult {
           router.push(`/business/${result.businessId}/edit`);
         }
       } catch (mutationError) {
-        console.error("Mutation error:", mutationError);
         throw mutationError;
       }
     } catch (error) {
-      console.error("Error creating website:", error);
       const errorMessage =
         error instanceof Error
           ? error.message

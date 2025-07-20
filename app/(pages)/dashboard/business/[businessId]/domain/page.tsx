@@ -12,7 +12,6 @@ export default async function BusinessDomainPage({
   const resolvedParams = await params;
   const businessId = resolvedParams.businessId as Id<"businesses">;
 
-  // Get current user (auth is handled by dashboard layout)
   const user = await fetchQuery(api.auth.currentUser, {});
 
   // Fetch initial data
@@ -22,7 +21,6 @@ export default async function BusinessDomainPage({
     redirect("/dashboard");
   }
 
-  // Check ownership
   if (business.userId && user && business.userId !== user._id) {
     redirect("/dashboard");
   }

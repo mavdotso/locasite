@@ -127,7 +127,6 @@ const FieldEditor = React.memo(function FieldEditor({
   onClose,
   businessId,
 }: FieldEditorProps) {
-  // Get config and sections before any conditional returns
   const config = useMemo(
     () => (component ? componentConfigs[component.type] : null),
     [component],

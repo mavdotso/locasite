@@ -22,7 +22,6 @@ export async function generateMetadata({
   try {
     const { domain: businessDomain } = await params;
 
-    // Get domain from database
     const domain = await fetchQuery(api.domains.getBySubdomain, {
       subdomain: businessDomain,
     });
@@ -33,7 +32,6 @@ export async function generateMetadata({
       };
     }
 
-    // Get the business associated with this domain
     const business = await fetchQuery(api.businesses.listByDomain, {
       domain: domain._id,
     });
@@ -163,7 +161,6 @@ export default async function BusinessPage({ params }: PageProps) {
   const { domain: businessDomain } = await params;
 
   try {
-    // Get domain from database
     const domain = await fetchQuery(api.domains.getBySubdomain, {
       subdomain: businessDomain,
     });
@@ -172,7 +169,6 @@ export default async function BusinessPage({ params }: PageProps) {
       notFound();
     }
 
-    // Get the page for this domain
     let page = await fetchQuery(api.pages.getByDomain, {
       domain: businessDomain,
     });
@@ -192,7 +188,6 @@ export default async function BusinessPage({ params }: PageProps) {
       notFound();
     }
 
-    // Get the business associated with this domain
     const business = await fetchQuery(api.businesses.listByDomain, {
       domain: domain._id,
     });
@@ -203,12 +198,10 @@ export default async function BusinessPage({ params }: PageProps) {
 
     const businessData = business[0];
 
-    // Check if business is published
     if (!businessData.isPublished) {
       notFound();
     }
 
-    // Get business owner's subscription status
     let showWatermark = true;
     if (businessData.userId) {
       const subscription = await fetchQuery(

@@ -29,7 +29,6 @@ export default function BusinessLivePreview({
     domain ? { domainId: domain._id } : "skip",
   );
 
-  // Create a mock business object for preview if no businessId
   const mockBusiness = {
     _id: "preview" as Id<"businesses">,
     _creationTime: Date.now(),
@@ -56,7 +55,6 @@ export default function BusinessLivePreview({
     createdAt: Date.now(),
   };
 
-  // Create default page content for preview
   const defaultPageContent = {
     mode: "simple",
     sections: [

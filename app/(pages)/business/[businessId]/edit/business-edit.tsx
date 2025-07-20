@@ -47,23 +47,16 @@ export default function BusinessEdit({
     api.businessDomainSync.syncBusinessDomain,
   );
 
-  // Handle business-domain sync
   useEffect(() => {
     if (syncStatus && !syncStatus.synced && business && user && !pages) {
-      console.log("Business-domain sync issue detected:", syncStatus.error);
-      // Only sync if there are no pages yet
-      // Automatically fix the sync issue
       syncBusinessDomain({ businessId: business._id })
         .then((result) => {
-          console.log("Sync result:", result);
           if (result.success) {
             toast.success("Business setup completed");
-            // Reload the page to get fresh data
             window.location.reload();
           }
         })
-        .catch((error) => {
-          console.error("Failed to sync business-domain:", error);
+        .catch(() => {
           toast.error(
             "Failed to complete business setup. Please refresh the page.",
           );
@@ -85,7 +78,6 @@ export default function BusinessEdit({
     return notFound();
   }
 
-  // Check ownership - only allow owner to edit
   // Note: user is guaranteed to be defined if we reach this point (auth guard should handle null case)
   if (business.userId && user && business.userId !== user._id) {
     router.push(`/dashboard`);
@@ -96,13 +88,11 @@ export default function BusinessEdit({
     );
   }
 
-  // Get the single page or create initial data
   const page = pages?.[0];
 
   // Generate unique ID
   const generateId = () => Math.random().toString(36).substring(2, 9);
 
-  // Create initial data for Simple Mode
   let initialData: SimplePageData = {
     title: business?.name || "Welcome",
     sections: [],
@@ -130,13 +120,7 @@ export default function BusinessEdit({
   if (page?.content) {
     try {
       const parsed = JSON.parse(page.content);
-      console.log("Parsed page content:", {
-        mode: parsed.mode,
-        sectionsCount: parsed.sections?.length,
-        hasContent: !!parsed.sections,
-      });
 
-      // Check if it's already in Simple Mode format
       if (parsed.mode === "simple" && parsed.sections) {
         // Use the sections AS IS from the database - they were created correctly
         initialData = {
@@ -144,11 +128,6 @@ export default function BusinessEdit({
           sections: parsed.sections,
           theme: parsed.theme || initialData.theme,
         };
-        console.log(
-          "Loaded",
-          initialData.sections.length,
-          "sections from saved content",
-        );
       } else {
         // If no content or it's in Pro mode, create default sections based on business type
         const businessType = detectBusinessType(business);
@@ -216,15 +195,6 @@ export default function BusinessEdit({
         theme: data.theme,
       };
 
-      console.log("Saving page data:", {
-        mode: pageData.mode,
-        sectionsCount: pageData.sections.length,
-        sections: pageData.sections.map((s) => ({
-          id: s.id,
-          variationId: s.variationId,
-        })),
-      });
-
       if (page) {
         await updatePage({
           pageId: page._id,
@@ -232,7 +202,6 @@ export default function BusinessEdit({
         });
         toast.success("Page saved successfully");
       } else if (domain) {
-        // Create default page first if no page exists
         await createDefaultPages({
           domainId: domain._id,
           businessId: businessId,
@@ -264,7 +233,6 @@ export default function BusinessEdit({
           content: JSON.stringify(pageData),
         });
       } else if (domain) {
-        // Create page with current editor content directly
         await createPageWithContent({
           domainId: domain._id,
           businessId: businessId,
@@ -279,7 +247,6 @@ export default function BusinessEdit({
   };
 
   if (!domain || !pages) {
-    // Check if sync is in progress
     if (syncStatus && !syncStatus.synced) {
       return (
         <div className="flex items-center justify-center h-screen">
@@ -354,7 +321,6 @@ function detectBusinessType(business: {
   const description = business.description?.toLowerCase() || "";
   const name = business.name?.toLowerCase() || "";
 
-  // Check for restaurant keywords
   if (
     category.includes("restaurant") ||
     category.includes("food") ||
@@ -367,7 +333,6 @@ function detectBusinessType(business: {
     return "restaurant";
   }
 
-  // Check for salon/beauty keywords
   if (
     category.includes("salon") ||
     category.includes("beauty") ||
@@ -380,7 +345,6 @@ function detectBusinessType(business: {
     return "salon";
   }
 
-  // Check for medical keywords
   if (
     category.includes("medical") ||
     category.includes("health") ||
@@ -394,7 +358,6 @@ function detectBusinessType(business: {
     return "medical";
   }
 
-  // Check for automotive keywords
   if (
     category.includes("auto") ||
     category.includes("car") ||
@@ -407,7 +370,6 @@ function detectBusinessType(business: {
     return "automotive";
   }
 
-  // Check for retail keywords
   if (
     category.includes("shop") ||
     category.includes("store") ||

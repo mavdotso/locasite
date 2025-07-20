@@ -47,7 +47,7 @@ export function UpgradeDialog({
         window.location.href = url;
       }
     } catch (error) {
-      console.error("Failed to create checkout session:", error);
+      console.error("Error starting upgrade process:", error);
       toast.error("Failed to start upgrade process. Please try again.");
     } finally {
       setIsLoading(false);

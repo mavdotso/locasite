@@ -19,10 +19,8 @@ export default async function BusinessAnalyticsPage({
   const { businessId } = await params;
   const businessIdTyped = businessId as Id<"businesses">;
 
-  // Get current user (auth is handled by dashboard layout)
   const user = await fetchQuery(api.auth.currentUser, {});
 
-  // Get business from database
   const business = await fetchQuery(api.businesses.getById, {
     id: businessIdTyped,
   });
@@ -31,7 +29,6 @@ export default async function BusinessAnalyticsPage({
     redirect("/dashboard");
   }
 
-  // Check ownership
   if (business.userId && user && business.userId !== user._id) {
     redirect("/dashboard");
   }

@@ -23,10 +23,8 @@ http.route({
       payload: await request.text(),
     });
 
-    console.log("[STRIPE WEBHOOK] Event result:", result);
 
     if (!result.success) {
-      console.error("[STRIPE WEBHOOK] Error processing event:", result.error);
     }
 
     return new Response(JSON.stringify({ received: true }), {

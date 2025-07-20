@@ -29,11 +29,9 @@ export const fulfill = internalAction({
         webhookSecret,
       );
     } catch (err) {
-      console.error("Webhook signature verification failed:", err);
       return { success: false, error: "Invalid webhook signature" };
     }
 
-    console.log(`[STRIPE WEBHOOK] Processing event: ${event.type}`);
 
     try {
       switch (event.type) {
@@ -82,12 +80,10 @@ export const fulfill = internalAction({
         }
 
         default:
-          console.log(`[STRIPE WEBHOOK] Unhandled event type: ${event.type}`);
       }
 
       return { success: true };
     } catch (error) {
-      console.error("[STRIPE WEBHOOK] Error processing event:", error);
       return { success: false, error: (error as Error).message };
     }
   },
@@ -153,7 +149,6 @@ export const syncStripeDataToConvex = internalAction({
         },
       });
     } catch (error) {
-      console.error("Failed to sync Stripe data:", error);
       throw new Error("Failed to sync Stripe data");
     }
   },

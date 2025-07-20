@@ -93,7 +93,6 @@ export default function VerifyBusinessPage({ params }: VerifyPageProps) {
       // Generate CSRF token for security
       const csrfToken = crypto.randomUUID();
 
-      // Create state parameter with claim ID and CSRF token
       const stateData = {
         claimId: claimId,
         csrfToken: csrfToken,

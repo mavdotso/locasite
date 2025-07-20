@@ -25,26 +25,29 @@ export function UnifiedAuthGuard({
   // Use direct query for non-dashboard contexts
   const directUser = useQuery(api.auth.currentUser);
 
-  // Only use dashboard context if explicitly requested and available
+  // Always try to get dashboard context, but handle gracefully if not available
   let dashboardUser = undefined;
   let dashboardAuthState = undefined;
+  let hasDashboardContext = false;
 
-  if (useDashboardProvider) {
-    try {
-      const context = useDashboardData();
-      dashboardUser = context.user;
-      dashboardAuthState = { isLoading: context.isLoading };
-    } catch {
-      // If context is not available, fall back to direct query
-      useDashboardProvider = false;
-    }
+  try {
+    const context = useDashboardData();
+    dashboardUser = context.user;
+    dashboardAuthState = { isLoading: context.isLoading };
+    hasDashboardContext = true;
+  } catch (error) {
+    console.error("Dashboard context not available:", error);
+    // Context not available, will use direct query
+    hasDashboardContext = false;
   }
 
   // Use the appropriate user data
-  const user = useDashboardProvider ? dashboardUser : directUser;
-  const isLoading = useDashboardProvider
-    ? dashboardAuthState?.isLoading
-    : directUser === undefined;
+  const user =
+    useDashboardProvider && hasDashboardContext ? dashboardUser : directUser;
+  const isLoading =
+    useDashboardProvider && hasDashboardContext
+      ? dashboardAuthState?.isLoading
+      : directUser === undefined;
   useEffect(() => {
     // Only redirect if we've checked auth and user is definitely not authenticated
     if (user === null) {

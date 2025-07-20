@@ -10,7 +10,6 @@ const loadLocalBusinessSections = () =>
 // Cache for loaded components
 const componentCache: Record<string, ComponentConfig> = {};
 
-// Create a proxy that loads components on demand
 export const allComponentConfigs: Record<string, ComponentConfig> = new Proxy(
   componentCache,
   {

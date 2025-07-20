@@ -298,7 +298,6 @@ export const createCustomerPortalSession = action({
 
       return session.url;
     } catch (error) {
-      console.error("Error creating customer portal session:", error);
       throw new Error("Failed to create customer portal session");
     }
   },

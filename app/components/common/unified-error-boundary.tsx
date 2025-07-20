@@ -64,9 +64,8 @@ class ErrorBoundaryClass extends React.Component<
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    const context = this.props.variant || "default";
-    console.error(`[${context}] Error caught by boundary:`, error, errorInfo);
+  componentDidCatch() {
+    // Error logging could be added here if needed
   }
 
   reset = () => {

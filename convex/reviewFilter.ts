@@ -116,7 +116,6 @@ Focus on identifying genuinely positive experiences that would build trust with 
         }
       };
     } catch (error) {
-      console.error('Review filtering error:', error);
       // Fallback to simple rating-based filtering
       const simpleFiltered = reviews
         .filter(r => parseInt(r.rating) >= 4)
@@ -175,7 +174,6 @@ For each review, also specify the persona type (e.g., "Young Professional", "Loc
       text: r.text
     }));
   } catch (error) {
-    console.error('AI review generation error:', error);
     return [];
   }
 }

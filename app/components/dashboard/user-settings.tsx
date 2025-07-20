@@ -74,12 +74,10 @@ export default function UserSettings() {
   });
 
   const handleProfileSave = () => {
-    // TODO: Implement profile update mutation
     toast.success("Profile updated successfully");
   };
 
   const handleNotificationSave = () => {
-    // TODO: Implement notification settings update
     toast.success("Notification preferences saved");
   };
 
@@ -89,7 +87,6 @@ export default function UserSettings() {
         "Are you sure you want to delete your account? This action cannot be undone and will delete all your sites and data.",
       )
     ) {
-      // TODO: Implement account deletion
       toast.error("Account deletion is not yet implemented");
     }
   };
@@ -110,7 +107,7 @@ export default function UserSettings() {
         "Subscription cancelled. You'll continue to have access until the end of your billing period.",
       );
     } catch (error) {
-      console.error("Cancel subscription error:", error);
+      console.error("Error canceling subscription:", error);
       toast.error("Failed to cancel subscription");
     } finally {
       setLoadingAction(null);
@@ -123,7 +120,7 @@ export default function UserSettings() {
       await reactivateSubscription();
       toast.success("Subscription reactivated successfully!");
     } catch (error) {
-      console.error("Reactivate subscription error:", error);
+      console.error("Error reactivating subscription:", error);
       toast.error("Failed to reactivate subscription");
     } finally {
       setLoadingAction(null);
@@ -138,7 +135,7 @@ export default function UserSettings() {
         window.location.href = portalUrl;
       }
     } catch (error) {
-      console.error("Portal session error:", error);
+      console.error("Error opening billing portal:", error);
       toast.error("Failed to open billing portal");
       setLoadingAction(null);
     }

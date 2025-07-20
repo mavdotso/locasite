@@ -23,7 +23,6 @@ export default function AnalyticsPage({ businessId }: AnalyticsPageProps) {
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const { planType, canUseFeature } = useSubscription();
 
-  // Check if user has access to advanced analytics
   const hasAnalyticsAccess = canUseFeature("PROFESSIONAL");
 
   if (!hasAnalyticsAccess) {

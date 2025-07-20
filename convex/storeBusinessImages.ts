@@ -41,7 +41,6 @@ export const storeBusinessImages = action({
         // Download the image
         const response = await fetch(photoUrl);
         if (!response.ok) {
-          console.error(`Failed to download image: ${photoUrl}`);
           storedUrls.push(photoUrl); // Keep original URL if download fails
           continue;
         }
@@ -72,7 +71,6 @@ export const storeBusinessImages = action({
 
         storedUrls.push(url);
       } catch (error) {
-        console.error(`Error storing image ${i + 1}:`, error);
         storedUrls.push(photoUrl); // Keep original URL if any error occurs
       }
     }

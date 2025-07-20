@@ -53,7 +53,6 @@ export function ContactSection({
   businessCategory,
   styleOverrides,
 }: ContactSectionProps) {
-  // Get theme based on business category
   const categoryTheme = getBusinessCategoryTheme(businessCategory);
   const themeColors = categoryTheme.colors;
   const contactStyles = categoryTheme.sectionStyles.contact;

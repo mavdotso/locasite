@@ -44,7 +44,6 @@ export function ConvexImage({
   );
 
   useEffect(() => {
-    // Check if the image is from Google Maps API
     if (src && src.includes("maps.googleapis.com") && businessId) {
       setIsLoading(true);
 
@@ -58,9 +57,7 @@ export function ConvexImage({
             setImageSrc(result.storedUrls[0]);
           }
         })
-        .catch((error) => {
-          console.error("Failed to upload image to Convex:", error);
-        })
+        .catch(() => {})
         .finally(() => {
           setIsLoading(false);
         });

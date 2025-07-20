@@ -291,8 +291,6 @@ export const verifyGoogleBusinessOwnership = action({
           "Google Business Profile ownership verified. Your claim has been approved!",
       };
     } catch (error) {
-      console.error("Error verifying Google Business ownership:", error);
-
       await ctx.runMutation(
         internal.businessClaims.internal_updateClaimStatus,
         {
@@ -398,7 +396,8 @@ export const isBusinessClaimable = query({
         );
         userHasPendingClaim = !!userClaim;
       }
-    } catch {
+    } catch (error) {
+      console.error("Error checking user claims:", error);
       // User not authenticated, ignore
     }
 
@@ -450,28 +449,29 @@ export const isGoogleBusinessOwner = query({
   handler: async (ctx, args) => {
     try {
       const user = await getUserFromAuth(ctx);
-      
+
       // Check if there's an approved claim with Google verification for this business and user
       const approvedClaim = await ctx.db
         .query("businessClaims")
         .withIndex("by_business_status", (q) =>
           q.eq("businessId", args.businessId).eq("status", "approved"),
         )
-        .filter((q) => 
+        .filter((q) =>
           q.and(
             q.eq(q.field("userId"), user._id),
             q.eq(q.field("verificationMethod"), "google"),
-            q.eq(q.field("googleVerificationStatus"), "verified")
-          )
+            q.eq(q.field("googleVerificationStatus"), "verified"),
+          ),
         )
         .first();
-      
+
       return {
         isOwner: !!approvedClaim,
         hasGoogleVerification: !!approvedClaim,
         claimId: approvedClaim?._id,
       };
-    } catch {
+    } catch (error) {
+      console.error("Error checking Google business owner:", error);
       // User not authenticated
       return {
         isOwner: false,

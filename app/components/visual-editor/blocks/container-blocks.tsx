@@ -367,7 +367,6 @@ export const ColumnsBlock: ComponentConfig = {
 
     const childrenArray = React.Children.toArray(children);
 
-    // Check if we have pre-distributed columns by looking for column-content divs
     const isPreDistributed =
       childrenArray.length > 0 &&
       childrenArray.every((child) => {
@@ -598,7 +597,6 @@ export const AccordionBlock: ComponentConfig = {
     return (
       <Accordion type={type as "single" | "multiple"} className="w-full">
         {accordionItems.map((item, index) => {
-          // Handle both object and string formats
           const itemData =
             typeof item === "string" ? { title: item, content: "" } : item;
           return (

@@ -71,7 +71,6 @@ export function SectionRenderer({
   ] as React.ComponentType<Record<string, unknown>>;
 
   if (!Component) {
-    console.warn(`Unknown section type: ${data.type}`);
     return (
       <div className="p-8 text-center bg-muted">
         <p className="text-muted-foreground">

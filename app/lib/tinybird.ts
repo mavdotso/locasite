@@ -88,7 +88,6 @@ export class TinybirdClient {
 
       return await response.json();
     } catch (error) {
-      console.error("Failed to send events to Tinybird:", error);
       throw error;
     }
   }
@@ -108,7 +107,6 @@ export class TinybirdClient {
     return this.sendEvents("events", [eventWithStringMetadata]);
   }
 
-  // Update session
   async updateSession(session: SessionEvent) {
     return this.sendEvents("sessions", [session]);
   }
@@ -147,7 +145,6 @@ export class TinybirdClient {
 
       return await response.json();
     } catch (error) {
-      console.error("Failed to query Tinybird:", error);
       throw error;
     }
   }

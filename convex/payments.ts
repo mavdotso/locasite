@@ -37,7 +37,6 @@ export const fulfillBySessionId = internalMutation({
       .first();
 
     if (!payment) {
-      console.error(`Payment not found for session: ${args.sessionId}`);
       return;
     }
 

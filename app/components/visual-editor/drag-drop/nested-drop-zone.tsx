@@ -137,7 +137,6 @@ export default function NestedDropZone({
     );
   }
 
-  // Create update handler for this component
   const handleUpdate = (newProps: Record<string, unknown>) => {
     onUpdateComponent(component.id, newProps);
   };

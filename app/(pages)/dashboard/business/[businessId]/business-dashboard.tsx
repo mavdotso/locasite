@@ -68,7 +68,6 @@ export default function BusinessDashboard({
     return notFound();
   }
 
-  // Check ownership - only allow owner to access dashboard
   // At this point, user is guaranteed to be defined due to auth guard
   if (business.userId && user && business.userId !== user._id) {
     router.push(`/dashboard`);

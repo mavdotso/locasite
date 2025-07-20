@@ -25,11 +25,9 @@ export const generateBusinessContent = action({
     const { businessData } = args;
 
     try {
-      console.log('AI content generation starting for:', businessData.name);
       
       // Determine business category/industry from name and description
       const businessCategory = await inferBusinessCategory(businessData);
-      console.log('Business category inferred:', businessCategory);
       
       // Define the schema for the content structure
       const contentSchema = z.object({
@@ -238,7 +236,6 @@ For icons, use appropriate ones like: shield, clock, star, check, users, award, 
 
       // The result is already a parsed object from generateObject
       const generatedContent = result.object;
-      console.log('AI content generation completed successfully for:', businessData.name);
 
       return {
         success: true,
@@ -247,8 +244,6 @@ For icons, use appropriate ones like: shield, clock, star, check, users, award, 
       };
 
     } catch (error) {
-      console.error('AI content generation error for', businessData.name, ':', error);
-      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
       throw new Error(`Failed to generate content: ${error instanceof Error ? error.message : error}`);
     }
   }
@@ -279,7 +274,6 @@ Return only the category name, nothing else.`
 
     return categoryResult.text.trim();
   } catch (error) {
-    console.error('Category inference error:', error);
     return 'Local Business';
   }
 }

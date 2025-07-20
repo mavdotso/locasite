@@ -31,7 +31,6 @@ export const applyBusinessTemplate = action({
       // const domain = business.domainId ? await ctx.runQuery(api.domains.getById, { id: business.domainId }) : null;
       const domain = null; // TODO: Implement domain query
       if (!domain) {
-        console.log('No domain found for business, skipping template application');
         return { success: false, error: 'No domain found' };
       }
       
@@ -41,7 +40,6 @@ export const applyBusinessTemplate = action({
       // const page = await ctx.runQuery(api.pages.getByDomainId, { domainId: domain._id });
       const page = null; // TODO: Implement page query
       if (!page) {
-        console.log('No page found for domain, creating one');
         // Create a new page if none exists
         // TODO: Implement page creation
         // await ctx.runMutation(api.pages.create, {
@@ -86,7 +84,6 @@ export const applyBusinessTemplate = action({
         // }
       }
 
-      console.log(`Applied ${templateId} template to business: ${updatedBusiness!.name}`);
       return { 
         success: true, 
         templateId,
@@ -94,7 +91,6 @@ export const applyBusinessTemplate = action({
         pageContentGenerated: true
       };
     } catch (error) {
-      console.error('Error applying business template:', error);
       return { 
         success: false, 
         error: error instanceof Error ? error.message : 'Unknown error' 

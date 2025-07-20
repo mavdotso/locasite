@@ -64,7 +64,6 @@ export const regenerateAIContentForBusiness = action({
         }
       });
 
-      console.log('AI content regenerated successfully for:', business.name);
       return { 
         success: true, 
         content: contentResult.content,
@@ -72,7 +71,6 @@ export const regenerateAIContentForBusiness = action({
         reviewsFiltered: args.includeReviews || false
       };
     } catch (error) {
-      console.error('Error regenerating AI content:', error);
       
       // Fallback to basic content if AI generation fails
       const fallbackContent = {

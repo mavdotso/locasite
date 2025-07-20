@@ -27,7 +27,6 @@ export default function NewSitePage() {
   const canCreateBusiness = useQuery(api.subscriptions.canCreateBusiness);
 
   const handleCreateWebsiteWithCheck = async () => {
-    // Check if user can create more businesses
     if (canCreateBusiness === false) {
       setShowUpgradeDialog(true);
       return;

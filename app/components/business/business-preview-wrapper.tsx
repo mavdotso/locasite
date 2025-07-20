@@ -36,7 +36,6 @@ function detectBusinessType(business: {
   const description = business.description?.toLowerCase() || "";
   const name = business.name?.toLowerCase() || "";
 
-  // Check for restaurant keywords
   if (
     category.includes("restaurant") ||
     category.includes("food") ||
@@ -49,7 +48,6 @@ function detectBusinessType(business: {
     return "restaurant";
   }
 
-  // Check for salon/beauty keywords
   if (
     category.includes("beauty") ||
     category.includes("salon") ||
@@ -62,7 +60,6 @@ function detectBusinessType(business: {
     return "salon";
   }
 
-  // Check for medical keywords
   if (
     category.includes("medical") ||
     category.includes("health") ||
@@ -75,7 +72,6 @@ function detectBusinessType(business: {
     return "medical";
   }
 
-  // Check for retail keywords
   if (
     category.includes("retail") ||
     category.includes("store") ||
@@ -88,7 +84,6 @@ function detectBusinessType(business: {
     return "retail";
   }
 
-  // Check for automotive keywords
   if (
     category.includes("auto") ||
     category.includes("car") ||
@@ -114,13 +109,11 @@ export function BusinessPreviewWrapper({
   const router = useRouter();
   const user = useQuery(api.auth.currentUser);
 
-  // Get the domain for this business
   const domain = useQuery(
     api.domains.getByBusinessId,
     business ? { businessId } : "skip",
   );
 
-  // Get the homepage for this domain
   const page = useQuery(
     api.pages.getHomepageByDomain,
     domain ? { domainId: domain._id } : "skip",
@@ -156,7 +149,6 @@ export function BusinessPreviewWrapper({
   // Generate unique ID
   const generateId = () => Math.random().toString(36).substring(2, 9);
 
-  // Create the same initial data that the edit page would create
   let pageContent: string = "";
   let useExistingContent = false;
 
@@ -175,7 +167,6 @@ export function BusinessPreviewWrapper({
   }
 
   if (!useExistingContent) {
-    // Create the same default content that the edit page creates
     const businessType = detectBusinessType(business);
     const preset = getPresetByType(businessType);
 

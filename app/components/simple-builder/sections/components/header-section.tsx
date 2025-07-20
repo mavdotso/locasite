@@ -41,7 +41,6 @@ export function HeaderSection({
 }: HeaderSectionProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Get theme based on business category
   const categoryTheme = getBusinessCategoryTheme(businessCategory);
   const themeColors = categoryTheme.colors;
 

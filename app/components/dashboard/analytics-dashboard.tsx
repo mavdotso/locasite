@@ -38,7 +38,6 @@ export default function AnalyticsDashboard({
 
   const { user, businesses: userBusinesses } = useDashboardData();
 
-  // Get time range dates - memoized to prevent infinite re-renders
   const timeRanges = useMemo(
     () => ({
       "24h": subDays(new Date(), 1),

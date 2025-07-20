@@ -157,7 +157,6 @@ export function SimpleEditorResponsive({
     [pageData.sections],
   );
 
-  // Update section data
   const handleUpdateSection = useCallback(
     (sectionId: string, newData: SimpleComponentData) => {
       setPageData((prev) => ({
@@ -218,7 +217,6 @@ export function SimpleEditorResponsive({
           newSections.findIndex((s) => s.id === sectionId) + 1;
         newSections.splice(insertIndex, 0, newSection);
 
-        // Update order for all sections
         newSections.forEach((section, idx) => {
           section.order = idx;
         });
@@ -242,7 +240,6 @@ export function SimpleEditorResponsive({
         const [movedSection] = newSections.splice(fromIndex, 1);
         newSections.splice(toIndex, 0, movedSection);
 
-        // Update order values
         return {
           ...prev,
           sections: newSections.map((section, index) => ({
@@ -270,7 +267,6 @@ export function SimpleEditorResponsive({
     setIsPublishDialogOpen(true);
   }, [handleSave]);
 
-  // Get section for settings sidebar
   const settingsSection = pageData.sections.find(
     (s) => s.id === settingsSectionId,
   );

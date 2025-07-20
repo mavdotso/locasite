@@ -900,27 +900,15 @@ export const createBusinessFromPendingData = mutation({
     // Verify the business has domainId set
     const businessWithDomain = await ctx.db.get(businessId);
     if (!businessWithDomain?.domainId) {
-      console.error("Business domainId not set after generateSubdomain", {
-        businessId,
-        domainId,
-      });
-      // Try to set it again
       await ctx.db.patch(businessId, { domainId });
     }
 
-    // Create default pages in simple mode format
-    console.log(
-      `Creating simple mode pages for business ${businessId} with domain ${domainId}`,
-    );
     const { pageId } = await ctx.runMutation(
       api.pagesSimple.createDefaultPagesSimple,
       {
         domainId,
         businessId,
       },
-    );
-    console.log(
-      `Created simple mode page ${pageId} for business ${businessId}`,
     );
 
     // Assign a theme based on business category

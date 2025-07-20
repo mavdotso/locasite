@@ -110,7 +110,6 @@ const ComponentWrapper = React.memo(function ComponentWrapper({
       target,
     );
 
-    // Create custom drag preview
     const dragPreview = document.createElement("div");
     dragPreview.className =
       "fixed pointer-events-none z-50 bg-background border-2 border-primary rounded-lg shadow-xl p-3 opacity-90";
