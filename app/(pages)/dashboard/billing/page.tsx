@@ -49,6 +49,13 @@ export default function BillingPage() {
   const handleSubscribe = async (planType: PlanType) => {
     if (planType === "FREE") return;
 
+    if (planType === "BUSINESS") {
+      // For Business plan, redirect to contact form
+      window.location.href =
+        "mailto:sales@locasite.com?subject=Business Plan Inquiry";
+      return;
+    }
+
     setLoadingPlan(planType);
     try {
       const url = await subscribe({
@@ -259,7 +266,9 @@ export default function BillingPage() {
                         ? "Unlimited"
                         : plan.limits.customDomains || "Not included"}
                     </li>
-                    {plan.limits.analytics && <li>✓ Advanced analytics</li>}
+                    {plan.limits.analytics && (
+                      <li>✓ Advanced analytics (Coming soon)</li>
+                    )}
                     {plan.limits.removeWatermark && <li>✓ Remove watermark</li>}
                     {plan.limits.prioritySupport && <li>✓ Priority support</li>}
                     {plan.limits.apiAccess && <li>✓ API access</li>}
@@ -288,7 +297,9 @@ export default function BillingPage() {
                       ? "Downgrade"
                       : plan.type === "FREE"
                         ? "Free"
-                        : "Upgrade"}
+                        : plan.type === "BUSINESS"
+                          ? "Contact us"
+                          : "Upgrade"}
                 </Button>
               </CardFooter>
             </Card>

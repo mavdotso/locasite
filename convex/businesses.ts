@@ -958,3 +958,81 @@ export const createBusinessFromPendingData = mutation({
     return { businessId, domainId };
   },
 });
+
+// Delete a business
+export const deleteBusiness = mutation({
+  args: {
+    businessId: v.id("businesses"),
+  },
+  handler: async (ctx, args) => {
+    const user = await getUserFromAuth(ctx);
+
+    // Verify ownership
+    const business = await verifyBusinessOwnership(
+      ctx,
+      args.businessId,
+      user._id,
+    );
+
+    // Delete associated domain
+    if (business.domainId) {
+      await ctx.db.delete(business.domainId);
+    }
+
+    // Delete associated theme if it's custom
+    if (business.themeId) {
+      const theme = await ctx.db.get(business.themeId);
+      if (theme && !theme.isPreset) {
+        await ctx.db.delete(business.themeId);
+      }
+    }
+
+    // Delete associated pages
+    const pages = await ctx.db
+      .query("pages")
+      .withIndex("by_domain", (q) => q.eq("domainId", business.domainId!))
+      .collect();
+
+    for (const page of pages) {
+      await ctx.db.delete(page._id);
+    }
+
+    // Delete associated contact messages
+    const messages = await ctx.db
+      .query("contactMessages")
+      .withIndex("by_business", (q) => q.eq("businessId", args.businessId))
+      .collect();
+
+    for (const message of messages) {
+      await ctx.db.delete(message._id);
+    }
+
+    // Delete associated media library items
+    const mediaItems = await ctx.db
+      .query("mediaLibrary")
+      .withIndex("by_business", (q) => q.eq("businessId", args.businessId))
+      .collect();
+    for (const item of mediaItems) {
+      // Delete from storage
+      if (item.storageId) {
+        await ctx.storage.delete(item.storageId);
+      }
+      await ctx.db.delete(item._id);
+    }
+
+    // Delete favicon from storage if exists
+    if (business.faviconStorageId) {
+      await ctx.storage.delete(business.faviconStorageId);
+    }
+
+    // Delete OG image from storage if exists
+    if (business.ogImageStorageId) {
+      await ctx.storage.delete(business.ogImageStorageId);
+    }
+
+    // Finally, delete the business
+    await ctx.db.delete(args.businessId);
+
+    return { success: true };
+  },
+});

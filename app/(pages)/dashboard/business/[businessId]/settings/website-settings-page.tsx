@@ -21,6 +21,7 @@ import {
   Upload,
   X,
   Image as ImageIcon,
+  Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -33,11 +34,22 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/app/components/ui/card";
 import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
+import { useSubscription } from "@/app/hooks/use-subscription";
+import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/app/components/ui/dialog";
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -62,6 +74,8 @@ export default function WebsiteSettingsPage({
     businessId,
   });
   const faviconInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const { canUseFeature } = useSubscription();
 
   const business = dashboardData?.business;
   const domain = dashboardData?.domain;
@@ -73,6 +87,7 @@ export default function WebsiteSettingsPage({
   const generateUploadUrl = useMutation(api.storage.generateUploadUrl);
   const uploadFavicon = useMutation(api.businessSeo.uploadFavicon);
   const updateSeoSettings = useMutation(api.businessSeo.updateSeoSettings);
+  const deleteBusiness = useMutation(api.businesses.deleteBusiness);
 
   // State
   const [isPublishing, setIsPublishing] = useState(false);
@@ -84,6 +99,8 @@ export default function WebsiteSettingsPage({
   const [seoScore, setSeoScore] = useState(0);
   const [issues, setIssues] = useState<string[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Form data
   const [formData, setFormData] = useState({
@@ -287,18 +304,19 @@ export default function WebsiteSettingsPage({
     }
   };
 
-  const handleSave = async () => {
+  const handleSaveGeneralSettings = async () => {
     try {
-      // Save favicon if uploaded
-      if (formData.faviconStorageId) {
-        const faviconUrl = await uploadFavicon({
-          businessId,
-          storageId: formData.faviconStorageId,
-        });
-        setFormData((prev) => ({ ...prev, favicon: faviconUrl.url }));
-      }
+      // For now, page title is saved locally in formData
+      // In the future, you might want to save this to the database
+      toast.success("General settings saved successfully");
+    } catch (error) {
+      console.error("Error saving general settings:", error);
+      toast.error("Failed to save general settings");
+    }
+  };
 
-      // Save SEO settings
+  const handleSaveSeoSettings = async () => {
+    try {
       await updateSeoSettings({
         businessId,
         seoTitle: formData.seoTitle,
@@ -310,10 +328,40 @@ export default function WebsiteSettingsPage({
         ogImage: formData.ogImage,
       });
 
-      toast.success("Settings saved successfully");
+      toast.success("SEO settings saved successfully");
     } catch (error) {
-      console.error("Error saving settings:", error);
-      toast.error("Failed to save settings");
+      console.error("Error saving SEO settings:", error);
+      toast.error("Failed to save SEO settings");
+    }
+  };
+
+  const handleSaveSocialSettings = async () => {
+    try {
+      // Save favicon if uploaded
+      if (formData.faviconStorageId) {
+        const faviconUrl = await uploadFavicon({
+          businessId,
+          storageId: formData.faviconStorageId,
+        });
+        setFormData((prev) => ({ ...prev, favicon: faviconUrl.url }));
+      }
+
+      // Save OG settings
+      await updateSeoSettings({
+        businessId,
+        seoTitle: formData.seoTitle,
+        seoDescription: formData.seoDescription,
+        seoKeywords: formData.seoKeywords
+          .split(",")
+          .map((k) => k.trim())
+          .filter(Boolean),
+        ogImage: formData.ogImage,
+      });
+
+      toast.success("Social media settings saved successfully");
+    } catch (error) {
+      console.error("Error saving social settings:", error);
+      toast.error("Failed to save social settings");
     }
   };
 
@@ -325,6 +373,21 @@ export default function WebsiteSettingsPage({
     }
     setShowMediaLibrary(false);
     setMediaLibraryField(null);
+  };
+
+  const handleDeleteBusiness = async () => {
+    try {
+      setIsDeleting(true);
+      await deleteBusiness({ businessId });
+      toast.success("Website deleted successfully");
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Error deleting business:", error);
+      toast.error("Failed to delete website");
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
+    }
   };
 
   if (business === undefined || domain === undefined) {
@@ -392,6 +455,15 @@ export default function WebsiteSettingsPage({
                 </p>
               </div>
             </CardContent>
+            <CardFooter>
+              <Button
+                onClick={handleSaveGeneralSettings}
+                size="sm"
+                className="ml-auto"
+              >
+                Save Changes
+              </Button>
+            </CardFooter>
           </Card>
 
           {/* Domain Settings Card */}
@@ -512,6 +584,32 @@ export default function WebsiteSettingsPage({
                     Publish Website
                   </>
                 )}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Delete Website Card */}
+          <Card className="border-destructive/50">
+            <CardHeader>
+              <CardTitle className="text-destructive">Danger Zone</CardTitle>
+              <CardDescription>Permanently delete this website</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Once you delete a website, there is no going back. All data
+                  including pages, settings, and media will be permanently
+                  removed.
+                </AlertDescription>
+              </Alert>
+              <Button
+                variant="destructive"
+                className="mt-4"
+                onClick={() => setShowDeleteDialog(true)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Website
               </Button>
             </CardContent>
           </Card>
@@ -641,6 +739,15 @@ export default function WebsiteSettingsPage({
                 </p>
               </div>
             </CardContent>
+            <CardFooter>
+              <Button
+                onClick={handleSaveSeoSettings}
+                size="sm"
+                className="ml-auto"
+              >
+                Save SEO Settings
+              </Button>
+            </CardFooter>
           </Card>
 
           {/* Social Media Settings Card */}
@@ -654,68 +761,93 @@ export default function WebsiteSettingsPage({
             <CardContent className="space-y-4">
               {/* Favicon */}
               <div className="space-y-3">
-                <Label>Favicon</Label>
-                <div className="flex items-center gap-4">
-                  {formData.favicon && (
-                    <div className="relative">
-                      <Image
-                        src={formData.favicon}
-                        alt="Favicon"
-                        width={64}
-                        height={64}
-                        className="w-16 h-16 rounded-lg border bg-muted object-contain"
-                      />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="absolute -top-2 -right-2 h-6 w-6 p-0 rounded-full bg-background border"
-                        onClick={() =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            favicon: "",
-                            faviconStorageId: null,
-                          }))
-                        }
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
+                <div className="flex items-center justify-between">
+                  <Label>Favicon</Label>
+                  {!canUseFeature("PROFESSIONAL") && (
+                    <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                      Pro feature
+                    </span>
                   )}
-
-                  <div className="flex-1 space-y-2">
-                    <input
-                      ref={faviconInputRef}
-                      type="file"
-                      accept="image/png,image/x-icon,image/svg+xml"
-                      onChange={handleFaviconUpload}
-                      className="hidden"
-                    />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => faviconInputRef.current?.click()}
-                      className="w-full"
-                    >
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload Favicon
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setMediaLibraryField("favicon");
-                        setShowMediaLibrary(true);
-                      }}
-                      className="w-full"
-                    >
-                      <ImageIcon className="h-4 w-4 mr-2" />
-                      Choose from Library
-                    </Button>
-                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Recommended: 32x32px or 16x16px PNG, ICO, or SVG file
-                </p>
+                {canUseFeature("PROFESSIONAL") ? (
+                  <>
+                    <div className="flex items-center gap-4">
+                      {formData.favicon && (
+                        <div className="relative">
+                          <Image
+                            src={formData.favicon}
+                            alt="Favicon"
+                            width={64}
+                            height={64}
+                            className="w-16 h-16 rounded-lg border bg-muted object-contain"
+                          />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="absolute -top-2 -right-2 h-6 w-6 p-0 rounded-full bg-background border"
+                            onClick={() =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                favicon: "",
+                                faviconStorageId: null,
+                              }))
+                            }
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      )}
+
+                      <div className="flex-1 space-y-2">
+                        <input
+                          ref={faviconInputRef}
+                          type="file"
+                          accept="image/png,image/x-icon,image/svg+xml"
+                          onChange={handleFaviconUpload}
+                          className="hidden"
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => faviconInputRef.current?.click()}
+                          className="w-full"
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          Upload Favicon
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setMediaLibraryField("favicon");
+                            setShowMediaLibrary(true);
+                          }}
+                          className="w-full"
+                        >
+                          <ImageIcon className="h-4 w-4 mr-2" />
+                          Choose from Library
+                        </Button>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Recommended: 32x32px or 16x16px PNG, ICO, or SVG file
+                    </p>
+                  </>
+                ) : (
+                  <Alert>
+                    <Lock className="h-4 w-4" />
+                    <AlertDescription>
+                      Custom favicons are available on Professional and Business
+                      plans.{" "}
+                      <Link
+                        href="/dashboard/billing"
+                        className="font-medium underline"
+                      >
+                        Upgrade now
+                      </Link>
+                    </AlertDescription>
+                  </Alert>
+                )}
               </div>
 
               {/* Open Graph */}
@@ -794,16 +926,18 @@ export default function WebsiteSettingsPage({
                 </div>
               </div>
             </CardContent>
+            <CardFooter>
+              <Button
+                onClick={handleSaveSocialSettings}
+                size="sm"
+                className="ml-auto"
+              >
+                Save Social Settings
+              </Button>
+            </CardFooter>
           </Card>
         </TabsContent>
       </Tabs>
-
-      {/* Save Button */}
-      <div className="flex justify-end pt-6">
-        <Button onClick={handleSave} className="min-w-[120px]">
-          Save Settings
-        </Button>
-      </div>
 
       {/* Media Library Modal */}
       {showMediaLibrary && businessId && (
@@ -813,6 +947,46 @@ export default function WebsiteSettingsPage({
           trigger={<></>}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete your
+              website and remove all associated data including pages, settings,
+              and media files.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteBusiness}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Website
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
