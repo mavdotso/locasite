@@ -26,10 +26,8 @@ export default async function BusinessMessagesPage({
   const { businessId } = await params;
   const businessIdTyped = businessId as Id<"businesses">;
 
-  // Get current user (auth is handled by dashboard layout)
   const user = await fetchQuery(api.auth.currentUser, {});
 
-  // Get business from database
   const business = await fetchQuery(api.businesses.getById, {
     id: businessIdTyped,
   });
@@ -38,12 +36,10 @@ export default async function BusinessMessagesPage({
     redirect("/dashboard");
   }
 
-  // Check ownership
   if (business.userId && user && business.userId !== user._id) {
     redirect("/dashboard");
   }
 
-  // Get domain to check if published
   const domain = await fetchQuery(api.domains.getByBusinessId, {
     businessId: businessIdTyped,
   });
@@ -53,7 +49,6 @@ export default async function BusinessMessagesPage({
     businessId: business._id,
   });
 
-  // Get unread count
   const unreadCount = await fetchQuery(api.contactMessages.getUnreadCount, {
     businessId: business._id,
   });

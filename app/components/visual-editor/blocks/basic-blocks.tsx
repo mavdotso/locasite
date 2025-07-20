@@ -47,7 +47,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { ConvexImage } from "@/app/components/common/convex-image";
 
-// TODO: Future refactoring to split this large file into smaller modules
 
 // Simple text component without inline editing
 const TextBlockComponent = (props: {
@@ -1415,7 +1414,6 @@ export const BusinessHoursBlock: ComponentConfig = {
 
     const hoursObj = parseHoursArray(businessData?.hours);
 
-    // Check if currently open
     const isOpen = () => {
       const currentHours = hoursObj[today];
       if (!currentHours || currentHours.toLowerCase() === "closed")

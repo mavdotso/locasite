@@ -299,7 +299,6 @@ export function PageSettings({
     return Object.keys(errors).length === 0;
   };
 
-  // Handle domain change
   const handleDomainChange = async () => {
     if (!formData.subdomain || formData.subdomain.length < 3) {
       toast.error("Subdomain must be at least 3 characters");
@@ -330,7 +329,6 @@ export function PageSettings({
     }
   };
 
-  // Handle favicon upload
   const handleFaviconUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -350,7 +348,6 @@ export function PageSettings({
     }
 
     try {
-      // Get upload URL
       const uploadUrl = await generateUploadUrl();
 
       // Upload file
@@ -365,7 +362,6 @@ export function PageSettings({
 
       const { storageId } = await response.json();
 
-      // Update state
       setFormData((prev) => ({
         ...prev,
         faviconStorageId: storageId,
@@ -379,7 +375,6 @@ export function PageSettings({
     }
   };
 
-  // Handle publish/unpublish
   const handlePublishToggle = async () => {
     try {
       setIsPublishing(true);
@@ -389,7 +384,6 @@ export function PageSettings({
         setFormData((prev) => ({ ...prev, isPublished: false }));
         toast.success("Website unpublished successfully");
       } else {
-        // Check if domain exists
         if (!domain) {
           toast.error("Please set a domain before publishing");
           return;
@@ -431,7 +425,6 @@ export function PageSettings({
     }
   };
 
-  // Handle save
   const handleSave = async () => {
     if (!validateSettings()) {
       toast.error("Please fix all errors before saving");
@@ -472,7 +465,6 @@ export function PageSettings({
     }
   };
 
-  // Handle media selection
   const handleMediaSelect = (url: string) => {
     if (mediaLibraryField === "ogImage") {
       setFormData((prev) => ({ ...prev, ogImage: url }));

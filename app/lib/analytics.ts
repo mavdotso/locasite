@@ -16,7 +16,6 @@ function generateUUID(): string {
   });
 }
 
-// Get or create visitor ID
 function getVisitorId(): string {
   let visitorId = localStorage.getItem(VISITOR_ID_KEY);
   if (!visitorId) {
@@ -26,12 +25,10 @@ function getVisitorId(): string {
   return visitorId;
 }
 
-// Get or create session ID
 function getSessionId(): string {
   const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
   const now = Date.now();
 
-  // Check if session has expired
   if (lastActivity && now - parseInt(lastActivity) > SESSION_TIMEOUT) {
     localStorage.removeItem(SESSION_ID_KEY);
   }
@@ -93,7 +90,8 @@ function parseReferrer() {
       referrerDomain: url.hostname,
       referrerPath: url.pathname,
     };
-  } catch {
+  } catch (error) {
+    console.error("Error getting location data:", error);
     return {};
   }
 }
@@ -132,7 +130,6 @@ export class Analytics {
     this.isInitialized = true;
 
     try {
-      // Create session in Tinybird
       const sessionExists = sessionStorage.getItem(`session_${this.sessionId}`);
       if (!sessionExists) {
         await this.tinybird.updateSession({
@@ -155,7 +152,7 @@ export class Analytics {
       // Set up event listeners
       this.setupEventListeners();
     } catch (error) {
-      console.error("Analytics initialization error:", error);
+      console.error("Analytics error:", error);
     }
   }
 
@@ -194,7 +191,7 @@ export class Analytics {
         ...utmData,
       });
     } catch (error) {
-      console.error("Failed to track page view:", error);
+      console.error("Analytics error:", error);
     }
   }
 
@@ -234,7 +231,6 @@ export class Analytics {
     try {
       const timeOnPage = Math.round((Date.now() - this.startTime) / 1000);
 
-      // Update session
       await this.tinybird.updateSession({
         sessionId: this.sessionId,
         visitorId: this.visitorId,
@@ -250,7 +246,7 @@ export class Analytics {
         bounce: timeOnPage < 10, // Consider it a bounce if less than 10 seconds
       });
     } catch (error) {
-      console.error("Failed to track page unload:", error);
+      console.error("Analytics error:", error);
     }
   }
 
@@ -274,7 +270,7 @@ export class Analytics {
         metadata: undefined,
       });
     } catch (error) {
-      console.error("Failed to track event:", error);
+      console.error("Analytics error:", error);
     }
   }
 
@@ -282,7 +278,6 @@ export class Analytics {
     try {
       await this.trackEvent("conversion", "engagement", conversionType);
 
-      // Update session to mark as converted
       await this.tinybird.updateSession({
         sessionId: this.sessionId,
         visitorId: this.visitorId,
@@ -296,7 +291,7 @@ export class Analytics {
         bounce: false,
       });
     } catch (error) {
-      console.error("Failed to track conversion:", error);
+      console.error("Analytics error:", error);
     }
   }
 }

@@ -1,11 +1,11 @@
-import { httpRouter } from "convex/server";
-import { httpAction } from "./_generated/server";
 import { auth } from "./auth";
+import router from "./router";
+import { httpAction } from "./_generated/server";
 import { scrapeGoogleMaps } from "./lib/scrape";
 import { api, internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 
-const http = httpRouter();
+const http = router;
 
 auth.addHttpRoutes(http);
 
@@ -107,7 +107,6 @@ http.route({
 
       if (!tokenResponse.ok) {
         const errorData = await tokenResponse.text();
-        console.error("Token exchange failed:", errorData);
         throw new Error(
           "Failed to exchange authorization code for access token",
         );
@@ -249,7 +248,6 @@ http.route({
 
       if (!response.ok) {
         const error = await response.text();
-        console.error("Tinybird API error:", error);
         return new Response(
           JSON.stringify({ error: "Failed to track event" }),
           {
@@ -267,7 +265,6 @@ http.route({
         },
       });
     } catch (error) {
-      console.error("Analytics tracking error:", error);
       return new Response(JSON.stringify({ error: "Failed to track event" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
@@ -337,7 +334,6 @@ http.route({
         },
       });
     } catch (error) {
-      console.error("Error sending verification email:", error);
       return new Response(
         JSON.stringify({
           error: "Failed to send verification email",
@@ -387,7 +383,6 @@ http.route({
         },
       });
     } catch (error) {
-      console.error("Error verifying email token:", error);
       return new Response(
         JSON.stringify({
           error: "Failed to verify email token",
@@ -526,7 +521,6 @@ http.route({
         },
       });
     } catch (error) {
-      console.error("Error serving favicon:", error);
       // Return default favicon on error
       return new Response(null, {
         status: 302,
@@ -611,7 +605,6 @@ http.route({
         },
       });
     } catch (error) {
-      console.error("Error serving robots.txt:", error);
       return new Response("User-agent: *\nDisallow: /", {
         status: 200,
         headers: {
@@ -692,7 +685,6 @@ http.route({
         },
       });
     } catch (error) {
-      console.error("Error generating sitemap:", error);
       return new Response("Sitemap generation failed", {
         status: 500,
       });
@@ -762,7 +754,6 @@ http.route({
         },
       });
     } catch (error) {
-      console.error("Error initiating Google Business auth:", error);
       return new Response(
         JSON.stringify({
           error: "Failed to initiate authentication",
@@ -822,7 +813,6 @@ http.route({
         },
       );
     } catch (error) {
-      console.error("Error checking verification status:", error);
       return new Response(
         JSON.stringify({
           error: "Failed to check verification status",
@@ -872,7 +862,6 @@ http.route({
         },
       });
     } catch (error) {
-      console.error("Error verifying ownership:", error);
       return new Response(
         JSON.stringify({
           error: "Failed to verify ownership",

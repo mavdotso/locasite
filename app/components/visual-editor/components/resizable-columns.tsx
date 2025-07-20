@@ -49,7 +49,6 @@ export default function ResizableColumns({
     ? columnWidths 
     : getEqualWidths(columnCount);
 
-  // Update column widths when column count changes
   useEffect(() => {
     if (columnWidths.length !== columnCount) {
       const newWidths = getEqualWidths(columnCount);
@@ -67,7 +66,6 @@ export default function ResizableColumns({
   const [containerWidth, setContainerWidth] = useState(0);
   const [screenSize, setScreenSize] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
 
-  // Update container width and check screen size on resize
   useEffect(() => {
     const updateDimensions = () => {
       if (containerRef.current) {
@@ -143,7 +141,6 @@ export default function ResizableColumns({
       }
     };
 
-    // Get the owner document (works in both iframe and regular context)
     const ownerDocument = containerRef.current?.ownerDocument || document;
     
     ownerDocument.addEventListener('mousemove', handleMouseMove);
@@ -168,7 +165,6 @@ export default function ResizableColumns({
   // Determine effective column count based on screen size
   const getEffectiveColumns = () => {
     if (screenSize === 'mobile') {
-      // Handle backward compatibility with stackOnMobile
       if (stackOnMobile === "no") return columnCount;
       return mobileColumns === 'same' ? columnCount : parseInt(mobileColumns);
     }

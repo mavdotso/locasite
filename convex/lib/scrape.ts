@@ -195,7 +195,6 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
         businessId = result.businessId;
         domainId = result.domainId;
       } catch (error) {
-        console.log("Authentication required for business creation:", error);
         authenticationRequired = true;
       }
     }
@@ -220,7 +219,6 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
       },
     );
   } catch (error) {
-    console.error("API error:", error);
     return new Response(
       JSON.stringify({
         error: "Failed to fetch business data from Google Places API.",

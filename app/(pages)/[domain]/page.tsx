@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import BusinessPageRenderer from "@/app/components/business/business-page-renderer";
+import { BusinessFooter } from "@/app/components/business/business-footer";
 import { Metadata } from "next";
 import { fetchQuery } from "convex/nextjs";
 import {
@@ -21,7 +22,6 @@ export async function generateMetadata({
   try {
     const { domain: businessDomain } = await params;
 
-    // Get domain from database
     const domain = await fetchQuery(api.domains.getBySubdomain, {
       subdomain: businessDomain,
     });
@@ -32,7 +32,6 @@ export async function generateMetadata({
       };
     }
 
-    // Get the business associated with this domain
     const business = await fetchQuery(api.businesses.listByDomain, {
       domain: domain._id,
     });
@@ -162,7 +161,6 @@ export default async function BusinessPage({ params }: PageProps) {
   const { domain: businessDomain } = await params;
 
   try {
-    // Get domain from database
     const domain = await fetchQuery(api.domains.getBySubdomain, {
       subdomain: businessDomain,
     });
@@ -171,7 +169,6 @@ export default async function BusinessPage({ params }: PageProps) {
       notFound();
     }
 
-    // Get the page for this domain
     let page = await fetchQuery(api.pages.getByDomain, {
       domain: businessDomain,
     });
@@ -191,7 +188,6 @@ export default async function BusinessPage({ params }: PageProps) {
       notFound();
     }
 
-    // Get the business associated with this domain
     const business = await fetchQuery(api.businesses.listByDomain, {
       domain: domain._id,
     });
@@ -202,9 +198,26 @@ export default async function BusinessPage({ params }: PageProps) {
 
     const businessData = business[0];
 
-    // Check if business is published
     if (!businessData.isPublished) {
       notFound();
+    }
+
+    let showWatermark = true;
+    if (businessData.userId) {
+      const subscription = await fetchQuery(
+        api.subscriptions.getUserSubscriptionByUserId,
+        {
+          userId: businessData.userId,
+        },
+      ).catch(() => null);
+
+      if (
+        subscription &&
+        subscription.planType !== "FREE" &&
+        ["active", "trialing"].includes(subscription.status)
+      ) {
+        showWatermark = false;
+      }
     }
 
     // Content parsing is now handled by BusinessPageRenderer
@@ -262,7 +275,11 @@ export default async function BusinessPage({ params }: PageProps) {
             business={businessData}
             pageContent={page?.content || JSON.stringify({ sections: [] })}
           />
-          {/* TODO: Enable only on free plans? <BusinessFooter businessName={domain.name} /> */}
+
+          <BusinessFooter
+            businessName={businessData.name}
+            showWatermark={showWatermark}
+          />
         </div>
       </>
     );

@@ -101,28 +101,3 @@ export interface BusinessPreset {
   }[];
   theme: SimpleTheme;
 }
-
-// Editor state
-export interface SimpleEditorState {
-  pageData: SimplePageData;
-  selectedSectionId: string | null;
-  isAddingSectionOpen: boolean;
-  isDragging: boolean;
-  draggedSectionId: string | null;
-  previewMode: boolean;
-}
-
-// Editable field definition
-export interface EditableField {
-  path: string; // Dot notation path (e.g., "content.title")
-  type: "text" | "textarea" | "image" | "color" | "select";
-  label: string;
-  placeholder?: string;
-  options?: { value: string; label: string }[]; // For select type
-}
-
-// Section library item for the UI
-export interface SectionLibraryItem {
-  category: SectionCategory;
-  variations: SectionVariation[];
-}

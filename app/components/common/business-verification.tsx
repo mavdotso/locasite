@@ -43,20 +43,16 @@ export function BusinessVerification({
         window.location.href = `${process.env.NEXT_PUBLIC_CONVEX_URL}/auth/google-business?claimId=${result.claimId}`;
       }
     } catch (error) {
-      console.error("Error connecting to Google:", error);
+      console.error("Error connecting to Google Business Profile:", error);
       toast.error("Failed to connect to Google Business Profile");
     } finally {
       setIsConnecting(false);
     }
   };
 
-  const handleVerifyBusiness = async (
-    _accountId: string,
-    _locationId: string,
-  ) => {
+  const handleVerifyBusiness = async () => {
     try {
       setIsVerifying(true);
-      // TODO: Implement verification check
       toast.success("Verification initiated");
     } catch (error) {
       console.error("Error verifying business:", error);
@@ -195,9 +191,7 @@ export function BusinessVerification({
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() =>
-                              handleVerifyBusiness(account.accountId, "")
-                            }
+                            onClick={() => handleVerifyBusiness()}
                             disabled={isVerifying}
                           >
                             {isVerifying ? (

@@ -141,7 +141,6 @@ export default function VisualEditor({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Handle full-screen preview
   useEffect(() => {
     const handleEnterFullScreen = () => {
       setIsFullScreenPreview(true);
@@ -178,7 +177,6 @@ export default function VisualEditor({
   const generateId = () =>
     `component-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 
-  // Update component props (handles nested components)
   const handleUpdateComponent = useCallback(
     (id: string, props: Record<string, unknown>) => {
       const updateInComponents = (
@@ -209,7 +207,6 @@ export default function VisualEditor({
     [pageData, addToHistory],
   );
 
-  // Update component layout (handles nested components)
   const handleUpdateComponentLayout = useCallback(
     (id: string, layout: LayoutOptions) => {
       const updateInComponents = (
@@ -246,9 +243,7 @@ export default function VisualEditor({
       const config = componentConfigs[type];
       if (!config) return;
 
-      // Check if this is a template component
       if (config.isTemplate && config.template) {
-        // Get the template blocks
         const templateBlocks = config.template(business);
 
         // Convert template blocks to ComponentData
@@ -302,7 +297,6 @@ export default function VisualEditor({
         setHasUnsavedChanges(true);
         toast.success("Template added successfully");
       } else {
-        // Handle regular component
         const newComponent: ComponentData = {
           id: generateId(),
           type,
@@ -489,7 +483,6 @@ export default function VisualEditor({
       setHasUnsavedChanges(false);
       toast.success("Page saved successfully");
     } catch {
-      // Handle save error silently
       toast.error("Failed to save page");
     } finally {
       setIsSaving(false);
@@ -1195,7 +1188,6 @@ export default function VisualEditor({
                   ogImage: pageData.ogImage || seoMetadata.ogImage,
                 }}
                 onSave={(data: PageSettingsData) => {
-                  // Update page data
                   const newPageData = {
                     ...pageData,
                     title: data.pageTitle,

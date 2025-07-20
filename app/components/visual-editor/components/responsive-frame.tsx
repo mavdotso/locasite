@@ -88,12 +88,10 @@ export default function ResponsiveFrame({
 
   // Memoize initial content to prevent recreating on each render
   const initialContent = React.useMemo(() => {
-    // Get all styles including Tailwind compiled styles
     const styles = Array.from(document.querySelectorAll("style"))
       .map((style) => `<style>${style.innerHTML}</style>`)
       .join("\n");
 
-    // Get all stylesheets including Next.js compiled CSS
     const links = Array.from(
       document.querySelectorAll('link[rel="stylesheet"]'),
     )
@@ -149,7 +147,6 @@ export default function ResponsiveFrame({
     };
   }, []);
 
-  // Handle width changes more smoothly
   const frameStyle = React.useMemo(
     () => ({
       width: width === "100%" ? "100%" : width,

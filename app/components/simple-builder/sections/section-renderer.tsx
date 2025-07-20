@@ -19,6 +19,7 @@ interface SectionRendererProps {
   onUpdate?: (newData: SimpleComponentData) => void;
   businessData?: Record<string, unknown>; // Business data for template variable replacement
   businessCategory?: string; // Business category for theming
+  businessId?: string; // Business ID for contact form submissions
 }
 
 // Map of section types to their components
@@ -65,13 +66,13 @@ export function SectionRenderer({
   onUpdate,
   businessData,
   businessCategory,
+  businessId,
 }: SectionRendererProps) {
   const Component = sectionComponents[
     data.type as keyof typeof sectionComponents
   ] as React.ComponentType<Record<string, unknown>>;
 
   if (!Component) {
-    console.warn(`Unknown section type: ${data.type}`);
     return (
       <div className="p-8 text-center bg-muted">
         <p className="text-muted-foreground">
@@ -111,7 +112,7 @@ export function SectionRenderer({
           color: data.style?.textColor,
           textAlign: data.style?.textAlign,
         }}
-        onUpdate={(newContent: Record<string, unknown>) => {
+        onContentUpdate={(newContent: Record<string, unknown>) => {
           if (onUpdate) {
             onUpdate({
               ...data,
@@ -119,6 +120,7 @@ export function SectionRenderer({
             });
           }
         }}
+        businessId={businessId}
       />
     </section>
   );

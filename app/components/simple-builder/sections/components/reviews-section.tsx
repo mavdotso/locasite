@@ -28,7 +28,6 @@ export default function ReviewsSection({
   businessCategory,
   styleOverrides,
 }: ReviewsSectionProps) {
-  // Get theme based on business category
   const categoryTheme = getBusinessCategoryTheme(businessCategory);
   const themeColors = categoryTheme.colors;
   const reviewStyles = categoryTheme.sectionStyles.reviews;

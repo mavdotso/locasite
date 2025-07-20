@@ -49,7 +49,6 @@ export default function ImageField({
 
       const { storageId } = await result.json();
 
-      // Get image dimensions if it's an image
       let dimensions: { width: number; height: number } | undefined;
       if (file.type.startsWith("image/")) {
         dimensions = await getImageDimensions(file);
@@ -69,7 +68,6 @@ export default function ImageField({
       onChange(url);
       toast.success("Image uploaded successfully");
     } catch {
-      // Handle image upload error silently
       toast.error("Failed to upload image");
     } finally {
       setIsUploading(false);

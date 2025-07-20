@@ -2538,7 +2538,6 @@ export const TeamSection: ComponentConfig = {
     };
     const businessData = business as Doc<"businesses"> | undefined;
 
-    // Get team data from AI generated content or use defaults
     const teamData = businessData?.aiGeneratedContent?.team?.members || [
       {
         name: "John Smith",
@@ -2701,7 +2700,6 @@ export const FeaturesSection: ComponentConfig = {
     };
     const businessData = business as Doc<"businesses"> | undefined;
 
-    // Get features from AI generated content or use defaults
     const features = businessData?.aiGeneratedContent?.features?.items || [
       {
         title: "Expert Team",
@@ -3123,7 +3121,6 @@ export const ServicesDetailedSection: ComponentConfig = {
     };
     const businessData = business as Doc<"businesses"> | undefined;
 
-    // Get services from AI generated content
     const services = businessData?.aiGeneratedContent?.services?.items || [
       {
         title: "Premium Service",
@@ -3613,7 +3610,6 @@ export const GallerySection: ComponentConfig = {
     const title = (props.title as string) || "Our Gallery";
     const subtitle = (props.subtitle as string) || "";
     const images = (props.images as string[]) || [];
-    // const layout = (props.layout as string) || "grid"; // TODO: Implement different layouts
     const columns = (props.columns as string) || "3";
 
     const columnClasses: Record<string, string> = {

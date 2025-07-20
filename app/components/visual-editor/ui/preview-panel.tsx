@@ -107,7 +107,6 @@ const PreviewPanel = React.memo(function PreviewPanel({
 
           // Distribute children to columns based on metadata
           component.children.forEach((child, index) => {
-            // Get columnIndex from metadata, ensuring it's valid for current column count
             let columnIndex = child.metadata?.columnIndex as number | undefined;
 
             // If columnIndex is undefined or out of bounds, redistribute
@@ -130,7 +129,6 @@ const PreviewPanel = React.memo(function PreviewPanel({
                 onSelect={() => onSelectComponent(child.id)}
                 onRemove={() => onRemoveComponent(child.id)}
                 onMove={(_direction) => {
-                  // TODO: Implement nested component movement
                 }}
                 onDuplicate={
                   onDuplicateComponent
@@ -148,7 +146,6 @@ const PreviewPanel = React.memo(function PreviewPanel({
             columnContents[safeColumnIndex].push(childNode);
           });
 
-          // Create pre-distributed children for ColumnsBlock
           children = columnContents.map((colChildren, colIndex) => (
             <div key={colIndex} className="column-content">
               {colChildren}
@@ -165,7 +162,6 @@ const PreviewPanel = React.memo(function PreviewPanel({
               onSelect={() => onSelectComponent(child.id)}
               onRemove={() => onRemoveComponent(child.id)}
               onMove={(_direction) => {
-                // TODO: Implement nested component movement
               }}
               onDuplicate={
                 onDuplicateComponent
@@ -182,7 +178,6 @@ const PreviewPanel = React.memo(function PreviewPanel({
         }
       }
 
-      // Create update handler for this component
       const handleUpdate = (newProps: Record<string, unknown>) => {
         onUpdateComponent(component.id, newProps);
       };

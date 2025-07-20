@@ -127,7 +127,6 @@ export default function MediaLibrary({
 
         const { storageId } = await result.json();
 
-        // Get image dimensions if it's an image
         let dimensions: { width: number; height: number } | undefined;
         if (file.type.startsWith("image/")) {
           dimensions = await getImageDimensions(file);
@@ -148,7 +147,7 @@ export default function MediaLibrary({
 
       toast.success(`Uploaded ${files.length} file(s) successfully`);
     } catch (error) {
-      console.error("Upload error:", error);
+      console.error("Error uploading files:", error);
       toast.error("Failed to upload files");
     } finally {
       setIsUploading(false);

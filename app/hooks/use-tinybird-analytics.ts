@@ -90,7 +90,6 @@ export function useTinybirdAnalytics(
         setVisitorCountries(countriesResponse.data || []);
       } catch (err) {
         setError(err as Error);
-        console.error("Failed to fetch Tinybird analytics:", err);
       } finally {
         setLoading(false);
       }
@@ -106,8 +105,8 @@ export function useTinybirdAnalytics(
         if (realTimeResponse.data && realTimeResponse.data.length > 0) {
           setRealTimeVisitors(realTimeResponse.data[0]);
         }
-      } catch (err) {
-        console.error("Failed to refresh real-time visitors:", err);
+      } catch (error) {
+        console.error("Error fetching analytics data:", error);
       }
     }, 30000);
 
@@ -155,7 +154,6 @@ export function useTinybirdAnalytics(
       setVisitorCountries(countriesResponse.data || []);
     } catch (err) {
       setError(err as Error);
-      console.error("Failed to fetch Tinybird analytics:", err);
     } finally {
       setLoading(false);
     }

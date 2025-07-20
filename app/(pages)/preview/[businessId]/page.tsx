@@ -12,11 +12,14 @@ export default async function BusinessPreviewPage({
   try {
     const { businessId } = await params;
     const businessIdTyped = businessId as Id<"businesses">;
-    
+
     // Preload business data with draft content
-    const preloadedBusiness = await preloadQuery(api.businesses.getByIdWithDraft, {
-      id: businessIdTyped,
-    });
+    const preloadedBusiness = await preloadQuery(
+      api.businesses.getByIdWithDraft,
+      {
+        id: businessIdTyped,
+      },
+    );
 
     if (!preloadedBusiness) {
       notFound();
@@ -28,7 +31,8 @@ export default async function BusinessPreviewPage({
         preloadedBusiness={preloadedBusiness}
       />
     );
-  } catch {
+  } catch (error) {
+    console.error("Error fetching business for preview:", error);
     notFound();
   }
 }

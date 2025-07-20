@@ -34,7 +34,6 @@ export function GallerySection({
 }: GallerySectionProps) {
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
-  // Get theme based on business category
   const categoryTheme = getBusinessCategoryTheme(businessCategory);
   const themeColors = categoryTheme.colors;
   const galleryStyles = categoryTheme.sectionStyles.gallery;

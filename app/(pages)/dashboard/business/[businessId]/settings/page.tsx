@@ -2,9 +2,9 @@ import { redirect } from "next/navigation";
 import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import DomainPageClient from "./domain-page-client";
+import WebsiteSettingsPage from "./website-settings-page";
 
-export default async function BusinessDomainPage({
+export default async function BusinessSettingsPage({
   params,
 }: {
   params: Promise<{ businessId: string }>;
@@ -12,7 +12,6 @@ export default async function BusinessDomainPage({
   const resolvedParams = await params;
   const businessId = resolvedParams.businessId as Id<"businesses">;
 
-  // Get current user (auth is handled by dashboard layout)
   const user = await fetchQuery(api.auth.currentUser, {});
 
   // Fetch initial data
@@ -22,10 +21,9 @@ export default async function BusinessDomainPage({
     redirect("/dashboard");
   }
 
-  // Check ownership
   if (business.userId && user && business.userId !== user._id) {
     redirect("/dashboard");
   }
 
-  return <DomainPageClient businessId={businessId} />;
+  return <WebsiteSettingsPage businessId={businessId} />;
 }

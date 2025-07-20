@@ -2,37 +2,42 @@
 
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Card } from "@/app/components/ui/card";
 import { Loader2 } from "lucide-react";
-import {
-  useAuthState,
-  useCurrentUser,
-} from "@/app/components/providers/dashboard-provider";
 
 interface AuthGuardProps {
   children: React.ReactNode;
   loadingMessage?: string;
+  useDashboardContext?: boolean;
 }
 
 export function AuthGuard({
   children,
   loadingMessage = "Loading...",
+  useDashboardContext = false,
 }: AuthGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const user = useCurrentUser();
-  const { isLoading } = useAuthState();
+
+  // Always use direct query - dashboard provider will handle its own auth state
+  const user = useQuery(api.auth.currentUser);
+  const isLoading = user === undefined;
 
   useEffect(() => {
-    // Only redirect if we've checked auth and user is definitely not authenticated
     if (user === null) {
-      // Store the current path for redirect after login
-      const redirectPath = pathname;
+      const redirectPath = pathname || window.location.pathname;
       router.push(`/sign-in?redirect=${encodeURIComponent(redirectPath)}`);
     }
   }, [user, pathname, router]);
 
-  // Show loading state while checking authentication
+  // For dashboard context, don't show loading - let the dashboard provider handle it
+  if (useDashboardContext && isLoading) {
+    return <>{children}</>;
+  }
+
+  // Show loading state for non-dashboard contexts
   if (isLoading) {
     return (
       <div className="min-h-screen bg-muted flex items-center justify-center p-4">
@@ -70,6 +75,5 @@ export function AuthGuard({
     );
   }
 
-  // User is authenticated, render children
   return <>{children}</>;
 }

@@ -32,6 +32,7 @@ export function AuthRedirectHandler() {
             "Business claimed successfully! You can now edit your website.",
           );
         } catch (claimError) {
+          console.error("Error claiming business:", claimError);
           // If the error is because user already owns it, that's fine
           const errorMessage =
             claimError instanceof Error
@@ -53,7 +54,6 @@ export function AuthRedirectHandler() {
       }
     };
 
-    // Check for business to claim and redirect to editor
     const claimBusinessId = sessionStorage.getItem("claimBusinessId");
     const redirectToEditor = sessionStorage.getItem("redirectToEditor");
 
@@ -67,14 +67,12 @@ export function AuthRedirectHandler() {
       return;
     }
 
-    // Check for pending business data (from landing page)
     const pendingData = sessionStorage.getItem("pendingBusinessData");
     const pendingUrl = sessionStorage.getItem("pendingBusinessUrl");
     if (pendingData && pendingUrl) {
       sessionStorage.removeItem("pendingBusinessData");
       sessionStorage.removeItem("pendingBusinessUrl");
 
-      // Create the website from pending data
       const createWebsiteFromPending = async () => {
         try {
           JSON.parse(pendingData) as BusinessData; // Validate the data structure
@@ -135,7 +133,6 @@ export function AuthRedirectHandler() {
       return;
     }
 
-    // Check for general auth redirect
     const authRedirect = sessionStorage.getItem("authRedirect");
     if (authRedirect) {
       sessionStorage.removeItem("authRedirect");

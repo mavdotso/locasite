@@ -12,7 +12,6 @@ export async function downloadAndStoreImage(
     // Download the image
     const response = await fetch(imageUrl);
     if (!response.ok) {
-      console.error(`Failed to download image: ${imageUrl}`);
       return null;
     }
 
@@ -32,9 +31,6 @@ export async function downloadAndStoreImage(
     });
 
     if (!uploadResponse.ok) {
-      console.error(
-        `Failed to upload image to storage: ${uploadResponse.statusText}`,
-      );
       return null;
     }
 
@@ -45,7 +41,6 @@ export async function downloadAndStoreImage(
     const url = await ctx.runQuery(api.storage.getUrl, { storageId });
 
     if (!url) {
-      console.error("Failed to get URL for stored image");
       return null;
     }
 
@@ -64,7 +59,6 @@ export async function downloadAndStoreImage(
 
     return { storageId, url };
   } catch (error) {
-    console.error("Error downloading and storing image:", error);
     return null;
   }
 }

@@ -39,8 +39,8 @@ export default function BusinessPageRenderer({
 
   try {
     parsedContent = JSON.parse(pageContent);
-  } catch (e) {
-    console.error("Failed to parse page content", e);
+  } catch (error) {
+    console.error("Error parsing page content:", error);
     return <main className="flex-grow"></main>;
   }
 
@@ -100,6 +100,7 @@ export default function BusinessPageRenderer({
               key={section.id}
               data={section.data}
               businessData={businessData}
+              businessId={business._id}
               editMode={false}
             />
           ))}

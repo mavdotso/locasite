@@ -4,7 +4,7 @@ import { Card } from "@/app/components/ui/card";
 import { AuthRedirectHandler } from "@/app/components/auth/auth-redirect-handler";
 import { DashboardProvider } from "@/app/components/providers/dashboard-provider";
 import { AuthGuard } from "@/app/components/auth/auth-guard";
-import DashboardErrorBoundary from "@/app/components/common/dashboard-error-boundary";
+import ErrorBoundary from "@/app/components/common/error-boundary";
 
 export default function DashboardLayout({
   children,
@@ -13,8 +13,11 @@ export default function DashboardLayout({
 }) {
   return (
     <DashboardProvider>
-      <AuthGuard loadingMessage="Loading your dashboard...">
-        <DashboardErrorBoundary>
+      <AuthGuard
+        loadingMessage="Loading your dashboard..."
+        useDashboardContext={true}
+      >
+        <ErrorBoundary variant="dashboard">
           <div className="min-h-screen bg-muted">
             <AuthRedirectHandler />
             <DashboardNav />
@@ -34,7 +37,7 @@ export default function DashboardLayout({
               </Suspense>
             </main>
           </div>
-        </DashboardErrorBoundary>
+        </ErrorBoundary>
       </AuthGuard>
     </DashboardProvider>
   );

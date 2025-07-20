@@ -56,7 +56,6 @@ export function HeroSection({
   businessCategory,
   styleOverrides,
 }: HeroSectionProps) {
-  // Get theme based on business category
   const categoryTheme = getBusinessCategoryTheme(businessCategory);
   const themeColors = categoryTheme.colors;
   const heroStyles = categoryTheme.sectionStyles.hero;
@@ -167,7 +166,6 @@ export function HeroSection({
 
   // Center Hero with Background
   if (type === "hero-section") {
-    // Check if we have a real image URL (not a template variable or placeholder)
     const hasRealImage =
       backgroundImage &&
       !backgroundImage.includes("{") &&

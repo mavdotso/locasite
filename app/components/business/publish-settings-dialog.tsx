@@ -67,9 +67,12 @@ export function PublishSettingsDialog({
   const business = useQuery(api.businesses.getById, { id: businessId });
   const domain = useQuery(api.domains.getByBusinessId, { businessId });
   const publishBusiness = useMutation(api.businesses.publish);
-  const googleOwnershipStatus = useQuery(api.businessClaims.isGoogleBusinessOwner, {
-    businessId,
-  });
+  const googleOwnershipStatus = useQuery(
+    api.businessClaims.isGoogleBusinessOwner,
+    {
+      businessId,
+    },
+  );
 
   const handlePublish = async () => {
     if (!settingsData) return;
@@ -77,7 +80,6 @@ export function PublishSettingsDialog({
     setIsPublishing(true);
 
     try {
-      // Update page data if callback provided
       if (onUpdatePageData) {
         onUpdatePageData({
           pageTitle: settingsData.pageTitle,
@@ -120,15 +122,17 @@ export function PublishSettingsDialog({
 
       onOpenChange(false);
     } catch (error) {
-      console.error("Error publishing:", error);
+      console.error("Error publishing website:", error);
       toast.error("Failed to publish website");
     } finally {
       setIsPublishing(false);
     }
   };
 
-  // Check if we should automatically proceed to settings
-  if (currentStep === "verification" && googleOwnershipStatus?.hasGoogleVerification) {
+  if (
+    currentStep === "verification" &&
+    googleOwnershipStatus?.hasGoogleVerification
+  ) {
     setCurrentStep("settings");
   }
 
@@ -159,30 +163,39 @@ export function PublishSettingsDialog({
                 <>
                   <Alert>
                     <XCircle className="h-4 w-4" />
-                    <AlertTitle>Google Business Verification Required</AlertTitle>
+                    <AlertTitle>
+                      Google Business Verification Required
+                    </AlertTitle>
                     <AlertDescription>
-                      You need to verify ownership of this business through Google
-                      Business Profile before you can publish the website.
+                      You need to verify ownership of this business through
+                      Google Business Profile before you can publish the
+                      website.
                     </AlertDescription>
                   </Alert>
 
                   <div className="space-y-3 p-4 bg-muted rounded-lg">
-                    <h3 className="font-medium">Why is verification required?</h3>
+                    <h3 className="font-medium">
+                      Why is verification required?
+                    </h3>
                     <ul className="space-y-2 text-sm text-muted-foreground">
                       <li className="flex items-start gap-2">
                         <span className="text-primary mt-0.5">•</span>
                         <span>
-                          Ensures only legitimate business owners can publish websites
+                          Ensures only legitimate business owners can publish
+                          websites
                         </span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-primary mt-0.5">•</span>
-                        <span>Protects businesses from unauthorized website creation</span>
+                        <span>
+                          Protects businesses from unauthorized website creation
+                        </span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-primary mt-0.5">•</span>
                         <span>
-                          Enables automatic syncing with your Google Business Profile
+                          Enables automatic syncing with your Google Business
+                          Profile
                         </span>
                       </li>
                     </ul>
@@ -210,13 +223,16 @@ export function PublishSettingsDialog({
                       Ownership Verified!
                     </AlertTitle>
                     <AlertDescription className="text-green-700">
-                      Your Google Business ownership has been verified. You can now
-                      proceed to configure and publish your website.
+                      Your Google Business ownership has been verified. You can
+                      now proceed to configure and publish your website.
                     </AlertDescription>
                   </Alert>
 
                   <div className="flex justify-center pt-4">
-                    <Button onClick={() => setCurrentStep("settings")} className="gap-2">
+                    <Button
+                      onClick={() => setCurrentStep("settings")}
+                      className="gap-2"
+                    >
                       Continue to Settings
                       <ArrowRight className="h-4 w-4" />
                     </Button>
@@ -250,7 +266,10 @@ export function PublishSettingsDialog({
           <Button
             variant="outline"
             onClick={() => {
-              if (currentStep === "settings" && !googleOwnershipStatus?.hasGoogleVerification) {
+              if (
+                currentStep === "settings" &&
+                !googleOwnershipStatus?.hasGoogleVerification
+              ) {
                 setCurrentStep("verification");
               } else {
                 onOpenChange(false);
@@ -258,7 +277,8 @@ export function PublishSettingsDialog({
             }}
             disabled={isPublishing}
           >
-            {currentStep === "settings" && !googleOwnershipStatus?.hasGoogleVerification
+            {currentStep === "settings" &&
+            !googleOwnershipStatus?.hasGoogleVerification
               ? "Back"
               : "Cancel"}
           </Button>

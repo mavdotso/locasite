@@ -23,13 +23,11 @@ const DropZone = React.memo(function DropZone({
   const { isDragging, dropTargetId, setDropTarget, endDrag, draggedItem } =
     useDragDrop();
 
-  // Check if the dragged item is a template
   const isTemplate =
     draggedItem?.type === "new-component" &&
     draggedItem.componentType &&
     componentConfigs[draggedItem.componentType]?.isTemplate;
 
-  // Check what we're dragging
   const isDraggingColumns =
     draggedItem?.type === "new-component" &&
     draggedItem.componentType === "ColumnsBlock";

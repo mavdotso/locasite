@@ -1978,7 +1978,6 @@ export const TestimonialsBlock: ComponentConfig = {
   template: (business?: unknown) => {
     const businessData = business as Doc<"businesses"> | undefined;
 
-    // Check if we have AI-generated testimonials
     // const hasAITestimonials = businessData?.aiGeneratedContent?.testimonials?.items &&
     //                          businessData.aiGeneratedContent.testimonials.items.length > 0;
 
@@ -1986,7 +1985,6 @@ export const TestimonialsBlock: ComponentConfig = {
     const testimonialTitle =
       businessData?.aiGeneratedContent?.testimonials?.title ||
       "What Our Customers Say";
-    // TODO: Update template to use dynamic testimonials from AI content
     // const testimonialItems = businessData?.aiGeneratedContent?.testimonials?.items || [
     //   {
     //     name: "John Smith",

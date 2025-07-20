@@ -34,7 +34,6 @@ export const uploadGoogleMapsImages = action({
         // Download the image
         const response = await fetch(imageUrl);
         if (!response.ok) {
-          console.error(`Failed to download image: ${imageUrl}`);
           storedUrls.push(imageUrl); // Keep original URL if download fails
           continue;
         }
@@ -66,7 +65,6 @@ export const uploadGoogleMapsImages = action({
 
         storedUrls.push(url);
       } catch (error) {
-        console.error(`Error storing image ${i + 1}:`, error);
         storedUrls.push(imageUrl); // Keep original URL if any error occurs
       }
     }

@@ -104,7 +104,6 @@ export const syncBusinessDomain = mutation({
       
     if (!existingPage) {
       // Don't create a page here - let the normal flow handle it
-      console.log("No page found for domain, but not creating one in sync");
     }
     
     return { domainId, synced: true, success: true };

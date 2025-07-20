@@ -50,7 +50,6 @@ export default function AnalyticsOverview({
 }: AnalyticsOverviewProps) {
   const [timeRange, setTimeRange] = useState<"7d" | "30d">("7d");
 
-  // Get time range dates
   const startDate =
     timeRange === "7d" ? subDays(new Date(), 7) : subDays(new Date(), 30);
 

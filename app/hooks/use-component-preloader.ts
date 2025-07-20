@@ -45,7 +45,6 @@ export function useComponentPreloader(
           // Trigger component render function to ensure it's loaded
           const config = componentConfigs[componentType];
           if (config.render) {
-            // Create a dummy render to preload the component
             try {
               config.render({}, false, {} as Doc<"businesses">, null, () => {});
               preloadedRef.current.components.add(componentType);

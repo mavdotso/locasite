@@ -34,7 +34,6 @@ export function ServicesSection({
   businessCategory,
   styleOverrides,
 }: ServicesSectionProps) {
-  // Get theme based on business category
   const categoryTheme = getBusinessCategoryTheme(businessCategory);
   const themeColors = categoryTheme.colors;
   const servicesStyles = categoryTheme.sectionStyles.services;
