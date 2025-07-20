@@ -14,9 +14,22 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Loader2, Sparkles, Zap, Building2 } from "lucide-react";
+import {
+  Check,
+  Loader2,
+  Sparkles,
+  Zap,
+  Building2,
+  ExternalLink,
+} from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export default function BillingPage() {
   const [loadingPlan, setLoadingPlan] = useState<PlanType | null>(null);
@@ -26,6 +39,9 @@ export default function BillingPage() {
   const cancelSubscription = useAction(api.subscriptions.cancelSubscription);
   const reactivateSubscription = useAction(
     api.subscriptions.reactivateSubscription,
+  );
+  const createPortalSession = useAction(
+    api.subscriptions.createCustomerPortalSession,
   );
 
   const currentPlan = subscription?.planType || "FREE";
@@ -76,6 +92,20 @@ export default function BillingPage() {
     } catch (error) {
       console.error("Error reactivating subscription:", error);
       toast.error("Failed to reactivate subscription");
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    try {
+      const url = await createPortalSession();
+      if (url) {
+        window.location.href = url;
+      } else {
+        toast.error("Unable to open billing portal. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error creating portal session:", error);
+      toast.error("Failed to open billing portal");
     }
   };
 
@@ -160,6 +190,10 @@ export default function BillingPage() {
                 Cancel Subscription
               </Button>
             )}
+            <Button variant="outline" onClick={handleManageSubscription}>
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Manage Subscription
+            </Button>
           </CardFooter>
         </Card>
       )}
@@ -263,48 +297,61 @@ export default function BillingPage() {
       </div>
 
       {/* FAQ Section */}
-      <div className="mt-12 space-y-4">
-        <h2 className="text-2xl font-semibold">Frequently Asked Questions</h2>
+      <div className="mt-12">
+        <h2 className="text-2xl font-semibold mb-4">
+          Frequently Asked Questions
+        </h2>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Can I cancel anytime?</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="cancel">
+            <AccordionTrigger>Can I cancel anytime?</AccordionTrigger>
+            <AccordionContent>
               Yes, you can cancel your subscription at any time. You&apos;ll
               continue to have access to your plan features until the end of
               your billing period.
-            </p>
-          </CardContent>
-        </Card>
+            </AccordionContent>
+          </AccordionItem>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
+          <AccordionItem value="downgrade">
+            <AccordionTrigger>
               What happens to my sites if I downgrade?
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
+            </AccordionTrigger>
+            <AccordionContent>
               If you exceed the limits of your new plan, you&apos;ll need to
               choose which sites to keep active. The others will be paused but
               not deleted.
-            </p>
-          </CardContent>
-        </Card>
+            </AccordionContent>
+          </AccordionItem>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Do you offer refunds?</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
+          <AccordionItem value="refunds">
+            <AccordionTrigger>Do you offer refunds?</AccordionTrigger>
+            <AccordionContent>
               We offer a 14-day money-back guarantee for new subscriptions.
               Contact support if you&apos;re not satisfied.
-            </p>
-          </CardContent>
-        </Card>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="payment-methods">
+            <AccordionTrigger>
+              What payment methods do you accept?
+            </AccordionTrigger>
+            <AccordionContent>
+              We accept all major credit and debit cards including Visa,
+              Mastercard, American Express, and Discover. All payments are
+              processed securely through Stripe.
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="change-plans">
+            <AccordionTrigger>Can I change plans at any time?</AccordionTrigger>
+            <AccordionContent>
+              Yes, you can upgrade your plan at any time. When you upgrade,
+              you&apos;ll be charged a prorated amount for the remainder of your
+              billing cycle. Downgrades take effect at the end of your current
+              billing period.
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
     </div>
   );
