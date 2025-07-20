@@ -22,7 +22,7 @@ import Link from "next/link";
 
 export type ErrorBoundaryVariant = "default" | "dashboard" | "editor";
 
-interface UnifiedErrorBoundaryProps {
+interface ErrorBoundaryProps {
   children: React.ReactNode;
   variant?: ErrorBoundaryVariant;
   onSaveRecovery?: () => void;
@@ -34,12 +34,12 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-export default function UnifiedErrorBoundary({
+export default function ErrorBoundary({
   children,
   variant = "default",
   onSaveRecovery,
   fallback,
-}: UnifiedErrorBoundaryProps) {
+}: ErrorBoundaryProps) {
   return (
     <ErrorBoundaryClass
       variant={variant}
@@ -52,10 +52,10 @@ export default function UnifiedErrorBoundary({
 }
 
 class ErrorBoundaryClass extends React.Component<
-  UnifiedErrorBoundaryProps,
+  ErrorBoundaryProps,
   ErrorBoundaryState
 > {
-  constructor(props: UnifiedErrorBoundaryProps) {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null };
   }

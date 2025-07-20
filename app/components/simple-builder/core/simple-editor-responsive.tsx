@@ -25,7 +25,7 @@ import CanvasControls, { DeviceSize, deviceSizes } from "../ui/canvas-controls";
 import { getVariationById } from "../sections/section-variations";
 import { cn } from "@/app/lib/utils";
 import { Button } from "@/app/components/ui/button";
-import UnifiedErrorBoundary from "@/app/components/common/unified-error-boundary";
+import ErrorBoundary from "@/app/components/common/error-boundary";
 import {
   Plus,
   Settings,
@@ -352,7 +352,7 @@ export function SimpleEditorResponsive({
   }
 
   return (
-    <UnifiedErrorBoundary variant="editor" onSaveRecovery={handleSave}>
+    <ErrorBoundary variant="editor" onSaveRecovery={handleSave}>
       <TooltipProvider>
         <div className="simple-editor h-screen flex flex-col">
           {/* Editor Header */}
@@ -807,6 +807,6 @@ export function SimpleEditorResponsive({
           )}
         </div>
       </TooltipProvider>
-    </UnifiedErrorBoundary>
+    </ErrorBoundary>
   );
 }

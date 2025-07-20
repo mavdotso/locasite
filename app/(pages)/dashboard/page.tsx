@@ -44,29 +44,7 @@ export default function DashboardPage() {
 
   // Show loading state while data is being fetched
   if (businessesWithMetadata === undefined) {
-    return (
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-muted rounded w-1/4 mb-2"></div>
-          <div className="h-4 bg-muted rounded w-1/3 mb-8"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[1, 2, 3].map((i) => (
-              <Card key={i} className="overflow-hidden">
-                <div className="aspect-[16/9] bg-muted"></div>
-                <div className="p-5 space-y-3">
-                  <div className="h-5 bg-muted rounded w-3/4"></div>
-                  <div className="h-4 bg-muted rounded w-1/2"></div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="h-9 bg-muted rounded"></div>
-                    <div className="h-9 bg-muted rounded"></div>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return null; // Let the Suspense boundary in the layout handle loading
   }
 
   const ownedBusinesses = businessesWithMetadata || [];
