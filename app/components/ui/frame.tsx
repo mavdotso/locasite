@@ -70,7 +70,7 @@ function FrameInner({
   );
 }
 
-export default function Frame({
+export default function PreviewFrame({
   children,
   width = "100%",
   className,
