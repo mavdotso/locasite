@@ -15,19 +15,14 @@ export default function BusinessLivePreview({
   businessData,
   businessId,
 }: BusinessLivePreviewProps) {
-  // If we have a businessId, fetch the actual page content
-  const business = useQuery(
-    api.businesses.getById,
-    businessId ? { id: businessId } : "skip",
-  );
-  const domain = useQuery(
-    api.domains.getByBusinessId,
+  // If we have a businessId, fetch all related data in one query
+  const previewData = useQuery(
+    api.businessesWithDomain.getBusinessPreviewData,
     businessId ? { businessId } : "skip",
   );
-  const page = useQuery(
-    api.pages.getHomepageByDomain,
-    domain ? { domainId: domain._id } : "skip",
-  );
+  
+  const business = previewData?.business;
+  const page = previewData?.page;
 
   const mockBusiness = {
     _id: "preview" as Id<"businesses">,

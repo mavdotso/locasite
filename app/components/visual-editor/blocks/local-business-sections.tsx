@@ -3026,7 +3026,7 @@ export const CTABannerSection: ComponentConfig = {
                 className={cn(
                   "font-semibold",
                   textColor,
-                  "border-current hover:bg-white/10",
+                  "border-current hover:opacity-80",
                 )}
                 onClick={
                   editMode
@@ -3443,7 +3443,7 @@ export const HeroSection: ComponentConfig = {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="bg-white/10 text-white border-white hover:bg-white/20"
+                  className="text-white border-2 border-blue-300/50 hover:border-blue-200/70 backdrop-blur-sm"
                   asChild
                 >
                   <a href={secondaryButtonLink}>{secondaryButtonText}</a>
