@@ -120,11 +120,13 @@ Locasite is a Business Site Generator SaaS that creates professional websites fo
 
 - **Components**: Use functional components with React Server Components where possible
 - **Naming**: Use `dash-dir` for directories, `handleEvent` for event handlers
+- **Component Names**: Use simple, descriptive names without prefixes like "Unified", "Responsive", etc. (e.g., `canvas-controls.tsx`, `frame.tsx`)
 - **File Creation**: When rewriting a component from scratch, ALWAYS overwrite the existing file directly. NEVER create files with `-v2`, `-new`, or similar suffixes
 - **Imports**: Group imports by external/internal, sort alphabetically
 - **Error Handling**: Use early returns, implement error boundaries
 - **Styling**: Use Tailwind classes only, no CSS or style tags
 - **Accessibility**: Include `aria-label`, `tabindex="0"`, and keyboard handlers
+- **Comments**: Avoid obvious comments like "Memoize components", "Inner component", section headers like "Device Size Controls". Only add comments for complex logic that isn't self-explanatory
 
 ### Performance Optimization
 

@@ -74,7 +74,6 @@ export default function CanvasControls({
       )}
     >
       <div className="flex items-center gap-1 bg-background/95 backdrop-blur-sm border rounded-lg shadow-lg p-1">
-        {/* Device Size Controls */}
         <div className="flex items-center gap-0.5 px-1">
           {(
             Object.entries(deviceSizes) as [
@@ -107,7 +106,6 @@ export default function CanvasControls({
           <>
             <div className="w-px h-6 bg-border" />
 
-            {/* Zoom Controls */}
             <div className="flex items-center gap-0.5 px-1">
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -178,7 +176,6 @@ export default function CanvasControls({
           </>
         )}
 
-        {/* View Options */}
         <div className="flex items-center gap-0.5 px-1">
           {isFullScreen && onExitFullScreen ? (
             <Tooltip>

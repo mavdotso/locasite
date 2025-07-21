@@ -4,13 +4,12 @@ import React, { useState, useEffect, useRef } from "react";
 import Frame, { FrameContextConsumer } from "react-frame-component";
 import { cn } from "@/app/lib/utils";
 
-interface ResponsiveFrameProps {
+interface FrameProps {
   children: React.ReactNode;
   width?: string | number;
   className?: string;
 }
 
-// Inner component to handle iframe content with hooks
 function FrameInner({
   children,
   doc,
@@ -25,16 +24,13 @@ function FrameInner({
   useEffect(() => {
     if (!doc) return;
 
-    // Small delay to ensure iframe is fully loaded
     const timer = setTimeout(() => {
       try {
-        // Copy CSS variables
         const rootStyles = window.getComputedStyle(document.documentElement);
         const cssProps = Array.from(rootStyles).filter((prop) =>
           prop.startsWith("--"),
         );
 
-        // Batch DOM updates
         requestAnimationFrame(() => {
           cssProps.forEach((prop) => {
             doc.documentElement.style.setProperty(
@@ -43,14 +39,12 @@ function FrameInner({
             );
           });
 
-          // Copy dark mode class
           if (document.documentElement.classList.contains("dark")) {
             doc.documentElement.classList.add("dark");
           } else {
             doc.documentElement.classList.remove("dark");
           }
 
-          // Clear any background image
           if (doc.body) {
             doc.body.style.backgroundImage = "none";
           }
@@ -59,8 +53,7 @@ function FrameInner({
           onReady();
         });
       } catch {
-        // Silently handle iframe setup errors
-        setIsReady(true); // Still mark as ready to show content
+        setIsReady(true);
       }
     }, 100);
 
@@ -77,16 +70,15 @@ function FrameInner({
   );
 }
 
-export default function ResponsiveFrame({
+export default function Frame({
   children,
   width = "100%",
   className,
-}: ResponsiveFrameProps) {
+}: FrameProps) {
   const [frameKey] = useState(0);
   const [isFrameReady, setIsFrameReady] = useState(false);
   const mountedRef = useRef(true);
 
-  // Memoize initial content to prevent recreating on each render
   const initialContent = React.useMemo(() => {
     const styles = Array.from(document.querySelectorAll("style"))
       .map((style) => `<style>${style.innerHTML}</style>`)
@@ -101,8 +93,6 @@ export default function ResponsiveFrame({
       })
       .join("\n");
 
-    // In development, we can use Tailwind CDN for faster iteration
-    // In production, we rely on the compiled styles from Next.js
     const tailwindScript =
       process.env.NODE_ENV === "development"
         ? '<script src="https://cdn.tailwindcss.com"></script>'
@@ -128,7 +118,6 @@ export default function ResponsiveFrame({
             * {
               box-sizing: border-box;
             }
-            /* Ensure Tailwind styles are applied */
             @layer base, components, utilities;
           </style>
         </head>
@@ -139,7 +128,6 @@ export default function ResponsiveFrame({
     `;
   }, []);
 
-  // Only recreate frame if absolutely necessary
   useEffect(() => {
     mountedRef.current = true;
     return () => {

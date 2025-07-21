@@ -1,1 +1,1 @@
-export { default } from "@/app/components/ui/responsive-frame";
+export { default } from "@/app/components/ui/frame";

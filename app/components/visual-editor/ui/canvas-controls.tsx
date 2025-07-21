@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import UnifiedCanvasControls from "@/app/components/ui/canvas-controls";
+import CanvasControlsBase from "@/app/components/ui/canvas-controls";
 
 export type DeviceSize = "desktop" | "tablet" | "mobile";
 export { deviceSizes } from "@/app/components/ui/canvas-controls";
@@ -24,7 +24,7 @@ export default function CanvasControls({
   onFullScreenChange,
 }: CanvasControlsProps) {
   return (
-    <UnifiedCanvasControls
+    <CanvasControlsBase
       deviceSize={deviceSize}
       onDeviceSizeChange={onDeviceSizeChange}
       zoom={zoom}
