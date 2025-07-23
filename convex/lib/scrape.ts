@@ -1,7 +1,6 @@
 import { httpAction } from "../_generated/server";
-import { api } from "../_generated/api";
+import { api, components } from "../_generated/api";
 import { RateLimiter } from "@convex-dev/rate-limiter";
-import { components } from "../_generated/api";
 import axios from "axios";
 import { generateDefaultDescription } from "./businessDescriptions";
 import { convexEnv } from "./env";
