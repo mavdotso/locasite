@@ -7,6 +7,7 @@ import {
 import { internal } from "./_generated/api";
 import { stripe } from "./lib/stripe";
 import { getPlanByPriceId } from "./lib/plans";
+import { convexEnv } from "./lib/env";
 import type Stripe from "stripe";
 
 // Webhook handler for Stripe events
@@ -16,7 +17,7 @@ export const fulfill = internalAction({
     payload: v.string(),
   },
   handler: async (ctx, args) => {
-    const webhookSecret = process.env.STRIPE_WEBHOOKS_SECRET;
+    const webhookSecret = convexEnv.STRIPE_WEBHOOKS_SECRET;
     if (!webhookSecret) {
       throw new Error("STRIPE_WEBHOOKS_SECRET is not set");
     }

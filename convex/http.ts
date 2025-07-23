@@ -4,6 +4,7 @@ import { httpAction } from "./_generated/server";
 import { scrapeGoogleMaps } from "./lib/scrape";
 import { api, internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
+import { convexEnv } from "./lib/env";
 
 const http = router;
 
@@ -28,7 +29,7 @@ http.route({
     ) {
       return new Response(null, {
         headers: new Headers({
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
           "Access-Control-Allow-Methods": "POST",
           "Access-Control-Allow-Headers": "Content-Type, Authorization",
           "Access-Control-Max-Age": "86400",
@@ -53,10 +54,7 @@ http.route({
     // Handle OAuth errors
     if (error) {
       const errorDescription = url.searchParams.get("error_description");
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-      if (!appUrl) {
-        throw new Error("NEXT_PUBLIC_APP_URL environment variable is not set");
-      }
+      const appUrl = convexEnv.NEXT_PUBLIC_APP_URL;
       const redirectUrl = `${appUrl}/business/verify/error?error=${encodeURIComponent(errorDescription || error)}`;
       return new Response(null, {
         status: 302,
@@ -67,10 +65,7 @@ http.route({
     }
 
     if (!code || !state) {
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-      if (!appUrl) {
-        throw new Error("NEXT_PUBLIC_APP_URL environment variable is not set");
-      }
+      const appUrl = convexEnv.NEXT_PUBLIC_APP_URL;
       const redirectUrl = `${appUrl}/business/verify/error?error=${encodeURIComponent("Missing authorization code or state")}`;
       return new Response(null, {
         status: 302,
@@ -91,9 +86,9 @@ http.route({
       const tokenEndpoint = "https://oauth2.googleapis.com/token";
       const tokenParams = new URLSearchParams({
         code,
-        client_id: process.env.GOOGLE_BUSINESS_CLIENT_ID!,
-        client_secret: process.env.GOOGLE_BUSINESS_CLIENT_SECRET!,
-        redirect_uri: `${process.env.NEXT_PUBLIC_CONVEX_URL}/google-business/callback`,
+        client_id: convexEnv.GOOGLE_BUSINESS_CLIENT_ID,
+        client_secret: convexEnv.GOOGLE_BUSINESS_CLIENT_SECRET,
+        redirect_uri: `${convexEnv.NEXT_PUBLIC_CONVEX_URL}/google-business/callback`,
         grant_type: "authorization_code",
       });
 
@@ -138,10 +133,7 @@ http.route({
 
       // Redirect based on verification result
       const businessId = claim.businessId;
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-      if (!appUrl) {
-        throw new Error("NEXT_PUBLIC_APP_URL environment variable is not set");
-      }
+      const appUrl = convexEnv.NEXT_PUBLIC_APP_URL;
 
       if (verificationResult.success) {
         const redirectUrl = `${appUrl}/business/${businessId}/verify?claimId=${claimId}&status=success`;
@@ -163,7 +155,7 @@ http.route({
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error occurred";
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+      const appUrl = convexEnv.NEXT_PUBLIC_APP_URL;
       if (!appUrl) {
         // Return a proper error response if env var is missing
         return new Response(
@@ -194,9 +186,8 @@ http.route({
       const { type, data } = body;
 
       // Initialize Tinybird client
-      const apiUrl =
-        process.env.NEXT_PUBLIC_TINYBIRD_API_URL || "https://api.tinybird.co";
-      const token = process.env.NEXT_PUBLIC_TINYBIRD_TOKEN;
+      const apiUrl = convexEnv.NEXT_PUBLIC_TINYBIRD_API_URL;
+      const token = convexEnv.NEXT_PUBLIC_TINYBIRD_TOKEN;
 
       if (!token) {
         return new Response(
@@ -261,7 +252,7 @@ http.route({
         status: 200,
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
         },
       });
     } catch (error) {
@@ -286,7 +277,7 @@ http.route({
     ) {
       return new Response(null, {
         headers: new Headers({
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
           "Access-Control-Allow-Methods": "POST",
           "Access-Control-Allow-Headers": "Content-Type",
           "Access-Control-Max-Age": "86400",
@@ -330,7 +321,7 @@ http.route({
         status: 200,
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
         },
       });
     } catch (error) {
@@ -379,7 +370,7 @@ http.route({
         status: 200,
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
         },
       });
     } catch (error) {
@@ -410,7 +401,7 @@ http.route({
     ) {
       return new Response(null, {
         headers: new Headers({
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
           "Access-Control-Allow-Methods": "POST",
           "Access-Control-Allow-Headers": "Content-Type",
           "Access-Control-Max-Age": "86400",
@@ -434,7 +425,7 @@ http.route({
     ) {
       return new Response(null, {
         headers: new Headers({
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
           "Access-Control-Allow-Methods": "POST",
           "Access-Control-Allow-Headers": "Content-Type",
           "Access-Control-Max-Age": "86400",
@@ -731,11 +722,11 @@ http.route({
       const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
       authUrl.searchParams.set(
         "client_id",
-        process.env.GOOGLE_BUSINESS_CLIENT_ID!,
+        convexEnv.GOOGLE_BUSINESS_CLIENT_ID,
       );
       authUrl.searchParams.set(
         "redirect_uri",
-        `${process.env.NEXT_PUBLIC_CONVEX_URL}/google-business/callback`,
+        `${convexEnv.NEXT_PUBLIC_CONVEX_URL}/google-business/callback`,
       );
       authUrl.searchParams.set("response_type", "code");
       authUrl.searchParams.set(
@@ -808,7 +799,7 @@ http.route({
           status: 200,
           headers: {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+            "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
           },
         },
       );
@@ -858,7 +849,7 @@ http.route({
         status: 200,
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
         },
       });
     } catch (error) {
@@ -889,7 +880,7 @@ http.route({
     ) {
       return new Response(null, {
         headers: new Headers({
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
           "Access-Control-Allow-Methods": "GET",
           "Access-Control-Allow-Headers": "Content-Type",
           "Access-Control-Max-Age": "86400",
@@ -913,7 +904,7 @@ http.route({
     ) {
       return new Response(null, {
         headers: new Headers({
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
           "Access-Control-Allow-Methods": "POST",
           "Access-Control-Allow-Headers": "Content-Type",
           "Access-Control-Max-Age": "86400",

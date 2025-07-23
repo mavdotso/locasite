@@ -1,3 +1,5 @@
+import { convexEnv } from "./env";
+
 export type PlanType = "FREE" | "PROFESSIONAL" | "BUSINESS";
 
 export interface SubscriptionPlan {
@@ -39,7 +41,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanType, SubscriptionPlan> = {
     name: "Professional",
     price: 1900, // $19/month
     priceId:
-      process.env.STRIPE_PRICE_PROFESSIONAL || "price_professional_monthly",
+      convexEnv.STRIPE_PRICE_PROFESSIONAL || "price_professional_monthly",
     features: [
       "Unlimited business sites",
       "Advanced customization",
@@ -60,7 +62,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanType, SubscriptionPlan> = {
   BUSINESS: {
     name: "Business",
     price: 4900, // $49/month
-    priceId: process.env.STRIPE_PRICE_BUSINESS || "price_business_monthly",
+    priceId: convexEnv.STRIPE_PRICE_BUSINESS || "price_business_monthly",
     features: [
       "Everything in Professional",
       "White-label solution",

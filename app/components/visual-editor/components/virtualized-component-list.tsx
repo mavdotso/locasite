@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useCallback } from "react";
-import { FixedSizeList as List } from "react-window";
+import { FixedSizeList as List, ListChildComponentProps } from "react-window";
 import { ComponentData, PageData } from "@/app/types/visual-editor";
 import { allComponentConfigs as componentConfigs } from "../config/all-components";
 import ComponentWrapper from "./component-wrapper";
@@ -52,16 +52,8 @@ interface ComponentItemData {
 const ITEM_HEIGHT = 120; // Estimated height per component
 const MIN_COMPONENTS_FOR_VIRTUALIZATION = 20; // Only virtualize if more than 20 components
 
-const ComponentItem = React.memo(
-  ({
-    index,
-    style,
-    data,
-  }: {
-    index: number;
-    style: React.CSSProperties;
-    data: ComponentItemData;
-  }) => {
+const ComponentItem = React.memo<ListChildComponentProps<ComponentItemData>>(
+  ({ index, style, data }) => {
     const {
       components,
       business,
@@ -330,7 +322,7 @@ export default function VirtualizedComponentList({
       itemData={itemData}
       overscanCount={5} // Render 5 extra items outside viewport for smooth scrolling
     >
-      {ComponentItem}
+      {(props: ListChildComponentProps) => <ComponentItem {...props} />}
     </List>
   );
 }
