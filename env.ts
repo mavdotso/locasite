@@ -1,0 +1,141 @@
+import { createEnv } from "@t3-oss/env-nextjs";
+import { z } from "zod";
+
+export const env = createEnv({
+  /**
+   * Specify your server-side environment variables schema here.
+   * This way you can ensure the app isn't built with invalid env vars.
+   */
+  server: {
+    // Convex Backend
+    CONVEX_DEPLOYMENT: z.string(),
+    CONVEX_AUTH_PRIVATE_KEY: z.string(),
+    CONVEX_AUTH_ADAPTER_SECRET: z.string(),
+    CONVEX_SITE_URL: z.string().url().default("http://localhost:3000"),
+    JWT_PRIVATE_KEY: z.string(),
+    JWKS: z.string(),
+
+    // CORS Configuration
+    CLIENT_ORIGIN: z.string().default("*"),
+
+    // Custom Domain Configuration
+    CUSTOM_DOMAIN_CNAME: z.string().default("cname.vercel-dns.com"),
+
+    // Google Services (Server)
+    GOOGLE_MAPS_API_KEY: z.string(),
+    GOOGLE_BUSINESS_CLIENT_ID: z.string(),
+    GOOGLE_BUSINESS_CLIENT_SECRET: z.string(),
+
+    // Stripe Payment Configuration
+    STRIPE_SECRET_KEY: z.string(),
+    STRIPE_WEBHOOKS_SECRET: z.string(),
+    STRIPE_PRICE_PROFESSIONAL: z.string().optional(),
+    STRIPE_PRICE_BUSINESS: z.string().optional(),
+
+    // AI Services
+    OPENAI_API_KEY: z.string().optional(),
+    GEMINI_API_KEY: z.string().optional(),
+
+    // NextAuth Configuration
+    AUTH_SECRET: z.string(),
+    AUTH_GOOGLE_ID: z.string(),
+    AUTH_GOOGLE_SECRET: z.string(),
+
+    // Vercel API Configuration
+    VERCEL_API_TOKEN: z.string().optional(),
+    VERCEL_PROJECT_ID: z.string().optional(),
+    VERCEL_TEAM_ID: z.string().optional(),
+
+    // Google Site Verification
+    GOOGLE_SITE_VERIFICATION: z.string().optional(),
+
+    // Node Environment
+    NODE_ENV: z
+      .enum(["development", "test", "production"])
+      .default("development"),
+  },
+
+  /**
+   * Specify your client-side environment variables schema here.
+   * This way you can ensure the app isn't built with invalid env vars.
+   * To expose them to the client, prefix them with `NEXT_PUBLIC_`.
+   */
+  client: {
+    // Convex
+    NEXT_PUBLIC_CONVEX_URL: z.string().url(),
+
+    // Application Configuration
+    NEXT_PUBLIC_ROOT_DOMAIN: z.string().default("locasite.xyz"),
+    NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
+    NEXT_PUBLIC_VERCEL_DEPLOYMENT_SUFFIX: z.string().default("vercel.app"),
+
+    // Google Services (Client)
+    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: z.string().optional(),
+    NEXT_PUBLIC_GOOGLE_BUSINESS_CLIENT_ID: z.string(),
+
+    // Tinybird Analytics
+    NEXT_PUBLIC_TINYBIRD_API_URL: z
+      .string()
+      .url()
+      .default("https://api.tinybird.co"),
+    NEXT_PUBLIC_TINYBIRD_TOKEN: z.string(),
+  },
+
+  /**
+   * You can't destruct `process.env` as a regular object in the Next.js edge runtimes (e.g.
+   * middlewares) or client-side so we need to destruct manually.
+   */
+  runtimeEnv: {
+    // Server
+    CONVEX_DEPLOYMENT: process.env.CONVEX_DEPLOYMENT,
+    CONVEX_AUTH_PRIVATE_KEY: process.env.CONVEX_AUTH_PRIVATE_KEY,
+    CONVEX_AUTH_ADAPTER_SECRET: process.env.CONVEX_AUTH_ADAPTER_SECRET,
+    CONVEX_SITE_URL: process.env.CONVEX_SITE_URL,
+    JWT_PRIVATE_KEY: process.env.JWT_PRIVATE_KEY,
+    JWKS: process.env.JWKS,
+    CLIENT_ORIGIN: process.env.CLIENT_ORIGIN,
+    CUSTOM_DOMAIN_CNAME: process.env.CUSTOM_DOMAIN_CNAME,
+    GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY,
+    GOOGLE_BUSINESS_CLIENT_ID: process.env.GOOGLE_BUSINESS_CLIENT_ID,
+    GOOGLE_BUSINESS_CLIENT_SECRET: process.env.GOOGLE_BUSINESS_CLIENT_SECRET,
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    STRIPE_WEBHOOKS_SECRET: process.env.STRIPE_WEBHOOKS_SECRET,
+    STRIPE_PRICE_PROFESSIONAL: process.env.STRIPE_PRICE_PROFESSIONAL,
+    STRIPE_PRICE_BUSINESS: process.env.STRIPE_PRICE_BUSINESS,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+    AUTH_SECRET: process.env.AUTH_SECRET,
+    AUTH_GOOGLE_ID: process.env.AUTH_GOOGLE_ID,
+    AUTH_GOOGLE_SECRET: process.env.AUTH_GOOGLE_SECRET,
+    VERCEL_API_TOKEN: process.env.VERCEL_API_TOKEN,
+    VERCEL_PROJECT_ID: process.env.VERCEL_PROJECT_ID,
+    VERCEL_TEAM_ID: process.env.VERCEL_TEAM_ID,
+    GOOGLE_SITE_VERIFICATION: process.env.GOOGLE_SITE_VERIFICATION,
+    NODE_ENV: process.env.NODE_ENV,
+
+    // Client
+    NEXT_PUBLIC_CONVEX_URL: process.env.NEXT_PUBLIC_CONVEX_URL,
+    NEXT_PUBLIC_ROOT_DOMAIN: process.env.NEXT_PUBLIC_ROOT_DOMAIN,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_VERCEL_DEPLOYMENT_SUFFIX:
+      process.env.NEXT_PUBLIC_VERCEL_DEPLOYMENT_SUFFIX,
+    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:
+      process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+    NEXT_PUBLIC_GOOGLE_BUSINESS_CLIENT_ID:
+      process.env.NEXT_PUBLIC_GOOGLE_BUSINESS_CLIENT_ID,
+    NEXT_PUBLIC_TINYBIRD_API_URL: process.env.NEXT_PUBLIC_TINYBIRD_API_URL,
+    NEXT_PUBLIC_TINYBIRD_TOKEN: process.env.NEXT_PUBLIC_TINYBIRD_TOKEN,
+  },
+
+  /**
+   * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
+   * This is especially useful for Docker builds.
+   */
+  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
+
+  /**
+   * Makes it so that empty strings are treated as undefined.
+   * `SOME_VAR: z.string()` and `SOME_VAR=''` will throw an error.
+   */
+  emptyStringAsUndefined: true,
+});

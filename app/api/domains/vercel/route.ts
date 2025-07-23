@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { api } from "@/convex/_generated/api";
 import { ConvexHttpClient } from "convex/browser";
 import { Id } from "@/convex/_generated/dataModel";
+import { env } from "@/env";
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+const convex = new ConvexHttpClient(env.NEXT_PUBLIC_CONVEX_URL);
 
 // Add domain to Vercel project
 export async function POST(request: NextRequest) {
@@ -17,9 +18,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const vercelToken = process.env.VERCEL_API_TOKEN;
-    const projectId = process.env.VERCEL_PROJECT_ID;
-    const teamId = process.env.VERCEL_TEAM_ID; // Optional, if using team account
+    const vercelToken = env.VERCEL_API_TOKEN;
+    const projectId = env.VERCEL_PROJECT_ID;
+    const teamId = env.VERCEL_TEAM_ID; // Optional, if using team account
 
     if (!vercelToken || !projectId) {
       return NextResponse.json(
@@ -101,9 +102,9 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const vercelToken = process.env.VERCEL_API_TOKEN;
-    const projectId = process.env.VERCEL_PROJECT_ID;
-    const teamId = process.env.VERCEL_TEAM_ID;
+    const vercelToken = env.VERCEL_API_TOKEN;
+    const projectId = env.VERCEL_PROJECT_ID;
+    const teamId = env.VERCEL_TEAM_ID;
 
     if (!vercelToken || !projectId) {
       return NextResponse.json(

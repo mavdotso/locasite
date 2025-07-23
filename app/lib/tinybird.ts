@@ -1,4 +1,5 @@
 // Tinybird client for analytics event tracking and querying
+import { env } from "@/env";
 
 interface TinybirdConfig {
   apiUrl: string;
@@ -230,17 +231,9 @@ let tinybirdClient: TinybirdClient | null = null;
 
 export function getTinybirdClient(): TinybirdClient {
   if (!tinybirdClient) {
-    const apiUrl =
-      process.env.NEXT_PUBLIC_TINYBIRD_API_URL || "https://api.tinybird.co";
-    const token = process.env.NEXT_PUBLIC_TINYBIRD_TOKEN;
-
-    if (!token) {
-      throw new Error("NEXT_PUBLIC_TINYBIRD_TOKEN is not configured");
-    }
-
     tinybirdClient = new TinybirdClient({
-      apiUrl,
-      token,
+      apiUrl: env.NEXT_PUBLIC_TINYBIRD_API_URL,
+      token: env.NEXT_PUBLIC_TINYBIRD_TOKEN,
     });
   }
 

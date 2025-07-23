@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { ConvexClientProvider } from "./components/providers/convex-client-provider";
+import { env } from "@/env";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,9 +34,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Locasite Team" }],
   creator: "Locasite",
   publisher: "Locasite",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-  ),
+  metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -73,7 +72,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: process.env.GOOGLE_SITE_VERIFICATION,
+    google: env.GOOGLE_SITE_VERIFICATION,
   },
   icons: {
     icon: "/favicon.svg",

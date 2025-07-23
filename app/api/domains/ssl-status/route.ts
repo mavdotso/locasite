@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { api } from "@/convex/_generated/api";
 import { ConvexHttpClient } from "convex/browser";
 import { Id } from "@/convex/_generated/dataModel";
+import { env } from "@/env";
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+const convex = new ConvexHttpClient(env.NEXT_PUBLIC_CONVEX_URL);
 
 export async function POST(request: NextRequest) {
   try {
@@ -71,8 +72,8 @@ async function checkSslStatus(domainId: string): Promise<{
     }
 
     // Check if we have Vercel API token
-    const vercelToken = process.env.VERCEL_API_TOKEN;
-    const projectId = process.env.VERCEL_PROJECT_ID;
+    const vercelToken = env.VERCEL_API_TOKEN;
+    const projectId = env.VERCEL_PROJECT_ID;
 
     if (!vercelToken || !projectId) {
       // Fallback to checking if the domain resolves with HTTPS

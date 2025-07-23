@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse, NextFetchEvent } from "next/server";
 import { convexAuthNextjsMiddleware } from "@convex-dev/auth/nextjs/server";
+import { env } from "./env";
 
 const authMiddleware = convexAuthNextjsMiddleware();
 
@@ -7,7 +8,7 @@ function extractSubdomain(request: NextRequest): string | null {
   const url = request.url;
   const host = request.headers.get("host") || "";
   const hostname = host.split(":")[0];
-  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
+  const rootDomain = env.NEXT_PUBLIC_ROOT_DOMAIN;
 
   // Local development environment
   if (url.includes("localhost") || url.includes("127.0.0.1")) {
@@ -51,7 +52,7 @@ export default async function middleware(
   const subdomain = extractSubdomain(request);
   const host = request.headers.get("host") || "";
   const hostname = host.split(":")[0];
-  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
+  const rootDomain = env.NEXT_PUBLIC_ROOT_DOMAIN;
 
   // Handle custom domains (not subdomains of root domain)
   const isCustomDomain =
@@ -77,7 +78,7 @@ export default async function middleware(
     if (pathname === "/sitemap.xml") {
       return NextResponse.rewrite(
         new URL(
-          `${process.env.NEXT_PUBLIC_CONVEX_URL}/sitemap/${hostname}`,
+          `${env.NEXT_PUBLIC_CONVEX_URL}/sitemap/${hostname}`,
           request.url,
         ),
       );
@@ -85,7 +86,7 @@ export default async function middleware(
     if (pathname === "/robots.txt") {
       return NextResponse.rewrite(
         new URL(
-          `${process.env.NEXT_PUBLIC_CONVEX_URL}/robots/${hostname}`,
+          `${env.NEXT_PUBLIC_CONVEX_URL}/robots/${hostname}`,
           request.url,
         ),
       );
@@ -93,7 +94,7 @@ export default async function middleware(
     if (pathname === "/favicon.ico" || pathname === "/favicon.svg") {
       return NextResponse.rewrite(
         new URL(
-          `${process.env.NEXT_PUBLIC_CONVEX_URL}/favicon/${hostname}`,
+          `${env.NEXT_PUBLIC_CONVEX_URL}/favicon/${hostname}`,
           request.url,
         ),
       );
@@ -141,7 +142,7 @@ export default async function middleware(
     if (pathname === "/sitemap.xml") {
       return NextResponse.rewrite(
         new URL(
-          `${process.env.NEXT_PUBLIC_CONVEX_URL}/sitemap/${subdomain}`,
+          `${env.NEXT_PUBLIC_CONVEX_URL}/sitemap/${subdomain}`,
           request.url,
         ),
       );
@@ -149,7 +150,7 @@ export default async function middleware(
     if (pathname === "/robots.txt") {
       return NextResponse.rewrite(
         new URL(
-          `${process.env.NEXT_PUBLIC_CONVEX_URL}/robots/${subdomain}`,
+          `${env.NEXT_PUBLIC_CONVEX_URL}/robots/${subdomain}`,
           request.url,
         ),
       );
@@ -158,7 +159,7 @@ export default async function middleware(
     if (pathname === "/favicon.ico" || pathname === "/favicon.svg") {
       return NextResponse.rewrite(
         new URL(
-          `${process.env.NEXT_PUBLIC_CONVEX_URL}/favicon/${subdomain}`,
+          `${env.NEXT_PUBLIC_CONVEX_URL}/favicon/${subdomain}`,
           request.url,
         ),
       );
