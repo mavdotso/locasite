@@ -56,7 +56,6 @@ export const env = createEnv({
    */
   runtimeEnv: {
     // Server
-    AUTH_SECRET: process.env.AUTH_SECRET,
     VERCEL_API_TOKEN: process.env.VERCEL_API_TOKEN,
     VERCEL_PROJECT_ID: process.env.VERCEL_PROJECT_ID,
     VERCEL_TEAM_ID: process.env.VERCEL_TEAM_ID,
