@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation, internalMutation } from "./_generated/server";
 import { getUserFromAuth } from './lib/helpers';
+import { convexEnv } from './lib/env';
 
 // URL-friendly string converter (same logic as frontend)
 function toUrlFriendly(input: string, maxLength: number = 30): string {
@@ -158,7 +159,7 @@ export const getByDomain = query({
         }
         
         // Check if it's a subdomain (extract subdomain from full domain)
-        const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
+        const rootDomain = convexEnv.NEXT_PUBLIC_ROOT_DOMAIN;
         if (domain.endsWith(`.${rootDomain}`)) {
             const subdomain = domain.replace(`.${rootDomain}`, "");
             return await ctx.db

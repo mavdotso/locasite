@@ -4,6 +4,7 @@ import { RateLimiter } from "@convex-dev/rate-limiter";
 import { components } from "../_generated/api";
 import axios from "axios";
 import { generateDefaultDescription } from "./businessDescriptions";
+import { convexEnv } from "./env";
 
 const MINUTE = 60 * 1000; // 1 minute in milliseconds
 
@@ -43,7 +44,7 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
             status: 429,
             headers: {
               "Content-Type": "application/json",
-              "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+              "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
               Vary: "origin",
             },
           },
@@ -96,7 +97,7 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
     }
 
     // Use Google Places API to search for the business
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    const apiKey = convexEnv.GOOGLE_MAPS_API_KEY;
     const findPlaceResponse = await axios.get(
       `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(businessName)}&inputtype=textquery&fields=place_id,name,formatted_address&key=${apiKey}`,
     );

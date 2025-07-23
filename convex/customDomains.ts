@@ -8,6 +8,7 @@ import {
 } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { getUserFromAuth } from "./lib/helpers";
+import { convexEnv } from "./lib/env";
 
 // Helper to validate domain format
 function isValidDomain(domain: string): boolean {
@@ -475,8 +476,7 @@ async function verifyDnsRecords(
     const cnameData = await cnameResponse.json();
 
     let cnameVerified = false;
-    const expectedCname =
-      process.env.CUSTOM_DOMAIN_CNAME || "cname.vercel-dns.com";
+    const expectedCname = convexEnv.CUSTOM_DOMAIN_CNAME;
 
     if (cnameData.Answer) {
       for (const record of cnameData.Answer) {

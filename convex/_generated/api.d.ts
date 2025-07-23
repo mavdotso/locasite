@@ -28,6 +28,7 @@ import type * as http from "../http.js";
 import type * as lib_businessDescriptions from "../lib/businessDescriptions.js";
 import type * as lib_businessThemePresets_restaurant from "../lib/businessThemePresets/restaurant.js";
 import type * as lib_businessThemePresets from "../lib/businessThemePresets.js";
+import type * as lib_env from "../lib/env.js";
 import type * as lib_helpers from "../lib/helpers.js";
 import type * as lib_imageStorage from "../lib/imageStorage.js";
 import type * as lib_plans from "../lib/plans.js";
@@ -87,6 +88,7 @@ declare const fullApi: ApiFromModules<{
   "lib/businessDescriptions": typeof lib_businessDescriptions;
   "lib/businessThemePresets/restaurant": typeof lib_businessThemePresets_restaurant;
   "lib/businessThemePresets": typeof lib_businessThemePresets;
+  "lib/env": typeof lib_env;
   "lib/helpers": typeof lib_helpers;
   "lib/imageStorage": typeof lib_imageStorage;
   "lib/plans": typeof lib_plans;
