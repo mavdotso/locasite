@@ -9,8 +9,6 @@ export const env = createEnv({
   server: {
     // NextAuth Configuration
     AUTH_SECRET: z.string(),
-    AUTH_GOOGLE_ID: z.string(),
-    AUTH_GOOGLE_SECRET: z.string(),
 
     // Vercel API Configuration
     VERCEL_API_TOKEN: z.string().optional(),
@@ -59,8 +57,6 @@ export const env = createEnv({
   runtimeEnv: {
     // Server
     AUTH_SECRET: process.env.AUTH_SECRET,
-    AUTH_GOOGLE_ID: process.env.AUTH_GOOGLE_ID,
-    AUTH_GOOGLE_SECRET: process.env.AUTH_GOOGLE_SECRET,
     VERCEL_API_TOKEN: process.env.VERCEL_API_TOKEN,
     VERCEL_PROJECT_ID: process.env.VERCEL_PROJECT_ID,
     VERCEL_TEAM_ID: process.env.VERCEL_TEAM_ID,
