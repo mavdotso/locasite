@@ -88,7 +88,7 @@ http.route({
         code,
         client_id: convexEnv.GOOGLE_BUSINESS_CLIENT_ID,
         client_secret: convexEnv.GOOGLE_BUSINESS_CLIENT_SECRET,
-        redirect_uri: `${convexEnv.NEXT_PUBLIC_CONVEX_URL}/google-business/callback`,
+        redirect_uri: `${process.env.CONVEX_SITE_URL}/google-business/callback`,
         grant_type: "authorization_code",
       });
 
@@ -726,7 +726,7 @@ http.route({
       );
       authUrl.searchParams.set(
         "redirect_uri",
-        `${convexEnv.NEXT_PUBLIC_CONVEX_URL}/google-business/callback`,
+        `${process.env.CONVEX_SITE_URL}/google-business/callback`,
       );
       authUrl.searchParams.set("response_type", "code");
       authUrl.searchParams.set(

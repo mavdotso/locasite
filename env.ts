@@ -7,13 +7,25 @@ export const env = createEnv({
    * This way you can ensure the app isn't built with invalid env vars.
    */
   server: {
+    // Convex Auth
+    AUTH_GOOGLE_ID: z.string(),
+    AUTH_GOOGLE_SECRET: z.string(),
+
+    // Google Services (Server)
+    GOOGLE_MAPS_API_KEY: z.string(),
+    GOOGLE_BUSINESS_CLIENT_SECRET: z.string(),
+    GOOGLE_SITE_VERIFICATION: z.string().optional(),
+
+    // Stripe
+    STRIPE_SECRET_KEY: z.string(),
+    STRIPE_WEBHOOKS_SECRET: z.string(),
+    STRIPE_PRICE_PROFESSIONAL: z.string().optional(),
+    STRIPE_PRICE_BUSINESS: z.string().optional(),
+
     // Vercel API Configuration
     VERCEL_API_TOKEN: z.string().optional(),
     VERCEL_PROJECT_ID: z.string().optional(),
     VERCEL_TEAM_ID: z.string().optional(),
-
-    // Google Site Verification
-    GOOGLE_SITE_VERIFICATION: z.string().optional(),
 
     // Node Environment
     NODE_ENV: z
@@ -52,11 +64,27 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
-    // Server
+    // Server - Convex Auth
+    AUTH_GOOGLE_ID: process.env.AUTH_GOOGLE_ID,
+    AUTH_GOOGLE_SECRET: process.env.AUTH_GOOGLE_SECRET,
+
+    // Server - Google Services
+    GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY,
+    GOOGLE_BUSINESS_CLIENT_SECRET: process.env.GOOGLE_BUSINESS_CLIENT_SECRET,
+    GOOGLE_SITE_VERIFICATION: process.env.GOOGLE_SITE_VERIFICATION,
+
+    // Server - Stripe
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    STRIPE_WEBHOOKS_SECRET: process.env.STRIPE_WEBHOOKS_SECRET,
+    STRIPE_PRICE_PROFESSIONAL: process.env.STRIPE_PRICE_PROFESSIONAL,
+    STRIPE_PRICE_BUSINESS: process.env.STRIPE_PRICE_BUSINESS,
+
+    // Server - Vercel API
     VERCEL_API_TOKEN: process.env.VERCEL_API_TOKEN,
     VERCEL_PROJECT_ID: process.env.VERCEL_PROJECT_ID,
     VERCEL_TEAM_ID: process.env.VERCEL_TEAM_ID,
-    GOOGLE_SITE_VERIFICATION: process.env.GOOGLE_SITE_VERIFICATION,
+
+    // Server - Node
     NODE_ENV: process.env.NODE_ENV,
 
     // Client

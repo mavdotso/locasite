@@ -1,13 +1,14 @@
 // Environment variable helpers for Convex functions
-// Only includes environment variables that are actually used in Convex
+// Only includes environment variables that are actually used in Convex backend code
+// Note: AUTH_GOOGLE_ID and AUTH_GOOGLE_SECRET are automatically available to Convex Auth
+// and don't need to be listed here
 
 export const convexEnv = {
   // CORS Configuration
   CLIENT_ORIGIN: process.env.CLIENT_ORIGIN || "*",
   
-  // Application URLs
+  // Application URLs (for generating links, redirects, etc.)
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-  NEXT_PUBLIC_CONVEX_URL: process.env.NEXT_PUBLIC_CONVEX_URL!,
   NEXT_PUBLIC_ROOT_DOMAIN: process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz",
   
   // Google Services
@@ -24,7 +25,7 @@ export const convexEnv = {
   // Custom Domain
   CUSTOM_DOMAIN_CNAME: process.env.CUSTOM_DOMAIN_CNAME || "cname.vercel-dns.com",
   
-  // Convex Auth
+  // Convex Site URL (for auth callbacks)
   CONVEX_SITE_URL: process.env.CONVEX_SITE_URL || "http://localhost:3000",
   
   // Tinybird Analytics (used in HTTP endpoints)
