@@ -7,9 +7,6 @@ export const env = createEnv({
    * This way you can ensure the app isn't built with invalid env vars.
    */
   server: {
-    // NextAuth Configuration
-    AUTH_SECRET: z.string(),
-
     // Vercel API Configuration
     VERCEL_API_TOKEN: z.string().optional(),
     VERCEL_PROJECT_ID: z.string().optional(),
