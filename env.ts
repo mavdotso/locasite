@@ -7,35 +7,6 @@ export const env = createEnv({
    * This way you can ensure the app isn't built with invalid env vars.
    */
   server: {
-    // Convex Backend
-    CONVEX_DEPLOYMENT: z.string(),
-    CONVEX_AUTH_PRIVATE_KEY: z.string(),
-    CONVEX_AUTH_ADAPTER_SECRET: z.string(),
-    CONVEX_SITE_URL: z.string().url().default("http://localhost:3000"),
-    JWT_PRIVATE_KEY: z.string(),
-    JWKS: z.string(),
-
-    // CORS Configuration
-    CLIENT_ORIGIN: z.string().default("*"),
-
-    // Custom Domain Configuration
-    CUSTOM_DOMAIN_CNAME: z.string().default("cname.vercel-dns.com"),
-
-    // Google Services (Server)
-    GOOGLE_MAPS_API_KEY: z.string(),
-    GOOGLE_BUSINESS_CLIENT_ID: z.string(),
-    GOOGLE_BUSINESS_CLIENT_SECRET: z.string(),
-
-    // Stripe Payment Configuration
-    STRIPE_SECRET_KEY: z.string(),
-    STRIPE_WEBHOOKS_SECRET: z.string(),
-    STRIPE_PRICE_PROFESSIONAL: z.string().optional(),
-    STRIPE_PRICE_BUSINESS: z.string().optional(),
-
-    // AI Services
-    OPENAI_API_KEY: z.string().optional(),
-    GEMINI_API_KEY: z.string().optional(),
-
     // NextAuth Configuration
     AUTH_SECRET: z.string(),
     AUTH_GOOGLE_ID: z.string(),
@@ -87,23 +58,6 @@ export const env = createEnv({
    */
   runtimeEnv: {
     // Server
-    CONVEX_DEPLOYMENT: process.env.CONVEX_DEPLOYMENT,
-    CONVEX_AUTH_PRIVATE_KEY: process.env.CONVEX_AUTH_PRIVATE_KEY,
-    CONVEX_AUTH_ADAPTER_SECRET: process.env.CONVEX_AUTH_ADAPTER_SECRET,
-    CONVEX_SITE_URL: process.env.CONVEX_SITE_URL,
-    JWT_PRIVATE_KEY: process.env.JWT_PRIVATE_KEY,
-    JWKS: process.env.JWKS,
-    CLIENT_ORIGIN: process.env.CLIENT_ORIGIN,
-    CUSTOM_DOMAIN_CNAME: process.env.CUSTOM_DOMAIN_CNAME,
-    GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY,
-    GOOGLE_BUSINESS_CLIENT_ID: process.env.GOOGLE_BUSINESS_CLIENT_ID,
-    GOOGLE_BUSINESS_CLIENT_SECRET: process.env.GOOGLE_BUSINESS_CLIENT_SECRET,
-    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
-    STRIPE_WEBHOOKS_SECRET: process.env.STRIPE_WEBHOOKS_SECRET,
-    STRIPE_PRICE_PROFESSIONAL: process.env.STRIPE_PRICE_PROFESSIONAL,
-    STRIPE_PRICE_BUSINESS: process.env.STRIPE_PRICE_BUSINESS,
-    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
-    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     AUTH_SECRET: process.env.AUTH_SECRET,
     AUTH_GOOGLE_ID: process.env.AUTH_GOOGLE_ID,
     AUTH_GOOGLE_SECRET: process.env.AUTH_GOOGLE_SECRET,
