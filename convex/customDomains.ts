@@ -246,6 +246,7 @@ export const getDomainVerificationStatus = query({
     }
 
     return {
+      domainId: domain._id,
       domain: domain.customDomain,
       isVerified: domain.isVerified || false,
       verificationMethod: domain.verificationMethod || "dns",
