@@ -4,6 +4,7 @@ import { httpAction } from "./_generated/server";
 import { scrapeGoogleMaps } from "./lib/scrape";
 import { api, internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
+import { convexEnv } from "./lib/env";
 
 const http = router;
 
@@ -28,7 +29,7 @@ http.route({
     ) {
       return new Response(null, {
         headers: new Headers({
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
           "Access-Control-Allow-Methods": "POST",
           "Access-Control-Allow-Headers": "Content-Type, Authorization",
           "Access-Control-Max-Age": "86400",
@@ -53,10 +54,7 @@ http.route({
     // Handle OAuth errors
     if (error) {
       const errorDescription = url.searchParams.get("error_description");
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-      if (!appUrl) {
-        throw new Error("NEXT_PUBLIC_APP_URL environment variable is not set");
-      }
+      const appUrl = convexEnv.NEXT_PUBLIC_APP_URL;
       const redirectUrl = `${appUrl}/business/verify/error?error=${encodeURIComponent(errorDescription || error)}`;
       return new Response(null, {
         status: 302,
@@ -67,10 +65,7 @@ http.route({
     }
 
     if (!code || !state) {
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-      if (!appUrl) {
-        throw new Error("NEXT_PUBLIC_APP_URL environment variable is not set");
-      }
+      const appUrl = convexEnv.NEXT_PUBLIC_APP_URL;
       const redirectUrl = `${appUrl}/business/verify/error?error=${encodeURIComponent("Missing authorization code or state")}`;
       return new Response(null, {
         status: 302,
@@ -91,9 +86,9 @@ http.route({
       const tokenEndpoint = "https://oauth2.googleapis.com/token";
       const tokenParams = new URLSearchParams({
         code,
-        client_id: process.env.GOOGLE_BUSINESS_CLIENT_ID!,
-        client_secret: process.env.GOOGLE_BUSINESS_CLIENT_SECRET!,
-        redirect_uri: `${process.env.NEXT_PUBLIC_CONVEX_URL}/google-business/callback`,
+        client_id: convexEnv.GOOGLE_BUSINESS_CLIENT_ID,
+        client_secret: convexEnv.GOOGLE_BUSINESS_CLIENT_SECRET,
+        redirect_uri: `${convexEnv.NEXT_PUBLIC_CONVEX_URL}/google-business/callback`,
         grant_type: "authorization_code",
       });
 
@@ -138,10 +133,7 @@ http.route({
 
       // Redirect based on verification result
       const businessId = claim.businessId;
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-      if (!appUrl) {
-        throw new Error("NEXT_PUBLIC_APP_URL environment variable is not set");
-      }
+      const appUrl = convexEnv.NEXT_PUBLIC_APP_URL;
 
       if (verificationResult.success) {
         const redirectUrl = `${appUrl}/business/${businessId}/verify?claimId=${claimId}&status=success`;
@@ -163,7 +155,7 @@ http.route({
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error occurred";
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+      const appUrl = convexEnv.NEXT_PUBLIC_APP_URL;
       if (!appUrl) {
         // Return a proper error response if env var is missing
         return new Response(
@@ -194,9 +186,8 @@ http.route({
       const { type, data } = body;
 
       // Initialize Tinybird client
-      const apiUrl =
-        process.env.NEXT_PUBLIC_TINYBIRD_API_URL || "https://api.tinybird.co";
-      const token = process.env.NEXT_PUBLIC_TINYBIRD_TOKEN;
+      const apiUrl = convexEnv.NEXT_PUBLIC_TINYBIRD_API_URL;
+      const token = convexEnv.NEXT_PUBLIC_TINYBIRD_TOKEN;
 
       if (!token) {
         return new Response(
@@ -261,7 +252,7 @@ http.route({
         status: 200,
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
         },
       });
     } catch (error) {
@@ -286,7 +277,7 @@ http.route({
     ) {
       return new Response(null, {
         headers: new Headers({
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
           "Access-Control-Allow-Methods": "POST",
           "Access-Control-Allow-Headers": "Content-Type",
           "Access-Control-Max-Age": "86400",
@@ -330,7 +321,7 @@ http.route({
         status: 200,
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
         },
       });
     } catch (error) {
@@ -379,7 +370,7 @@ http.route({
         status: 200,
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
         },
       });
     } catch (error) {
@@ -410,7 +401,7 @@ http.route({
     ) {
       return new Response(null, {
         headers: new Headers({
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
           "Access-Control-Allow-Methods": "POST",
           "Access-Control-Allow-Headers": "Content-Type",
           "Access-Control-Max-Age": "86400",
@@ -434,7 +425,7 @@ http.route({
     ) {
       return new Response(null, {
         headers: new Headers({
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
           "Access-Control-Allow-Methods": "POST",
           "Access-Control-Allow-Headers": "Content-Type",
           "Access-Control-Max-Age": "86400",
@@ -731,11 +722,11 @@ http.route({
       const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
       authUrl.searchParams.set(
         "client_id",
-        process.env.GOOGLE_BUSINESS_CLIENT_ID!,
+        convexEnv.GOOGLE_BUSINESS_CLIENT_ID,
       );
       authUrl.searchParams.set(
         "redirect_uri",
-        `${process.env.NEXT_PUBLIC_CONVEX_URL}/google-business/callback`,
+        `${convexEnv.NEXT_PUBLIC_CONVEX_URL}/google-business/callback`,
       );
       authUrl.searchParams.set("response_type", "code");
       authUrl.searchParams.set(
@@ -808,7 +799,7 @@ http.route({
           status: 200,
           headers: {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+            "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
           },
         },
       );
@@ -858,7 +849,7 @@ http.route({
         status: 200,
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
         },
       });
     } catch (error) {
@@ -889,7 +880,7 @@ http.route({
     ) {
       return new Response(null, {
         headers: new Headers({
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
           "Access-Control-Allow-Methods": "GET",
           "Access-Control-Allow-Headers": "Content-Type",
           "Access-Control-Max-Age": "86400",
@@ -913,8 +904,668 @@ http.route({
     ) {
       return new Response(null, {
         headers: new Headers({
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
           "Access-Control-Allow-Methods": "POST",
+          "Access-Control-Allow-Headers": "Content-Type",
+          "Access-Control-Max-Age": "86400",
+        }),
+      });
+    } else {
+      return new Response();
+    }
+  }),
+});
+
+// Domain management endpoints
+http.route({
+  path: "/domains/dns-instructions",
+  method: "GET",
+  handler: httpAction(async (_, request) => {
+    try {
+      const url = new URL(request.url);
+      const domain = url.searchParams.get("domain");
+      const verificationToken = url.searchParams.get("token");
+
+      if (!domain || !verificationToken) {
+        return new Response(
+          JSON.stringify({ error: "Domain and verification token are required" }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      // Vercel's CNAME target
+      const cnameTarget = "cname.vercel-dns.com";
+
+      const instructions = {
+        domain,
+        verificationToken,
+        dnsRecords: [
+          {
+            type: "CNAME",
+            name: domain,
+            value: cnameTarget,
+            ttl: 3600,
+            priority: "Required",
+            description: "Points your domain to Locasite's servers",
+          },
+          {
+            type: "TXT",
+            name: `_locasite-verify.${domain}`,
+            value: verificationToken,
+            ttl: 3600,
+            priority: "Required",
+            description: "Verifies domain ownership",
+          },
+        ],
+        instructions: {
+          general: [
+            "Log in to your domain registrar or DNS provider",
+            "Navigate to DNS management or DNS settings",
+            "Add the records listed above",
+            "Save your changes and wait for DNS propagation (usually 5-30 minutes)",
+            "Click 'Verify Domain' to check the records",
+          ],
+          providers: {
+            godaddy: {
+              name: "GoDaddy",
+              steps: [
+                "Sign in to your GoDaddy account",
+                "Go to 'My Products' and find your domain",
+                "Click 'DNS' next to your domain",
+                "Add the CNAME and TXT records using the 'Add' button",
+                "Save your changes",
+              ],
+            },
+            namecheap: {
+              name: "Namecheap",
+              steps: [
+                "Sign in to your Namecheap account",
+                "Go to 'Domain List' and click 'Manage' next to your domain",
+                "Click on 'Advanced DNS' tab",
+                "Add new records using the 'Add New Record' button",
+                "Save all changes",
+              ],
+            },
+            cloudflare: {
+              name: "Cloudflare",
+              steps: [
+                "Sign in to your Cloudflare account",
+                "Select your domain from the dashboard",
+                "Go to the 'DNS' tab",
+                "Click 'Add record' and add the CNAME and TXT records",
+                "Ensure proxy status is set to 'DNS only' (gray cloud)",
+              ],
+            },
+          },
+        },
+        troubleshooting: [
+          {
+            issue: "Verification keeps failing",
+            solutions: [
+              "Ensure DNS records are added exactly as shown",
+              "Wait at least 30 minutes for DNS propagation",
+              "Check that there are no conflicting records",
+              "Verify the domain name is spelled correctly",
+            ],
+          },
+          {
+            issue: "CNAME record conflicts",
+            solutions: [
+              "Remove any existing A or AAAA records for the root domain",
+              "If using www subdomain, create a redirect from root to www",
+              "Consider using A records pointing to our IP addresses instead",
+            ],
+          },
+        ],
+      };
+
+      return new Response(JSON.stringify(instructions), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
+        },
+      });
+    } catch (error) {
+      console.error("DNS instructions error:", error);
+      return new Response(
+        JSON.stringify({ error: "Failed to generate DNS instructions" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+  }),
+});
+
+// Domain SSL status endpoint
+http.route({
+  path: "/domains/ssl-status",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const { domainId } = await request.json();
+
+      if (!domainId) {
+        return new Response(
+          JSON.stringify({ error: "Domain ID is required" }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      // Get domain info from database
+      const domain = await ctx.runQuery(api.customDomains.getDomainById, {
+        domainId: domainId as Id<"domains">,
+      });
+
+      if (!domain || !domain.customDomain) {
+        return new Response(
+          JSON.stringify({
+            status: "failed",
+            message: "Domain not found",
+          }),
+          {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      // Check if we have Vercel API token
+      const vercelToken = convexEnv.VERCEL_API_TOKEN;
+      const projectId = convexEnv.VERCEL_PROJECT_ID;
+      let sslStatus: { status: "pending" | "active" | "failed"; message: string };
+
+      if (!vercelToken || !projectId) {
+        // Fallback to checking if the domain resolves with HTTPS
+        try {
+          const response = await fetch(`https://${domain.customDomain}`, {
+            method: "HEAD",
+            redirect: "manual",
+          });
+
+          if (response.ok || response.status === 301 || response.status === 302) {
+            sslStatus = {
+              status: "active",
+              message: "SSL certificate is active",
+            };
+          } else {
+            sslStatus = {
+              status: "pending",
+              message: "SSL certificate is being provisioned",
+            };
+          }
+        } catch (_error) {
+          // Domain doesn't resolve with HTTPS yet
+          sslStatus = {
+            status: "pending",
+            message: "SSL certificate is being provisioned",
+          };
+        }
+      } else {
+        // Use Vercel API to check domain status
+        const vercelResponse = await fetch(
+          `https://api.vercel.com/v9/projects/${projectId}/domains/${domain.customDomain}`,
+          {
+            headers: {
+              Authorization: `Bearer ${vercelToken}`,
+            },
+          },
+        );
+
+        if (!vercelResponse.ok) {
+          sslStatus = {
+            status: "failed",
+            message: "Failed to check domain status",
+          };
+        } else {
+          const vercelData = await vercelResponse.json();
+
+          // Check SSL status from Vercel response
+          if (vercelData.verified && vercelData.ssl) {
+            sslStatus = {
+              status: "active",
+              message: "SSL certificate is active and serving",
+            };
+          } else if (vercelData.verified && !vercelData.ssl) {
+            sslStatus = {
+              status: "pending",
+              message: "Domain verified, SSL certificate is being provisioned",
+            };
+          } else {
+            sslStatus = {
+              status: "failed",
+              message: vercelData.error?.message || "Domain verification failed",
+            };
+          }
+        }
+      }
+
+      // Update domain SSL status in database
+      await ctx.runMutation(api.customDomains.updateSslStatus, {
+        domainId: domainId as Id<"domains">,
+        sslStatus: sslStatus.status,
+        sslProvider: "vercel",
+      });
+
+      return new Response(
+        JSON.stringify({
+          status: sslStatus.status,
+          provider: "vercel",
+          message: sslStatus.message,
+        }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
+          },
+        },
+      );
+    } catch (error) {
+      console.error("SSL status check error:", error);
+      return new Response(
+        JSON.stringify({
+          error: "Failed to check SSL status",
+          details: error instanceof Error ? error.message : "Unknown error",
+        }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+  }),
+});
+
+// Vercel domain management endpoints
+http.route({
+  path: "/domains/vercel",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const { domain, businessId } = await request.json();
+
+      if (!domain || !businessId) {
+        return new Response(
+          JSON.stringify({ error: "Domain and business ID are required" }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      const vercelToken = convexEnv.VERCEL_API_TOKEN;
+      const projectId = convexEnv.VERCEL_PROJECT_ID;
+      const teamId = convexEnv.VERCEL_TEAM_ID; // Optional, if using team account
+
+      if (!vercelToken || !projectId) {
+        return new Response(
+          JSON.stringify({ error: "Vercel API configuration missing" }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      // Add domain to Vercel project
+      const vercelUrl = `https://api.vercel.com/v10/projects/${projectId}/domains`;
+      const vercelResponse = await fetch(vercelUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${vercelToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: domain,
+          ...(teamId && { teamId }),
+        }),
+      });
+
+      const vercelData = await vercelResponse.json();
+
+      if (!vercelResponse.ok) {
+        // Handle specific Vercel errors
+        if (vercelData.error?.code === "domain_already_in_use") {
+          return new Response(
+            JSON.stringify({ error: "This domain is already in use by another Vercel project" }),
+            {
+              status: 400,
+              headers: { "Content-Type": "application/json" },
+            },
+          );
+        }
+
+        return new Response(
+          JSON.stringify({
+            error: vercelData.error?.message || "Failed to add domain to Vercel",
+          }),
+          {
+            status: vercelResponse.status,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      // Update domain configuration in our database
+      await ctx.runMutation(api.customDomains.updateDomainConfiguration, {
+        businessId: businessId as Id<"businesses">,
+        vercelDomainId: vercelData.id,
+        apexName: vercelData.apexName,
+      });
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          domain: vercelData.name,
+          apexName: vercelData.apexName,
+          verified: vercelData.verified,
+          verification: vercelData.verification,
+          configuredBy: vercelData.configuredBy,
+        }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
+          },
+        },
+      );
+    } catch (error) {
+      console.error("Vercel domain add error:", error);
+      return new Response(
+        JSON.stringify({
+          error: "Failed to add domain",
+          details: error instanceof Error ? error.message : "Unknown error",
+        }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+  }),
+});
+
+http.route({
+  path: "/domains/vercel",
+  method: "DELETE",
+  handler: httpAction(async (_, request) => {
+    try {
+      const url = new URL(request.url);
+      const domain = url.searchParams.get("domain");
+
+      if (!domain) {
+        return new Response(
+          JSON.stringify({ error: "Domain is required" }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      const vercelToken = convexEnv.VERCEL_API_TOKEN;
+      const projectId = convexEnv.VERCEL_PROJECT_ID;
+      const teamId = convexEnv.VERCEL_TEAM_ID;
+
+      if (!vercelToken || !projectId) {
+        return new Response(
+          JSON.stringify({ error: "Vercel API configuration missing" }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      // Remove domain from Vercel project
+      const vercelUrl = `https://api.vercel.com/v9/projects/${projectId}/domains/${domain}`;
+      const vercelResponse = await fetch(vercelUrl, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${vercelToken}`,
+          ...(teamId && { "Vercel-Team-Id": teamId }),
+        },
+      });
+
+      if (!vercelResponse.ok && vercelResponse.status !== 404) {
+        const vercelData = await vercelResponse.json();
+        return new Response(
+          JSON.stringify({
+            error:
+              vercelData.error?.message || "Failed to remove domain from Vercel",
+          }),
+          {
+            status: vercelResponse.status,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: "Domain removed successfully",
+        }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
+          },
+        },
+      );
+    } catch (error) {
+      console.error("Vercel domain remove error:", error);
+      return new Response(
+        JSON.stringify({
+          error: "Failed to remove domain",
+          details: error instanceof Error ? error.message : "Unknown error",
+        }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+  }),
+});
+
+// Domain verification endpoints
+http.route({
+  path: "/domains/verify",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const { domainId } = await request.json();
+
+      if (!domainId) {
+        return new Response(
+          JSON.stringify({ error: "Domain ID is required" }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      // Trigger domain verification
+      const result = await ctx.runAction(api.customDomains.verifyDomain, {
+        domainId: domainId as Id<"domains">,
+      });
+
+      return new Response(JSON.stringify(result), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
+        },
+      });
+    } catch (error) {
+      console.error("Domain verification error:", error);
+      return new Response(
+        JSON.stringify({
+          error: "Failed to verify domain",
+          details: error instanceof Error ? error.message : "Unknown error",
+        }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+  }),
+});
+
+http.route({
+  path: "/domains/verify",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const url = new URL(request.url);
+      const businessId = url.searchParams.get("businessId");
+
+      if (!businessId) {
+        return new Response(
+          JSON.stringify({ error: "Business ID is required" }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      // Get domain verification status
+      const status = await ctx.runQuery(
+        api.customDomains.getDomainVerificationStatus,
+        {
+          businessId: businessId as Id<"businesses">,
+        },
+      );
+
+      return new Response(
+        JSON.stringify(status || { domain: null, isVerified: false }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
+          },
+        },
+      );
+    } catch (error) {
+      console.error("Domain status error:", error);
+      return new Response(
+        JSON.stringify({
+          error: "Failed to get domain status",
+          details: error instanceof Error ? error.message : "Unknown error",
+        }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+  }),
+});
+
+// CORS preflight for domain endpoints
+http.route({
+  path: "/domains/dns-instructions",
+  method: "OPTIONS",
+  handler: httpAction(async (_, request) => {
+    const headers = request.headers;
+    if (
+      headers.get("Origin") !== null &&
+      headers.get("Access-Control-Request-Method") !== null &&
+      headers.get("Access-Control-Request-Headers") !== null
+    ) {
+      return new Response(null, {
+        headers: new Headers({
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
+          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Headers": "Content-Type",
+          "Access-Control-Max-Age": "86400",
+        }),
+      });
+    } else {
+      return new Response();
+    }
+  }),
+});
+
+http.route({
+  path: "/domains/ssl-status",
+  method: "OPTIONS",
+  handler: httpAction(async (_, request) => {
+    const headers = request.headers;
+    if (
+      headers.get("Origin") !== null &&
+      headers.get("Access-Control-Request-Method") !== null &&
+      headers.get("Access-Control-Request-Headers") !== null
+    ) {
+      return new Response(null, {
+        headers: new Headers({
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
+          "Access-Control-Allow-Methods": "POST",
+          "Access-Control-Allow-Headers": "Content-Type",
+          "Access-Control-Max-Age": "86400",
+        }),
+      });
+    } else {
+      return new Response();
+    }
+  }),
+});
+
+http.route({
+  path: "/domains/vercel",
+  method: "OPTIONS",
+  handler: httpAction(async (_, request) => {
+    const headers = request.headers;
+    if (
+      headers.get("Origin") !== null &&
+      headers.get("Access-Control-Request-Method") !== null &&
+      headers.get("Access-Control-Request-Headers") !== null
+    ) {
+      return new Response(null, {
+        headers: new Headers({
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
+          "Access-Control-Allow-Methods": "POST, DELETE",
+          "Access-Control-Allow-Headers": "Content-Type",
+          "Access-Control-Max-Age": "86400",
+        }),
+      });
+    } else {
+      return new Response();
+    }
+  }),
+});
+
+http.route({
+  path: "/domains/verify",
+  method: "OPTIONS",
+  handler: httpAction(async (_, request) => {
+    const headers = request.headers;
+    if (
+      headers.get("Origin") !== null &&
+      headers.get("Access-Control-Request-Method") !== null &&
+      headers.get("Access-Control-Request-Headers") !== null
+    ) {
+      return new Response(null, {
+        headers: new Headers({
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
+          "Access-Control-Allow-Methods": "GET, POST",
           "Access-Control-Allow-Headers": "Content-Type",
           "Access-Control-Max-Age": "86400",
         }),

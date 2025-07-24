@@ -7,6 +7,7 @@ import { api } from "@/convex/_generated/api";
 import { BusinessData } from "@/convex/businesses";
 import { toast } from "sonner";
 import { useAuthActions } from "@convex-dev/auth/react";
+import { env } from "@/env";
 
 export interface UseBusinessScraperResult {
   url: string;
@@ -60,12 +61,7 @@ export function useBusinessScraper(): UseBusinessScraperResult {
     setError(null);
 
     try {
-      const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL || "";
-
-      if (!convexUrl) {
-        throw new Error("Convex URL not configured");
-      }
-
+      const convexUrl = env.NEXT_PUBLIC_CONVEX_URL;
       const deploymentName = convexUrl.split("//")[1]?.split(".")[0];
       const convexSiteUrl = `https://${deploymentName}.convex.site`;
 
@@ -138,7 +134,7 @@ export function useBusinessScraper(): UseBusinessScraperResult {
     setIsLoading(true);
     try {
       // For the preview, we need to fetch the full business data again
-      const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL || "";
+      const convexUrl = env.NEXT_PUBLIC_CONVEX_URL;
       const deploymentName = convexUrl.split("//")[1]?.split(".")[0];
       const convexSiteUrl = `https://${deploymentName}.convex.site`;
 

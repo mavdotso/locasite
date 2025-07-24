@@ -20,6 +20,7 @@ import type * as businesses from "../businesses.js";
 import type * as businessesActions from "../businessesActions.js";
 import type * as businessesWithDomain from "../businessesWithDomain.js";
 import type * as contactMessages from "../contactMessages.js";
+import type * as customDomains from "../customDomains.js";
 import type * as dashboardData from "../dashboardData.js";
 import type * as domains from "../domains.js";
 import type * as emailVerification from "../emailVerification.js";
@@ -27,6 +28,7 @@ import type * as http from "../http.js";
 import type * as lib_businessDescriptions from "../lib/businessDescriptions.js";
 import type * as lib_businessThemePresets_restaurant from "../lib/businessThemePresets/restaurant.js";
 import type * as lib_businessThemePresets from "../lib/businessThemePresets.js";
+import type * as lib_env from "../lib/env.js";
 import type * as lib_helpers from "../lib/helpers.js";
 import type * as lib_imageStorage from "../lib/imageStorage.js";
 import type * as lib_plans from "../lib/plans.js";
@@ -56,6 +58,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+
 /**
  * A utility for referencing Convex functions in your app's API.
  *
@@ -77,6 +80,7 @@ declare const fullApi: ApiFromModules<{
   businessesActions: typeof businessesActions;
   businessesWithDomain: typeof businessesWithDomain;
   contactMessages: typeof contactMessages;
+  customDomains: typeof customDomains;
   dashboardData: typeof dashboardData;
   domains: typeof domains;
   emailVerification: typeof emailVerification;
@@ -84,6 +88,7 @@ declare const fullApi: ApiFromModules<{
   "lib/businessDescriptions": typeof lib_businessDescriptions;
   "lib/businessThemePresets/restaurant": typeof lib_businessThemePresets_restaurant;
   "lib/businessThemePresets": typeof lib_businessThemePresets;
+  "lib/env": typeof lib_env;
   "lib/helpers": typeof lib_helpers;
   "lib/imageStorage": typeof lib_imageStorage;
   "lib/plans": typeof lib_plans;
@@ -134,6 +139,7 @@ export declare const components: {
                 period: number;
                 rate: number;
                 shards?: number;
+                start?: null;
               }
             | {
                 capacity?: number;
@@ -158,6 +164,59 @@ export declare const components: {
         { before?: number },
         null
       >;
+      getServerTime: FunctionReference<"mutation", "internal", {}, number>;
+      getValue: FunctionReference<
+        "query",
+        "internal",
+        {
+          config:
+            | {
+                capacity?: number;
+                kind: "token bucket";
+                maxReserved?: number;
+                period: number;
+                rate: number;
+                shards?: number;
+                start?: null;
+              }
+            | {
+                capacity?: number;
+                kind: "fixed window";
+                maxReserved?: number;
+                period: number;
+                rate: number;
+                shards?: number;
+                start?: number;
+              };
+          key?: string;
+          name: string;
+          sampleShards?: number;
+        },
+        {
+          config:
+            | {
+                capacity?: number;
+                kind: "token bucket";
+                maxReserved?: number;
+                period: number;
+                rate: number;
+                shards?: number;
+                start?: null;
+              }
+            | {
+                capacity?: number;
+                kind: "fixed window";
+                maxReserved?: number;
+                period: number;
+                rate: number;
+                shards?: number;
+                start?: number;
+              };
+          shard: number;
+          ts: number;
+          value: number;
+        }
+      >;
       rateLimit: FunctionReference<
         "mutation",
         "internal",
@@ -170,6 +229,7 @@ export declare const components: {
                 period: number;
                 rate: number;
                 shards?: number;
+                start?: null;
               }
             | {
                 capacity?: number;
@@ -195,73 +255,8 @@ export declare const components: {
         null
       >;
     };
-    public: {
-      checkRateLimit: FunctionReference<
-        "query",
-        "internal",
-        {
-          config:
-            | {
-                capacity?: number;
-                kind: "token bucket";
-                maxReserved?: number;
-                period: number;
-                rate: number;
-                shards?: number;
-              }
-            | {
-                capacity?: number;
-                kind: "fixed window";
-                maxReserved?: number;
-                period: number;
-                rate: number;
-                shards?: number;
-                start?: number;
-              };
-          count?: number;
-          key?: string;
-          name: string;
-          reserve?: boolean;
-          throws?: boolean;
-        },
-        { ok: true; retryAfter?: number } | { ok: false; retryAfter: number }
-      >;
-      rateLimit: FunctionReference<
-        "mutation",
-        "internal",
-        {
-          config:
-            | {
-                capacity?: number;
-                kind: "token bucket";
-                maxReserved?: number;
-                period: number;
-                rate: number;
-                shards?: number;
-              }
-            | {
-                capacity?: number;
-                kind: "fixed window";
-                maxReserved?: number;
-                period: number;
-                rate: number;
-                shards?: number;
-                start?: number;
-              };
-          count?: number;
-          key?: string;
-          name: string;
-          reserve?: boolean;
-          throws?: boolean;
-        },
-        { ok: true; retryAfter?: number } | { ok: false; retryAfter: number }
-      >;
-      resetRateLimit: FunctionReference<
-        "mutation",
-        "internal",
-        { key?: string; name: string },
-        null
-      >;
+    time: {
+      getServerTime: FunctionReference<"mutation", "internal", {}, number>;
     };
   };
 };

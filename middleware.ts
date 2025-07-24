@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse, NextFetchEvent } from "next/server";
 import { convexAuthNextjsMiddleware } from "@convex-dev/auth/nextjs/server";
+import { env } from "./env";
 
 const authMiddleware = convexAuthNextjsMiddleware();
 
@@ -7,7 +8,7 @@ function extractSubdomain(request: NextRequest): string | null {
   const url = request.url;
   const host = request.headers.get("host") || "";
   const hostname = host.split(":")[0];
-  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
+  const rootDomain = env.NEXT_PUBLIC_ROOT_DOMAIN;
 
   // Local development environment
   if (url.includes("localhost") || url.includes("127.0.0.1")) {
@@ -51,18 +52,33 @@ export default async function middleware(
   const subdomain = extractSubdomain(request);
   const host = request.headers.get("host") || "";
   const hostname = host.split(":")[0];
-  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
+  const rootDomain = env.NEXT_PUBLIC_ROOT_DOMAIN;
 
-  // Handle sitemap.xml and robots.txt for custom domains
-  if (
+  // Handle custom domains (not subdomains of root domain)
+  const isCustomDomain =
     !subdomain &&
     hostname !== rootDomain &&
-    hostname !== `www.${rootDomain}`
-  ) {
+    hostname !== `www.${rootDomain}` &&
+    !hostname.includes("localhost") &&
+    !hostname.includes("127.0.0.1");
+
+  if (isCustomDomain) {
+    // Block access to dashboard and admin routes from custom domains
+    if (
+      pathname.startsWith("/dashboard") ||
+      pathname.startsWith("/app") ||
+      pathname.startsWith("/sign-in") ||
+      pathname.startsWith("/api/") ||
+      pathname.startsWith("/business/")
+    ) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+
+    // Handle special files
     if (pathname === "/sitemap.xml") {
       return NextResponse.rewrite(
         new URL(
-          `${process.env.NEXT_PUBLIC_CONVEX_URL}/sitemap/${hostname}`,
+          `${env.NEXT_PUBLIC_CONVEX_URL}/sitemap/${hostname}`,
           request.url,
         ),
       );
@@ -70,11 +86,24 @@ export default async function middleware(
     if (pathname === "/robots.txt") {
       return NextResponse.rewrite(
         new URL(
-          `${process.env.NEXT_PUBLIC_CONVEX_URL}/robots/${hostname}`,
+          `${env.NEXT_PUBLIC_CONVEX_URL}/robots/${hostname}`,
           request.url,
         ),
       );
     }
+    if (pathname === "/favicon.ico" || pathname === "/favicon.svg") {
+      return NextResponse.rewrite(
+        new URL(
+          `${env.NEXT_PUBLIC_CONVEX_URL}/favicon/${hostname}`,
+          request.url,
+        ),
+      );
+    }
+
+    // Rewrite custom domain requests to /[domain] route
+    // The [domain] page will handle looking up the business by custom domain
+    const rewritePath = `/custom-domain/${hostname}${pathname}`;
+    return NextResponse.rewrite(new URL(rewritePath, request.url));
   }
 
   // Handle subdomain routing BEFORE auth middleware
@@ -113,7 +142,7 @@ export default async function middleware(
     if (pathname === "/sitemap.xml") {
       return NextResponse.rewrite(
         new URL(
-          `${process.env.NEXT_PUBLIC_CONVEX_URL}/sitemap/${subdomain}`,
+          `${env.NEXT_PUBLIC_CONVEX_URL}/sitemap/${subdomain}`,
           request.url,
         ),
       );
@@ -121,7 +150,7 @@ export default async function middleware(
     if (pathname === "/robots.txt") {
       return NextResponse.rewrite(
         new URL(
-          `${process.env.NEXT_PUBLIC_CONVEX_URL}/robots/${subdomain}`,
+          `${env.NEXT_PUBLIC_CONVEX_URL}/robots/${subdomain}`,
           request.url,
         ),
       );
@@ -130,7 +159,7 @@ export default async function middleware(
     if (pathname === "/favicon.ico" || pathname === "/favicon.svg") {
       return NextResponse.rewrite(
         new URL(
-          `${process.env.NEXT_PUBLIC_CONVEX_URL}/favicon/${subdomain}`,
+          `${env.NEXT_PUBLIC_CONVEX_URL}/favicon/${subdomain}`,
           request.url,
         ),
       );

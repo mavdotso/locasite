@@ -46,8 +46,37 @@ export default defineSchema({
     ),
     isVerified: v.optional(v.boolean()),
     verificationToken: v.optional(v.string()),
+
+    // SSL and verification fields
+    sslStatus: v.optional(
+      v.union(v.literal("pending"), v.literal("active"), v.literal("failed")),
+    ),
+    sslProvider: v.optional(v.string()), // "vercel", "cloudflare", etc.
+    dnsRecords: v.optional(
+      v.array(
+        v.object({
+          type: v.string(), // "A", "CNAME", "TXT"
+          name: v.string(),
+          value: v.string(),
+          required: v.boolean(),
+        }),
+      ),
+    ),
+    verificationMethod: v.optional(
+      v.union(v.literal("dns"), v.literal("file")),
+    ),
+    verificationAttempts: v.optional(v.number()),
+    lastVerificationCheck: v.optional(v.number()),
+    verificationError: v.optional(v.string()),
+
+    // Vercel integration
+    vercelDomainId: v.optional(v.string()),
+    apexName: v.optional(v.string()),
+
+    // Timestamps
     createdAt: v.number(),
     updatedAt: v.optional(v.number()),
+    verifiedAt: v.optional(v.number()),
   })
     .index("by_subdomain", ["subdomain"])
     .index("by_custom_domain", ["customDomain"]),
