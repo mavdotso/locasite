@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
+import { env } from "@/env";
 
 export default function DomainSettingsPage() {
   const params = useParams();
@@ -72,7 +73,7 @@ export default function DomainSettingsPage() {
   const fetchDnsInstructions = async (domain: string, token: string) => {
     try {
       const response = await fetch(
-        `/api/domains/dns-instructions?domain=${domain}&token=${token}`,
+        `${env.NEXT_PUBLIC_CONVEX_URL}/domains/dns-instructions?domain=${domain}&token=${token}`,
       );
       const data = await response.json();
       setDnsInstructions(data);
@@ -92,7 +93,7 @@ export default function DomainSettingsPage() {
       await addCustomDomain({ businessId, domain: customDomain });
 
       // Then add to Vercel
-      const vercelResponse = await fetch("/api/domains/vercel", {
+      const vercelResponse = await fetch(`${env.NEXT_PUBLIC_CONVEX_URL}/domains/vercel`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ domain: customDomain, businessId }),
@@ -125,7 +126,7 @@ export default function DomainSettingsPage() {
       // Remove from Vercel first
       if (domainStatus?.domain) {
         const vercelResponse = await fetch(
-          `/api/domains/vercel?domain=${domainStatus.domain}`,
+          `${env.NEXT_PUBLIC_CONVEX_URL}/domains/vercel?domain=${domainStatus.domain}`,
           {
             method: "DELETE",
           },
@@ -153,10 +154,10 @@ export default function DomainSettingsPage() {
 
     setIsVerifying(true);
     try {
-      const response = await fetch("/api/domains/verify", {
+      const response = await fetch(`${env.NEXT_PUBLIC_CONVEX_URL}/domains/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ domainId: businessId }),
+        body: JSON.stringify({ domainId: domainStatus.domainId }),
       });
 
       const result = await response.json();

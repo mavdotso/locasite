@@ -24,6 +24,11 @@ export const convexEnv = {
   // Custom Domain
   CUSTOM_DOMAIN_CNAME: process.env.CUSTOM_DOMAIN_CNAME || "cname.vercel-dns.com",
   
+  // Vercel API Configuration
+  VERCEL_API_TOKEN: process.env.VERCEL_API_TOKEN,
+  VERCEL_PROJECT_ID: process.env.VERCEL_PROJECT_ID,
+  VERCEL_TEAM_ID: process.env.VERCEL_TEAM_ID,
+  
   // Convex Auth
   CONVEX_SITE_URL: process.env.CONVEX_SITE_URL || "http://localhost:3000",
   
