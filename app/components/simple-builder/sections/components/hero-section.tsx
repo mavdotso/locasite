@@ -268,7 +268,7 @@ export function HeroSection({
                 className={cn(
                   "inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-lg",
                   hasRealImage && overlay
-                    ? "bg-white/20 backdrop-blur-sm text-white border-2 border-white/30 hover:bg-white/30"
+                    ? "backdrop-blur-sm text-white border-2 border-blue-300/30 hover:border-blue-200/40"
                     : "bg-background border-2 border-border hover:bg-accent",
                   "transition-all duration-300",
                 )}

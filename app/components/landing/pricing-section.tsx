@@ -15,8 +15,9 @@ export default function PricingSection() {
   const [loading, setLoading] = useState<string | null>(null);
   const router = useRouter();
 
-  const user = useQuery(api.auth.currentUser);
-  const subscription = useQuery(api.subscriptions.getUserSubscription);
+  const userWithSubscription = useQuery(api.auth.currentUserWithSubscription);
+  const user = userWithSubscription?.user;
+  const subscription = userWithSubscription?.subscription;
   const subscribe = useAction(api.subscriptions.subscribe);
 
   const plans = [

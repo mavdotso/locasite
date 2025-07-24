@@ -31,7 +31,7 @@ export default function CTASection() {
       <div className="container relative mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 px-4 py-1.5 text-sm font-medium text-white mb-8">
+          <div className="inline-flex items-center gap-2 rounded-full backdrop-blur-sm border-2 border-blue-300/30 px-4 py-1.5 text-sm font-medium text-white mb-8">
             <Zap className="h-4 w-4 text-yellow-400" />
             Limited Time Offer - 50% Off Professional Plan
           </div>

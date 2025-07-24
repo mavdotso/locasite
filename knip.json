@@ -13,7 +13,9 @@
     "tailwindcss-animate",
     "@types/react-window",
     "eslint",
-    "eslint-config-next"
+    "eslint-config-next",
+    "react-dom",
+    "@types/react-dom"
   ],
   "ignoreWorkspaces": [],
   "ignore": [
@@ -28,6 +30,6 @@
     "app/lib/analytics.ts",
     "convex/auth.ts"
   ],
-  "ignoreBinaries": [],
+  "ignoreBinaries": ["next"],
   "ignoreExportsUsedInFile": true
 }
