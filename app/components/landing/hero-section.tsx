@@ -27,36 +27,20 @@ export default function HeroSection() {
 
       <div className="container relative mx-auto px-4 py-12 md:py-20">
         <div className="mx-auto max-w-7xl">
-          {/* Headline - Short and punchy */}
-          <h1 className="mx-auto mb-4 max-w-3xl text-center text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-            Your Google Maps Info,
+          {/* Headline - Clear and compelling */}
+          <h1 className="mx-auto mb-4 max-w-4xl text-center text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
+            Turn Your Google Business Into a
             <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               {" "}
-              Instantly Online
+              Professional Website
             </span>
           </h1>
 
           {/* Subheadline - Clear value prop */}
           <p className="mx-auto mb-10 max-w-2xl text-center text-lg text-muted-foreground sm:text-xl">
-            Transform your Google Business Profile into a stunning website in 60 seconds. 
-            No tech skills needed.
+            Just paste your Google Maps link and watch AI create a stunning website 
+            in seconds. No coding, no hassle.
           </p>
-
-          {/* Trust Indicators - Above the fold */}
-          <div className="mb-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm font-medium">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Users className="h-4 w-4 text-blue-600" />
-              <span>Join 50,000+ local businesses</span>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Clock className="h-4 w-4 text-blue-600" />
-              <span>Setup in 60 seconds</span>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <CreditCard className="h-4 w-4 text-blue-600" />
-              <span>No credit card required</span>
-            </div>
-          </div>
 
           {/* Input and CTA Section */}
           <div className="mx-auto mb-12 max-w-2xl">

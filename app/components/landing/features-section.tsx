@@ -70,132 +70,111 @@ const currentFeatures = [
 
 const upcomingFeatures = [
   {
+    name: "Auto-Sync Updates",
+    description: "Sync changes from Google automatically",
+    icon: TrendingUp,
+    status: "Coming soon",
+  },
+  {
     name: "Online Booking",
     description: "Let customers book appointments directly",
     icon: Calendar,
-    status: "Q1 2025",
+    status: "Coming soon",
   },
   {
     name: "Review Management",
     description: "Manage and display customer reviews",
     icon: Star,
-    status: "Q1 2025",
+    status: "Coming soon",
   },
   {
     name: "Multi-Location",
     description: "Manage multiple business locations",
     icon: Users,
-    status: "Q2 2025",
+    status: "Coming soon",
   },
   {
     name: "Email Marketing",
     description: "Built-in email campaigns",
     icon: Mail,
-    status: "Q2 2025",
+    status: "Coming soon",
   },
   {
     name: "Social Integration",
     description: "Connect all your social accounts",
     icon: Share2,
-    status: "Q2 2025",
-  },
-  {
-    name: "AI Content Writer",
-    description: "Generate SEO-optimized content",
-    icon: Sparkles,
-    status: "Q3 2025",
+    status: "Coming soon",
   },
 ];
 
 export default function FeaturesSection() {
-  return (
-    <section id="features" className="py-24 bg-muted/30">
-      <div className="container mx-auto px-4">
-        {/* Current Features */}
-        <div className="mb-24">
-          <div className="mx-auto max-w-2xl text-center mb-12">
-            <div className="inline-flex items-center gap-2 rounded-full bg-green-100 border border-green-200 px-4 py-1.5 text-sm font-medium text-green-700 mb-4">
-              Available Today
-            </div>
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Everything You Need to Succeed Online
-            </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
-              Powerful features ready to use from day one
-            </p>
-          </div>
+  const allFeatures = [
+    ...currentFeatures,
+    ...upcomingFeatures.map(f => ({
+      ...f,
+      color: "text-muted-foreground",
+      isComingSoon: true
+    }))
+  ];
 
-          <div className="mx-auto max-w-6xl">
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {currentFeatures.map((feature) => (
-                <div
-                  key={feature.name}
-                  className="relative rounded-lg border bg-card p-6 transition-all hover:shadow-md hover:border-primary/20"
-                >
-                  <div className="mb-4">
-                    <div
-                      className={`inline-flex rounded-lg bg-muted p-3 ${feature.color}`}
-                    >
-                      <feature.icon className="h-5 w-5" />
-                    </div>
+  return (
+    <section id="features" className="py-24 bg-white">
+      <div className="container mx-auto px-4">
+        <div className="mx-auto max-w-2xl text-center mb-12">
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+            Everything You Need to
+            <span className="text-primary"> Succeed Online</span>
+          </h2>
+          <p className="mt-4 text-lg text-muted-foreground">
+            Powerful features to help your business thrive in the digital world
+          </p>
+        </div>
+
+        <div className="mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {allFeatures.map((feature, index) => (
+              <div
+                key={feature.name}
+                className={`relative rounded-lg border p-6 transition-all ${
+                  feature.isComingSoon
+                    ? "bg-muted/50 border-dashed border-muted-foreground/30 opacity-60"
+                    : "bg-card hover:shadow-md hover:border-primary/20"
+                }`}
+              >
+                <div className="mb-4">
+                  <div
+                    className={`inline-flex rounded-lg p-3 ${
+                      feature.isComingSoon ? "bg-muted" : "bg-muted"
+                    } ${feature.color}`}
+                  >
+                    <feature.icon className="h-5 w-5" />
                   </div>
-                  <h3 className="mb-1 font-semibold">{feature.name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {feature.description}
-                  </p>
+                  {feature.isComingSoon && (
+                    <span className="ml-2 text-xs font-medium text-muted-foreground">
+                      Coming soon
+                    </span>
+                  )}
                 </div>
-              ))}
-            </div>
+                <h3 className={`mb-1 font-semibold ${
+                  feature.isComingSoon ? "text-muted-foreground" : ""
+                }`}>
+                  {feature.name}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Upcoming Features */}
-        <div>
-          <div className="mx-auto max-w-2xl text-center mb-12">
-            <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 border border-purple-200 px-4 py-1.5 text-sm font-medium text-purple-700 mb-4">
-              <Sparkles className="h-3.5 w-3.5" />
-              Coming Soon
-            </div>
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Exciting Features on the Horizon
-            </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
-              We're constantly improving to help your business grow
-            </p>
-          </div>
-
-          <div className="mx-auto max-w-5xl">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {upcomingFeatures.map((feature) => (
-                <div
-                  key={feature.name}
-                  className="relative rounded-lg border-2 border-dashed border-muted-foreground/20 bg-muted/10 p-6"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="inline-flex rounded-lg bg-background p-2 text-muted-foreground">
-                      <feature.icon className="h-5 w-5" />
-                    </div>
-                    <span className="text-xs font-medium text-muted-foreground">
-                      {feature.status}
-                    </span>
-                  </div>
-                  <h3 className="mb-1 font-semibold">{feature.name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {feature.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-12 text-center">
-            <p className="text-sm text-muted-foreground">
-              Have a feature request?{" "}
-              <a href="#contact" className="text-primary hover:underline">
-                Let us know
-              </a>
-            </p>
-          </div>
+        <div className="mt-12 text-center">
+          <p className="text-sm text-muted-foreground">
+            Have a feature request?{" "}
+            <a href="#contact" className="text-primary hover:underline font-medium">
+              Let us know
+            </a>
+          </p>
         </div>
       </div>
     </section>

@@ -76,7 +76,7 @@ export default function TestimonialsSection() {
             <span className="text-primary"> Real Businesses</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Join 50,000+ local businesses saving time and growing revenue
+            See how businesses are saving time and growing their online presence
           </p>
         </div>
 
@@ -135,20 +135,20 @@ export default function TestimonialsSection() {
         {/* Bottom Stats */}
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 border-t pt-16">
           <div className="text-center">
-            <p className="text-4xl font-bold text-primary mb-2">50,000+</p>
-            <p className="text-muted-foreground">Local Businesses</p>
-          </div>
-          <div className="text-center">
-            <p className="text-4xl font-bold text-primary mb-2">4.9/5</p>
-            <p className="text-muted-foreground">From 2,000+ Reviews</p>
-          </div>
-          <div className="text-center">
             <p className="text-4xl font-bold text-primary mb-2">60 sec</p>
             <p className="text-muted-foreground">Average Setup Time</p>
           </div>
           <div className="text-center">
-            <p className="text-4xl font-bold text-primary mb-2">+37%</p>
-            <p className="text-muted-foreground">Average Traffic Increase</p>
+            <p className="text-4xl font-bold text-primary mb-2">100%</p>
+            <p className="text-muted-foreground">Mobile Responsive</p>
+          </div>
+          <div className="text-center">
+            <p className="text-4xl font-bold text-primary mb-2">SSL</p>
+            <p className="text-muted-foreground">Security Included</p>
+          </div>
+          <div className="text-center">
+            <p className="text-4xl font-bold text-primary mb-2">24/7</p>
+            <p className="text-muted-foreground">Website Availability</p>
           </div>
         </div>
       </div>
