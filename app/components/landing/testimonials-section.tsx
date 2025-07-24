@@ -3,30 +3,33 @@ import { Star, Quote } from 'lucide-react';
 const testimonials = [
   {
     name: 'Sarah Chen',
-    business: 'Bloom & Vine Florist',
+    business: 'Sarah\'s Bakery & Cafe',
     location: 'San Francisco, CA',
     avatar: 'SC',
     rating: 5,
-    text: 'I was amazed at how quickly I had a professional website up and running. Within minutes of pasting my Google Maps link, I had a beautiful site that perfectly represents my flower shop. The best part? It updates automatically when I change my business hours!',
-    highlight: 'Updates automatically'
+    text: 'Setup took 5 minutes instead of 5 hours. I pasted our Google Maps link and boom—professional website ready. We\'ve seen 40% more online orders since launching.',
+    highlight: 'Setup in 5 minutes',
+    metric: '+40% online orders'
   },
   {
-    name: 'Michael Rodriguez',
-    business: 'Rodriguez Auto Repair',
+    name: 'Mike Rodriguez',
+    business: 'Mike\'s Auto Repair',
     location: 'Austin, TX',
     avatar: 'MR',
     rating: 5,
-    text: 'As a mechanic, I don\'t have time to deal with websites. Locasite made it incredibly simple. My customers can now find my hours, see reviews, and contact me directly from the website. It\'s brought in at least 20 new customers this month alone.',
-    highlight: '20 new customers'
+    text: '37% more customer calls in the first month. The best part? When I update our hours on Google, the website changes automatically. No more confused customers!',
+    highlight: '+37% more calls',
+    metric: 'Auto-synced updates'
   },
   {
-    name: 'Emily Thompson',
-    business: 'The Cozy Cup Café',
+    name: 'Luna Patel',
+    business: 'Luna Yoga Studio',
     location: 'Portland, OR',
-    avatar: 'ET',
+    avatar: 'LP',
     rating: 5,
-    text: 'The drag-and-drop editor is a game-changer. I was able to customize everything to match my café\'s aesthetic perfectly. My website looks like it cost thousands of dollars, but it\'s actually very affordable. Highly recommend!',
-    highlight: 'Looks like it cost thousands'
+    text: 'Finally, a website that\'s always up-to-date. Our class schedule syncs from Google, reviews show automatically, and new students find us easily. Worth every penny.',
+    highlight: 'Always up-to-date',
+    metric: '3x more inquiries'
   },
   {
     name: 'David Kim',
@@ -34,26 +37,29 @@ const testimonials = [
     location: 'Seattle, WA',
     avatar: 'DK',
     rating: 5,
-    text: 'Professional, clean, and exactly what my dental practice needed. The SEO features have helped us rank higher in local searches, and we\'ve seen a 40% increase in new patient inquiries since launching our Locasite.',
-    highlight: '40% increase in inquiries'
+    text: 'Reduced our setup time by 80%. What used to take days now takes minutes. The Google Maps integration means we never have outdated information online.',
+    highlight: '80% less setup time',
+    metric: 'Zero maintenance'
   },
   {
-    name: 'Lisa Martinez',
-    business: 'Fit & Healthy Gym',
+    name: 'Maria Garcia',
+    business: 'Garcia Tax Services',
     location: 'Miami, FL',
-    avatar: 'LM',
+    avatar: 'MG',
     rating: 5,
-    text: 'Setting up our gym\'s website took literally 2 minutes. The mobile version looks fantastic, which is crucial since most of our members check class schedules on their phones. Worth every penny!',
-    highlight: 'Setup in 2 minutes'
+    text: 'Our Google reviews now show on our website automatically. Clients trust us more, and we\'ve doubled our appointments during tax season.',
+    highlight: '2x appointments',
+    metric: 'Trust through reviews'
   },
   {
-    name: 'James Wilson',
-    business: 'Wilson Law Firm',
+    name: 'James Thompson',
+    business: 'Thompson Plumbing',
     location: 'Chicago, IL',
-    avatar: 'JW',
+    avatar: 'JT',
     rating: 5,
-    text: 'I needed a professional web presence that instills trust. Locasite delivered exactly that. The security features and professional design give my clients confidence, and the analytics help me understand my audience better.',
-    highlight: 'Instills trust'
+    text: 'Emergency calls increased 150% because customers can easily find our hours and contact info. The mobile site loads instantly—crucial for emergencies.',
+    highlight: '+150% emergency calls',
+    metric: 'Instant mobile load'
   }
 ];
 
@@ -66,11 +72,11 @@ export default function TestimonialsSection() {
             Customer Success Stories
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
-            Trusted by Thousands of
-            <span className="text-primary"> Local Businesses</span>
+            Real Results from
+            <span className="text-primary"> Real Businesses</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            See how businesses like yours are growing their online presence with Locasite
+            Join 50,000+ local businesses saving time and growing revenue
           </p>
         </div>
 
@@ -95,10 +101,17 @@ export default function TestimonialsSection() {
                 &ldquo;{testimonial.text}&rdquo;
               </p>
               
-              {/* Highlight */}
-              <div className="inline-flex items-center gap-1 text-sm font-medium text-primary mb-6">
-                <span className="text-2xl">→</span>
-                {testimonial.highlight}
+              {/* Metrics */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="inline-flex items-center gap-1 text-sm font-medium text-primary">
+                  <span className="text-2xl">→</span>
+                  {testimonial.highlight}
+                </div>
+                {testimonial.metric && (
+                  <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-1 rounded">
+                    {testimonial.metric}
+                  </span>
+                )}
               </div>
               
               {/* Author */}
@@ -122,20 +135,20 @@ export default function TestimonialsSection() {
         {/* Bottom Stats */}
         <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 border-t pt-16">
           <div className="text-center">
-            <p className="text-4xl font-bold text-primary mb-2">10,000+</p>
-            <p className="text-muted-foreground">Happy Businesses</p>
+            <p className="text-4xl font-bold text-primary mb-2">50,000+</p>
+            <p className="text-muted-foreground">Local Businesses</p>
           </div>
           <div className="text-center">
             <p className="text-4xl font-bold text-primary mb-2">4.9/5</p>
-            <p className="text-muted-foreground">Average Rating</p>
+            <p className="text-muted-foreground">From 2,000+ Reviews</p>
           </div>
           <div className="text-center">
-            <p className="text-4xl font-bold text-primary mb-2">99.9%</p>
-            <p className="text-muted-foreground">Uptime SLA</p>
+            <p className="text-4xl font-bold text-primary mb-2">60 sec</p>
+            <p className="text-muted-foreground">Average Setup Time</p>
           </div>
           <div className="text-center">
-            <p className="text-4xl font-bold text-primary mb-2">24/7</p>
-            <p className="text-muted-foreground">Customer Support</p>
+            <p className="text-4xl font-bold text-primary mb-2">+37%</p>
+            <p className="text-muted-foreground">Average Traffic Increase</p>
           </div>
         </div>
       </div>

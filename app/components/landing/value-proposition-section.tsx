@@ -1,142 +1,125 @@
 import {
-  Zap,
-  Shield,
-  Palette,
-  TrendingUp,
-  Smartphone,
   Clock,
-  Globe,
+  CheckCircle,
   Search,
-  CreditCard,
+  ArrowRight,
 } from "lucide-react";
 
-const features = [
+const benefits = [
   {
-    icon: Zap,
-    title: "Lightning Fast Setup",
-    description:
-      "Go from Google Maps link to live website in under 60 seconds. No technical skills required.",
-    color: "text-yellow-600",
+    icon: Clock,
+    title: "Instant Setup",
+    description: "Your hours, photos, reviews—all imported automatically",
+    detail: "Save 5+ hours of manual data entry. Everything from your Google Business Profile appears on your website instantly.",
+    color: "text-blue-600",
+    bgColor: "bg-blue-50",
+  },
+  {
+    icon: CheckCircle,
+    title: "Always Accurate",
+    description: "Changes on Google? Your website updates instantly",
+    detail: "Never worry about outdated information. When you update your Google Business Profile, your website reflects it immediately.",
+    color: "text-green-600",
+    bgColor: "bg-green-50",
   },
   {
     icon: Search,
-    title: "SEO Optimized",
-    description:
-      "Built-in SEO best practices ensure your business ranks higher in search results.",
-    color: "text-blue-600",
-  },
-  {
-    icon: Smartphone,
-    title: "Mobile-First Design",
-    description:
-      "Every website looks perfect on all devices, from phones to desktops.",
+    title: "SEO Ready",
+    description: "Same info everywhere means better search rankings",
+    detail: "Google loves consistency. Having matching information across your profiles boosts your local search visibility.",
     color: "text-purple-600",
-  },
-  {
-    icon: Palette,
-    title: "Fully Customizable",
-    description:
-      "Drag-and-drop editor lets you customize every aspect of your site.",
-    color: "text-pink-600",
-  },
-  {
-    icon: Globe,
-    title: "Custom Domain",
-    description:
-      "Get a professional subdomain instantly or connect your own custom domain.",
-    color: "text-green-600",
-  },
-  {
-    icon: Shield,
-    title: "Secure & Reliable",
-    description:
-      "SSL certificates, DDoS protection, and 99.9% uptime guaranteed.",
-    color: "text-indigo-600",
-  },
-  {
-    icon: TrendingUp,
-    title: "Analytics Dashboard",
-    description:
-      "Track visitors, page views, and customer interactions in real-time.",
-    color: "text-orange-600",
-  },
-  {
-    icon: Clock,
-    title: "Auto-Updates",
-    description:
-      "Business hours, reviews, and info sync automatically from Google.",
-    color: "text-cyan-600",
-  },
-  {
-    icon: CreditCard,
-    title: "No Hidden Fees",
-    description: "Transparent pricing with no setup fees or surprise charges.",
-    color: "text-emerald-600",
+    bgColor: "bg-purple-50",
   },
 ];
 
 export default function ValuePropositionSection() {
   return (
-    <section className="py-24 bg-gradient-to-b from-white to-blue-50">
+    <section className="py-24 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 rounded-full bg-blue-100 border border-blue-200 px-4 py-1.5 text-sm font-medium text-blue-700 mb-4">
-            Why Choose Locasite
+            The Google Maps Advantage
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
-            Everything You Need to
-            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              {" "}
-              Succeed Online
-            </span>
+            Never Enter Your Business Info Again
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            We handle the technical details so you can focus on running your
-            business. Get a professional web presence without the hassle.
+            Your Google Business Profile becomes your website. 
+            One source of truth, zero duplicate work.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
+        {/* Three Core Benefits */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16">
+          {benefits.map((benefit, index) => (
             <div
               key={index}
-              className="group relative rounded-xl border bg-card p-6 transition-all duration-300 hover:shadow-lg hover:border-primary/20"
+              className="relative group"
             >
-              <div
-                className={`inline-flex rounded-lg bg-background p-3 ${feature.color} mb-4`}
-              >
-                <feature.icon className="h-6 w-6" />
+              <div className={`rounded-xl ${benefit.bgColor} p-8 h-full transition-all duration-300 group-hover:shadow-lg`}>
+                <div className={`inline-flex rounded-lg bg-white p-3 ${benefit.color} mb-4 shadow-sm`}>
+                  <benefit.icon className="h-6 w-6" />
+                </div>
+                
+                <h3 className="text-xl font-semibold mb-2">{benefit.title}</h3>
+                <p className="text-lg font-medium mb-3">{benefit.description}</p>
+                <p className="text-sm text-muted-foreground">{benefit.detail}</p>
               </div>
-
-              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-              <p className="text-muted-foreground">{feature.description}</p>
-
-              {/* Hover effect */}
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             </div>
           ))}
         </div>
 
+        {/* Visual Process */}
+        <div className="max-w-4xl mx-auto">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl blur-3xl opacity-30" />
+            <div className="relative bg-white rounded-2xl border p-8 md:p-12">
+              <h3 className="text-2xl font-bold text-center mb-8">How the Magic Happens</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl font-bold text-blue-600">1</span>
+                  </div>
+                  <h4 className="font-semibold mb-2">Paste Your Link</h4>
+                  <p className="text-sm text-muted-foreground">Drop your Google Maps URL into our generator</p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl font-bold text-purple-600">2</span>
+                  </div>
+                  <h4 className="font-semibold mb-2">AI Imports Everything</h4>
+                  <p className="text-sm text-muted-foreground">Photos, hours, reviews, contact info—all automatic</p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl font-bold text-green-600">3</span>
+                  </div>
+                  <h4 className="font-semibold mb-2">Website Goes Live</h4>
+                  <p className="text-sm text-muted-foreground">Your professional site is ready in 60 seconds</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Bottom CTA */}
         <div className="mt-16 text-center">
-          <p className="text-lg text-muted-foreground mb-6">
-            Join thousands of businesses already using Locasite to grow their
-            online presence
+          <p className="text-lg font-medium mb-2">
+            Stop wasting time on manual updates
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="#create"
-              className="inline-flex items-center justify-center rounded-md bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-3 text-sm font-medium text-white shadow-lg transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl"
-            >
-              Start Building Your Website
-            </a>
-            <a
-              href="#demo"
-              className="inline-flex items-center justify-center rounded-md border border-blue-200 bg-background px-8 py-3 text-sm font-medium text-blue-700 shadow-sm transition-colors hover:bg-blue-50"
-            >
-              Watch Demo
-            </a>
-          </div>
+          <p className="text-muted-foreground mb-8">
+            Let your Google Business Profile power your entire web presence
+          </p>
+          <a
+            href="#hero"
+            className="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-3 text-sm font-medium text-white shadow-lg transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl"
+          >
+            Try It With Your Business
+            <ArrowRight className="h-4 w-4" />
+          </a>
         </div>
       </div>
     </section>

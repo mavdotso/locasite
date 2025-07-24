@@ -21,14 +21,11 @@ export default function NavBar() {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            <Link href="#features" className="text-sm text-muted-foreground hover:text-foreground">
+            <Link href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Features
             </Link>
-            <Link href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground">
-              How It Works
-            </Link>
-            <Link href="#create" className="text-sm text-muted-foreground hover:text-foreground">
-              Create Website
+            <Link href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Pricing
             </Link>
           </div>
           
@@ -37,8 +34,8 @@ export default function NavBar() {
             <Button variant="ghost" asChild>
               <Link href="/sign-in">Sign In</Link>
             </Button>
-            <Button asChild>
-              <Link href="/dashboard">Dashboard</Link>
+            <Button asChild className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+              <Link href="/#hero">Get Started Free</Link>
             </Button>
           </div>
           
@@ -57,31 +54,24 @@ export default function NavBar() {
             <div className="flex flex-col gap-4">
               <Link 
                 href="#features" 
-                className="text-sm text-muted-foreground hover:text-foreground"
+                className="text-sm font-medium text-muted-foreground hover:text-foreground"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Features
               </Link>
               <Link 
-                href="#how-it-works" 
-                className="text-sm text-muted-foreground hover:text-foreground"
+                href="#pricing" 
+                className="text-sm font-medium text-muted-foreground hover:text-foreground"
                 onClick={() => setIsMenuOpen(false)}
               >
-                How It Works
-              </Link>
-              <Link 
-                href="#create" 
-                className="text-sm text-muted-foreground hover:text-foreground"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Create Website
+                Pricing
               </Link>
               <hr className="border-border" />
               <Button variant="ghost" asChild className="justify-start">
                 <Link href="/sign-in">Sign In</Link>
               </Button>
-              <Button asChild>
-                <Link href="/dashboard">Dashboard</Link>
+              <Button asChild className="bg-gradient-to-r from-blue-600 to-indigo-600">
+                <Link href="/#hero">Get Started Free</Link>
               </Button>
             </div>
           </div>

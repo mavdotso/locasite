@@ -1,5 +1,6 @@
 import NavBar from '@/app/components/landing/nav-bar';
 import HeroSection from '@/app/components/landing/hero-section';
+import SocialProofBar from '@/app/components/landing/social-proof-bar';
 import ValuePropositionSection from '@/app/components/landing/value-proposition-section';
 import FeaturesSection from '@/app/components/landing/features-section';
 import HowItWorksSection from '@/app/components/landing/how-it-works-section';
@@ -17,6 +18,9 @@ export default function HomePage() {
       
       {/* Hero Section with integrated form and preview */}
       <HeroSection />
+      
+      {/* Social Proof Bar */}
+      <SocialProofBar />
       
       {/* Value Proposition - Why Choose Locasite */}
       <ValuePropositionSection />
