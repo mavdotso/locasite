@@ -1205,7 +1205,6 @@ http.route({
 
       const vercelToken = convexEnv.VERCEL_API_TOKEN;
       const projectId = convexEnv.VERCEL_PROJECT_ID;
-      const teamId = convexEnv.VERCEL_TEAM_ID; // Optional, if using team account
 
       if (!vercelToken || !projectId) {
         return new Response(
@@ -1227,7 +1226,6 @@ http.route({
         },
         body: JSON.stringify({
           name: domain,
-          ...(teamId && { teamId }),
         }),
       });
 
@@ -1316,7 +1314,6 @@ http.route({
 
       const vercelToken = convexEnv.VERCEL_API_TOKEN;
       const projectId = convexEnv.VERCEL_PROJECT_ID;
-      const teamId = convexEnv.VERCEL_TEAM_ID;
 
       if (!vercelToken || !projectId) {
         return new Response(
@@ -1334,7 +1331,6 @@ http.route({
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${vercelToken}`,
-          ...(teamId && { "Vercel-Team-Id": teamId }),
         },
       });
 
