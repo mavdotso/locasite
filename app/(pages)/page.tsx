@@ -1,7 +1,7 @@
 import NavBar from '@/app/components/landing/nav-bar';
 import HeroSection from '@/app/components/landing/hero-section';
 import SocialProofBar from '@/app/components/landing/social-proof-bar';
-import HowTheMagicHappensSection from '@/app/components/landing/how-the-magic-happens';
+import HowItWorksSection from '@/app/components/landing/how-it-works-section';
 import FeaturesSection from '@/app/components/landing/features-section';
 import TestimonialsSection from '@/app/components/landing/testimonials-section';
 import PricingSection from '@/app/components/landing/pricing-section';
@@ -21,8 +21,8 @@ export default function HomePage() {
       {/* Social Proof Bar */}
       <SocialProofBar />
       
-      {/* How the Magic Happens */}
-      <HowTheMagicHappensSection />
+      {/* How It Works */}
+      <HowItWorksSection />
       
       {/* Features Section */}
       <FeaturesSection />

@@ -38,8 +38,8 @@ export default function HeroSection() {
 
           {/* Subheadline - Clear value prop */}
           <p className="mx-auto mb-10 max-w-2xl text-center text-lg text-muted-foreground sm:text-xl">
-            Just paste your Google Maps link and watch AI create a stunning website 
-            in seconds. No coding, no hassle.
+            Just paste your Google Maps link and get a professional website 
+            ready in seconds. No coding, no hassle.
           </p>
 
           {/* Input and CTA Section */}

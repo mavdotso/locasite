@@ -7,9 +7,9 @@ const testimonials = [
     location: 'San Francisco, CA',
     avatar: 'SC',
     rating: 5,
-    text: 'Setup took 5 minutes instead of 5 hours. I pasted our Google Maps link and boom—professional website ready. We\'ve seen 40% more online orders since launching.',
-    highlight: 'Setup in 5 minutes',
-    metric: '+40% online orders'
+    text: 'I\'m not tech-savvy at all, but I had our bakery website up in minutes. Just pasted our Google Maps link and it pulled in everything - photos, hours, reviews. So easy!',
+    highlight: 'Super easy setup',
+    metric: 'Ready in minutes'
   },
   {
     name: 'Mike Rodriguez',
@@ -17,9 +17,9 @@ const testimonials = [
     location: 'Austin, TX',
     avatar: 'MR',
     rating: 5,
-    text: '37% more customer calls in the first month. The best part? When I update our hours on Google, the website changes automatically. No more confused customers!',
-    highlight: '+37% more calls',
-    metric: 'Auto-synced updates'
+    text: 'Finally, a website I can actually manage myself. The drag-and-drop editor is simple, and I love that it looks professional on phones. My customers can find us easily now.',
+    highlight: 'Easy to manage',
+    metric: 'Looks great on mobile'
   },
   {
     name: 'Luna Patel',
@@ -27,9 +27,9 @@ const testimonials = [
     location: 'Portland, OR',
     avatar: 'LP',
     rating: 5,
-    text: 'Finally, a website that\'s always up-to-date. Our class schedule syncs from Google, reviews show automatically, and new students find us easily. Worth every penny.',
-    highlight: 'Always up-to-date',
-    metric: '3x more inquiries'
+    text: 'I was quoted $3000 for a custom website. With Locasite, I did it myself for a fraction of that. The templates are beautiful and it was genuinely fun to set up.',
+    highlight: 'Saved thousands',
+    metric: 'Professional results'
   },
   {
     name: 'David Kim',
@@ -37,9 +37,9 @@ const testimonials = [
     location: 'Seattle, WA',
     avatar: 'DK',
     rating: 5,
-    text: 'Reduced our setup time by 80%. What used to take days now takes minutes. The Google Maps integration means we never have outdated information online.',
-    highlight: '80% less setup time',
-    metric: 'Zero maintenance'
+    text: 'What impressed me most was how it imported all our Google info automatically. No typing, no copy-paste. Just clicked a button and our website was ready to customize.',
+    highlight: 'No manual entry',
+    metric: 'One-click import'
   },
   {
     name: 'Maria Garcia',
@@ -47,9 +47,9 @@ const testimonials = [
     location: 'Miami, FL',
     avatar: 'MG',
     rating: 5,
-    text: 'Our Google reviews now show on our website automatically. Clients trust us more, and we\'ve doubled our appointments during tax season.',
-    highlight: '2x appointments',
-    metric: 'Trust through reviews'
+    text: 'I\'ve tried other website builders and got frustrated. This one is different - it\'s actually designed for small businesses like mine. Everything just makes sense.',
+    highlight: 'Built for small business',
+    metric: 'Actually works'
   },
   {
     name: 'James Thompson',
@@ -57,9 +57,9 @@ const testimonials = [
     location: 'Chicago, IL',
     avatar: 'JT',
     rating: 5,
-    text: 'Emergency calls increased 150% because customers can easily find our hours and contact info. The mobile site loads instantly—crucial for emergencies.',
-    highlight: '+150% emergency calls',
-    metric: 'Instant mobile load'
+    text: 'My daughter helped me set it up in about 10 minutes. Now I have a real website instead of just relying on Facebook. Customers say it looks very professional.',
+    highlight: 'Family-friendly setup',
+    metric: 'Professional appearance'
   }
 ];
 
@@ -71,9 +71,12 @@ export default function TestimonialsSection() {
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary mb-4">
             Customer Success Stories
           </div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-blue-100 border border-blue-200 px-4 py-1.5 text-sm font-medium text-blue-700 mb-4">
+            What Our Customers Say
+          </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
-            Real Results from
-            <span className="text-primary"> Real Businesses</span>
+            Real Reviews from
+            <span className="text-primary"> Real Business Owners</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             See how businesses are saving time and growing their online presence

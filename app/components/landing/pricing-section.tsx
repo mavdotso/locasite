@@ -82,7 +82,7 @@ export default function PricingSection() {
         { text: "Onboarding session", included: true },
         { text: "Bulk import tools", included: true },
       ],
-      cta: "Get Started Today",
+      cta: "Contact Us",
       highlighted: false,
     },
   ];
@@ -290,13 +290,6 @@ export default function PricingSection() {
               </div>
             </div>
           </div>
-          
-          <p className="text-center mt-8 text-sm text-muted-foreground">
-            Need a custom solution?{" "}
-            <a href="#contact" className="text-primary hover:underline font-medium">
-              Let's talk
-            </a>
-          </p>
         </div>
       </div>
     </section>

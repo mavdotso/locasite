@@ -43,9 +43,9 @@ const currentFeatures = [
     color: "text-indigo-600",
   },
   {
-    name: "Analytics Dashboard",
-    description: "Track visitors and engagement metrics",
-    icon: BarChart3,
+    name: "Social Integration",
+    description: "Connect all your social accounts",
+    icon: Share2,
     color: "text-pink-600",
   },
   {
@@ -70,9 +70,9 @@ const currentFeatures = [
 
 const upcomingFeatures = [
   {
-    name: "Auto-Sync Updates",
-    description: "Sync changes from Google automatically",
-    icon: TrendingUp,
+    name: "Analytics Dashboard",
+    description: "Track visitors and engagement metrics",
+    icon: BarChart3,
     status: "Coming soon",
   },
   {
@@ -88,21 +88,9 @@ const upcomingFeatures = [
     status: "Coming soon",
   },
   {
-    name: "Multi-Location",
-    description: "Manage multiple business locations",
-    icon: Users,
-    status: "Coming soon",
-  },
-  {
     name: "Email Marketing",
     description: "Built-in email campaigns",
     icon: Mail,
-    status: "Coming soon",
-  },
-  {
-    name: "Social Integration",
-    description: "Connect all your social accounts",
-    icon: Share2,
     status: "Coming soon",
   },
 ];
@@ -121,6 +109,9 @@ export default function FeaturesSection() {
     <section id="features" className="py-24 bg-white">
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-2xl text-center mb-12">
+          <div className="inline-flex items-center gap-2 rounded-full bg-green-100 border border-green-200 px-4 py-1.5 text-sm font-medium text-green-700 mb-4">
+            Features & Capabilities
+          </div>
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
             Everything You Need to
             <span className="text-primary"> Succeed Online</span>
@@ -168,14 +159,6 @@ export default function FeaturesSection() {
           </div>
         </div>
 
-        <div className="mt-12 text-center">
-          <p className="text-sm text-muted-foreground">
-            Have a feature request?{" "}
-            <a href="#contact" className="text-primary hover:underline font-medium">
-              Let us know
-            </a>
-          </p>
-        </div>
       </div>
     </section>
   );

@@ -11,9 +11,9 @@ const steps = [
   },
   {
     icon: Sparkles,
-    title: "AI Imports Everything",
+    title: "We Import Everything",
     description: "Photos, hours, reviews, contact info—all automatic",
-    detail: "Our AI extracts all your business information from Google Maps in seconds.",
+    detail: "We automatically extract all your business information from Google Maps in seconds.",
     color: "text-purple-600",
     bgColor: "bg-purple-50",
   },
@@ -27,7 +27,7 @@ const steps = [
   },
 ];
 
-export default function HowTheMagicHappensSection() {
+export default function HowItWorksSection() {
   return (
     <section className="py-24 bg-gray-50">
       <div className="container mx-auto px-4">
@@ -37,7 +37,7 @@ export default function HowTheMagicHappensSection() {
             How It Works
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
-            How the Magic Happens
+            How It Works
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             From Google Maps to professional website in three simple steps
