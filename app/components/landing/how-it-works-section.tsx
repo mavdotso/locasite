@@ -1,136 +1,89 @@
-import { Search, Palette, Globe } from "lucide-react";
+import { Search, Sparkles, Rocket } from "lucide-react";
 
 const steps = [
   {
-    number: "1",
-    title: "Find the Business",
-    description:
-      "Search for any business on Google Maps and copy the URL from your browser.",
     icon: Search,
+    title: "Paste Your Link",
+    description: "Drop your Google Maps URL into our generator",
+    detail: "Just copy the link from Google Maps and paste it here. We'll handle the rest.",
+    color: "text-blue-600",
+    bgColor: "bg-blue-50",
   },
   {
-    number: "2",
-    title: "Customize Design",
-    description:
-      "Our AI automatically creates a beautiful website. Customize colors, fonts, and content.",
-    icon: Palette,
+    icon: Sparkles,
+    title: "We Import Everything",
+    description: "Photos, hours, reviews, contact info—all automatic",
+    detail: "We automatically extract all your business information from Google Maps in seconds.",
+    color: "text-purple-600",
+    bgColor: "bg-purple-50",
   },
   {
-    number: "3",
-    title: "Publish & Share",
-    description:
-      "Go live instantly with a free subdomain or connect your own custom domain.",
-    icon: Globe,
+    icon: Rocket,
+    title: "Website Goes Live",
+    description: "Your professional site is ready in 60 seconds",
+    detail: "Get a beautiful, mobile-responsive website instantly. Ready to share with customers.",
+    color: "text-green-600",
+    bgColor: "bg-green-50",
   },
 ];
 
 export default function HowItWorksSection() {
   return (
-    <section
-      id="how-it-works"
-      className="py-24 bg-gradient-to-b from-slate-50 to-white relative overflow-hidden"
-    >
-      {/* Background decorative elements */}
-      <div className="absolute top-0 left-0 w-64 h-64 bg-blue-100 rounded-full opacity-50 filter blur-3xl"></div>
-      <div className="absolute bottom-0 right-0 w-80 h-80 bg-indigo-100 rounded-full opacity-50 filter blur-3xl"></div>
-
-      <div className="container mx-auto px-4 relative">
-        <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 border border-blue-200 px-4 py-2 text-sm font-medium text-blue-700 mb-6">
-            <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+    <section id="how-it-works" className="py-24 bg-gray-50">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 border border-purple-200 px-4 py-1.5 text-sm font-medium text-purple-700 mb-4">
+            <Sparkles className="h-3.5 w-3.5" />
             How It Works
           </div>
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">
-            Create a Website in
-            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              {" "}
-              3 Simple Steps
-            </span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
+            How It Works
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            No coding required. No complicated setup. Just results in minutes.
+            From Google Maps to professional website in three simple steps
           </p>
         </div>
 
-        <div className="mx-auto mt-20 max-w-6xl">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            {steps.map((step, index) => (
-              <div key={step.number} className="relative">
-                {/* Connection Line (hidden on mobile and last item) */}
-                {index < steps.length - 1 && (
-                  <div className="absolute left-1/2 top-20 hidden h-0.5 w-full -translate-x-1/2 bg-gradient-to-r from-blue-300 to-indigo-300 md:block z-0" />
-                )}
-
-                {/* Step Card */}
-                <div className="relative bg-card rounded-2xl shadow-lg border border-blue-100 p-8 text-center hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                  {/* Step Number */}
-                  <div className="relative mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-2xl font-bold text-white shadow-lg">
-                    {step.number}
-                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
-                      <span className="text-xs font-bold text-yellow-800">
-                        ✓
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Icon */}
-                  <div className="mb-6 flex justify-center">
-                    <div className="p-3 rounded-full bg-blue-50 border border-blue-200">
-                      <step.icon className="h-8 w-8 text-blue-600" />
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <h3 className="mb-3 text-xl font-bold text-foreground">
-                    {step.title}
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {step.description}
-                  </p>
+        {/* Three Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          {steps.map((step, index) => (
+            <div
+              key={index}
+              className="relative group"
+            >
+              <div className={`rounded-xl ${step.bgColor} p-8 h-full transition-all duration-300 group-hover:shadow-lg`}>
+                {/* Step Number */}
+                <div className="absolute -top-3 -right-3 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center">
+                  <span className="text-lg font-bold text-gray-700">{index + 1}</span>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Example Section */}
-        <div className="mx-auto mt-24 max-w-5xl">
-          <div className="rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-8 shadow-lg">
-            <h3 className="mb-6 text-center text-xl font-bold text-foreground">
-              Try It With These Examples
-            </h3>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              <div className="rounded-xl border border-blue-200 bg-card p-6 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                  <p className="font-semibold text-foreground">Coffee Shop</p>
+                
+                <div className={`inline-flex rounded-lg bg-white p-3 ${step.color} mb-4 shadow-sm`}>
+                  <step.icon className="h-6 w-6" />
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Starbucks, Blue Bottle Coffee
-                </p>
-              </div>
-              <div className="rounded-xl border border-blue-200 bg-card p-6 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
-                  <p className="font-semibold text-foreground">Restaurant</p>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Local pizzeria, sushi bar
-                </p>
-              </div>
-              <div className="rounded-xl border border-blue-200 bg-card p-6 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-3 h-3 bg-sky-500 rounded-full"></div>
-                  <p className="font-semibold text-foreground">
-                    Service Business
-                  </p>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Plumber, electrician, salon
-                </p>
+                
+                <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
+                <p className="text-lg font-medium mb-3">{step.description}</p>
+                <p className="text-sm text-muted-foreground">{step.detail}</p>
               </div>
             </div>
-          </div>
+          ))}
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="mt-16 text-center">
+          <p className="text-lg font-medium mb-2">
+            Ready to see it in action?
+          </p>
+          <p className="text-muted-foreground mb-8">
+            Your business deserves a professional online presence
+          </p>
+          <a
+            href="#hero"
+            className="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-3 text-sm font-medium text-white shadow-lg transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl"
+          >
+            Try It Now - It&apos;s Free
+            <Sparkles className="h-4 w-4" />
+          </a>
         </div>
       </div>
     </section>

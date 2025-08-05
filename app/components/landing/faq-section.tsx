@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { ChevronDown, HelpCircle } from 'lucide-react';
-import Link from 'next/link';
 
 const faqs = [
   {
@@ -55,7 +54,7 @@ export default function FAQSection() {
   };
 
   return (
-    <section className="py-24 bg-muted/50">
+    <section id="faq" className="py-24 bg-muted/50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary mb-4">
@@ -112,20 +111,12 @@ export default function FAQSection() {
           <p className="text-lg text-muted-foreground mb-6">
             Still have questions? We&apos;re here to help!
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a 
-              href="mailto:support@locasite.com" 
-              className="inline-flex items-center justify-center rounded-md border border-input bg-background px-6 py-3 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
-            >
-              Email Support
-            </a>
-            <Link 
-              href="/docs" 
-              className="inline-flex items-center justify-center rounded-md border border-input bg-background px-6 py-3 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
-            >
-              Browse Documentation
-            </Link>
-          </div>
+          <a 
+            href="mailto:support@locasite.com" 
+            className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+          >
+            Contact Support
+          </a>
         </div>
       </div>
     </section>
