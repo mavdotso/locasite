@@ -68,9 +68,6 @@ export default function TestimonialsSection() {
     <section className="py-24 bg-muted/50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary mb-4">
-            Customer Success Stories
-          </div>
           <div className="inline-flex items-center gap-2 rounded-full bg-blue-100 border border-blue-200 px-4 py-1.5 text-sm font-medium text-blue-700 mb-4">
             What Our Customers Say
           </div>
@@ -91,19 +88,19 @@ export default function TestimonialsSection() {
             >
               {/* Quote Icon */}
               <Quote className="absolute top-6 right-6 h-8 w-8 text-primary/10" />
-              
+
               {/* Rating */}
               <div className="flex gap-1 mb-4">
                 {[...Array(testimonial.rating)].map((_, i) => (
                   <Star key={i} className="h-4 w-4 fill-yellow-500 text-yellow-500" />
                 ))}
               </div>
-              
+
               {/* Testimonial Text */}
               <p className="text-muted-foreground mb-6 relative z-10">
                 &ldquo;{testimonial.text}&rdquo;
               </p>
-              
+
               {/* Metrics */}
               <div className="flex items-center justify-between mb-6">
                 <div className="inline-flex items-center gap-1 text-sm font-medium text-primary">
@@ -116,7 +113,7 @@ export default function TestimonialsSection() {
                   </span>
                 )}
               </div>
-              
+
               {/* Author */}
               <div className="flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
@@ -128,32 +125,13 @@ export default function TestimonialsSection() {
                   <p className="text-xs text-muted-foreground">{testimonial.location}</p>
                 </div>
               </div>
-              
+
               {/* Hover effect */}
               <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             </div>
           ))}
         </div>
 
-        {/* Bottom Stats */}
-        <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 border-t pt-16">
-          <div className="text-center">
-            <p className="text-4xl font-bold text-primary mb-2">60 sec</p>
-            <p className="text-muted-foreground">Average Setup Time</p>
-          </div>
-          <div className="text-center">
-            <p className="text-4xl font-bold text-primary mb-2">100%</p>
-            <p className="text-muted-foreground">Mobile Responsive</p>
-          </div>
-          <div className="text-center">
-            <p className="text-4xl font-bold text-primary mb-2">SSL</p>
-            <p className="text-muted-foreground">Security Included</p>
-          </div>
-          <div className="text-center">
-            <p className="text-4xl font-bold text-primary mb-2">24/7</p>
-            <p className="text-muted-foreground">Website Availability</p>
-          </div>
-        </div>
       </div>
     </section>
   );

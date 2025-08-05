@@ -10,9 +10,8 @@ export default function FooterSection() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center mb-4">
               <Logo width={24} height={24} />
-              <span className="font-semibold">Locasite</span>
             </div>
             <p className="text-sm text-muted-foreground max-w-md">
               Create professional websites for local businesses in minutes. No

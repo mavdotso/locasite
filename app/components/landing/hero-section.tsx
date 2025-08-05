@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, CreditCard, Users } from "lucide-react";
+
 import { useBusinessScraper } from "@/app/hooks/use-business-scraper";
 import { BusinessURLInput } from "@/app/components/business/business-url-input";
 import { BrowserMockup } from "@/app/components/business/browser-mockup";
@@ -17,7 +17,7 @@ export default function HeroSection() {
   } = useBusinessScraper();
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-white to-blue-50/50">
+    <section id="hero" className="relative overflow-hidden bg-gradient-to-b from-white to-blue-50/50">
       {/* Subtle gradient background - more professional */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-indigo-500/5 to-transparent" />

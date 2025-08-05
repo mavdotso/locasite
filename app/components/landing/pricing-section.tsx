@@ -128,7 +128,7 @@ export default function PricingSection() {
   const currentPlanId = getCurrentPlanId();
 
   return (
-    <section className="py-24 bg-background">
+    <section id="pricing" className="py-24 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 rounded-full bg-green-100 border border-green-200 px-4 py-1.5 text-sm font-medium text-green-700 mb-4">
@@ -139,7 +139,7 @@ export default function PricingSection() {
             <span className="text-primary"> Scales With You</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-            Start free forever. Upgrade when you're ready. Cancel anytime.
+            Start free forever.             Upgrade when you&apos;re ready. Cancel anytime.
           </p>
 
           {/* Billing Toggle */}

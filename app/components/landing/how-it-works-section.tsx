@@ -29,7 +29,7 @@ const steps = [
 
 export default function HowItWorksSection() {
   return (
-    <section className="py-24 bg-gray-50">
+    <section id="how-it-works" className="py-24 bg-gray-50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 border border-purple-200 px-4 py-1.5 text-sm font-medium text-purple-700 mb-4">
@@ -81,7 +81,7 @@ export default function HowItWorksSection() {
             href="#hero"
             className="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-3 text-sm font-medium text-white shadow-lg transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl"
           >
-            Try It Now - It's Free
+            Try It Now - It&apos;s Free
             <Sparkles className="h-4 w-4" />
           </a>
         </div>

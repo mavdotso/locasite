@@ -2,7 +2,7 @@ import { Zap, Shield, Clock } from "lucide-react";
 
 export default function SocialProofBar() {
   return (
-    <section className="border-y bg-muted/30">
+    <section className="border-y bg-muted/30"  id="reviews">
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col items-center justify-center gap-8 md:flex-row md:gap-12">
           {/* Fast Setup */}

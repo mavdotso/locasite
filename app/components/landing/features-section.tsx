@@ -1,6 +1,5 @@
 import {
   Globe,
-  Zap,
   Palette,
   Search,
   Shield,
@@ -9,12 +8,9 @@ import {
   Smartphone,
   Calendar,
   Star,
-  Users,
   Mail,
   Share2,
   TrendingUp,
-  Sparkles,
-  Lock,
 } from "lucide-react";
 
 const currentFeatures = [
@@ -95,9 +91,17 @@ const upcomingFeatures = [
   },
 ];
 
+interface Feature {
+  name: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+  isComingSoon?: boolean;
+}
+
 export default function FeaturesSection() {
-  const allFeatures = [
-    ...currentFeatures,
+  const allFeatures: Feature[] = [
+    ...currentFeatures.map(f => ({ ...f, isComingSoon: false })),
     ...upcomingFeatures.map(f => ({
       ...f,
       color: "text-muted-foreground",
@@ -123,7 +127,7 @@ export default function FeaturesSection() {
 
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {allFeatures.map((feature, index) => (
+            {allFeatures.map((feature) => (
               <div
                 key={feature.name}
                 className={`relative rounded-lg border p-6 transition-all ${

@@ -2,19 +2,31 @@
 
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
-import { ArrowRight, Sparkles, Zap } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export default function CTASection() {
   const [url, setUrl] = useState("");
-  const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (url.trim()) {
-      // Navigate to the main page with the URL in hash
-      router.push(`/#create?url=${encodeURIComponent(url)}`);
+      // Navigate to the hero section and populate the input
+      const heroSection = document.getElementById('hero');
+      if (heroSection) {
+        heroSection.scrollIntoView({ behavior: 'smooth' });
+        // Find the input in the hero section and populate it
+        setTimeout(() => {
+          const heroInput = document.querySelector('#hero input[type="url"]') as HTMLInputElement;
+          if (heroInput) {
+            heroInput.value = url;
+            heroInput.focus();
+            // Trigger the input event to update the React state
+            const event = new Event('input', { bubbles: true });
+            heroInput.dispatchEvent(event);
+          }
+        }, 500);
+      }
     }
   };
 
