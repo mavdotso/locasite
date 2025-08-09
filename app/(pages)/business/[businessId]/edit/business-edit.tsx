@@ -13,7 +13,7 @@ import { getVariationById } from "@/app/components/simple-builder/sections/secti
 import { getPresetByType } from "@/app/components/simple-builder/sections/business-presets";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function BusinessEdit({
   businessId,
@@ -21,6 +21,8 @@ export default function BusinessEdit({
   businessId: Id<"businesses">;
 }) {
   const router = useRouter();
+  const claimAttemptedRef = useRef(false);
+  const [isClaimingBusiness, setIsClaimingBusiness] = useState(false);
 
   // All hooks must be called before any conditional returns
   const user = useQuery(api.auth.currentUser);
@@ -46,6 +48,40 @@ export default function BusinessEdit({
   const syncBusinessDomain = useMutation(
     api.businessDomainSync.syncBusinessDomain,
   );
+  const claimBusinessAfterAuth = useMutation(
+    api.businesses.claimBusinessAfterAuth,
+  );
+
+  // Claim business if it's unclaimed and user is authenticated
+  useEffect(() => {
+    if (business && user && !business.userId && !claimAttemptedRef.current) {
+      // Mark claim as attempted to prevent re-runs
+      claimAttemptedRef.current = true;
+      setIsClaimingBusiness(true);
+      
+      // Business is unclaimed, claim it for the current user
+      claimBusinessAfterAuth({ businessId: business._id })
+        .then(() => {
+          console.log("Business claimed successfully");
+          toast.success("Business claimed successfully!");
+        })
+        .catch((error) => {
+          console.error("Failed to claim business:", error);
+          // Check if business was already claimed by another user
+          if (error.message?.includes("already claimed by another user")) {
+            toast.error("This business has already been claimed by another user");
+            // Redirect to dashboard since they can't edit this business
+            router.push("/dashboard");
+          } else {
+            toast.error("Unable to claim this business. Please try again.");
+          }
+        })
+        .finally(() => {
+          setIsClaimingBusiness(false);
+        });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [business?._id, business?.userId, user, claimBusinessAfterAuth]);
 
   useEffect(() => {
     if (syncStatus && !syncStatus.synced && business && user && !pages) {
@@ -64,11 +100,16 @@ export default function BusinessEdit({
     }
   }, [syncStatus, business, user, pages, syncBusinessDomain]);
 
-  // Loading state while fetching business
-  if (editData === undefined) {
+  // Loading state while fetching business or claiming
+  if (editData === undefined || isClaimingBusiness) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">
+            {isClaimingBusiness ? "Claiming your business..." : "Loading..."}
+          </p>
+        </div>
       </div>
     );
   }

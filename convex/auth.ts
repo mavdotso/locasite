@@ -5,6 +5,49 @@ import { SUBSCRIPTION_PLANS, type PlanType } from "./lib/plans";
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
   providers: [Google],
+  callbacks: {
+    async redirect({ redirectTo }) {
+      // Only allow relative paths to prevent open redirect attacks
+      if (!redirectTo || typeof redirectTo !== "string") {
+        return "/";
+      }
+      
+      // Prevent absolute URLs (http://, https://, //, etc.)
+      if (/^https?:\/\//i.test(redirectTo) || redirectTo.startsWith("//")) {
+        console.warn(`Blocked potential open redirect attempt: ${redirectTo}`);
+        return "/";
+      }
+      
+      // Ensure it's a relative path (starts with /)
+      if (!redirectTo.startsWith("/")) {
+        return "/";
+      }
+      
+      // Sanitize the URL - remove any special characters that could be used for attacks
+      const sanitizedPath = redirectTo.replace(/[^a-zA-Z0-9\-_\/]/g, '');
+      
+      // Allow redirects to business editor pages with proper ID validation
+      if (sanitizedPath.startsWith("/business/") && sanitizedPath.includes("/edit")) {
+        const businessIdMatch = sanitizedPath.match(/^\/business\/([a-zA-Z0-9_]+)\/edit$/);
+        if (businessIdMatch && businessIdMatch[1].length >= 10 && businessIdMatch[1].length <= 30) {
+          return sanitizedPath;
+        }
+        console.warn(`Invalid business ID format in redirect: ${sanitizedPath}`);
+        return "/";
+      }
+      
+      // Allow other safe internal paths
+      if (sanitizedPath.startsWith("/dashboard") || 
+          sanitizedPath.startsWith("/settings") ||
+          sanitizedPath === "/") {
+        return sanitizedPath;
+      }
+      
+      // Default to home page for any other paths
+      console.warn(`Unrecognized redirect path: ${sanitizedPath}`);
+      return "/";
+    }
+  }
 });
 
 export const currentUser = query({

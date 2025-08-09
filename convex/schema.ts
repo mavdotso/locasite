@@ -324,6 +324,7 @@ export default defineSchema({
       }),
     ),
   })
+    // Note: placeId should be unique - enforced in mutation logic since Convex doesn't support unique indexes
     .index("by_placeId", ["placeId"])
     .index("by_userId", ["userId"])
     .index("by_domainId", ["domainId"])

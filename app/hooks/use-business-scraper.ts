@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { BusinessData } from "@/convex/businesses";
 import { toast } from "sonner";
@@ -26,12 +26,10 @@ export function useBusinessScraper(): UseBusinessScraperResult {
   const [isLoading, setIsLoading] = useState(false);
   const [previewData, setPreviewData] = useState<BusinessData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [createdBusinessId, setCreatedBusinessId] = useState<string | null>(null);
   const router = useRouter();
   const { signIn } = useAuthActions();
   const user = useQuery(api.auth.currentUser);
-  const createFromPending = useMutation(
-    api.businesses.createBusinessFromPendingData,
-  );
 
   const validateUrl = (url: string): boolean => {
     return (
@@ -57,12 +55,33 @@ export function useBusinessScraper(): UseBusinessScraperResult {
       return;
     }
 
+    // Clear previous business ID when starting a new preview
+    setCreatedBusinessId(null);
     setIsLoading(true);
     setError(null);
 
     try {
       const convexUrl = env.NEXT_PUBLIC_CONVEX_URL;
-      const deploymentName = convexUrl.split("//")[1]?.split(".")[0];
+      if (!convexUrl) {
+        toast.error("Convex URL not configured");
+        throw new Error("Convex URL not configured");
+      }
+      
+      // Use URL API for robust parsing
+      let deploymentName: string;
+      try {
+        const url = new URL(convexUrl);
+        const hostname = url.hostname;
+        deploymentName = hostname.split(".")[0];
+        if (!deploymentName) {
+          throw new Error("Missing deployment name");
+        }
+      } catch (urlError) {
+        console.error("Invalid Convex URL:", urlError);
+        toast.error("Invalid Convex URL configuration");
+        throw new Error("Invalid Convex URL format");
+      }
+      
       const convexSiteUrl = `https://${deploymentName}.convex.site`;
 
       const response = await fetch(`${convexSiteUrl}/scrape`, {
@@ -85,10 +104,13 @@ export function useBusinessScraper(): UseBusinessScraperResult {
 
       if (data.success && data.data) {
         setPreviewData(data.data);
-        toast.success("Preview generated successfully!");
-      } else if (data.businessData) {
-        // Fallback for different response format
-        setPreviewData(data.businessData);
+        
+        // Enforce that preview always creates a business ID
+        if (typeof data.businessId !== "string" || !data.businessId) {
+          throw new Error("Preview did not return a valid businessId");
+        }
+        
+        setCreatedBusinessId(data.businessId);
         toast.success("Preview generated successfully!");
       } else {
         throw new Error("No business data returned");
@@ -104,7 +126,10 @@ export function useBusinessScraper(): UseBusinessScraperResult {
   };
 
   const handleCreateWebsite = async () => {
-    if (!previewData) return;
+    if (!createdBusinessId) {
+      toast.error("No business to publish. Please generate a preview first.");
+      return;
+    }
 
     if (user === undefined) {
       // Still loading user state
@@ -112,18 +137,10 @@ export function useBusinessScraper(): UseBusinessScraperResult {
     }
 
     if (user === null) {
-      // User is definitely not authenticated
-      // Store the preview data and URL in session storage
-      sessionStorage.setItem("pendingBusinessUrl", url);
-      sessionStorage.setItem(
-        "pendingBusinessData",
-        JSON.stringify(previewData),
-      );
-
-      // Redirect to sign in
-      toast.info("Please sign in to create your website");
+      // User not authenticated - redirect to sign in with direct post-auth redirect to the editor
       try {
-        await signIn("google");
+        const redirectPath = `/business/${encodeURIComponent(createdBusinessId)}/edit`;
+        await signIn("google", { redirectTo: redirectPath });
       } catch (error) {
         console.error("Error redirecting to sign in:", error);
         toast.error("Failed to redirect to sign in. Please try again.");
@@ -131,84 +148,15 @@ export function useBusinessScraper(): UseBusinessScraperResult {
       return;
     }
 
-    setIsLoading(true);
-    try {
-      // For the preview, we need to fetch the full business data again
-      const convexUrl = env.NEXT_PUBLIC_CONVEX_URL;
-      const deploymentName = convexUrl.split("//")[1]?.split(".")[0];
-      const convexSiteUrl = `https://${deploymentName}.convex.site`;
-
-      const response = await fetch(`${convexSiteUrl}/scrape`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url }),
-      });
-
-      const data = await response.json();
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      // Extract the business data from the response
-      let scrapedBusinessData = null;
-      if (data.success && data.data) {
-        scrapedBusinessData = data.data;
-      } else if (data.businessData) {
-        scrapedBusinessData = data.businessData;
-      } else if (data.business) {
-        scrapedBusinessData = data.business;
-      } else {
-        // If the response IS the business data directly
-        if (data.name && data.placeId) {
-          scrapedBusinessData = data;
-        }
-      }
-
-      if (!scrapedBusinessData) {
-        throw new Error("No business data found in response");
-      }
-
-      try {
-        // Fix the photo field name mismatch
-        const businessData = { ...scrapedBusinessData } as BusinessData & {
-          googlePhotoUrls?: string[];
-        };
-        if ("googlePhotoUrls" in businessData && businessData.googlePhotoUrls) {
-          businessData.photos = businessData.googlePhotoUrls;
-          delete businessData.googlePhotoUrls;
-        }
-
-        const result = await createFromPending({
-          businessData,
-          aiContent: null,
-        });
-
-        if (result.businessId) {
-          toast.success("Website created successfully!");
-          router.push(`/business/${result.businessId}/edit`);
-        }
-      } catch (mutationError) {
-        throw mutationError;
-      }
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to create website. Please try again.";
-
-      toast.error(errorMessage);
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+    // User is authenticated, just redirect to editor
+    // Using replace to prevent back button confusion
+    router.replace(`/business/${createdBusinessId}/edit`);
   };
 
   const resetPreview = () => {
     setPreviewData(null);
     setError(null);
+    setCreatedBusinessId(null);
   };
 
   return {

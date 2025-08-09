@@ -14,23 +14,40 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Logo from "@/app/components/ui/logo";
 
+interface PendingBusinessData {
+  name?: string;
+  [key: string]: unknown;
+}
+
 export default function SignInPage() {
   const { signIn } = useAuthActions();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect");
-  const [pendingBusiness, setPendingBusiness] = useState<Record<
-    string,
-    unknown
-  > | null>(null);
+  const [pendingBusiness, setPendingBusiness] = useState<PendingBusinessData | null>(null);
 
   useEffect(() => {
     const pending = sessionStorage.getItem("pendingBusinessData");
     if (pending) {
       try {
-        const { businessData } = JSON.parse(pending);
-        setPendingBusiness(businessData);
+        const data = JSON.parse(pending);
+        
+        // Validate essential fields
+        if (!data || typeof data !== 'object') {
+          throw new Error('Invalid data structure');
+        }
+        
+        // Sanitize data - limit string lengths and remove private fields
+        const sanitizedData: PendingBusinessData = {
+          name: typeof data.name === 'string' ? data.name.substring(0, 100) : undefined,
+          ...Object.fromEntries(
+            Object.entries(data).filter(([key]) => !key.startsWith('_') && key !== 'name')
+          )
+        };
+        
+        setPendingBusiness(sanitizedData);
       } catch (error) {
-        console.error("Error parsing pending business:", error);
+        console.error("Failed to parse pending business data:", error);
+        // Clear corrupted data
         sessionStorage.removeItem("pendingBusinessData");
       }
     }

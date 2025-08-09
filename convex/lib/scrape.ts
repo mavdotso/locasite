@@ -1,5 +1,5 @@
 import { httpAction } from "../_generated/server";
-import { api, components } from "../_generated/api";
+import { api, components, internal } from "../_generated/api";
 import { RateLimiter } from "@convex-dev/rate-limiter";
 import axios from "axios";
 import { generateDefaultDescription } from "./businessDescriptions";
@@ -9,6 +9,7 @@ const MINUTE = 60 * 1000; // 1 minute in milliseconds
 
 const rateLimiter = new RateLimiter(components.rateLimiter, {
   previewScrape: { kind: "fixed window", rate: 3, period: MINUTE },
+  businessCreation: { kind: "fixed window", rate: 5, period: MINUTE }, // Limit unauthenticated business creation
 });
 
 interface GooglePlaceReview {
@@ -27,28 +28,31 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
   try {
     const { url, preview = false } = await request.json();
 
-    // Apply rate limiting for preview requests (unauthenticated users)
-    if (preview) {
-      const identifier = request.headers.get("x-forwarded-for") || "anonymous";
-      const status = await rateLimiter.limit(ctx, "previewScrape", {
-        key: identifier,
-      });
+    // Apply rate limiting for all unauthenticated requests
+    // Use different limits for preview vs full creation
+    // Parse IP address properly to prevent spoofing
+    const xff = request.headers.get("x-forwarded-for") || "";
+    const cfIp = request.headers.get("cf-connecting-ip") || "";
+    const identifier = xff.split(",")[0]?.trim() || cfIp || "anonymous";
+    const rateLimitKey = preview ? "previewScrape" : "businessCreation";
+    const status = await rateLimiter.limit(ctx, rateLimitKey, {
+      key: identifier,
+    });
 
-      if (!status.ok) {
-        return new Response(
-          JSON.stringify({
-            error: "Rate limit exceeded. Please try again in a minute.",
-          }),
-          {
-            status: 429,
-            headers: {
-              "Content-Type": "application/json",
-              "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
-              Vary: "origin",
-            },
+    if (!status.ok) {
+      return new Response(
+        JSON.stringify({
+          error: "Rate limit exceeded. Please try again in a minute.",
+        }),
+        {
+          status: 429,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
+            Vary: "origin",
           },
-        );
-      }
+        },
+      );
     }
 
     if (!url || !url.includes("google.com/maps")) {
@@ -140,7 +144,17 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
 
     const place = detailsResponse.data.result;
 
-    // Format the data
+    // Format the data - limit to first 5 photos to control API costs
+    const MAX_PHOTOS = 5;
+    // TODO: Return only photo references instead of full URLs with API keys
+    // This would require frontend updates to use a browser-restricted key or proxy endpoint
+    const photos = (place.photos ?? [])
+      .slice(0, MAX_PHOTOS)
+      .map(
+        (photo: GooglePlacePhoto) =>
+          `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo.photo_reference}&key=${apiKey}`,
+      );
+
     const businessData = {
       name: place.name || "",
       address: place.formatted_address || "",
@@ -154,66 +168,58 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
           rating: `${review.rating} stars`,
           text: review.text,
         })) || [],
-      photos:
-        place.photos?.map(
-          (photo: GooglePlacePhoto) =>
-            `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo.photo_reference}&key=${apiKey}`,
-        ) || [],
-      // We'll store the original Google URLs here and upload them to Convex after business creation
-      googlePhotoUrls:
-        place.photos?.map(
-          (photo: GooglePlacePhoto) =>
-            `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo.photo_reference}&key=${apiKey}`,
-        ) || [],
+      photos: photos,
       description:
         place.editorial_summary?.overview ||
         generateDefaultDescription(place.name, place.types?.[0]),
       placeId: placeId,
-      // Extract the most relevant business type/category from types array
+    };
+    
+    // Keep the full data for response (including category for frontend use)
+    const fullBusinessData = {
+      ...businessData,
       category: place.types?.[0] || undefined,
     };
 
     // AI content generation removed - will be a premium feature
 
-    // Only save to database if not in preview mode AND user is authenticated
+    // Always create the business (without auth requirement)
     let businessId = null;
     let domainId = null;
-    let authenticationRequired = false;
-
-    if (!preview) {
-      try {
-        // Use the new createBusinessFromPendingData mutation that handles theme assignment
-        // and creates pages with primitive blocks
-        const result = await ctx.runMutation(
-          api.businesses.createBusinessFromPendingData,
-          {
-            businessData,
-            aiContent: null, // No AI content for now
+    
+    try {
+      // Create business without authentication (internal mutation)
+      // Include category from Google Places types for better categorization
+      const result = await ctx.runMutation(
+        internal.businesses.createBusinessWithoutAuth,
+        {
+          businessData: {
+            ...businessData,
+            category: place.types?.[0] || undefined,
           },
-        );
-
-        businessId = result.businessId;
-        domainId = result.domainId;
-      } catch (error) {
-        authenticationRequired = true;
-      }
+        },
+      );
+      
+      businessId = result.businessId;
+    } catch (error) {
+      console.error("Error creating business:", error);
     }
 
+    const ok = businessId !== null;
     return new Response(
       JSON.stringify({
-        success: true,
-        data: businessData,
+        success: ok,
+        data: fullBusinessData, // Return full data for frontend
         businessId,
         domainId,
-        preview,
+        preview: false, // Always create business now
         hasAIContent: false,
-        authenticationRequired,
       }),
       {
-        status: 200,
+        status: ok ? 200 : 500,
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
           Vary: "origin",
         },
       },

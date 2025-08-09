@@ -307,7 +307,16 @@ export const getById = query({
 export const getBusinessPublic = query({
   args: { businessId: v.id("businesses") },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.businessId);
+    const business = await ctx.db.get(args.businessId);
+    if (!business) return null;
+    
+    // Remove sensitive fields before returning
+    const { 
+      googleBusinessAuth,
+      ...publicData 
+    } = business;
+    
+    return publicData;
   },
 });
 
@@ -574,6 +583,88 @@ export const updateBusinessDescription = mutation({
   },
 });
 
+// Create business without authentication (for preview)
+export const createBusinessWithoutAuth = internalMutation({
+  args: {
+    businessData: v.object({
+      name: v.string(),
+      placeId: v.string(),
+      address: v.string(),
+      phone: v.optional(v.string()),
+      website: v.optional(v.string()),
+      hours: v.array(v.string()),
+      rating: v.optional(v.number()),
+      reviews: v.array(
+        v.object({
+          reviewer: v.string(),
+          rating: v.string(),
+          text: v.string(),
+        }),
+      ),
+      photos: v.array(v.string()),
+      description: v.optional(v.string()),
+      category: v.optional(v.string()),
+    }),
+  },
+  handler: async (ctx, args) => {
+    // Check if a business already exists for this placeId (claimed or unclaimed)
+    // This makes the mutation idempotent - repeated scrapes return the same business
+    const existingBusiness = await ctx.db
+      .query("businesses")
+      .withIndex("by_placeId", (q) => q.eq("placeId", args.businessData.placeId))
+      .first();
+    
+    if (existingBusiness) {
+      // Return existing business instead of creating duplicate
+      // This ensures idempotency - multiple scrapes of the same place return the same business
+      return { businessId: existingBusiness._id };
+    }
+    
+    // Create the business without userId (unclaimed)
+    const businessId = await ctx.db.insert("businesses", {
+      ...args.businessData,
+      createdAt: Date.now(),
+      // userId is optional, so we don't set it
+      isPublished: false,
+    });
+
+    return { businessId };
+  },
+});
+
+// Claim an existing business after authentication
+export const claimBusinessAfterAuth = mutation({
+  args: {
+    businessId: v.id("businesses"),
+  },
+  handler: async (ctx, args) => {
+    const user = await getUserFromAuth(ctx);
+    
+    // Get the business
+    const business = await ctx.db.get(args.businessId);
+    if (!business) {
+      throw new Error("Business not found");
+    }
+    
+    // Check if already claimed by another user (race condition protection)
+    if (business.userId && business.userId !== user._id) {
+      throw new Error("Business already claimed by another user");
+    }
+    
+    // If already claimed by this user, just return success
+    if (business.userId === user._id) {
+      return { businessId: args.businessId, alreadyClaimed: true };
+    }
+    
+    // Claim the business
+    await ctx.db.patch(args.businessId, {
+      userId: user._id,
+    });
+    
+    return { businessId: args.businessId, alreadyClaimed: false };
+  },
+});
+
 // Create business from preview data (for authenticated users after sign-up)
 export const createFromPreview = mutation({
   args: {
@@ -610,7 +701,7 @@ export const createFromPreview = mutation({
 
     if (existingBusiness) {
       // Return the existing business ID
-      return existingBusiness._id;
+      return { businessId: existingBusiness._id };
     }
 
     // Create the business
@@ -621,7 +712,7 @@ export const createFromPreview = mutation({
       isPublished: false, // Start as unpublished
     });
 
-    return businessId;
+    return { businessId };
   },
 });
 
