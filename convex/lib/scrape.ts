@@ -140,8 +140,9 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
 
     const place = detailsResponse.data.result;
 
-    // Format the data
-    const photos = place.photos?.map(
+    // Format the data - limit to first 5 photos to control API costs
+    const MAX_PHOTOS = 5;
+    const photos = place.photos?.slice(0, MAX_PHOTOS).map(
       (photo: GooglePlacePhoto) =>
         `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo.photo_reference}&key=${apiKey}`,
     ) || [];
@@ -169,7 +170,6 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
     // Keep the full data for response (including category for frontend use)
     const fullBusinessData = {
       ...businessData,
-      googlePhotoUrls: photos,
       category: place.types?.[0] || undefined,
     };
 

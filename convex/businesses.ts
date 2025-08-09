@@ -307,7 +307,16 @@ export const getById = query({
 export const getBusinessPublic = query({
   args: { businessId: v.id("businesses") },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.businessId);
+    const business = await ctx.db.get(args.businessId);
+    if (!business) return null;
+    
+    // Remove sensitive fields before returning
+    const { 
+      googleBusinessAuth,
+      ...publicData 
+    } = business;
+    
+    return publicData;
   },
 });
 
@@ -623,9 +632,14 @@ export const claimBusinessAfterAuth = mutation({
       throw new Error("Business not found");
     }
     
-    // Check if already claimed
+    // Check if already claimed by another user (race condition protection)
     if (business.userId && business.userId !== user._id) {
       throw new Error("Business already claimed by another user");
+    }
+    
+    // If already claimed by this user, just return success
+    if (business.userId === user._id) {
+      return { businessId: args.businessId, alreadyClaimed: true };
     }
     
     // Claim the business
@@ -633,7 +647,7 @@ export const claimBusinessAfterAuth = mutation({
       userId: user._id,
     });
     
-    return { businessId: args.businessId };
+    return { businessId: args.businessId, alreadyClaimed: false };
   },
 });
 

@@ -60,7 +60,18 @@ export function useBusinessScraper(): UseBusinessScraperResult {
 
     try {
       const convexUrl = env.NEXT_PUBLIC_CONVEX_URL;
-      const deploymentName = convexUrl.split("//")[1]?.split(".")[0];
+      if (!convexUrl) {
+        toast.error("Convex URL not configured");
+        throw new Error("Convex URL not configured");
+      }
+      
+      const match = convexUrl.match(/^https?:\/\/([^.]*)\./);
+      const deploymentName = match?.[1];
+      if (!deploymentName) {
+        toast.error("Invalid Convex URL configuration");
+        throw new Error("Invalid Convex URL format");
+      }
+      
       const convexSiteUrl = `https://${deploymentName}.convex.site`;
 
       const response = await fetch(`${convexSiteUrl}/scrape`, {
@@ -116,15 +127,13 @@ export function useBusinessScraper(): UseBusinessScraperResult {
     }
 
     if (user === null) {
-      // User not authenticated - redirect to sign in with the business editor URL as the redirect target
+      // User not authenticated - store businessId and redirect to sign in
+      // Store the businessId for claiming after auth
+      sessionStorage.setItem("pendingBusinessId", createdBusinessId);
+      
       try {
-        // Build the redirect URL
-        const redirectUrl = `/business/${createdBusinessId}/edit`;
-        
-        // Sign in with Google and specify where to redirect after auth
-        await signIn("google", {
-          redirectTo: redirectUrl
-        });
+        // Redirect to sign in
+        await signIn("google");
       } catch (error) {
         console.error("Error redirecting to sign in:", error);
         toast.error("Failed to redirect to sign in. Please try again.");
@@ -133,7 +142,7 @@ export function useBusinessScraper(): UseBusinessScraperResult {
     }
 
     // User is authenticated, just redirect to editor
-    router.push(`/business/${createdBusinessId}/edit`);
+    router.replace(`/business/${createdBusinessId}/edit`);
   };
 
   const resetPreview = () => {
