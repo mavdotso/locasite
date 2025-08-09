@@ -129,13 +129,10 @@ export function useBusinessScraper(): UseBusinessScraperResult {
     }
 
     if (user === null) {
-      // User not authenticated - store businessId and redirect to sign in
-      // Store the businessId for claiming after auth
-      sessionStorage.setItem("pendingBusinessId", createdBusinessId);
-      
+      // User not authenticated - redirect to sign in with direct post-auth redirect to the editor
       try {
-        // Redirect to sign in
-        await signIn("google");
+        const redirectPath = `/business/${encodeURIComponent(createdBusinessId)}/edit`;
+        await signIn("google", { redirectTo: redirectPath });
       } catch (error) {
         console.error("Error redirecting to sign in:", error);
         toast.error("Failed to redirect to sign in. Please try again.");

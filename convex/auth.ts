@@ -5,6 +5,16 @@ import { SUBSCRIPTION_PLANS, type PlanType } from "./lib/plans";
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
   providers: [Google],
+  callbacks: {
+    async redirect({ redirectTo }) {
+      // Allow redirects to business editor pages
+      if (redirectTo && redirectTo.startsWith("/business/") && redirectTo.includes("/edit")) {
+        return redirectTo;
+      }
+      // Default to home page
+      return redirectTo || "/";
+    }
+  }
 });
 
 export const currentUser = query({

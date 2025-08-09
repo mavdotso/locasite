@@ -61,8 +61,6 @@ export default function BusinessEdit({
       claimBusinessAfterAuth({ businessId: business._id })
         .then(() => {
           console.log("Business claimed successfully");
-          // Clear the pending business from session storage
-          sessionStorage.removeItem("pendingBusinessId");
         })
         .catch((error) => {
           console.error("Failed to claim business:", error);
