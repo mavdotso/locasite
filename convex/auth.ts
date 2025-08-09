@@ -23,12 +23,8 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
       }
       
       // Allow redirects to business editor pages
-      // Validate that the business ID portion looks reasonable (alphanumeric + underscore)
       if (redirectTo.startsWith("/business/") && redirectTo.includes("/edit")) {
-        const businessIdMatch = redirectTo.match(/^\/business\/([a-zA-Z0-9_]+)\/edit$/);
-        if (businessIdMatch) {
-          return redirectTo;
-        }
+        return redirectTo;
       }
       
       // Allow other safe internal paths

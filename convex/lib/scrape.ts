@@ -143,10 +143,12 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
 
     // Format the data - limit to first 5 photos to control API costs
     const MAX_PHOTOS = 5;
-    const photos = place.photos?.slice(0, MAX_PHOTOS).map(
-      (photo: GooglePlacePhoto) =>
-        `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo.photo_reference}&key=${apiKey}`,
-    ) || [];
+    const photos = (place.photos ?? [])
+      .slice(0, MAX_PHOTOS)
+      .map(
+        (photo: GooglePlacePhoto) =>
+          `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo.photo_reference}&key=${apiKey}`,
+      );
 
     const businessData = {
       name: place.name || "",
@@ -198,9 +200,10 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
       console.error("Error creating business:", error);
     }
 
+    const ok = businessId !== null;
     return new Response(
       JSON.stringify({
-        success: true,
+        success: ok,
         data: fullBusinessData, // Return full data for frontend
         businessId,
         domainId,
@@ -208,10 +211,10 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
         hasAIContent: false,
       }),
       {
-        status: 200,
+        status: ok ? 200 : 500,
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
           Vary: "origin",
         },
       },
