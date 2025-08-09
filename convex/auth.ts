@@ -12,29 +12,39 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
         return "/";
       }
       
+      // Prevent absolute URLs (http://, https://, //, etc.)
+      if (/^https?:\/\//i.test(redirectTo) || redirectTo.startsWith("//")) {
+        console.warn(`Blocked potential open redirect attempt: ${redirectTo}`);
+        return "/";
+      }
+      
       // Ensure it's a relative path (starts with /)
       if (!redirectTo.startsWith("/")) {
         return "/";
       }
       
-      // Prevent protocol-relative URLs like //evil.com
-      if (redirectTo.startsWith("//")) {
+      // Sanitize the URL - remove any special characters that could be used for attacks
+      const sanitizedPath = redirectTo.replace(/[^a-zA-Z0-9\-_\/]/g, '');
+      
+      // Allow redirects to business editor pages with proper ID validation
+      if (sanitizedPath.startsWith("/business/") && sanitizedPath.includes("/edit")) {
+        const businessIdMatch = sanitizedPath.match(/^\/business\/([a-zA-Z0-9_]+)\/edit$/);
+        if (businessIdMatch && businessIdMatch[1].length >= 10 && businessIdMatch[1].length <= 30) {
+          return sanitizedPath;
+        }
+        console.warn(`Invalid business ID format in redirect: ${sanitizedPath}`);
         return "/";
       }
       
-      // Allow redirects to business editor pages
-      if (redirectTo.startsWith("/business/") && redirectTo.includes("/edit")) {
-        return redirectTo;
-      }
-      
       // Allow other safe internal paths
-      if (redirectTo.startsWith("/dashboard") || 
-          redirectTo.startsWith("/settings") ||
-          redirectTo === "/") {
-        return redirectTo;
+      if (sanitizedPath.startsWith("/dashboard") || 
+          sanitizedPath.startsWith("/settings") ||
+          sanitizedPath === "/") {
+        return sanitizedPath;
       }
       
       // Default to home page for any other paths
+      console.warn(`Unrecognized redirect path: ${sanitizedPath}`);
       return "/";
     }
   }

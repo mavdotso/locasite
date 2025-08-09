@@ -67,9 +67,17 @@ export function useBusinessScraper(): UseBusinessScraperResult {
         throw new Error("Convex URL not configured");
       }
       
-      const match = convexUrl.match(/^https?:\/\/([^.]*)\./);
-      const deploymentName = match?.[1];
-      if (!deploymentName) {
+      // Use URL API for robust parsing
+      let deploymentName: string;
+      try {
+        const url = new URL(convexUrl);
+        const hostname = url.hostname;
+        deploymentName = hostname.split(".")[0];
+        if (!deploymentName) {
+          throw new Error("Missing deployment name");
+        }
+      } catch (urlError) {
+        console.error("Invalid Convex URL:", urlError);
         toast.error("Invalid Convex URL configuration");
         throw new Error("Invalid Convex URL format");
       }
@@ -97,9 +105,9 @@ export function useBusinessScraper(): UseBusinessScraperResult {
       if (data.success && data.data) {
         setPreviewData(data.data);
         
-        // Ensure businessId was created
-        if (!data.businessId) {
-          throw new Error("Failed to create business during preview");
+        // Enforce that preview always creates a business ID
+        if (typeof data.businessId !== "string" || !data.businessId) {
+          throw new Error("Preview did not return a valid businessId");
         }
         
         setCreatedBusinessId(data.businessId);
@@ -141,6 +149,7 @@ export function useBusinessScraper(): UseBusinessScraperResult {
     }
 
     // User is authenticated, just redirect to editor
+    // Using replace to prevent back button confusion
     router.replace(`/business/${createdBusinessId}/edit`);
   };
 

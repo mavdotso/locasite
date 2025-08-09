@@ -30,7 +30,10 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
 
     // Apply rate limiting for all unauthenticated requests
     // Use different limits for preview vs full creation
-    const identifier = request.headers.get("x-forwarded-for") || "anonymous";
+    // Parse IP address properly to prevent spoofing
+    const xff = request.headers.get("x-forwarded-for") || "";
+    const cfIp = request.headers.get("cf-connecting-ip") || "";
+    const identifier = xff.split(",")[0]?.trim() || cfIp || "anonymous";
     const rateLimitKey = preview ? "previewScrape" : "businessCreation";
     const status = await rateLimiter.limit(ctx, rateLimitKey, {
       key: identifier,
@@ -143,6 +146,8 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
 
     // Format the data - limit to first 5 photos to control API costs
     const MAX_PHOTOS = 5;
+    // TODO: Return only photo references instead of full URLs with API keys
+    // This would require frontend updates to use a browser-restricted key or proxy endpoint
     const photos = (place.photos ?? [])
       .slice(0, MAX_PHOTOS)
       .map(
