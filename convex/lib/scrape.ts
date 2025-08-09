@@ -9,6 +9,7 @@ const MINUTE = 60 * 1000; // 1 minute in milliseconds
 
 const rateLimiter = new RateLimiter(components.rateLimiter, {
   previewScrape: { kind: "fixed window", rate: 3, period: MINUTE },
+  businessCreation: { kind: "fixed window", rate: 5, period: MINUTE }, // Limit unauthenticated business creation
 });
 
 interface GooglePlaceReview {
@@ -180,6 +181,28 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
     let domainId = null;
     
     try {
+      // Apply rate limiting for unauthenticated business creation to prevent abuse
+      const identifier = request.headers.get("x-forwarded-for") || "anonymous";
+      const status = await rateLimiter.limit(ctx, "businessCreation", {
+        key: identifier,
+      });
+
+      if (!status.ok) {
+        return new Response(
+          JSON.stringify({
+            error: "Rate limit exceeded. Please try again in a minute.",
+          }),
+          {
+            status: 429,
+            headers: {
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
+              Vary: "origin",
+            },
+          },
+        );
+      }
+
       // Create business without authentication (internal mutation)
       const result = await ctx.runMutation(
         internal.businesses.createBusinessWithoutAuth,
