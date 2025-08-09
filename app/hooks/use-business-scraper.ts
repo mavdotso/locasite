@@ -55,6 +55,8 @@ export function useBusinessScraper(): UseBusinessScraperResult {
       return;
     }
 
+    // Clear previous business ID when starting a new preview
+    setCreatedBusinessId(null);
     setIsLoading(true);
     setError(null);
 
@@ -79,7 +81,7 @@ export function useBusinessScraper(): UseBusinessScraperResult {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url, preview: true }),
       });
 
       if (!response.ok) {
@@ -148,6 +150,8 @@ export function useBusinessScraper(): UseBusinessScraperResult {
   const resetPreview = () => {
     setPreviewData(null);
     setError(null);
+    setCreatedBusinessId(null);
+    sessionStorage.removeItem("previewBusinessId");
   };
 
   return {

@@ -14,20 +14,22 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Logo from "@/app/components/ui/logo";
 
+interface PendingBusinessData {
+  name?: string;
+  [key: string]: unknown;
+}
+
 export default function SignInPage() {
   const { signIn } = useAuthActions();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect");
-  const [pendingBusiness, setPendingBusiness] = useState<Record<
-    string,
-    unknown
-  > | null>(null);
+  const [pendingBusiness, setPendingBusiness] = useState<PendingBusinessData | null>(null);
 
   useEffect(() => {
     const pending = sessionStorage.getItem("pendingBusinessData");
     if (pending) {
       try {
-        const businessData = JSON.parse(pending);
+        const businessData = JSON.parse(pending) as PendingBusinessData;
         setPendingBusiness(businessData);
       } catch (error) {
         console.error("Error parsing pending business:", error);

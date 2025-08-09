@@ -13,7 +13,7 @@ import { getVariationById } from "@/app/components/simple-builder/sections/secti
 import { getPresetByType } from "@/app/components/simple-builder/sections/business-presets";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export default function BusinessEdit({
   businessId,
@@ -21,6 +21,7 @@ export default function BusinessEdit({
   businessId: Id<"businesses">;
 }) {
   const router = useRouter();
+  const claimAttemptedRef = useRef(false);
 
   // All hooks must be called before any conditional returns
   const user = useQuery(api.auth.currentUser);
@@ -52,7 +53,10 @@ export default function BusinessEdit({
 
   // Claim business if it's unclaimed and user is authenticated
   useEffect(() => {
-    if (business && user && !business.userId) {
+    if (business && user && !business.userId && !claimAttemptedRef.current) {
+      // Mark claim as attempted to prevent re-runs
+      claimAttemptedRef.current = true;
+      
       // Business is unclaimed, claim it for the current user
       claimBusinessAfterAuth({ businessId: business._id })
         .then(() => {
@@ -65,7 +69,8 @@ export default function BusinessEdit({
           // If claiming fails, it might already be claimed, which is fine
         });
     }
-  }, [business, user, claimBusinessAfterAuth]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [business?._id, business?.userId, user, claimBusinessAfterAuth]);
 
   useEffect(() => {
     if (syncStatus && !syncStatus.synced && business && user && !pages) {
