@@ -1,5 +1,5 @@
 import { httpAction } from "../_generated/server";
-import { api, components } from "../_generated/api";
+import { api, components, internal } from "../_generated/api";
 import { RateLimiter } from "@convex-dev/rate-limiter";
 import axios from "axios";
 import { generateDefaultDescription } from "./businessDescriptions";
@@ -141,6 +141,11 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
     const place = detailsResponse.data.result;
 
     // Format the data
+    const photos = place.photos?.map(
+      (photo: GooglePlacePhoto) =>
+        `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo.photo_reference}&key=${apiKey}`,
+    ) || [];
+
     const businessData = {
       name: place.name || "",
       address: place.formatted_address || "",
@@ -154,60 +159,48 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
           rating: `${review.rating} stars`,
           text: review.text,
         })) || [],
-      photos:
-        place.photos?.map(
-          (photo: GooglePlacePhoto) =>
-            `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo.photo_reference}&key=${apiKey}`,
-        ) || [],
-      // We'll store the original Google URLs here and upload them to Convex after business creation
-      googlePhotoUrls:
-        place.photos?.map(
-          (photo: GooglePlacePhoto) =>
-            `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo.photo_reference}&key=${apiKey}`,
-        ) || [],
+      photos: photos,
       description:
         place.editorial_summary?.overview ||
         generateDefaultDescription(place.name, place.types?.[0]),
       placeId: placeId,
-      // Extract the most relevant business type/category from types array
+    };
+    
+    // Keep the full data for response (including category for frontend use)
+    const fullBusinessData = {
+      ...businessData,
+      googlePhotoUrls: photos,
       category: place.types?.[0] || undefined,
     };
 
     // AI content generation removed - will be a premium feature
 
-    // Only save to database if not in preview mode AND user is authenticated
+    // Always create the business (without auth requirement)
     let businessId = null;
     let domainId = null;
-    let authenticationRequired = false;
-
-    if (!preview) {
-      try {
-        // Use the new createBusinessFromPendingData mutation that handles theme assignment
-        // and creates pages with primitive blocks
-        const result = await ctx.runMutation(
-          api.businesses.createBusinessFromPendingData,
-          {
-            businessData,
-            aiContent: null, // No AI content for now
-          },
-        );
-
-        businessId = result.businessId;
-        domainId = result.domainId;
-      } catch (error) {
-        authenticationRequired = true;
-      }
+    
+    try {
+      // Create business without authentication (internal mutation)
+      const result = await ctx.runMutation(
+        internal.businesses.createBusinessWithoutAuth,
+        {
+          businessData,
+        },
+      );
+      
+      businessId = result.businessId;
+    } catch (error) {
+      console.error("Error creating business:", error);
     }
 
     return new Response(
       JSON.stringify({
         success: true,
-        data: businessData,
+        data: fullBusinessData, // Return full data for frontend
         businessId,
         domainId,
-        preview,
+        preview: false, // Always create business now
         hasAIContent: false,
-        authenticationRequired,
       }),
       {
         status: 200,

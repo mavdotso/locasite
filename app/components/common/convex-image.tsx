@@ -44,7 +44,7 @@ export function ConvexImage({
   );
 
   useEffect(() => {
-    if (src && src.includes("maps.googleapis.com") && businessId) {
+    if (src && src.includes("maps.googleapis.com") && businessId && businessId !== "preview") {
       setIsLoading(true);
 
       // Upload the image to Convex

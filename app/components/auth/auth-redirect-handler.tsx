@@ -6,15 +6,11 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
-import { BusinessData } from "@/convex/businesses";
 
 export function AuthRedirectHandler() {
   const router = useRouter();
   const user = useQuery(api.auth.currentUser);
   const claimBusiness = useMutation(api.businessClaims.claimBusiness);
-  const createFromPending = useMutation(
-    api.businesses.createBusinessFromPendingData,
-  );
 
   useEffect(() => {
     // Wait for user state to be loaded (not undefined)
@@ -67,71 +63,8 @@ export function AuthRedirectHandler() {
       return;
     }
 
-    const pendingData = sessionStorage.getItem("pendingBusinessData");
-    const pendingUrl = sessionStorage.getItem("pendingBusinessUrl");
-    if (pendingData && pendingUrl) {
-      sessionStorage.removeItem("pendingBusinessData");
-      sessionStorage.removeItem("pendingBusinessUrl");
-
-      const createWebsiteFromPending = async () => {
-        try {
-          JSON.parse(pendingData) as BusinessData; // Validate the data structure
-
-          // Fetch the full business data again
-          const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL || "";
-          const deploymentName = convexUrl.split("//")[1]?.split(".")[0];
-          const convexSiteUrl = `https://${deploymentName}.convex.site`;
-
-          const response = await fetch(`${convexSiteUrl}/scrape`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ url: pendingUrl }),
-          });
-
-          const data = await response.json();
-
-          if (data.error) {
-            throw new Error(data.error);
-          }
-
-          const scrapedData =
-            data.success && data.data ? data.data : data.businessData;
-
-          if (scrapedData) {
-            // Fix the photo field name mismatch
-            const businessData = { ...scrapedData } as BusinessData & {
-              googlePhotoUrls?: string[];
-            };
-            if (
-              "googlePhotoUrls" in businessData &&
-              businessData.googlePhotoUrls
-            ) {
-              businessData.photos = businessData.googlePhotoUrls;
-              delete businessData.googlePhotoUrls;
-            }
-
-            const result = await createFromPending({
-              businessData,
-              aiContent: null,
-            });
-
-            if (result.businessId) {
-              toast.success("Website created successfully!");
-              router.push(`/business/${result.businessId}/edit`);
-            }
-          }
-        } catch (error) {
-          console.error("Error creating website from pending data:", error);
-          toast.error("Failed to create website. Please try again.");
-          router.push("/dashboard");
-        }
-      };
-
-      createWebsiteFromPending();
-      return;
-    }
+    // The pending business is now handled in HomePage to avoid seeing the landing page
+    // This handler only needs to handle other redirect cases
 
     const authRedirect = sessionStorage.getItem("authRedirect");
     if (authRedirect) {
@@ -139,7 +72,7 @@ export function AuthRedirectHandler() {
       router.push(authRedirect);
       return;
     }
-  }, [user, router, claimBusiness, createFromPending]);
+  }, [user, router, claimBusiness]);
 
   return null;
 }

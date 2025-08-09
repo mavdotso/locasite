@@ -27,7 +27,7 @@ export default function SignInPage() {
     const pending = sessionStorage.getItem("pendingBusinessData");
     if (pending) {
       try {
-        const { businessData } = JSON.parse(pending);
+        const businessData = JSON.parse(pending);
         setPendingBusiness(businessData);
       } catch (error) {
         console.error("Error parsing pending business:", error);

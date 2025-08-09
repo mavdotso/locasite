@@ -574,6 +574,69 @@ export const updateBusinessDescription = mutation({
   },
 });
 
+// Create business without authentication (for preview)
+export const createBusinessWithoutAuth = internalMutation({
+  args: {
+    businessData: v.object({
+      name: v.string(),
+      placeId: v.string(),
+      address: v.string(),
+      phone: v.optional(v.string()),
+      website: v.optional(v.string()),
+      hours: v.array(v.string()),
+      rating: v.optional(v.number()),
+      reviews: v.array(
+        v.object({
+          reviewer: v.string(),
+          rating: v.string(),
+          text: v.string(),
+        }),
+      ),
+      photos: v.array(v.string()),
+      description: v.optional(v.string()),
+    }),
+  },
+  handler: async (ctx, args) => {
+    // Create the business without userId (unclaimed)
+    const businessId = await ctx.db.insert("businesses", {
+      ...args.businessData,
+      createdAt: Date.now(),
+      // userId is optional, so we don't set it
+      isPublished: false,
+    });
+
+    return { businessId };
+  },
+});
+
+// Claim an existing business after authentication
+export const claimBusinessAfterAuth = mutation({
+  args: {
+    businessId: v.id("businesses"),
+  },
+  handler: async (ctx, args) => {
+    const user = await getUserFromAuth(ctx);
+    
+    // Get the business
+    const business = await ctx.db.get(args.businessId);
+    if (!business) {
+      throw new Error("Business not found");
+    }
+    
+    // Check if already claimed
+    if (business.userId && business.userId !== user._id) {
+      throw new Error("Business already claimed by another user");
+    }
+    
+    // Claim the business
+    await ctx.db.patch(args.businessId, {
+      userId: user._id,
+    });
+    
+    return { businessId: args.businessId };
+  },
+});
+
 // Create business from preview data (for authenticated users after sign-up)
 export const createFromPreview = mutation({
   args: {
@@ -610,7 +673,7 @@ export const createFromPreview = mutation({
 
     if (existingBusiness) {
       // Return the existing business ID
-      return existingBusiness._id;
+      return { businessId: existingBusiness._id };
     }
 
     // Create the business
@@ -621,7 +684,7 @@ export const createFromPreview = mutation({
       isPublished: false, // Start as unpublished
     });
 
-    return businessId;
+    return { businessId };
   },
 });
 

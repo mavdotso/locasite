@@ -46,6 +46,24 @@ export default function BusinessEdit({
   const syncBusinessDomain = useMutation(
     api.businessDomainSync.syncBusinessDomain,
   );
+  const claimBusinessAfterAuth = useMutation(
+    api.businesses.claimBusinessAfterAuth,
+  );
+
+  // Claim business if it's unclaimed and user is authenticated
+  useEffect(() => {
+    if (business && user && !business.userId) {
+      // Business is unclaimed, claim it for the current user
+      claimBusinessAfterAuth({ businessId: business._id })
+        .then(() => {
+          console.log("Business claimed successfully");
+        })
+        .catch((error) => {
+          console.error("Failed to claim business:", error);
+          // If claiming fails, it might already be claimed, which is fine
+        });
+    }
+  }, [business, user, claimBusinessAfterAuth]);
 
   useEffect(() => {
     if (syncStatus && !syncStatus.synced && business && user && !pages) {

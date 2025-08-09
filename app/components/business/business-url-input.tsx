@@ -51,7 +51,7 @@ export function BusinessURLInput({
           type="submit"
           size="lg"
           disabled={isLoading || !url.trim()}
-          className="h-14 whitespace-nowrap px-8"
+          className="h-14 whitespace-nowrap px-8 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
         >
           {isLoading ? (
             <>

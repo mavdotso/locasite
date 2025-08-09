@@ -69,12 +69,9 @@ export const uploadGoogleMapsImages = action({
       }
     }
 
-    // Update business with new URLs
-    await ctx.runMutation(api.businesses.updatePhotos, {
-      id: businessId,
-      photos: storedUrls,
-    });
-
+    // Don't update business photos here to avoid race conditions
+    // Each image component will handle its own URL
+    
     return { success: true, storedUrls };
   },
 });
