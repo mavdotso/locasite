@@ -28,28 +28,28 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
   try {
     const { url, preview = false } = await request.json();
 
-    // Apply rate limiting for preview requests (unauthenticated users)
-    if (preview) {
-      const identifier = request.headers.get("x-forwarded-for") || "anonymous";
-      const status = await rateLimiter.limit(ctx, "previewScrape", {
-        key: identifier,
-      });
+    // Apply rate limiting for all unauthenticated requests
+    // Use different limits for preview vs full creation
+    const identifier = request.headers.get("x-forwarded-for") || "anonymous";
+    const rateLimitKey = preview ? "previewScrape" : "businessCreation";
+    const status = await rateLimiter.limit(ctx, rateLimitKey, {
+      key: identifier,
+    });
 
-      if (!status.ok) {
-        return new Response(
-          JSON.stringify({
-            error: "Rate limit exceeded. Please try again in a minute.",
-          }),
-          {
-            status: 429,
-            headers: {
-              "Content-Type": "application/json",
-              "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
-              Vary: "origin",
-            },
+    if (!status.ok) {
+      return new Response(
+        JSON.stringify({
+          error: "Rate limit exceeded. Please try again in a minute.",
+        }),
+        {
+          status: 429,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
+            Vary: "origin",
           },
-        );
-      }
+        },
+      );
     }
 
     if (!url || !url.includes("google.com/maps")) {
@@ -181,33 +181,15 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
     let domainId = null;
     
     try {
-      // Apply rate limiting for unauthenticated business creation to prevent abuse
-      const identifier = request.headers.get("x-forwarded-for") || "anonymous";
-      const status = await rateLimiter.limit(ctx, "businessCreation", {
-        key: identifier,
-      });
-
-      if (!status.ok) {
-        return new Response(
-          JSON.stringify({
-            error: "Rate limit exceeded. Please try again in a minute.",
-          }),
-          {
-            status: 429,
-            headers: {
-              "Content-Type": "application/json",
-              "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
-              Vary: "origin",
-            },
-          },
-        );
-      }
-
       // Create business without authentication (internal mutation)
+      // Include category from Google Places types for better categorization
       const result = await ctx.runMutation(
         internal.businesses.createBusinessWithoutAuth,
         {
-          businessData,
+          businessData: {
+            ...businessData,
+            category: place.types?.[0] || undefined,
+          },
         },
       );
       

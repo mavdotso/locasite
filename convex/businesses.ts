@@ -603,6 +603,7 @@ export const createBusinessWithoutAuth = internalMutation({
       ),
       photos: v.array(v.string()),
       description: v.optional(v.string()),
+      category: v.optional(v.string()),
     }),
   },
   handler: async (ctx, args) => {
