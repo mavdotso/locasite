@@ -97,12 +97,12 @@ export function useBusinessScraper(): UseBusinessScraperResult {
       if (data.success && data.data) {
         setPreviewData(data.data);
         
-        // Store the businessId that was created
-        if (data.businessId) {
-          setCreatedBusinessId(data.businessId);
-          sessionStorage.setItem("previewBusinessId", data.businessId);
+        // Ensure businessId was created
+        if (!data.businessId) {
+          throw new Error("Failed to create business during preview");
         }
         
+        setCreatedBusinessId(data.businessId);
         toast.success("Preview generated successfully!");
       } else {
         throw new Error("No business data returned");
@@ -148,7 +148,6 @@ export function useBusinessScraper(): UseBusinessScraperResult {
     setPreviewData(null);
     setError(null);
     setCreatedBusinessId(null);
-    sessionStorage.removeItem("previewBusinessId");
   };
 
   return {

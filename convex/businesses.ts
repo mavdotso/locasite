@@ -606,6 +606,18 @@ export const createBusinessWithoutAuth = internalMutation({
     }),
   },
   handler: async (ctx, args) => {
+    // Check if an unclaimed business already exists for this placeId
+    const existingBusiness = await ctx.db
+      .query("businesses")
+      .withIndex("by_placeId", (q) => q.eq("placeId", args.businessData.placeId))
+      .filter((q) => q.eq(q.field("userId"), undefined))
+      .first();
+    
+    if (existingBusiness) {
+      // Return existing unclaimed business instead of creating duplicate
+      return { businessId: existingBusiness._id };
+    }
+    
     // Create the business without userId (unclaimed)
     const businessId = await ctx.db.insert("businesses", {
       ...args.businessData,

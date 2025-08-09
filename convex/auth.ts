@@ -7,12 +7,35 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
   providers: [Google],
   callbacks: {
     async redirect({ redirectTo }) {
+      // Only allow relative paths to prevent open redirect attacks
+      if (!redirectTo || typeof redirectTo !== "string") {
+        return "/";
+      }
+      
+      // Ensure it's a relative path (starts with /)
+      if (!redirectTo.startsWith("/")) {
+        return "/";
+      }
+      
+      // Prevent protocol-relative URLs like //evil.com
+      if (redirectTo.startsWith("//")) {
+        return "/";
+      }
+      
       // Allow redirects to business editor pages
-      if (redirectTo && redirectTo.startsWith("/business/") && redirectTo.includes("/edit")) {
+      if (redirectTo.startsWith("/business/") && redirectTo.includes("/edit")) {
         return redirectTo;
       }
-      // Default to home page
-      return redirectTo || "/";
+      
+      // Allow other safe internal paths
+      if (redirectTo.startsWith("/dashboard") || 
+          redirectTo.startsWith("/settings") ||
+          redirectTo === "/") {
+        return redirectTo;
+      }
+      
+      // Default to home page for any other paths
+      return "/";
     }
   }
 });
