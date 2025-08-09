@@ -607,15 +607,16 @@ export const createBusinessWithoutAuth = internalMutation({
     }),
   },
   handler: async (ctx, args) => {
-    // Check if an unclaimed business already exists for this placeId
+    // Check if a business already exists for this placeId (claimed or unclaimed)
+    // This makes the mutation idempotent - repeated scrapes return the same business
     const existingBusiness = await ctx.db
       .query("businesses")
       .withIndex("by_placeId", (q) => q.eq("placeId", args.businessData.placeId))
-      .filter((q) => q.eq(q.field("userId"), undefined))
       .first();
     
     if (existingBusiness) {
-      // Return existing unclaimed business instead of creating duplicate
+      // Return existing business instead of creating duplicate
+      // This ensures idempotency - multiple scrapes of the same place return the same business
       return { businessId: existingBusiness._id };
     }
     
