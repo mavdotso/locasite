@@ -4,6 +4,7 @@ import { RateLimiter } from "@convex-dev/rate-limiter";
 import axios from "axios";
 import { generateDefaultDescription } from "./businessDescriptions";
 import { convexEnv } from "./env";
+import { logger } from "./logger";
 
 const MINUTE = 60 * 1000; // 1 minute in milliseconds
 
@@ -202,7 +203,9 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
       
       businessId = result.businessId;
     } catch (error) {
-      console.error("Error creating business:", error);
+      logger.error("Error creating business from Google Maps", error, {
+        metadata: { placeId }
+      });
     }
 
     const ok = businessId !== null;

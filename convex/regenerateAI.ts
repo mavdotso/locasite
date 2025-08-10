@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import { api } from "./_generated/api";
 import { Doc } from "./_generated/dataModel";
 import { AIContentResult } from "./lib/types";
+import { filterReviews, getReviewStats } from "./lib/reviewFilter";
 
 export const regenerateAIContentForBusiness = action({
   args: { 
@@ -51,10 +52,25 @@ export const regenerateAIContentForBusiness = action({
         throw new Error("Failed to generate AI content");
       }
 
-      // If includeReviews is true, also filter and enhance reviews
-      let filteredReviews = business.reviews;
-      // TODO: Implement review filtering once the API endpoint is properly set up
-      // For now, just use the existing reviews
+      // Filter reviews for quality if requested
+      let reviewsData = business.reviews;
+      let reviewStats = null;
+      
+      if (args.includeReviews && business.reviews && business.reviews.length > 0) {
+        // Filter reviews to get the best quality ones
+        const filtered = filterReviews(business.reviews, 12);
+        reviewsData = filtered.map(r => ({
+          reviewer: r.reviewer,
+          rating: r.rating,
+          text: r.text
+        }));
+        
+        // Get review statistics
+        reviewStats = getReviewStats(business.reviews);
+        
+        // Update business data for AI generation with filtered reviews
+        businessData.reviews = reviewsData;
+      }
 
       // Update the business with the new content
       await ctx.runMutation(api.businesses.update, {

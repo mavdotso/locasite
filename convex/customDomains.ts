@@ -8,6 +8,7 @@ import {
 } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { getUserFromAuth } from "./lib/helpers";
+import { logger } from "./lib/logger";
 import { convexEnv } from "./lib/env";
 
 // Helper to validate domain format
@@ -511,7 +512,7 @@ async function verifyDnsRecords(
     );
     return txtVerified && cnameVerified;
   } catch (error) {
-    console.error("DNS verification error:", error);
+    logger.domainOperation('dns_verification', domain, false, { error: String(error) });
     return false;
   }
 }

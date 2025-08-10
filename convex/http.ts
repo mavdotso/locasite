@@ -5,6 +5,7 @@ import { scrapeGoogleMaps } from "./lib/scrape";
 import { api, internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 import { convexEnv } from "./lib/env";
+import { logger } from "./lib/logger";
 
 const http = router;
 
@@ -1030,7 +1031,7 @@ http.route({
         },
       });
     } catch (error) {
-      console.error("DNS instructions error:", error);
+      logger.apiError('dns-instructions', error);
       return new Response(
         JSON.stringify({ error: "Failed to generate DNS instructions" }),
         {
@@ -1170,7 +1171,7 @@ http.route({
         },
       );
     } catch (error) {
-      console.error("SSL status check error:", error);
+      logger.apiError('ssl-status', error);
       return new Response(
         JSON.stringify({
           error: "Failed to check SSL status",
@@ -1190,8 +1191,13 @@ http.route({
   path: "/domains/vercel",
   method: "POST",
   handler: httpAction(async (ctx, request) => {
+    let domain: string | undefined;
+    let businessId: string | undefined;
+    
     try {
-      const { domain, businessId } = await request.json();
+      const body = await request.json();
+      domain = body.domain;
+      businessId = body.businessId;
 
       if (!domain || !businessId) {
         return new Response(
@@ -1279,7 +1285,7 @@ http.route({
         },
       );
     } catch (error) {
-      console.error("Vercel domain add error:", error);
+      logger.domainOperation('vercel_add', domain || 'unknown', false, { error: String(error) });
       return new Response(
         JSON.stringify({
           error: "Failed to add domain",
@@ -1298,9 +1304,11 @@ http.route({
   path: "/domains/vercel",
   method: "DELETE",
   handler: httpAction(async (_, request) => {
+    let domain: string | null = null;
+    
     try {
       const url = new URL(request.url);
-      const domain = url.searchParams.get("domain");
+      domain = url.searchParams.get("domain");
 
       if (!domain) {
         return new Response(
@@ -1362,7 +1370,7 @@ http.route({
         },
       );
     } catch (error) {
-      console.error("Vercel domain remove error:", error);
+      logger.domainOperation('vercel_remove', domain || 'unknown', false, { error: String(error) });
       return new Response(
         JSON.stringify({
           error: "Failed to remove domain",
@@ -1382,8 +1390,11 @@ http.route({
   path: "/domains/verify",
   method: "POST",
   handler: httpAction(async (ctx, request) => {
+    let domainId: string | undefined;
+    
     try {
-      const { domainId } = await request.json();
+      const body = await request.json();
+      domainId = body.domainId;
 
       if (!domainId) {
         return new Response(
@@ -1408,7 +1419,7 @@ http.route({
         },
       });
     } catch (error) {
-      console.error("Domain verification error:", error);
+      logger.domainOperation('verification', domainId || 'unknown', false, { error: String(error) });
       return new Response(
         JSON.stringify({
           error: "Failed to verify domain",
@@ -1460,7 +1471,7 @@ http.route({
         },
       );
     } catch (error) {
-      console.error("Domain status error:", error);
+      logger.apiError('domain-status', error);
       return new Response(
         JSON.stringify({
           error: "Failed to get domain status",

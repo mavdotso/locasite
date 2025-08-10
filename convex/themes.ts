@@ -93,6 +93,22 @@ export const getPresetThemes = query({
   },
 });
 
+export const getPresetById = query({
+  args: {
+    presetId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Find a preset theme by its name/id
+    const themes = await ctx.db
+      .query("themes")
+      .withIndex("by_preset")
+      .filter((q) => q.eq(q.field("isPreset"), true))
+      .collect();
+    
+    return themes.find(theme => theme.name === args.presetId) || null;
+  },
+});
+
 // Get all public themes (presets + user-shared)
 export const getPublicThemes = query({
   handler: async (ctx) => {

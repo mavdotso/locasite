@@ -8,6 +8,7 @@ import {
 import { v } from "convex/values";
 import { Doc } from "./_generated/dataModel";
 import { getUserFromAuth } from "./lib/helpers";
+import { logger } from "./lib/logger";
 import { internal } from "./_generated/api";
 import { checkRateLimit, RATE_LIMITS } from "./lib/rateLimiting";
 
@@ -397,7 +398,7 @@ export const isBusinessClaimable = query({
         userHasPendingClaim = !!userClaim;
       }
     } catch (error) {
-      console.error("Error checking user claims:", error);
+      logger.error("Error checking user claims", error);
       // User not authenticated, ignore
     }
 
@@ -471,7 +472,9 @@ export const isGoogleBusinessOwner = query({
         claimId: approvedClaim?._id,
       };
     } catch (error) {
-      console.error("Error checking Google business owner:", error);
+      logger.error("Error checking Google business owner", error, { 
+        metadata: { businessId: args.businessId }
+      });
       // User not authenticated
       return {
         isOwner: false,

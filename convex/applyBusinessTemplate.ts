@@ -20,32 +20,27 @@ export const applyBusinessTemplate = action({
     try {
       // First, regenerate AI content if requested or if none exists
       if (args.regenerateContent || !business.aiGeneratedContent) {
-        // TODO: Call regenerateAI action once Convex API is regenerated
-        // await ctx.runAction(api.regenerateAI.regenerateAIContentForBusiness, {
-        //   businessId: args.businessId,
-        //   includeReviews: true
-        // });
+        await ctx.runAction(api.regenerateAI.regenerateAIContentForBusiness, {
+          businessId: args.businessId,
+          includeReviews: true
+        });
       }
 
-      // Get the domain/page for this business
-      // const domain = business.domainId ? await ctx.runQuery(api.domains.getById, { id: business.domainId }) : null;
-      const domain = null; // TODO: Implement domain query
+      // Get the domain for this business
+      const domain = business.domainId ? await ctx.runQuery(api.domains.getById, { id: business.domainId }) : null;
       if (!domain) {
-        return { success: false, error: 'No domain found' };
+        return { success: false, error: 'No domain found for this business' };
       }
-      
-      // TODO: Remove this early return once domain queries are implemented
-      return { success: false, error: 'Template application not yet implemented' };
 
-      // const page = await ctx.runQuery(api.pages.getByDomainId, { domainId: domain._id });
-      const page = null; // TODO: Implement page query
+      // Check if a page exists for this domain
+      const page = await ctx.runQuery(api.pages.getByDomainId, { domainId: domain._id });
       if (!page) {
         // Create a new page if none exists
-        // TODO: Implement page creation
-        // await ctx.runMutation(api.pages.create, {
-        //   domainId: domain._id,
-        //   content: '{"components":[]}'
-        // });
+        await ctx.runMutation(api.pages.create, {
+          domainId: domain._id,
+          content: '{"components":[]}',
+          isPublished: false
+        });
       }
 
       // Get updated business with AI content
@@ -62,26 +57,24 @@ export const applyBusinessTemplate = action({
       const pageContent = await generatePageContent(templateId, updatedBusiness!);
 
       // Update the page with the new content
-      // TODO: Implement page update
-      // await ctx.runMutation(api.pages.update, {
-      //   domainId: domain._id,
-      //   content: JSON.stringify(pageContent),
-      //   isPublished: true
-      // });
+      await ctx.runMutation(api.pages.update, {
+        domainId: domain._id,
+        content: JSON.stringify(pageContent),
+        isPublished: true
+      });
 
       // Also apply a matching theme preset if available
       const themePresetId = getThemePresetForTemplate(templateId);
       if (themePresetId) {
-        // TODO: Implement theme preset application
-        // const themePreset = await ctx.runQuery(api.themes.getPresetById, { presetId: themePresetId });
-        // if (themePreset) {
-        //   await ctx.runMutation(api.businesses.update, {
-        //     id: args.businessId,
-        //     business: {
-        //       themeId: themePreset._id
-        //     }
-        //   });
-        // }
+        const themePreset = await ctx.runQuery(api.themes.getPresetById, { presetId: themePresetId });
+        if (themePreset) {
+          await ctx.runMutation(api.businesses.update, {
+            id: args.businessId,
+            business: {
+              theme: themePreset as any // Theme preset from the themes table
+            }
+          });
+        }
       }
 
       return { 

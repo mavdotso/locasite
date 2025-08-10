@@ -564,6 +564,18 @@ export const getHomepageByDomain = query({
   },
 });
 
+export const getByDomainId = query({
+  args: {
+    domainId: v.id("domains"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("pages")
+      .withIndex("by_domain", (q) => q.eq("domainId", args.domainId))
+      .first();
+  },
+});
+
 export const getByDomain = query({
   args: {
     domain: v.string(),
@@ -580,6 +592,111 @@ export const getByDomain = query({
       .query("pages")
       .withIndex("by_domain", (q) => q.eq("domainId", domain._id))
       .first();
+  },
+});
+
+export const create = mutation({
+  args: {
+    domainId: v.id("domains"),
+    content: v.string(),
+    isPublished: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const user = await getUserFromAuth(ctx);
+
+    const domain = await ctx.db.get(args.domainId);
+    if (!domain) {
+      throw new Error("Domain not found");
+    }
+
+    // Find the business for this domain
+    const business = await ctx.db
+      .query("businesses")
+      .withIndex("by_domainId", (q) => q.eq("domainId", args.domainId))
+      .first();
+
+    if (!business) {
+      throw new Error("Business not found for this domain");
+    }
+
+    // Verify business ownership
+    if (business.userId !== user._id) {
+      throw new Error("Not authorized to create pages for this business");
+    }
+
+    // Check if page already exists
+    const existingPage = await ctx.db
+      .query("pages")
+      .withIndex("by_domain", (q) => q.eq("domainId", args.domainId))
+      .first();
+
+    if (existingPage) {
+      // Update existing page instead
+      await ctx.db.patch(existingPage._id, {
+        content: args.content,
+        isPublished: args.isPublished ?? existingPage.isPublished,
+      });
+      return existingPage._id;
+    }
+
+    // Create new page
+    const pageId = await ctx.db.insert("pages", {
+      domainId: args.domainId,
+      content: args.content,
+      isPublished: args.isPublished ?? false,
+      lastEditedAt: Date.now(),
+    });
+
+    return pageId;
+  },
+});
+
+export const update = mutation({
+  args: {
+    domainId: v.id("domains"),
+    content: v.string(),
+    isPublished: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const user = await getUserFromAuth(ctx);
+
+    const domain = await ctx.db.get(args.domainId);
+    if (!domain) {
+      throw new Error("Domain not found");
+    }
+
+    // Find the business for this domain
+    const business = await ctx.db
+      .query("businesses")
+      .withIndex("by_domainId", (q) => q.eq("domainId", args.domainId))
+      .first();
+
+    if (!business) {
+      throw new Error("Business not found for this domain");
+    }
+
+    // Verify business ownership
+    if (business.userId !== user._id) {
+      throw new Error("Not authorized to update pages for this business");
+    }
+
+    // Find the page
+    const page = await ctx.db
+      .query("pages")
+      .withIndex("by_domain", (q) => q.eq("domainId", args.domainId))
+      .first();
+
+    if (!page) {
+      throw new Error("Page not found");
+    }
+
+    // Update the page
+    await ctx.db.patch(page._id, {
+      content: args.content,
+      isPublished: args.isPublished ?? page.isPublished,
+    });
+
+    return page._id;
   },
 });
 

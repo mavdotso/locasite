@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { query, mutation, internalMutation } from "./_generated/server";
 import { getUserFromAuth } from './lib/helpers';
 import { convexEnv } from './lib/env';
+import { generateUniqueSubdomain, validateSubdomain } from "./lib/subdomainUtils";
 
 // URL-friendly string converter (same logic as frontend)
 function toUrlFriendly(input: string, maxLength: number = 30): string {
@@ -63,49 +64,28 @@ export const generateSubdomain = mutation({
         }
 
         // Use custom subdomain if provided, otherwise generate from business name
-        let subdomain = args.customSubdomain;
-        if (!subdomain) {
-            // Generate subdomain from business name using URL-friendly function
-            subdomain = toUrlFriendly(business.name);
-        } else {
-            // Make sure custom subdomain is also URL-friendly
-            subdomain = toUrlFriendly(subdomain);
-        }
-
-        // Ensure it's not too short
-        if (!subdomain || subdomain.length < 3) {
-            subdomain = `business-${Math.floor(Math.random() * 10000)}`;
-        }
-
-        // Check if subdomain already exists
-        const existingDomain = await ctx.db
-            .query("domains")
-            .withIndex("by_subdomain", q => q.eq("subdomain", subdomain as string))
-            .first();
-
-        if (existingDomain) {
-            // Append a number if the subdomain is taken
-            let counter = 1;
-            let newSubdomain = `${subdomain}-${counter}`;
-
-            // Keep trying until we find an available subdomain
-            // TODO: Move it to frontend
-            const MAX_ATTEMPTS = 100;
-            let attempts = 0;
-            while (await ctx.db
-                .query("domains")
-                .withIndex("by_subdomain", q => q.eq("subdomain", newSubdomain))
-                .first()) {
-                counter++;
-                attempts++;
-                if (attempts >= MAX_ATTEMPTS) {
-                    throw new Error("Could not generate a unique subdomain after multiple attempts");
-                }
-                newSubdomain = `${subdomain}-${counter}`;
+        let baseSubdomain: string;
+        if (args.customSubdomain) {
+            // Make sure custom subdomain is URL-friendly
+            baseSubdomain = toUrlFriendly(args.customSubdomain);
+            
+            // Validate the custom subdomain
+            const validation = validateSubdomain(baseSubdomain);
+            if (!validation.valid) {
+                throw new Error(validation.error || "Invalid subdomain format");
             }
-
-            subdomain = newSubdomain;
+        } else {
+            // Generate subdomain from business name
+            baseSubdomain = toUrlFriendly(business.name);
+            
+            // Ensure it's not too short
+            if (!baseSubdomain || baseSubdomain.length < 3) {
+                baseSubdomain = `business-${Math.floor(Math.random() * 10000)}`;
+            }
         }
+
+        // Use the optimized subdomain generation
+        const subdomain = await generateUniqueSubdomain(ctx, baseSubdomain);
 
         // Create the domain
         const domainId = await ctx.db.insert("domains", {
@@ -120,6 +100,48 @@ export const generateSubdomain = mutation({
         });
 
         return { domainId, subdomain };
+    }
+});
+
+// Check subdomain availability
+export const checkAvailability = query({
+    args: { subdomain: v.string() },
+    handler: async (ctx, args) => {
+        const subdomain = toUrlFriendly(args.subdomain);
+        
+        // Validate format
+        const validation = validateSubdomain(subdomain);
+        if (!validation.valid) {
+            return {
+                available: false,
+                error: validation.error,
+                suggestions: []
+            };
+        }
+        
+        // Check if it exists
+        const existing = await ctx.db
+            .query("domains")
+            .withIndex("by_subdomain", q => q.eq("subdomain", subdomain))
+            .first();
+        
+        if (!existing) {
+            return {
+                available: true,
+                subdomain,
+                suggestions: []
+            };
+        }
+        
+        // Generate suggestions if not available
+        const { checkSubdomainAvailability } = await import("./lib/subdomainUtils");
+        const result = await checkSubdomainAvailability(ctx, subdomain);
+        
+        return {
+            available: false,
+            subdomain: result.subdomain,
+            suggestions: result.suggestions || []
+        };
     }
 });
 
