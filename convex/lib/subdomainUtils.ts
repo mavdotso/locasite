@@ -156,12 +156,12 @@ export function validateSubdomain(subdomain: string): {
   error?: string;
 } {
   // Check length (3-63 characters)
-  if (subdomain.length < 3) {
-    return { valid: false, error: "Subdomain must be at least 3 characters long" };
+  if (subdomain.length < MIN_SUBDOMAIN_LENGTH) {
+    return { valid: false, error: `Subdomain must be at least ${MIN_SUBDOMAIN_LENGTH} characters long` };
   }
   
-  if (subdomain.length > 63) {
-    return { valid: false, error: "Subdomain must be less than 63 characters" };
+  if (subdomain.length > MAX_SUBDOMAIN_LENGTH) {
+    return { valid: false, error: `Subdomain must be less than ${MAX_SUBDOMAIN_LENGTH} characters` };
   }
   
   // Check format (alphanumeric and hyphens only, no leading/trailing hyphens)

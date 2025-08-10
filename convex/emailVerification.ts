@@ -5,15 +5,14 @@ import { internal } from "./_generated/api";
 import { sendVerificationEmail as sendVerificationEmailUtil } from "./lib/email";
 import { logger } from "./lib/logger";
 
-// Generate a secure verification token
+// Generate a cryptographically secure verification token
 function generateVerificationToken(): string {
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let token = "";
-  for (let i = 0; i < 32; i++) {
-    token += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return token;
+  // Generate 32 random bytes and convert to hex string (64 chars)
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes)
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
 }
 
 // Internal mutation to update claim with token

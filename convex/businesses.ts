@@ -138,6 +138,7 @@ export const internal_updateBusiness = internalMutation({
           logoUrl: v.optional(v.string()),
         }),
       ),
+      themeId: v.optional(v.id("themes")),
     }),
   },
   handler: async (ctx, args) => {

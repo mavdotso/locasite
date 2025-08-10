@@ -42,9 +42,24 @@ export function getPlaceholderImage(
 
   // Use Unsplash for other images
   const keywords = category ? IMAGE_CATEGORIES[category] : IMAGE_CATEGORIES.hero;
-  const seedParam = seed ? `?sig=${seed}` : '';
+  const seedParam = seed ? `&sig=${seed}` : '';
   
   return `${UNSPLASH_BASE}/${width}x${height}/?${keywords}${seedParam}`;
+}
+
+/**
+ * Base64 encode function that works in both Node.js and browser
+ */
+function toBase64(str: string): string {
+  if (typeof Buffer !== 'undefined') {
+    // Node.js environment
+    return Buffer.from(str).toString('base64');
+  } else if (typeof btoa !== 'undefined') {
+    // Browser environment
+    return btoa(str);
+  } else {
+    throw new Error('No base64 encoding method available');
+  }
 }
 
 /**
@@ -65,14 +80,14 @@ function generateLogoPlaceholder(width: number, height: number): string {
     </svg>
   `;
   
-  return `data:image/svg+xml;base64,${btoa(svg)}`;
+  return `data:image/svg+xml;base64,${toBase64(svg)}`;
 }
 
 /**
  * Replace placeholder URLs in content
  * Converts /api/placeholder/WxH to real placeholder images
  */
-export function replacePlaceholderUrls(content: string, businessType?: string): string {
+export function replacePlaceholderUrls(content: string, businessType?: keyof typeof IMAGE_CATEGORIES): string {
   // Pattern to match /api/placeholder/width/height or /api/placeholder/widthxheight
   const placeholderPattern = /\/api\/placeholder\/(\d+)[x\/](\d+)/g;
   

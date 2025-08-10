@@ -421,7 +421,13 @@ export const internal_updateSslStatus = internalMutation({
 
 // Helper functions
 function generateVerificationToken(): string {
-  return `locasite-verify-${Math.random().toString(36).substring(2, 15)}`;
+  // Generate cryptographically secure token
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  const hex = Array.from(bytes)
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+  return `locasite-verify-${hex}`;
 }
 
 function getRequiredDnsRecords(domain: string, verificationToken: string) {

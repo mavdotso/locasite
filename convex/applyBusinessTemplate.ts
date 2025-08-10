@@ -1,6 +1,6 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
-import { api } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 import { Doc } from "./_generated/dataModel";
 import { AIContentResult } from "./lib/types";
 
@@ -68,10 +68,11 @@ export const applyBusinessTemplate = action({
       if (themePresetId) {
         const themePreset = await ctx.runQuery(api.themes.getPresetById, { presetId: themePresetId });
         if (themePreset) {
-          await ctx.runMutation(api.businesses.update, {
+          // Update the business with the theme ID
+          await ctx.runMutation(internal.businesses.internal_updateBusiness, {
             id: args.businessId,
             business: {
-              theme: themePreset as any // Theme preset from the themes table
+              themeId: themePreset._id
             }
           });
         }
