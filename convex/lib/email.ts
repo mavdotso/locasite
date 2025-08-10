@@ -5,6 +5,16 @@ import { validateEmail } from './validation';
 // Initialize Resend client
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
+// Helper function to mask email addresses for logging
+function maskEmail(email: string): string {
+  if (!email || !email.includes('@')) return 'invalid-email';
+  const [localPart, domain] = email.split('@');
+  const maskedLocal = localPart.length > 2 
+    ? localPart.substring(0, 2) + '***' 
+    : '***';
+  return `${maskedLocal}@${domain}`;
+}
+
 // Email template for verification
 const getVerificationEmailTemplate = (businessName: string, verificationUrl: string, businessEmail: string) => {
   return {
@@ -122,7 +132,7 @@ export async function sendEmail({
   // Validate email address
   const emailValidation = validateEmail(to);
   if (!emailValidation.valid) {
-    logger.warn(`Invalid email address: ${to}`, { metadata: { error: emailValidation.error } });
+    logger.warn(`Invalid email address: ${maskEmail(to)}`, { metadata: { error: emailValidation.error } });
     return { success: false, id: '', error: emailValidation.error };
   }
   
@@ -140,7 +150,7 @@ export async function sendEmail({
     logger.warn('Email service not configured. Please set RESEND_API_KEY environment variable.');
     // In development, log the email content instead
     if (process.env.NODE_ENV === 'development') {
-      logger.debug(`📧 Email would be sent to: ${to}`, {
+      logger.debug(`📧 Email would be sent to: ${maskEmail(to)}`, {
         metadata: { subject, hasHtml: !!html, hasText: !!text }
       });
       return { success: true, id: 'dev-mode-email' };
@@ -153,7 +163,7 @@ export async function sendEmail({
     (process.env.NODE_ENV === 'development' ? 'onboarding@resend.dev' : undefined);
     
   if (!fromEmail) {
-    logger.error('RESEND_FROM_EMAIL environment variable not set');
+    logger.error('RESEND_FROM_EMAIL environment variable not set', new Error('Missing configuration'), {});
     return { success: false, id: '', error: 'Email configuration error' };
   }
 
@@ -166,13 +176,13 @@ export async function sendEmail({
       text,
     });
 
-    logger.info(`Email sent successfully to ${to}`, { 
+    logger.info(`Email sent successfully to ${maskEmail(to)}`, { 
       metadata: { emailId: result.data?.id, subject } 
     });
     
     return { success: true, id: result.data?.id || 'unknown' };
   } catch (error) {
-    logger.error('Failed to send email', error, { metadata: { to, subject } });
+    logger.error('Failed to send email', error as Error, { metadata: { to: maskEmail(to), subject } });
     return { 
       success: false, 
       id: '', 
@@ -192,8 +202,25 @@ export async function sendVerificationEmail(
     return { success: false, id: '', error: 'Business name is required for verification email' };
   }
   
-  if (!verificationUrl || !verificationUrl.startsWith('http')) {
-    return { success: false, id: '', error: 'Invalid verification URL' };
+  // Validate verification URL
+  try {
+    const url = new URL(verificationUrl);
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL;
+    
+    if (!appUrl) {
+      return { success: false, id: '', error: 'App URL not configured' };
+    }
+    
+    const expectedHost = new URL(appUrl).host;
+    if (url.host !== expectedHost) {
+      return { success: false, id: '', error: `Invalid verification URL - host mismatch (expected ${expectedHost}, got ${url.host})` };
+    }
+    
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+      return { success: false, id: '', error: 'Invalid verification URL protocol' };
+    }
+  } catch (error) {
+    return { success: false, id: '', error: 'Invalid verification URL format' };
   }
   
   const emailContent = getVerificationEmailTemplate(businessName, verificationUrl, businessEmail);

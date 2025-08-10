@@ -148,40 +148,5 @@ export async function generateUniqueSubdomain(
   return `${baseSubdomain}-${Date.now()}`;
 }
 
-/**
- * Validate subdomain format
- */
-export function validateSubdomain(subdomain: string): {
-  valid: boolean;
-  error?: string;
-} {
-  // Check length (3-63 characters)
-  if (subdomain.length < MIN_SUBDOMAIN_LENGTH) {
-    return { valid: false, error: `Subdomain must be at least ${MIN_SUBDOMAIN_LENGTH} characters long` };
-  }
-  
-  if (subdomain.length > MAX_SUBDOMAIN_LENGTH) {
-    return { valid: false, error: `Subdomain must be less than ${MAX_SUBDOMAIN_LENGTH} characters` };
-  }
-  
-  // Check format (alphanumeric and hyphens only, no leading/trailing hyphens)
-  if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(subdomain)) {
-    return { 
-      valid: false, 
-      error: "Subdomain can only contain lowercase letters, numbers, and hyphens (not at the start or end)" 
-    };
-  }
-  
-  // Check for consecutive hyphens
-  if (/--/.test(subdomain)) {
-    return { valid: false, error: "Subdomain cannot contain consecutive hyphens" };
-  }
-  
-  // Check for reserved subdomains
-  const reserved = ['www', 'api', 'app', 'admin', 'mail', 'ftp', 'blog', 'shop', 'store', 'help', 'support'];
-  if (reserved.includes(subdomain)) {
-    return { valid: false, error: "This subdomain is reserved" };
-  }
-  
-  return { valid: true };
-}
+// Re-export validateSubdomain from validation.ts for consistency
+export { validateSubdomain } from './validation';

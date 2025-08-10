@@ -8,9 +8,6 @@ const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9
 // Subdomain validation regex
 const SUBDOMAIN_REGEX = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
 
-// URL validation regex
-const URL_REGEX = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)$/;
-
 // Phone number validation - supports international formats
 const PHONE_REGEX = /^[\+]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,9}$/;
 
@@ -22,28 +19,48 @@ export function validateEmail(email: string): { valid: boolean; error?: string }
     return { valid: false, error: "Email is required" };
   }
   
-  const trimmedEmail = email.trim().toLowerCase();
+  const trimmedEmail = email.trim();
   
   if (trimmedEmail.length > 254) {
     return { valid: false, error: "Email address is too long" };
   }
   
-  if (!EMAIL_REGEX.test(trimmedEmail)) {
+  // Split email to preserve local-part case
+  const atIndex = trimmedEmail.lastIndexOf('@');
+  if (atIndex === -1) {
     return { valid: false, error: "Invalid email format" };
   }
   
-  // Check for common disposable email domains
+  const localPart = trimmedEmail.substring(0, atIndex);
+  const domainPart = trimmedEmail.substring(atIndex + 1).toLowerCase();
+  const normalizedEmail = localPart + '@' + domainPart;
+  
+  if (!EMAIL_REGEX.test(normalizedEmail)) {
+    return { valid: false, error: "Invalid email format" };
+  }
+  
+  // Check for common disposable email domains (including subdomains)
   const disposableDomains = [
     'tempmail.com',
     'throwaway.email',
     'guerrillamail.com',
     'mailinator.com',
-    '10minutemail.com'
+    '10minutemail.com',
+    'trashmail.com',
+    'temporarymail.net',
+    'fakeinbox.com',
+    'sharklasers.com',
+    'guerrillamail.info',
+    'guerrillamail.biz',
+    'guerrillamail.org',
+    'guerrillamail.de'
   ];
   
-  const domain = trimmedEmail.split('@')[1];
-  if (disposableDomains.includes(domain)) {
-    return { valid: false, error: "Disposable email addresses are not allowed" };
+  // Check if domain ends with any disposable domain (handles subdomains)
+  for (const disposable of disposableDomains) {
+    if (domainPart === disposable || domainPart.endsWith('.' + disposable)) {
+      return { valid: false, error: "Disposable email addresses are not allowed" };
+    }
   }
   
   return { valid: true };
@@ -58,6 +75,11 @@ export function validateSubdomain(subdomain: string): { valid: boolean; error?: 
   }
   
   const trimmed = subdomain.trim().toLowerCase();
+  
+  // Check for empty string after trimming
+  if (trimmed.length === 0) {
+    return { valid: false, error: "Subdomain cannot be empty" };
+  }
   
   // Check length (3-63 characters)
   if (trimmed.length < 3) {
@@ -81,12 +103,19 @@ export function validateSubdomain(subdomain: string): { valid: boolean; error?: 
     return { valid: false, error: "Subdomain cannot contain consecutive hyphens" };
   }
   
-  // Check for reserved subdomains
+  // Merged and expanded reserved subdomains list
   const reserved = [
+    // Original list
     'www', 'api', 'app', 'admin', 'mail', 'ftp', 
     'blog', 'shop', 'store', 'help', 'support',
+    // Additional from subdomainUtils
     'dashboard', 'account', 'login', 'signup',
-    'oauth', 'auth', 'sso', 'cdn', 'static'
+    'oauth', 'auth', 'sso', 'cdn', 'static',
+    // Extra common reserved
+    'email', 'smtp', 'pop', 'imap', 'webmail',
+    'cpanel', 'whm', 'host', 'server', 'ns1', 'ns2',
+    'dev', 'staging', 'test', 'demo', 'beta',
+    'git', 'svn', 'faq', 'news', 'media', 'assets'
   ];
   
   if (reserved.includes(trimmed)) {
@@ -97,7 +126,7 @@ export function validateSubdomain(subdomain: string): { valid: boolean; error?: 
 }
 
 /**
- * Validate URL format
+ * Validate URL format using built-in URL parser
  */
 export function validateUrl(url: string): { valid: boolean; error?: string } {
   if (!url) {
@@ -106,11 +135,18 @@ export function validateUrl(url: string): { valid: boolean; error?: string } {
   
   const trimmed = url.trim();
   
-  if (!URL_REGEX.test(trimmed)) {
+  try {
+    const parsed = new URL(trimmed);
+    
+    // Check protocol
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return { valid: false, error: "URL must use http or https protocol" };
+    }
+    
+    return { valid: true };
+  } catch (error) {
     return { valid: false, error: "Invalid URL format" };
   }
-  
-  return { valid: true };
 }
 
 /**
@@ -140,17 +176,30 @@ export function validateDomain(domain: string): { valid: boolean; error?: string
   
   const trimmed = domain.trim().toLowerCase();
   
-  // Basic domain validation
-  const domainRegex = /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/;
-  
-  if (!domainRegex.test(trimmed)) {
-    return { valid: false, error: "Invalid domain format" };
-  }
-  
-  // Check for IP addresses (not allowed as custom domains)
+  // Check for IP addresses first (not allowed as custom domains)
   const ipRegex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
   if (ipRegex.test(trimmed)) {
     return { valid: false, error: "IP addresses are not allowed as custom domains" };
+  }
+  
+  // Improved domain validation - supports longer TLDs and punycode
+  // Allows hyphens in valid positions and international domains
+  const domainRegex = /^([a-z0-9]+([a-z0-9\-]*[a-z0-9])?\.)+[a-z]{2,}$/;
+  const punycodeRegex = /^(xn--[a-z0-9]+\.)+[a-z]{2,}$/;
+  
+  if (!domainRegex.test(trimmed) && !punycodeRegex.test(trimmed)) {
+    return { valid: false, error: "Invalid domain format" };
+  }
+  
+  // Check domain parts
+  const parts = trimmed.split('.');
+  for (const part of parts) {
+    if (part.length > 63) {
+      return { valid: false, error: "Domain labels cannot exceed 63 characters" };
+    }
+    if (part.startsWith('-') || part.endsWith('-')) {
+      return { valid: false, error: "Domain labels cannot start or end with hyphens" };
+    }
   }
   
   return { valid: true };
@@ -166,7 +215,13 @@ export function sanitizeInput(input: string): string {
     .trim()
     .replace(/[<>]/g, '') // Remove HTML tags
     .replace(/javascript:/gi, '') // Remove javascript: protocol
-    .replace(/on\w+\s*=/gi, ''); // Remove event handlers
+    .replace(/vbscript:/gi, '') // Remove vbscript: protocol
+    .replace(/data:text\/html/gi, '') // Remove data: protocol for HTML
+    .replace(/data:.*?script/gi, '') // Remove data: protocol with script
+    .replace(/on\w+\s*=/gi, '') // Remove event handlers
+    .replace(/&#/g, '') // Remove HTML entity encoding
+    .replace(/\\x[0-9a-fA-F]{2}/g, '') // Remove hex encoding
+    .replace(/\\u[0-9a-fA-F]{4}/g, ''); // Remove unicode encoding
 }
 
 /**
