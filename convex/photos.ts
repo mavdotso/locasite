@@ -25,7 +25,7 @@ export const getPhoto = httpAction(async (ctx, request) => {
     return new Response("Invalid width parameter", { status: 400 });
   }
   
-  const apiKey = convexEnv.GOOGLE_PLACES_API_KEY;
+  const apiKey = convexEnv.GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
     return new Response("Photo service unavailable", { status: 503 });
   }

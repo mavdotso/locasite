@@ -1584,13 +1584,11 @@ http.route({
 });
 
 // Photo proxy endpoint
+import { getPhoto } from "./photos";
 http.route({
   path: "/photos",
   method: "GET",
-  handler: httpAction(async (ctx, request) => {
-    const { getPhoto } = await import("./photos");
-    return getPhoto(ctx, request);
-  }),
+  handler: getPhoto,
 });
 
 export default http;

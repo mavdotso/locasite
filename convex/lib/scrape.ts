@@ -153,6 +153,11 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
       .slice(0, MAX_PHOTOS)
       .map((photo: GooglePlacePhoto) => photo.photo_reference);
 
+    // Convert photo references to proxy URLs
+    const photos = photoReferences.map(
+      (ref: string) => `/api/photos?ref=${encodeURIComponent(ref)}&width=800`
+    );
+    
     const businessData = {
       name: place.name || "",
       address: place.formatted_address || "",
@@ -166,7 +171,7 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
           rating: `${review.rating} stars`,
           text: review.text,
         })) || [],
-      photoReferences: photoReferences,
+      photos: photos,
       description:
         place.editorial_summary?.overview ||
         generateDefaultDescription(place.name, place.types?.[0]),
