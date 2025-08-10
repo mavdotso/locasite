@@ -84,24 +84,25 @@ export const sendVerificationEmail = action({
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const verificationUrl = `${appUrl}/verify-email?token=${token}&businessId=${args.businessId}`;
     
-    try {
-      await sendVerificationEmailUtil(
-        business.name,
-        business.email || '',
-        verificationUrl
-      );
-
+    const emailResult = await sendVerificationEmailUtil(
+      business.name,
+      business.email || '',
+      verificationUrl
+    );
+    
+    if (emailResult.success) {
+      logger.emailOperation('verification', business.email || '', true);
       return {
         success: true,
         message: "Verification email sent successfully",
         email: business.email,
       };
-    } catch (error) {
-      logger.emailOperation('verification', business.email || 'unknown', false, error as Error);
+    } else {
+      logger.emailOperation('verification', business.email || '', false, new Error(emailResult.error || 'Unknown error'));
       // Still return success if we updated the token, but indicate email might have failed
       return {
         success: true,
-        message: "Verification token generated. If you don't receive an email, please check your spam folder or request a new one.",
+        message: emailResult.error || "Verification token generated. If you don't receive an email, please check your spam folder or request a new one.",
         email: business.email,
       };
     }

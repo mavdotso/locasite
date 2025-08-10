@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { logger } from './logger';
+import { validateEmail } from './validation';
 
 // Initialize Resend client
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
@@ -106,7 +107,7 @@ Someone requested to claim the business "${businessName}" using the email addres
   };
 };
 
-// Send email function
+// Send email function with validation
 export async function sendEmail({
   to,
   subject,
@@ -117,7 +118,24 @@ export async function sendEmail({
   subject: string;
   html: string;
   text?: string;
-}) {
+}): Promise<{ success: boolean; id: string; error?: string }> {
+  // Validate email address
+  const emailValidation = validateEmail(to);
+  if (!emailValidation.valid) {
+    logger.warn(`Invalid email address: ${to}`, { metadata: { error: emailValidation.error } });
+    return { success: false, id: '', error: emailValidation.error };
+  }
+  
+  // Validate subject
+  if (!subject || subject.trim().length === 0) {
+    return { success: false, id: '', error: 'Email subject is required' };
+  }
+  
+  // Validate content
+  if (!html && !text) {
+    return { success: false, id: '', error: 'Email content is required' };
+  }
+  
   if (!resend) {
     logger.warn('Email service not configured. Please set RESEND_API_KEY environment variable.');
     // In development, log the email content instead
@@ -127,31 +145,57 @@ export async function sendEmail({
       });
       return { success: true, id: 'dev-mode-email' };
     }
-    throw new Error('Email service not configured');
+    return { success: false, id: '', error: 'Email service not configured' };
+  }
+
+  // Get from email from environment or use default for development
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 
+    (process.env.NODE_ENV === 'development' ? 'onboarding@resend.dev' : undefined);
+    
+  if (!fromEmail) {
+    logger.error('RESEND_FROM_EMAIL environment variable not set');
+    return { success: false, id: '', error: 'Email configuration error' };
   }
 
   try {
     const result = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
-      to,
-      subject,
+      from: fromEmail,
+      to: to.trim().toLowerCase(),
+      subject: subject.trim(),
       html,
       text,
     });
 
+    logger.info(`Email sent successfully to ${to}`, { 
+      metadata: { emailId: result.data?.id, subject } 
+    });
+    
     return { success: true, id: result.data?.id || 'unknown' };
   } catch (error) {
     logger.error('Failed to send email', error, { metadata: { to, subject } });
-    throw new Error('Failed to send email');
+    return { 
+      success: false, 
+      id: '', 
+      error: error instanceof Error ? error.message : 'Failed to send email' 
+    };
   }
 }
 
-// Send verification email
+// Send verification email with validation
 export async function sendVerificationEmail(
   businessName: string,
   businessEmail: string,
   verificationUrl: string
-) {
+): Promise<{ success: boolean; id: string; error?: string }> {
+  // Validate inputs
+  if (!businessName || businessName.trim().length === 0) {
+    return { success: false, id: '', error: 'Business name is required for verification email' };
+  }
+  
+  if (!verificationUrl || !verificationUrl.startsWith('http')) {
+    return { success: false, id: '', error: 'Invalid verification URL' };
+  }
+  
   const emailContent = getVerificationEmailTemplate(businessName, verificationUrl, businessEmail);
   
   return await sendEmail({

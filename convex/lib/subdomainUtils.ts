@@ -2,6 +2,12 @@
  * Utilities for subdomain generation and validation
  */
 
+// Constants
+const MIN_SUBDOMAIN_LENGTH = 3;
+const MAX_SUBDOMAIN_LENGTH = 63;
+const DEFAULT_MAX_SUGGESTIONS = 5;
+const MAX_NUMBERED_ATTEMPTS = 20;
+
 /**
  * Check if a subdomain is available
  * Returns the subdomain if available, or suggests alternatives
@@ -43,7 +49,7 @@ export async function checkSubdomainAvailability(
 async function generateSubdomainSuggestions(
   ctx: any,
   baseSubdomain: string,
-  maxSuggestions: number = 5
+  maxSuggestions: number = DEFAULT_MAX_SUGGESTIONS
 ): Promise<string[]> {
   const suggestions: string[] = [];
   const strategies = [
@@ -95,7 +101,7 @@ async function generateSubdomainSuggestions(
         .withIndex("by_subdomain", (q: any) => q.eq("subdomain", candidate))
         .first();
       
-      if (!existing && candidate.length >= 3 && candidate.length <= 63) {
+      if (!existing && candidate.length >= MIN_SUBDOMAIN_LENGTH && candidate.length <= MAX_SUBDOMAIN_LENGTH) {
         suggestions.push(candidate);
       }
     }
@@ -103,7 +109,7 @@ async function generateSubdomainSuggestions(
 
   // If we still don't have enough suggestions, add numbered versions
   let counter = 1;
-  while (suggestions.length < maxSuggestions && counter <= 20) {
+  while (suggestions.length < maxSuggestions && counter <= MAX_NUMBERED_ATTEMPTS) {
     const numbered = `${baseSubdomain}${counter}`;
     const existing = await ctx.db
       .query("domains")

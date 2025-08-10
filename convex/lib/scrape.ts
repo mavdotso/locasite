@@ -147,14 +147,11 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
 
     // Format the data - limit to first 5 photos to control API costs
     const MAX_PHOTOS = 5;
-    // TODO: Return only photo references instead of full URLs with API keys
-    // This would require frontend updates to use a browser-restricted key or proxy endpoint
-    const photos = (place.photos ?? [])
+    // Return only photo references to avoid exposing API key
+    // Frontend should use a browser-restricted key or proxy endpoint
+    const photoReferences = (place.photos ?? [])
       .slice(0, MAX_PHOTOS)
-      .map(
-        (photo: GooglePlacePhoto) =>
-          `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo.photo_reference}&key=${apiKey}`,
-      );
+      .map((photo: GooglePlacePhoto) => photo.photo_reference);
 
     const businessData = {
       name: place.name || "",
@@ -169,7 +166,7 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
           rating: `${review.rating} stars`,
           text: review.text,
         })) || [],
-      photos: photos,
+      photoReferences: photoReferences,
       description:
         place.editorial_summary?.overview ||
         generateDefaultDescription(place.name, place.types?.[0]),
