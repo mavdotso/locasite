@@ -40,10 +40,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch photo from Google Places API
-    const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${widthNum}&photoreference=${photoReference}&key=${apiKey}`;
+    // Fetch photo from Google Places API (encode all params safely)
+    const photoUrl = new URL('https://maps.googleapis.com/maps/api/place/photo');
+    photoUrl.searchParams.set('maxwidth', String(widthNum));
+    photoUrl.searchParams.set('photoreference', photoReference);
+    photoUrl.searchParams.set('key', apiKey);
     
-    const response = await fetch(photoUrl);
-    
+    const response = await fetch(photoUrl.toString(), { redirect: 'follow' });
     if (!response.ok) {
       console.error('Failed to fetch photo from Google Places API:', response.status);
       return NextResponse.json(
