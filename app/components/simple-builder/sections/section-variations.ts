@@ -1,9 +1,26 @@
 import { SectionVariation, SectionCategory } from "../types/simple-builder";
-import { 
-  getPlaceholderImage, 
-  getGalleryImages, 
-  getBeforeAfterImages 
-} from "@/app/lib/placeholder-images";
+// next.config.ts
+
+import { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "source.unsplash.com",
+        pathname: "**",
+      },
+    ],
+  },
+};
+
+export default nextConfig;
 
 // Helper function to generate unique IDs
 const generateId = () => Math.random().toString(36).substring(2, 9);
