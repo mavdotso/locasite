@@ -11,7 +11,13 @@ export async function GET(request: NextRequest) {
     if (!photoReference) {
       return NextResponse.json(
         { error: 'Photo reference is required' },
-        { status: 400 }
+        {
+          status: 400,
+          headers: {
+            'Access-Control-Allow-Origin': process.env.CLIENT_ORIGIN ?? '*',
+            'Vary': 'Origin',
+          },
+        }
       );
     }
 
