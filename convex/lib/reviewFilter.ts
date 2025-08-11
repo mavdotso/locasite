@@ -144,9 +144,10 @@ function calculateReviewScore(review: Review): number {
   }
   
   // Penalize low-quality indicators
-  const hasLowQualityIndicators = LOW_QUALITY_INDICATORS.some(indicator => 
-    lowerText.includes(indicator)
-  );
+  const wordBoundaryTerms = LOW_QUALITY_INDICATORS.filter(t => t !== '...');
+  const hasLowQualityIndicators =
+    new RegExp(`\\b(?:${wordBoundaryTerms.join('|')})\\b`, 'i').test(lowerText) ||
+    lowerText.includes('...');
   if (hasLowQualityIndicators) {
     score *= 0.7;
   }
