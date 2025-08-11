@@ -24,7 +24,24 @@ export const regenerateAIContentForBusiness = action({
     }
 
     try {
-      // Prepare business data for AI generation
+      // Filter reviews for quality if requested
+      let reviewsData = business.reviews;
+      let reviewStats = null;
+      
+      if (args.includeReviews && business.reviews && business.reviews.length > 0) {
+        // Filter reviews to get the best quality ones BEFORE AI generation
+        const filtered = filterReviews(business.reviews, 12);
+        reviewsData = filtered.map(r => ({
+          reviewer: r.reviewer,
+          rating: r.rating,
+          text: r.text
+        }));
+        
+        // Get review statistics
+        reviewStats = getReviewStats(business.reviews);
+      }
+
+      // Prepare business data for AI generation with filtered reviews
       const businessData: {
         name: string;
         address: string;
@@ -39,7 +56,7 @@ export const regenerateAIContentForBusiness = action({
         phone: business.phone,
         website: business.website,
         description: business.description,
-        reviews: business.reviews,
+        reviews: reviewsData, // Use filtered reviews
         rating: business.rating
       };
 
@@ -50,26 +67,6 @@ export const regenerateAIContentForBusiness = action({
 
       if (!contentResult.success) {
         throw new Error("Failed to generate AI content");
-      }
-
-      // Filter reviews for quality if requested
-      let reviewsData = business.reviews;
-      let reviewStats = null;
-      
-      if (args.includeReviews && business.reviews && business.reviews.length > 0) {
-        // Filter reviews to get the best quality ones
-        const filtered = filterReviews(business.reviews, 12);
-        reviewsData = filtered.map(r => ({
-          reviewer: r.reviewer,
-          rating: r.rating,
-          text: r.text
-        }));
-        
-        // Get review statistics
-        reviewStats = getReviewStats(business.reviews);
-        
-        // Update business data for AI generation with filtered reviews
-        businessData.reviews = reviewsData;
       }
 
       // Update the business with the new content

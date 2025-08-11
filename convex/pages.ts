@@ -632,19 +632,22 @@ export const create = mutation({
 
     if (existingPage) {
       // Update existing page instead
+      const now = Date.now();
       await ctx.db.patch(existingPage._id, {
         content: args.content,
         isPublished: args.isPublished ?? existingPage.isPublished,
+        lastEditedAt: now,
       });
       return existingPage._id;
     }
 
     // Create new page
+    const now = Date.now();
     const pageId = await ctx.db.insert("pages", {
       domainId: args.domainId,
       content: args.content,
       isPublished: args.isPublished ?? false,
-      lastEditedAt: Date.now(),
+      lastEditedAt: now,
     });
 
     return pageId;
@@ -691,9 +694,12 @@ export const update = mutation({
     }
 
     // Update the page
+    const now = Date.now();
+    
     await ctx.db.patch(page._id, {
       content: args.content,
       isPublished: args.isPublished ?? page.isPublished,
+      lastEditedAt: now,
     });
 
     return page._id;

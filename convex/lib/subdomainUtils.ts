@@ -23,7 +23,7 @@ export async function checkSubdomainAvailability(
   // Check if the base subdomain is available
   const existing = await ctx.db
     .query("domains")
-    .withIndex("by_subdomain", (q: any) => q.eq("subdomain", baseSubdomain))
+    .withIndex("by_subdomain", (q: any) => q.eq(q.field("subdomain"), baseSubdomain))
     .first();
 
   if (!existing) {
@@ -98,7 +98,7 @@ async function generateSubdomainSuggestions(
       // Check if this suggestion is available
       const existing = await ctx.db
         .query("domains")
-        .withIndex("by_subdomain", (q: any) => q.eq("subdomain", candidate))
+        .withIndex("by_subdomain", (q: any) => q.eq(q.field("subdomain"), candidate))
         .first();
       
       if (!existing && candidate.length >= MIN_SUBDOMAIN_LENGTH && candidate.length <= MAX_SUBDOMAIN_LENGTH) {
@@ -113,7 +113,7 @@ async function generateSubdomainSuggestions(
     const numbered = `${baseSubdomain}${counter}`;
     const existing = await ctx.db
       .query("domains")
-      .withIndex("by_subdomain", (q: any) => q.eq("subdomain", numbered))
+      .withIndex("by_subdomain", (q: any) => q.eq(q.field("subdomain"), numbered))
       .first();
     
     if (!existing) {

@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { query, mutation, internalMutation } from "./_generated/server";
 import { getUserFromAuth } from './lib/helpers';
 import { convexEnv } from './lib/env';
-import { generateUniqueSubdomain, validateSubdomain } from "./lib/subdomainUtils";
+import { validateSubdomain } from "./lib/subdomainUtils";
 
 // URL-friendly string converter (same logic as frontend)
 function toUrlFriendly(input: string, maxLength: number = 30): string {
@@ -84,15 +84,49 @@ export const generateSubdomain = mutation({
             }
         }
 
-        // Use the optimized subdomain generation
-        const subdomain = await generateUniqueSubdomain(ctx, baseSubdomain);
-
-        // Create the domain
-        const domainId = await ctx.db.insert("domains", {
-            name: business.name,
-            subdomain,
-            createdAt: Date.now()
-        });
+        // Use the optimized subdomain generation with retry logic for race conditions
+        let subdomain = baseSubdomain;
+        let domainId: any = null;
+        let attempts = 0;
+        const maxAttempts = 5;
+        
+        while (!domainId && attempts < maxAttempts) {
+            attempts++;
+            
+            // Check if subdomain is available
+            const existing = await ctx.db
+                .query("domains")
+                .withIndex("by_subdomain", q => q.eq("subdomain", subdomain))
+                .first();
+            
+            if (!existing) {
+                try {
+                    // Try to create the domain
+                    domainId = await ctx.db.insert("domains", {
+                        name: business.name,
+                        subdomain,
+                        createdAt: Date.now()
+                    });
+                } catch (error) {
+                    // If insertion failed, likely due to race condition
+                    // Generate a new subdomain and retry
+                    if (attempts < maxAttempts) {
+                        const { generateUniqueSubdomain } = await import("./lib/subdomainUtils");
+                        subdomain = await generateUniqueSubdomain(ctx, `${baseSubdomain}-${Date.now()}`);
+                    } else {
+                        throw new Error("Failed to create domain after multiple attempts. Please try again.");
+                    }
+                }
+            } else {
+                // Subdomain already taken, generate a new one
+                const { generateUniqueSubdomain } = await import("./lib/subdomainUtils");
+                subdomain = await generateUniqueSubdomain(ctx, baseSubdomain);
+            }
+        }
+        
+        if (!domainId) {
+            throw new Error("Failed to create domain. Please try again.");
+        }
 
         // Associate the domain with the business
         await ctx.db.patch(args.businessId, {
@@ -114,6 +148,8 @@ export const checkAvailability = query({
         if (!validation.valid) {
             return {
                 available: false,
+                subdomain, // The original subdomain that was checked
+                suggestedSubdomain: undefined, // No suggestion for invalid format
                 error: validation.error,
                 suggestions: []
             };
@@ -128,8 +164,9 @@ export const checkAvailability = query({
         if (!existing) {
             return {
                 available: true,
-                subdomain,
-                suggestions: []
+                subdomain, // The subdomain that was checked and is available
+                suggestedSubdomain: subdomain, // Same as subdomain since it's available
+                suggestions: [] // No alternatives needed since it's available
             };
         }
         
@@ -139,8 +176,9 @@ export const checkAvailability = query({
         
         return {
             available: false,
-            subdomain: result.subdomain,
-            suggestions: result.suggestions || []
+            subdomain: subdomain, // The original subdomain that was checked
+            suggestedSubdomain: result.suggestions?.[0] || `${subdomain}-${Date.now()}`, // The recommended alternative
+            suggestions: result.suggestions || [] // All available alternatives
         };
     }
 });

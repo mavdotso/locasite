@@ -339,6 +339,25 @@ export const internal_updateClaimStatus = internalMutation({
   },
 });
 
+// Internal mutation to update claim for resend verification
+export const internal_updateClaimForResend = internalMutation({
+  args: {
+    claimId: v.id("businessClaims"),
+    token: v.string(),
+    expiry: v.number(),
+    attempts: v.number(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.claimId, {
+      emailVerificationToken: args.token,
+      emailVerificationExpiry: args.expiry,
+      verificationAttempts: args.attempts,
+      magicLinkSent: true,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
 // Get all claims by a user with business details
 export const getClaimsByUser = query({
   args: {},

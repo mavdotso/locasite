@@ -6,6 +6,45 @@ export interface Review {
   text: string;
 }
 
+/**
+ * Parse rating from various string formats
+ * Handles formats like: "5", "5 stars", "5/5", "★★★★★", "Rated 5 out of 5", etc.
+ */
+function parseRating(ratingStr: string): number {
+  if (!ratingStr) return 0;
+  
+  // Handle star characters (★)
+  const starCount = (ratingStr.match(/★/g) || []).length;
+  if (starCount > 0) {
+    return Math.min(starCount, 5);
+  }
+  
+  // Handle "X out of Y" format
+  const outOfMatch = ratingStr.match(/(\d+)\s*(?:out\s*of|\/)\s*(\d+)/i);
+  if (outOfMatch) {
+    const numerator = parseInt(outOfMatch[1]);
+    const denominator = parseInt(outOfMatch[2]);
+    if (denominator > 0) {
+      // Normalize to 5-star scale
+      return Math.min(Math.round((numerator / denominator) * 5), 5);
+    }
+  }
+  
+  // Handle "X stars" or just "X" format
+  // Look for a number followed by optional "star(s)" or at the beginning/end of string
+  const simpleMatch = ratingStr.match(/\b(\d+)\s*(?:star|★)?/i);
+  if (simpleMatch) {
+    const rating = parseInt(simpleMatch[1]);
+    // Ensure it's within reasonable bounds (1-5)
+    if (rating >= 1 && rating <= 5) {
+      return rating;
+    }
+  }
+  
+  // Default to 3 if we can't parse
+  return 3;
+}
+
 export interface FilteredReview extends Review {
   score: number;
   relevance: number;
@@ -69,9 +108,8 @@ export function filterReviews(reviews: Review[], maxReviews: number = 10): Filte
 function calculateReviewScore(review: Review): number {
   let score = 0;
   
-  // Parse rating (assuming format like "5 stars" or just "5")
-  const ratingMatch = review.rating.match(/(\d+)/);
-  const rating = ratingMatch ? parseInt(ratingMatch[1]) : 3;
+  // Parse rating using improved parser
+  const rating = parseRating(review.rating);
   
   // Base score from rating (normalized to 0-0.3)
   score += (rating / 5) * 0.3;
@@ -159,8 +197,7 @@ function balanceRatings(
   const byRating = new Map<number, FilteredReview[]>();
   
   allScoredReviews.forEach(review => {
-    const ratingMatch = review.rating.match(/(\d+)/);
-    const rating = ratingMatch ? parseInt(ratingMatch[1]) : 3;
+    const rating = parseRating(review.rating);
     if (!byRating.has(rating)) {
       byRating.set(rating, []);
     }
@@ -169,7 +206,7 @@ function balanceRatings(
   
   // If we have mostly high ratings, try to include some lower ones for balance
   const highRatingCount = filteredReviews.filter(r => {
-    const rating = parseInt(r.rating.match(/(\d+)/)?.[1] || '0');
+    const rating = parseRating(r.rating);
     return rating >= 4;
   }).length;
   
@@ -180,7 +217,7 @@ function balanceRatings(
     // Add some mid-range reviews
     const midRangeReviews = allScoredReviews
       .filter(r => {
-        const rating = parseInt(r.rating.match(/(\d+)/)?.[1] || '0');
+        const rating = parseRating(r.rating);
         return rating === 3 && r.helpful && r.score > 0.2;
       })
       .slice(0, Math.floor(maxReviews * 0.3));
@@ -207,19 +244,20 @@ export function getReviewStats(reviews: Review[]) {
   
   const ratingDistribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
   let totalRating = 0;
+  let validRatingCount = 0;
   
   reviews.forEach(review => {
-    const ratingMatch = review.rating.match(/(\d+)/);
-    const rating = ratingMatch ? parseInt(ratingMatch[1]) : 0;
+    const rating = parseRating(review.rating);
     if (rating >= 1 && rating <= 5) {
       ratingDistribution[rating as keyof typeof ratingDistribution]++;
       totalRating += rating;
+      validRatingCount++;
     }
   });
   
   return {
     totalReviews: reviews.length,
-    averageRating: totalRating / reviews.length,
+    averageRating: validRatingCount > 0 ? totalRating / validRatingCount : 0,
     ratingDistribution
   };
 }

@@ -476,7 +476,9 @@ async function verifyDnsRecords(
     }
 
     if (!txtVerified) {
-      console.log(`TXT verification failed for ${domain}`);
+      logger.domainOperation('dns_verification', domain, false, { 
+        reason: 'TXT record verification failed' 
+      });
       return false;
     }
 
@@ -514,9 +516,10 @@ async function verifyDnsRecords(
       }
     }
 
-    console.log(
-      `DNS verification for ${domain}: TXT=${txtVerified}, CNAME/A=${cnameVerified}`,
-    );
+    logger.domainOperation('dns_verification', domain, txtVerified && cnameVerified, {
+      txtVerified,
+      cnameVerified
+    });
     return txtVerified && cnameVerified;
   } catch (error) {
     logger.domainOperation('dns_verification', domain, false, { error: String(error) });

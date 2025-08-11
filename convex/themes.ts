@@ -99,13 +99,19 @@ export const getPresetById = query({
   },
   handler: async (ctx, args) => {
     // Find a preset theme by its name/id
-    const themes = await ctx.db
+    // Optimized: filter by name in the query instead of collecting all themes
+    const theme = await ctx.db
       .query("themes")
       .withIndex("by_preset")
-      .filter((q) => q.eq(q.field("isPreset"), true))
-      .collect();
+      .filter((q) => 
+        q.and(
+          q.eq(q.field("isPreset"), true),
+          q.eq(q.field("name"), args.presetId)
+        )
+      )
+      .first();
     
-    return themes.find(theme => theme.name === args.presetId) || null;
+    return theme || null;
   },
 });
 

@@ -15,6 +15,19 @@ function maskEmail(email: string): string {
   return `${maskedLocal}@${domain}`;
 }
 
+// Helper function to escape HTML entities to prevent XSS
+function escapeHtml(text: string): string {
+  const htmlEntities: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+    '/': '&#x2F;'
+  };
+  return text.replace(/[&<>"'\/]/g, (char) => htmlEntities[char] || char);
+}
+
 // Email template for verification
 const getVerificationEmailTemplate = (businessName: string, verificationUrl: string, businessEmail: string) => {
   return {
@@ -78,20 +91,20 @@ const getVerificationEmailTemplate = (businessName: string, verificationUrl: str
             
             <p>Hello,</p>
             
-            <p>You've requested to claim ownership of <strong>${businessName}</strong> on our platform.</p>
+            <p>You've requested to claim ownership of <strong>${escapeHtml(businessName)}</strong> on our platform.</p>
             
             <p>To complete the verification process and gain full control of your business listing, please click the button below:</p>
             
-            <a href="${verificationUrl}" class="button">Verify Email Address</a>
+            <a href="${escapeHtml(verificationUrl)}" class="button">Verify Email Address</a>
             
             <p>Or copy and paste this link into your browser:</p>
-            <p class="link">${verificationUrl}</p>
+            <p class="link">${escapeHtml(verificationUrl)}</p>
             
             <p>This verification link will expire in 24 hours for security reasons.</p>
             
             <div class="footer">
               <p><strong>Why am I receiving this?</strong></p>
-              <p>Someone requested to claim the business "${businessName}" using the email address ${businessEmail}. If this wasn't you, you can safely ignore this email.</p>
+              <p>Someone requested to claim the business "${escapeHtml(businessName)}" using the email address ${escapeHtml(businessEmail)}. If this wasn't you, you can safely ignore this email.</p>
               <p>This link will expire and no changes will be made to the business listing.</p>
             </div>
           </div>

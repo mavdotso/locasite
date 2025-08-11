@@ -4,6 +4,7 @@ import { getUserFromAuth } from "./lib/helpers";
 import { internal } from "./_generated/api";
 import { sendVerificationEmail as sendVerificationEmailUtil } from "./lib/email";
 import { logger } from "./lib/logger";
+import { convexEnv } from "./lib/env";
 
 // Generate a cryptographically secure verification token
 function generateVerificationToken(): string {
@@ -80,7 +81,7 @@ export const sendVerificationEmail = action({
     );
 
     // Send verification email
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const appUrl = convexEnv.NEXT_PUBLIC_APP_URL;
     const verificationUrl = `${appUrl}/verify-email?token=${token}&businessId=${args.businessId}`;
     
     const emailResult = await sendVerificationEmailUtil(
@@ -171,22 +172,21 @@ export const verifyEmailToken = mutation({
 });
 
 // Resend verification email
-export const resendVerificationEmail = mutation({
+export const resendVerificationEmail = action({
   args: {
     claimId: v.id("businessClaims"),
   },
-  handler: async (ctx, args) => {
-    const user = await getUserFromAuth(ctx);
+  handler: async (ctx, args): Promise<{ success: boolean; message: string; attemptsRemaining: number }> => {
+    // Get the claim details
+    const claim = await ctx.runQuery(
+      internal.businessClaims.internal_getClaimById,
+      {
+        claimId: args.claimId,
+      },
+    );
 
-    const claim = await ctx.db.get(args.claimId);
     if (!claim) {
       throw new Error("Claim not found");
-    }
-
-    if (claim.userId !== user._id) {
-      throw new Error(
-        "You don't have permission to resend verification for this claim",
-      );
     }
 
     if (claim.status !== "pending") {
@@ -201,24 +201,58 @@ export const resendVerificationEmail = mutation({
       );
     }
 
-    // Update attempts count
-    await ctx.db.patch(args.claimId, {
-      verificationAttempts: attempts + 1,
-      updatedAt: Date.now(),
-    });
+    // Generate a new verification token
+    const token = generateVerificationToken();
+    const expiry = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
 
-    // Send new verification email - schedule it to run immediately
-    // Note: sendVerificationEmail is an action, not internal mutation
-    // We'll need to trigger it differently or just indicate it should be resent
-    await ctx.db.patch(args.claimId, {
-      magicLinkSent: false, // Mark as needing resend
-    });
+    // Update claim with new token and increment attempts
+    await ctx.runMutation(
+      internal.businessClaims.internal_updateClaimForResend,
+      {
+        claimId: args.claimId,
+        token,
+        expiry,
+        attempts: attempts + 1,
+      },
+    );
 
-    return {
-      success: true,
-      message: "Verification email resent",
-      attemptsRemaining: 5 - (attempts + 1),
-    };
+    // Get business details
+    const business = await ctx.runQuery(
+      internal.businesses.internal_getBusinessById,
+      {
+        id: claim.businessId,
+      },
+    );
+
+    if (!business) {
+      throw new Error("Business not found");
+    }
+
+    // Send verification email with new token
+    const appUrl = convexEnv.NEXT_PUBLIC_APP_URL;
+    const verificationUrl = `${appUrl}/verify-email?token=${token}&businessId=${claim.businessId}`;
+    
+    const emailResult = await sendVerificationEmailUtil(
+      business.name,
+      business.email || '',
+      verificationUrl
+    );
+    
+    if (emailResult.success) {
+      logger.emailOperation('resend_verification', business.email || '', true);
+      return {
+        success: true,
+        message: "Verification email resent successfully",
+        attemptsRemaining: 5 - (attempts + 1),
+      };
+    } else {
+      logger.emailOperation('resend_verification', business.email || '', false, new Error(emailResult.error || 'Unknown error'));
+      return {
+        success: false,
+        message: emailResult.error || "Failed to resend verification email. Please try again.",
+        attemptsRemaining: 5 - (attempts + 1),
+      };
+    }
   },
 });
 
