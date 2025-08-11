@@ -176,17 +176,46 @@ export async function sendEmail({
       text,
     });
 
+    // Check if the response contains an error (non-throwing errors)
+    if (result.error || !result.data) {
+      logger.error('Email send failed with provider error', 
+        new Error(result.error?.message || 'Unknown provider error'), 
+        { 
+          metadata: { 
+            to: maskEmail(to), 
+            subject,
+            errorName: result.error?.name,
+            errorMessage: result.error?.message 
+          } 
+        }
+      );
+      // Return generic error message to avoid leaking provider details
+      return { 
+        success: false, 
+        id: '', 
+        error: 'Failed to send email. Please try again later.' 
+      };
+    }
+
     logger.info(`Email sent successfully to ${maskEmail(to)}`, { 
-      metadata: { emailId: result.data?.id, subject } 
+      metadata: { emailId: result.data.id, subject } 
     });
     
-    return { success: true, id: result.data?.id || 'unknown' };
+    return { success: true, id: result.data.id || 'unknown' };
   } catch (error) {
-    logger.error('Failed to send email', error as Error, { metadata: { to: maskEmail(to), subject } });
+    // Log detailed error internally
+    logger.error('Failed to send email - exception thrown', error as Error, { 
+      metadata: { 
+        to: maskEmail(to), 
+        subject,
+        errorDetails: error instanceof Error ? error.stack : String(error)
+      } 
+    });
+    // Return generic error message to avoid leaking sensitive details
     return { 
       success: false, 
       id: '', 
-      error: error instanceof Error ? error.message : 'Failed to send email' 
+      error: 'Failed to send email. Please try again later.' 
     };
   }
 }
@@ -203,8 +232,9 @@ export async function sendVerificationEmail(
   }
   
   // Validate verification URL
+  let canonicalUrl: URL;
   try {
-    const url = new URL(verificationUrl);
+    canonicalUrl = new URL(verificationUrl);
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL;
     
     if (!appUrl) {
@@ -212,18 +242,33 @@ export async function sendVerificationEmail(
     }
     
     const expectedHost = new URL(appUrl).host;
-    if (url.host !== expectedHost) {
-      return { success: false, id: '', error: `Invalid verification URL - host mismatch (expected ${expectedHost}, got ${url.host})` };
+    if (canonicalUrl.host !== expectedHost) {
+      return { success: false, id: '', error: `Invalid verification URL - host mismatch` };
     }
     
-    if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+    // Enforce HTTPS in production, allow HTTP only in development
+    const isProduction = process.env.NODE_ENV === 'production';
+    const isDevelopment = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
+    
+    if (isProduction && canonicalUrl.protocol !== 'https:') {
+      return { success: false, id: '', error: 'Verification URL must use HTTPS in production' };
+    }
+    
+    if (canonicalUrl.protocol !== 'https:' && canonicalUrl.protocol !== 'http:') {
       return { success: false, id: '', error: 'Invalid verification URL protocol' };
+    }
+    
+    // Allow HTTP only in development/test environments
+    if (canonicalUrl.protocol === 'http:' && !isDevelopment) {
+      return { success: false, id: '', error: 'HTTP protocol is only allowed in development' };
     }
   } catch (error) {
     return { success: false, id: '', error: 'Invalid verification URL format' };
   }
   
-  const emailContent = getVerificationEmailTemplate(businessName, verificationUrl, businessEmail);
+  // Use the canonical URL string from the validated URL object
+  const canonicalUrlString = canonicalUrl.toString();
+  const emailContent = getVerificationEmailTemplate(businessName, canonicalUrlString, businessEmail);
   
   return await sendEmail({
     to: businessEmail,
