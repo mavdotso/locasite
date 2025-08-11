@@ -138,8 +138,33 @@ export const internal_updateBusiness = internalMutation({
           logoUrl: v.optional(v.string()),
         }),
       ),
-      themeId: v.optional(v.id("themes")),
-    }),
+   handler: async (ctx, args) => {
+     const updates = { ...args.business };
+
+     // Strip out undefined values
+     Object.keys(updates).forEach((key) => {
+       if (updates[key as keyof typeof updates] === undefined) {
+         delete updates[key as keyof typeof updates];
+       }
+     });
+
+     // If themeId is provided, enforce referential integrity and a single source of truth
+     if ("themeId" in updates) {
+       const themeId = updates.themeId as Id<"themes">;
+       const theme = await ctx.db.get(themeId);
+       if (!theme) {
+         throw new Error("Invalid themeId: theme not found");
+       }
+       // Allow attaching presets or a custom theme that belongs to this business
+       if (!theme.isPreset && theme.businessId !== args.id) {
+         throw new Error("Theme does not belong to this business");
+       }
+       // Prevent conflicts if both theme and themeId are provided
+       delete (updates as any).theme;
+     }
+
+     return await ctx.db.patch(args.id, updates);
+   },
   },
   handler: async (ctx, args) => {
     const updates = { ...args.business };
