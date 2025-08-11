@@ -65,7 +65,8 @@ export async function GET(request: NextRequest) {
       headers: {
         'Content-Type': contentType,
         'Cache-Control': 'public, max-age=86400, s-maxage=86400', // Cache for 24 hours
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': process.env.CLIENT_ORIGIN ?? '*',
+        'Vary': 'Origin',
       },
     });
   } catch (error) {
