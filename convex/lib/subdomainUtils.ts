@@ -86,40 +86,56 @@ async function generateSubdomainSuggestions(
     }
   ];
 
-  // Try each strategy and check availability
+  // Collect all candidates from all strategies first
+  const allCandidates: string[] = [];
   for (const strategy of strategies) {
-    const candidates = strategy();
-    
-    for (const candidate of candidates) {
-      if (suggestions.length >= maxSuggestions) {
-        return suggestions;
-      }
-      
-      // Check if this suggestion is available
-      const existing = await ctx.db
-        .query("domains")
-        .withIndex("by_subdomain", (q: any) => q.eq(q.field("subdomain"), candidate))
-        .first();
-      
-      if (!existing && candidate.length >= MIN_SUBDOMAIN_LENGTH && candidate.length <= MAX_SUBDOMAIN_LENGTH) {
-        suggestions.push(candidate);
-      }
+    const candidates = strategy()
+      .filter(c => c.length >= MIN_SUBDOMAIN_LENGTH && c.length <= MAX_SUBDOMAIN_LENGTH);
+    allCandidates.push(...candidates);
+  }
+  
+  // Batch check availability for all candidates at once
+  const availabilityPromises = allCandidates.map(async (candidate) => {
+    const existing = await ctx.db
+      .query("domains")
+      .withIndex("by_subdomain", (q: any) => q.eq(q.field("subdomain"), candidate))
+      .first();
+    return { candidate, available: !existing };
+  });
+  
+  // Process results and collect available suggestions
+  const results = await Promise.all(availabilityPromises);
+  for (const { candidate, available } of results) {
+    if (available && suggestions.length < maxSuggestions) {
+      suggestions.push(candidate);
+    }
+    if (suggestions.length >= maxSuggestions) {
+      return suggestions;
     }
   }
 
   // If we still don't have enough suggestions, add numbered versions
-  let counter = 1;
-  while (suggestions.length < maxSuggestions && counter <= MAX_NUMBERED_ATTEMPTS) {
-    const numbered = `${baseSubdomain}${counter}`;
-    const existing = await ctx.db
-      .query("domains")
-      .withIndex("by_subdomain", (q: any) => q.eq(q.field("subdomain"), numbered))
-      .first();
-    
-    if (!existing) {
-      suggestions.push(numbered);
+  if (suggestions.length < maxSuggestions) {
+    const numberedCandidates: string[] = [];
+    for (let counter = 1; counter <= MAX_NUMBERED_ATTEMPTS && numberedCandidates.length < (maxSuggestions - suggestions.length); counter++) {
+      numberedCandidates.push(`${baseSubdomain}${counter}`);
     }
-    counter++;
+    
+    // Batch check numbered candidates
+    const numberedPromises = numberedCandidates.map(async (candidate) => {
+      const existing = await ctx.db
+        .query("domains")
+        .withIndex("by_subdomain", (q: any) => q.eq(q.field("subdomain"), candidate))
+        .first();
+      return { candidate, available: !existing };
+    });
+    
+    const numberedResults = await Promise.all(numberedPromises);
+    for (const { candidate, available } of numberedResults) {
+      if (available && suggestions.length < maxSuggestions) {
+        suggestions.push(candidate);
+      }
+    }
   }
 
   return suggestions;

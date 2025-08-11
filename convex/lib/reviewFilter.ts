@@ -124,9 +124,17 @@ function calculateReviewScore(review: Review): number {
   
   // Quality keyword score (0-0.2)
   const lowerText = review.text.toLowerCase();
-  const qualityKeywordCount = QUALITY_KEYWORDS.filter(keyword => 
-    lowerText.includes(keyword)
-  ).length;
+  // Use word boundaries to avoid false positives like "not recommend"
+  const qualityKeywordCount = QUALITY_KEYWORDS.filter(keyword => {
+    // Create regex with word boundaries and check for negation
+    const regex = new RegExp(`\\b${keyword}\\b`, 'i');
+    const match = regex.test(review.text);
+    if (!match) return false;
+    
+    // Check if preceded by negation within 3 words
+    const negationRegex = new RegExp(`\\b(not|no|never|don't|doesn't|didn't|won't|wouldn't|couldn't|shouldn't)\\s+(?:\\w+\\s+){0,2}${keyword}\\b`, 'i');
+    return !negationRegex.test(review.text);
+  }).length;
   score += Math.min(qualityKeywordCount * 0.05, 0.2);
   
   // Specificity score (mentions specific services, staff, etc.) (0-0.2)
@@ -177,9 +185,15 @@ function isHelpfulReview(review: Review): boolean {
   }
   
   // Check for all caps (might be spam or low quality)
-  const upperCaseRatio = (review.text.match(/[A-Z]/g) || []).length / review.text.length;
-  if (upperCaseRatio > 0.8 && review.text.length > 10) {
-    return false;
+  // Calculate ratio based on alphabetic characters only
+  const letters = review.text.match(/[a-zA-Z]/g) || [];
+  const upperCaseLetters = review.text.match(/[A-Z]/g) || [];
+  
+  if (letters.length > 10) {
+    const upperCaseRatio = upperCaseLetters.length / letters.length;
+    if (upperCaseRatio > 0.8) {
+      return false;
+    }
   }
   
   return true;

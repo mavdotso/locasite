@@ -34,7 +34,17 @@ class Logger {
     const timestamp = new Date().toISOString();
     const baseLog = `[${timestamp}] [${level}] ${message}`;
     
-    const contextStr = context ? ` | Context: ${JSON.stringify(context)}` : '';
+    // Safely stringify context to handle circular references
+    let contextStr = '';
+    if (context) {
+      try {
+        contextStr = ` | Context: ${JSON.stringify(context)}`;
+      } catch (e) {
+        // Fallback for circular references or other stringify errors
+        contextStr = ` | Context: [Unserializable: ${Object.keys(context).join(', ')}]`;
+      }
+    }
+    
     const errorStr = error ? ` | Error: ${error.message} | Stack: ${error.stack}` : '';
     
     return `${baseLog}${contextStr}${errorStr}`;

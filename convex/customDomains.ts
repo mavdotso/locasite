@@ -128,9 +128,11 @@ export const addCustomDomain = mutation({
       ? await ctx.db.get(business.domainId)
       : null;
 
+    // Generate token once to ensure consistency
+    const token = generateVerificationToken();
+    
     if (!domainRecord) {
       // Create new domain record
-      const token = generateVerificationToken();
       const domainId = await ctx.db.insert("domains", {
         name: business.name,
         subdomain: business.name.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
@@ -154,7 +156,6 @@ export const addCustomDomain = mutation({
       };
     } else {
       // Update existing domain record
-      const token = generateVerificationToken();
       await ctx.db.patch(domainRecord._id, {
         customDomain: domain,
         domainType: "custom",

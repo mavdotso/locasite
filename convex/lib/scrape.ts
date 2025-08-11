@@ -49,8 +49,8 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
           status: 429,
           headers: {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
-            Vary: "origin",
+            "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
+            "Vary": "Origin",
           },
         },
       );
@@ -65,8 +65,8 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
           status: 400,
           headers: {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
-            Vary: "origin",
+            "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
+            "Vary": "Origin",
           },
         },
       );
@@ -93,8 +93,8 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
           status: 400,
           headers: {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
-            Vary: "origin",
+            "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
+            "Vary": "Origin",
           },
         },
       );
@@ -116,8 +116,8 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
           status: 404,
           headers: {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
-            Vary: "origin",
+            "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
+            "Vary": "Origin",
           },
         },
       );
@@ -224,8 +224,8 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
         status: ok ? 200 : 500,
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN,
-          Vary: "origin",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
+          "Vary": "Origin",
         },
       },
     );
@@ -238,8 +238,8 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
         status: 500,
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN || "*",
-          Vary: "origin",
+          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
+          "Vary": "Origin",
         },
       },
     );
