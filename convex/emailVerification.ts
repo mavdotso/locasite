@@ -111,14 +111,22 @@ export const sendVerificationEmail = action({
         success: true,
         message: "Verification email sent successfully",
         email: recipientEmail,
+        emailSent: true,
       };
     } else {
-      logger.emailOperation('verification', recipientEmail, false, new Error(emailResult.error || 'Unknown error'));
-      // Still return success if we updated the token, but indicate email might have failed
+      logger.emailOperation(
+        'verification',
+        recipientEmail,
+        false,
+        new Error(emailResult.error || 'Unknown error')
+      );
       return {
-        success: true,
-        message: emailResult.error || "Verification token generated. If you don't receive an email, please check your spam folder or request a new one.",
+        success: false,
+        message:
+          emailResult.error ||
+          "Verification token generated. If you don't receive an email, please check your spam folder or request a new one.",
         email: recipientEmail,
+        emailSent: false,
       };
     }
   },
