@@ -27,6 +27,7 @@ export const regenerateAIContentForBusiness = action({
       // Filter reviews for quality if requested
       let reviewsData = business.reviews;
       let reviewStats = null;
+      let actuallyFilteredReviews = false;
       
       if (args.includeReviews && business.reviews && business.reviews.length > 0) {
         // Filter reviews to get the best quality ones BEFORE AI generation
@@ -36,6 +37,7 @@ export const regenerateAIContentForBusiness = action({
           rating: r.rating,
           text: r.text
         }));
+        actuallyFilteredReviews = true; // We actually performed filtering
         
         // Get review statistics
         reviewStats = getReviewStats(business.reviews);
@@ -81,7 +83,7 @@ export const regenerateAIContentForBusiness = action({
         success: true, 
         content: contentResult.content,
         businessCategory: contentResult.businessCategory,
-        reviewsFiltered: args.includeReviews || false
+        reviewsFiltered: actuallyFilteredReviews
       };
     } catch (error) {
       

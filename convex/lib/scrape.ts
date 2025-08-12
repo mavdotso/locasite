@@ -26,8 +26,13 @@ interface GooglePlacePhoto {
 }
 
 export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
+  let requestUrl: string | undefined;
+  let requestPreview: boolean = false;
+  
   try {
     const { url, preview = false } = await request.json();
+    requestUrl = url;
+    requestPreview = preview;
 
     // Apply rate limiting for all unauthenticated requests
     // Use different limits for preview vs full creation
@@ -35,7 +40,7 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
     const xff = request.headers.get("x-forwarded-for") || "";
     const cfIp = request.headers.get("cf-connecting-ip") || "";
     const identifier = xff.split(",")[0]?.trim() || cfIp || "anonymous";
-    const rateLimitKey = preview ? "previewScrape" : "businessCreation";
+    const rateLimitKey = requestPreview ? "previewScrape" : "businessCreation";
     const status = await rateLimiter.limit(ctx, rateLimitKey, {
       key: identifier,
     });
@@ -56,7 +61,7 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
       );
     }
 
-    if (!url || !url.includes("google.com/maps")) {
+    if (!requestUrl || !requestUrl.includes("google.com/maps")) {
       return new Response(
         JSON.stringify({
           error: "Invalid URL. Please provide a Google Maps URL.",
@@ -73,14 +78,14 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
     }
 
     // Extract business name from URL
-    const nameMatch = url.match(/place\/([^/@]+)/);
+    const nameMatch = requestUrl.match(/place\/([^/@]+)/);
     let businessName = nameMatch
       ? decodeURIComponent(nameMatch[1].replace(/\+/g, " "))
       : null;
 
     // Try alternative pattern for complex URLs
     if (!businessName) {
-      const complexMatch = url.match(/maps\/place\/([^/@?]+)/);
+      const complexMatch = requestUrl.match(/maps\/place\/([^/@?]+)/);
       if (complexMatch) {
         businessName = decodeURIComponent(complexMatch[1].replace(/\+/g, " "));
       }
@@ -206,7 +211,13 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
       businessId = result.businessId;
     } catch (error) {
       logger.error("Error creating business from Google Maps", error, {
-        metadata: { placeId }
+        metadata: { 
+          placeId,
+          businessName: place.name,
+          preview: false,
+          identifier,
+          category: place.types?.[0]
+        }
       });
     }
 
@@ -230,6 +241,14 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
       },
     );
   } catch (error) {
+    logger.error("Failed to scrape Google Maps", error, {
+      metadata: {
+        url: requestUrl || 'unknown',
+        preview: requestPreview,
+        action: 'scrapeGoogleMaps'
+      }
+    });
+    
     return new Response(
       JSON.stringify({
         error: "Failed to fetch business data from Google Places API.",

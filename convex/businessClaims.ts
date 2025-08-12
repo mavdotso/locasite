@@ -345,16 +345,26 @@ export const internal_updateClaimForResend = internalMutation({
     claimId: v.id("businessClaims"),
     token: v.string(),
     expiry: v.number(),
-    attempts: v.number(),
   },
   handler: async (ctx, args) => {
+    // Get current claim to atomically increment attempts
+    const claim = await ctx.db.get(args.claimId);
+    if (!claim) {
+      throw new Error("Claim not found");
+    }
+    
+    // Atomically increment attempts
+    const newAttempts = (claim.verificationAttempts || 0) + 1;
+    
     await ctx.db.patch(args.claimId, {
       emailVerificationToken: args.token,
       emailVerificationExpiry: args.expiry,
-      verificationAttempts: args.attempts,
+      verificationAttempts: newAttempts,
       magicLinkSent: true,
       updatedAt: Date.now(),
     });
+    
+    return { attempts: newAttempts };
   },
 });
 

@@ -554,16 +554,6 @@ export const listByDomain = query({
 });
 
 // Get homepage by domain
-export const getHomepageByDomain = query({
-  args: { domainId: v.id("domains") },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query("pages")
-      .withIndex("by_domain", (q) => q.eq("domainId", args.domainId))
-      .first();
-  },
-});
-
 export const getByDomainId = query({
   args: {
     domainId: v.id("domains"),
@@ -633,12 +623,14 @@ export const create = mutation({
     if (existingPage) {
       // Update existing page instead
       const now = Date.now();
-      await ctx.db.patch(existingPage._id, {
+      const pageId = existingPage._id;
+      await ctx.db.patch(pageId, {
         content: args.content,
         isPublished: args.isPublished ?? existingPage.isPublished,
         lastEditedAt: now,
       });
-      return existingPage._id;
+      // Captured pageId for consistency and potential logging
+      return pageId;
     }
 
     // Create new page

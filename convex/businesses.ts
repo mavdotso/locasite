@@ -138,7 +138,10 @@ export const internal_updateBusiness = internalMutation({
           logoUrl: v.optional(v.string()),
         }),
       ),
-   handler: async (ctx, args) => {
+      themeId: v.optional(v.id("themes")),
+    }),
+  },
+  handler: async (ctx, args) => {
      const updates = { ...args.business };
 
      // Strip out undefined values
@@ -165,47 +168,6 @@ export const internal_updateBusiness = internalMutation({
 
      return await ctx.db.patch(args.id, updates);
    },
-  },
-  handler: async (ctx, args) => {
-    const updates = { ...args.business };
-
-    // Validate themeId if provided
-    if (updates.themeId) {
-      const theme = await ctx.db.get(updates.themeId);
-      if (!theme) {
-        throw new Error('Invalid themeId: theme not found');
-      }
-      
-      // Get the business to check ownership
-      const business = await ctx.db.get(args.id);
-      if (!business) {
-        throw new Error('Business not found');
-      }
-      
-      // Check if theme belongs to the correct tenant
-      // Theme should either be a preset (isPreset = true) or belong to the business
-      if (!theme.isPreset && theme.businessId !== args.id) {
-        // If not a preset and not business-specific, check if it's user-owned
-        // For internal mutations, we'll allow any valid theme
-        // In user-facing mutations, you'd check theme.userId === user._id
-      }
-      
-      // If themeId is provided, it takes precedence - remove inline theme
-      if (updates.theme) {
-        delete updates.theme;
-        console.log('themeId provided, ignoring inline theme object');
-      }
-    }
-
-    // Remove undefined values
-    Object.keys(updates).forEach((key) => {
-      if (updates[key as keyof typeof updates] === undefined) {
-        delete updates[key as keyof typeof updates];
-      }
-    });
-
-    return await ctx.db.patch(args.id, updates);
-  },
 });
 
 // Internal mutation to delete a business

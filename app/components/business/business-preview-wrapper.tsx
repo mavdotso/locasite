@@ -115,7 +115,7 @@ export function BusinessPreviewWrapper({
   );
 
   const page = useQuery(
-    api.pages.getHomepageByDomain,
+    api.pages.getByDomainId,
     domain ? { domainId: domain._id } : "skip",
   );
 

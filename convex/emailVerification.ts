@@ -84,26 +84,32 @@ export const sendVerificationEmail = action({
     const appUrl = convexEnv.NEXT_PUBLIC_APP_URL;
     const verificationUrl = `${appUrl}/verify-email?token=${token}&businessId=${args.businessId}`;
     
+    // Check if business has email
+    if (!business.email) {
+      throw new Error("No email address available for verification");
+    }
+    const recipientEmail = business.email;
+    
     const emailResult = await sendVerificationEmailUtil(
       business.name,
-      business.email || '',
+      recipientEmail,
       verificationUrl
     );
     
     if (emailResult.success) {
-      logger.emailOperation('verification', business.email || '', true);
+      logger.emailOperation('verification', recipientEmail, true);
       return {
         success: true,
         message: "Verification email sent successfully",
-        email: business.email,
+        email: recipientEmail,
       };
     } else {
-      logger.emailOperation('verification', business.email || '', false, new Error(emailResult.error || 'Unknown error'));
+      logger.emailOperation('verification', recipientEmail, false, new Error(emailResult.error || 'Unknown error'));
       // Still return success if we updated the token, but indicate email might have failed
       return {
         success: true,
         message: emailResult.error || "Verification token generated. If you don't receive an email, please check your spam folder or request a new one.",
-        email: business.email,
+        email: recipientEmail,
       };
     }
   },
@@ -205,16 +211,17 @@ export const resendVerificationEmail = action({
     const token = generateVerificationToken();
     const expiry = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
 
-    // Update claim with new token and increment attempts
-    await ctx.runMutation(
+    // Update claim with new token (attempts incremented atomically)
+    const updateResult = await ctx.runMutation(
       internal.businessClaims.internal_updateClaimForResend,
       {
         claimId: args.claimId,
         token,
         expiry,
-        attempts: attempts + 1,
       },
     );
+    
+    const newAttempts = updateResult.attempts;
 
     // Get business details
     const business = await ctx.runQuery(
@@ -232,25 +239,31 @@ export const resendVerificationEmail = action({
     const appUrl = convexEnv.NEXT_PUBLIC_APP_URL;
     const verificationUrl = `${appUrl}/verify-email?token=${token}&businessId=${claim.businessId}`;
     
+    // Check if business has email
+    if (!business.email) {
+      throw new Error("No email address available for verification");
+    }
+    const recipientEmail = business.email;
+    
     const emailResult = await sendVerificationEmailUtil(
       business.name,
-      business.email || '',
+      recipientEmail,
       verificationUrl
     );
     
     if (emailResult.success) {
-      logger.emailOperation('resend_verification', business.email || '', true);
+      logger.emailOperation('resend_verification', recipientEmail, true);
       return {
         success: true,
         message: "Verification email resent successfully",
-        attemptsRemaining: 5 - (attempts + 1),
+        attemptsRemaining: 5 - newAttempts,
       };
     } else {
-      logger.emailOperation('resend_verification', business.email || '', false, new Error(emailResult.error || 'Unknown error'));
+      logger.emailOperation('resend_verification', recipientEmail, false, new Error(emailResult.error || 'Unknown error'));
       return {
         success: false,
         message: emailResult.error || "Failed to resend verification email. Please try again.",
-        attemptsRemaining: 5 - (attempts + 1),
+        attemptsRemaining: 5 - newAttempts,
       };
     }
   },
