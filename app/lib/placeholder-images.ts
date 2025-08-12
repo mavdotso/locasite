@@ -47,40 +47,16 @@ export function getPlaceholderImage(
   return `${UNSPLASH_BASE}/${width}x${height}/?${keywords}${seedParam}`;
 }
 
-/**
- * Base64 encode function that works in both Node.js and browser
- */
-function toBase64(str: string): string {
-  if (typeof Buffer !== 'undefined') {
-    // Node.js environment
-    return Buffer.from(str).toString('base64');
-  } else if (typeof btoa !== 'undefined') {
-    // Browser environment
-    return btoa(str);
-  } else {
-    throw new Error('No base64 encoding method available');
-  }
-}
 
 /**
  * Generate a simple logo placeholder SVG
  */
 function generateLogoPlaceholder(width: number, height: number): string {
-  const svg = `
-    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-      <rect width="${width}" height="${height}" fill="#2563eb"/>
-      <text 
-        text-anchor="middle" 
-        x="${width / 2}" 
-        y="${height / 2 + 5}" 
-        style="fill:white;font-weight:bold;font-size:${Math.min(width, height) / 3}px;font-family:Arial,sans-serif"
-      >
-        LOGO
-      </text>
-    </svg>
-  `;
+  const svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg"><rect width="${width}" height="${height}" fill="#2563eb"/><text text-anchor="middle" x="${width / 2}" y="${height / 2 + 5}" style="fill:white;font-weight:bold;font-size:${Math.min(width, height) / 3}px;font-family:Arial,sans-serif">LOGO</text></svg>`;
   
-  return `data:image/svg+xml;base64,${toBase64(svg)}`;
+  // URI encode the SVG and return as data URI
+  const encodedSvg = encodeURIComponent(svg);
+  return `data:image/svg+xml;utf8,${encodedSvg}`;
 }
 
 /**

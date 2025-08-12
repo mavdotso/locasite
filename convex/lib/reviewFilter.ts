@@ -7,6 +7,13 @@ export interface Review {
 }
 
 /**
+ * Escape special regex characters in a string
+ */
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
  * Parse rating from various string formats
  * Handles formats like: "5", "5 stars", "5/5", "★★★★★", "Rated 5 out of 5", etc.
  */
@@ -124,16 +131,24 @@ function calculateReviewScore(review: Review): number {
   
   // Quality keyword score (0-0.2)
   const lowerText = review.text.toLowerCase();
-  // Use word boundaries to avoid false positives like "not recommend"
-  const qualityKeywordCount = QUALITY_KEYWORDS.filter(keyword => {
-    // Create regex with word boundaries and check for negation
-    const regex = new RegExp(`\\b${keyword}\\b`, 'i');
-    const match = regex.test(review.text);
+  
+  // Precompile regex patterns for quality keywords
+  const keywordPatterns = QUALITY_KEYWORDS.map(keyword => {
+    const escapedKeyword = escapeRegex(keyword);
+    return {
+      keyword,
+      regex: new RegExp(`\\b${escapedKeyword}\\b`, 'i'),
+      negationRegex: new RegExp(`\\b(not|no|never|don't|doesn't|didn't|won't|wouldn't|couldn't|shouldn't)\\s+(?:\\w+\\s+){0,2}${escapedKeyword}\\b`, 'i')
+    };
+  });
+  
+  // Use precompiled patterns to check for keywords
+  const qualityKeywordCount = keywordPatterns.filter(pattern => {
+    const match = pattern.regex.test(review.text);
     if (!match) return false;
     
-    // Check if preceded by negation within 3 words
-    const negationRegex = new RegExp(`\\b(not|no|never|don't|doesn't|didn't|won't|wouldn't|couldn't|shouldn't)\\s+(?:\\w+\\s+){0,2}${keyword}\\b`, 'i');
-    return !negationRegex.test(review.text);
+    // Check if preceded by negation
+    return !pattern.negationRegex.test(review.text);
   }).length;
   score += Math.min(qualityKeywordCount * 0.05, 0.2);
   

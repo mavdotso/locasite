@@ -635,12 +635,19 @@ export const create = mutation({
 
     // Create new page
     const now = Date.now();
-    const pageId = await ctx.db.insert("pages", {
+    const newPage: any = {
       domainId: args.domainId,
       content: args.content,
       isPublished: args.isPublished ?? false,
       lastEditedAt: now,
-    });
+    };
+    
+    // Set publishedAt if creating as published
+    if (newPage.isPublished) {
+      newPage.publishedAt = now;
+    }
+    
+    const pageId = await ctx.db.insert("pages", newPage);
 
     return pageId;
   },
@@ -651,6 +658,8 @@ export const update = mutation({
     domainId: v.id("domains"),
     content: v.string(),
     isPublished: v.optional(v.boolean()),
+    lastEditedAt: v.optional(v.number()),
+    publishedAt: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const user = await getUserFromAuth(ctx);
@@ -687,12 +696,20 @@ export const update = mutation({
 
     // Update the page
     const now = Date.now();
-    
-    await ctx.db.patch(page._id, {
+    const updateFields: any = {
       content: args.content,
       isPublished: args.isPublished ?? page.isPublished,
-      lastEditedAt: now,
-    });
+      lastEditedAt: args.lastEditedAt ?? now,
+    };
+    
+    // Only set publishedAt when explicitly provided or when publishing for the first time
+    if (args.publishedAt !== undefined) {
+      updateFields.publishedAt = args.publishedAt;
+    } else if (args.isPublished && !page.isPublished) {
+      updateFields.publishedAt = now;
+    }
+    
+    await ctx.db.patch(page._id, updateFields);
 
     return page._id;
   },

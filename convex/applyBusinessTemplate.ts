@@ -57,10 +57,13 @@ export const applyBusinessTemplate = action({
       const pageContent = await generatePageContent(templateId, updatedBusiness!);
 
       // Update the page with the new content
+      const now = Date.now();
       await ctx.runMutation(api.pages.update, {
         domainId: domain._id,
         content: JSON.stringify(pageContent),
-        isPublished: true
+        isPublished: true,
+        lastEditedAt: now,
+        publishedAt: now
       });
 
       // Also apply a matching theme preset if available

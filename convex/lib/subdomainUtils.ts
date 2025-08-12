@@ -2,6 +2,11 @@
  * Utilities for subdomain generation and validation
  */
 
+import { QueryCtx, MutationCtx } from "../_generated/server";
+
+// Type for context that can be either Query or Mutation
+type Ctx = QueryCtx | MutationCtx;
+
 // Constants
 const MIN_SUBDOMAIN_LENGTH = 3;
 const MAX_SUBDOMAIN_LENGTH = 63;
@@ -13,7 +18,7 @@ const MAX_NUMBERED_ATTEMPTS = 20;
  * Returns the subdomain if available, or suggests alternatives
  */
 export async function checkSubdomainAvailability(
-  ctx: any,
+  ctx: Ctx,
   baseSubdomain: string
 ): Promise<{
   available: boolean;
@@ -23,7 +28,7 @@ export async function checkSubdomainAvailability(
   // Check if the base subdomain is available
   const existing = await ctx.db
     .query("domains")
-    .withIndex("by_subdomain", (q: any) => q.eq(q.field("subdomain"), baseSubdomain))
+    .withIndex("by_subdomain", (q) => q.eq("subdomain", baseSubdomain))
     .first();
 
   if (!existing) {
@@ -47,7 +52,7 @@ export async function checkSubdomainAvailability(
  * Generate subdomain suggestions based on the base name
  */
 async function generateSubdomainSuggestions(
-  ctx: any,
+  ctx: Ctx,
   baseSubdomain: string,
   maxSuggestions: number = DEFAULT_MAX_SUGGESTIONS
 ): Promise<string[]> {
@@ -98,7 +103,7 @@ async function generateSubdomainSuggestions(
   const availabilityPromises = allCandidates.map(async (candidate) => {
     const existing = await ctx.db
       .query("domains")
-      .withIndex("by_subdomain", (q: any) => q.eq(q.field("subdomain"), candidate))
+      .withIndex("by_subdomain", (q) => q.eq("subdomain", candidate))
       .first();
     return { candidate, available: !existing };
   });
@@ -125,7 +130,7 @@ async function generateSubdomainSuggestions(
     const numberedPromises = numberedCandidates.map(async (candidate) => {
       const existing = await ctx.db
         .query("domains")
-        .withIndex("by_subdomain", (q: any) => q.eq(q.field("subdomain"), candidate))
+        .withIndex("by_subdomain", (q) => q.eq("subdomain", candidate))
         .first();
       return { candidate, available: !existing };
     });
@@ -146,7 +151,7 @@ async function generateSubdomainSuggestions(
  * This replaces the while loop approach with a more efficient strategy
  */
 export async function generateUniqueSubdomain(
-  ctx: any,
+  ctx: Ctx,
   baseSubdomain: string
 ): Promise<string> {
   const result = await checkSubdomainAvailability(ctx, baseSubdomain);

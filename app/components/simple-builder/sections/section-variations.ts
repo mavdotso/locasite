@@ -32,7 +32,7 @@ export const headerVariations: SectionVariation[] = [
         padding: "1rem 2rem",
       },
     },
-    editableFields: ["content.logo", "content.menuItems", "content.showButton", "content.buttonText", "content.buttonLink"],
+    editableFields: ["content.logo", "content.logoAlt", "content.menuItems", "content.showButton", "content.buttonText", "content.buttonLink"],
   },
   {
     id: "header-classic",
@@ -60,7 +60,7 @@ export const headerVariations: SectionVariation[] = [
         padding: "1rem 2rem",
       },
     },
-    editableFields: ["content.logo", "content.menuItems", "content.showButton", "content.buttonText", "content.buttonLink"],
+    editableFields: ["content.logo", "content.logoAlt", "content.menuItems", "content.showButton", "content.buttonText", "content.buttonLink"],
   },
   {
     id: "header-centered",
@@ -87,7 +87,7 @@ export const headerVariations: SectionVariation[] = [
         textAlign: "center",
       },
     },
-    editableFields: ["content.logo", "content.menuItems"],
+    editableFields: ["content.logo", "content.logoAlt", "content.menuItems"],
   },
   {
     id: "header-minimal",
@@ -112,7 +112,7 @@ export const headerVariations: SectionVariation[] = [
         padding: "1rem 2rem",
       },
     },
-    editableFields: ["content.logo", "content.menuItems"],
+    editableFields: ["content.logo", "content.logoAlt", "content.menuItems"],
   },
 ];
 
