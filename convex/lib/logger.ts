@@ -75,10 +75,6 @@ class Logger {
       case LogLevel.ERROR:
       case LogLevel.FATAL:
         console.error(formattedMessage);
-        // In production, we might want to send these to an error tracking service
-        if (!this.isDevelopment && level === LogLevel.FATAL) {
-          // TODO: Integrate with error tracking service (e.g., Sentry)
-        }
         break;
     }
   }

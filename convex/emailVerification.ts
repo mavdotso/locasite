@@ -1,29 +1,10 @@
-import { mutation, query, action, internalMutation, internalAction } from "./_generated/server";
+import { mutation, query, action, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserFromAuth } from "./lib/helpers";
 import { internal, api } from "./_generated/api";
-import { sendVerificationEmail as sendVerificationEmailUtil } from "./lib/email";
 import { logger } from "./lib/logger";
 import { convexEnv } from "./lib/env";
 
-// Internal action to generate cryptographically secure token
-export const internal_generateToken = internalAction({
-  args: {},
-  handler: async (): Promise<string> => {
-    // Check if crypto.getRandomValues is available
-    if (!globalThis.crypto || !globalThis.crypto.getRandomValues) {
-      throw new Error("Crypto API not available in this environment");
-    }
-    
-    // Generate 32 random bytes and convert to hex string (64 chars)
-    const bytes = new Uint8Array(32);
-    globalThis.crypto.getRandomValues(bytes);
-    
-    return Array.from(bytes)
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
-  },
-});
 
 // Internal mutation to update claim with token
 export const internal_updateClaimWithToken = internalMutation({
@@ -51,7 +32,7 @@ export const sendVerificationEmail = action({
   handler: async (
     ctx,
     args,
-  ): Promise<{ success: boolean; message: string; email?: string }> => {
+  ): Promise<{ success: boolean; message: string; email?: string; emailSent?: boolean }> => {
     // Get the business and claim details
     const business = await ctx.runQuery(
       internal.businesses.internal_getBusinessById,
@@ -76,7 +57,7 @@ export const sendVerificationEmail = action({
     }
 
     // Generate verification token using the action  
-    const token = await ctx.runAction(internal.emailVerification.internal_generateToken, {});
+    const token = await ctx.runAction(internal.emailActions.internal_generateToken, {});
     const expiry = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
 
     // Update claim with token
@@ -99,14 +80,13 @@ export const sendVerificationEmail = action({
     }
     const recipientEmail = business.email;
     
-    const emailResult = await sendVerificationEmailUtil(
-      business.name,
-      recipientEmail,
-      verificationUrl
-    );
+    const emailResult = await ctx.runAction(internal.emailActions.internal_sendVerificationEmail, {
+      businessName: business.name,
+      businessEmail: recipientEmail,
+      verificationUrl,
+    });
     
     if (emailResult.success) {
-      logger.emailOperation('verification', recipientEmail, true);
       return {
         success: true,
         message: "Verification email sent successfully",
@@ -114,12 +94,6 @@ export const sendVerificationEmail = action({
         emailSent: true,
       };
     } else {
-      logger.emailOperation(
-        'verification',
-        recipientEmail,
-        false,
-        new Error(emailResult.error || 'Unknown error')
-      );
       return {
         success: false,
         message:
@@ -225,7 +199,7 @@ export const resendVerificationEmail = action({
     }
 
     // Generate a new verification token using the action
-    const token = await ctx.runAction(internal.emailVerification.internal_generateToken, {});
+    const token = await ctx.runAction(internal.emailActions.internal_generateToken, {});
     const expiry = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
 
     // Update claim with new token (attempts incremented atomically)
@@ -262,11 +236,11 @@ export const resendVerificationEmail = action({
     }
     const recipientEmail = business.email;
     
-    const emailResult = await sendVerificationEmailUtil(
-      business.name,
-      recipientEmail,
-      verificationUrl
-    );
+    const emailResult = await ctx.runAction(internal.emailActions.internal_sendVerificationEmail, {
+      businessName: business.name,
+      businessEmail: recipientEmail,
+      verificationUrl,
+    });
     
     if (emailResult.success) {
       logger.emailOperation('resend_verification', recipientEmail, true);

@@ -62,7 +62,6 @@ export default function BusinessEdit({
       // Business is unclaimed, claim it for the current user
       claimBusinessAfterAuth({ businessId: business._id })
         .then(() => {
-          console.log("Business claimed successfully");
           toast.success("Business claimed successfully!");
         })
         .catch((error) => {

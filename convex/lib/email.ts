@@ -1,3 +1,5 @@
+"use node";
+
 import { Resend } from 'resend';
 import { logger } from './logger';
 import { validateEmail } from './validation';
@@ -9,8 +11,8 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 function maskEmail(email: string): string {
   if (!email || !email.includes('@')) return 'invalid-email';
   const [localPart, domain] = email.split('@');
-  const maskedLocal = localPart.length > 2 
-    ? localPart.substring(0, 2) + '***' 
+  const maskedLocal = localPart.length > 2
+    ? localPart.substring(0, 2) + '***'
     : '***';
   return `${maskedLocal}@${domain}`;
 }
@@ -88,20 +90,20 @@ const getVerificationEmailTemplate = (businessName: string, verificationUrl: str
         <body>
           <div class="container">
             <h1>Verify Your Business Ownership</h1>
-            
+
             <p>Hello,</p>
-            
+
             <p>You've requested to claim ownership of <strong>${escapeHtml(businessName)}</strong> on our platform.</p>
-            
+
             <p>To complete the verification process and gain full control of your business listing, please click the button below:</p>
-            
+
             <a href="${escapeHtml(verificationUrl)}" class="button">Verify Email Address</a>
-            
+
             <p>Or copy and paste this link into your browser:</p>
             <p class="link">${escapeHtml(verificationUrl)}</p>
-            
+
             <p>This verification link will expire in 24 hours for security reasons.</p>
-            
+
             <div class="footer">
               <p><strong>Why am I receiving this?</strong></p>
               <p>Someone requested to claim the business "${escapeHtml(businessName)}" using the email address ${escapeHtml(businessEmail)}. If this wasn't you, you can safely ignore this email.</p>
@@ -148,17 +150,17 @@ export async function sendEmail({
     logger.warn(`Invalid email address: ${maskEmail(to)}`, { metadata: { error: emailValidation.error } });
     return { success: false, id: '', error: emailValidation.error };
   }
-  
+
   // Validate subject
   if (!subject || subject.trim().length === 0) {
     return { success: false, id: '', error: 'Email subject is required' };
   }
-  
+
   // Validate content
   if (!html && !text) {
     return { success: false, id: '', error: 'Email content is required' };
   }
-  
+
   if (!resend) {
     logger.warn('Email service not configured. Please set RESEND_API_KEY environment variable.');
     // In development, log the email content instead
@@ -172,9 +174,9 @@ export async function sendEmail({
   }
 
   // Get from email from environment or use default for development
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 
+  const fromEmail = process.env.RESEND_FROM_EMAIL ||
     (process.env.NODE_ENV === 'development' ? 'onboarding@resend.dev' : undefined);
-    
+
   if (!fromEmail) {
     logger.error('RESEND_FROM_EMAIL environment variable not set', new Error('Missing configuration'), {});
     return { success: false, id: '', error: 'Email configuration error' };
@@ -191,44 +193,44 @@ export async function sendEmail({
 
     // Check if the response contains an error (non-throwing errors)
     if (result.error || !result.data) {
-      logger.error('Email send failed with provider error', 
-        new Error(result.error?.message || 'Unknown provider error'), 
-        { 
-          metadata: { 
-            to: maskEmail(to), 
+      logger.error('Email send failed with provider error',
+        new Error(result.error?.message || 'Unknown provider error'),
+        {
+          metadata: {
+            to: maskEmail(to),
             subject,
             errorName: result.error?.name,
-            errorMessage: result.error?.message 
-          } 
+            errorMessage: result.error?.message
+          }
         }
       );
       // Return generic error message to avoid leaking provider details
-      return { 
-        success: false, 
-        id: '', 
-        error: 'Failed to send email. Please try again later.' 
+      return {
+        success: false,
+        id: '',
+        error: 'Failed to send email. Please try again later.'
       };
     }
 
-    logger.info(`Email sent successfully to ${maskEmail(to)}`, { 
-      metadata: { emailId: result.data.id, subject } 
+    logger.info(`Email sent successfully to ${maskEmail(to)}`, {
+      metadata: { emailId: result.data.id, subject }
     });
-    
+
     return { success: true, id: result.data.id || 'unknown' };
   } catch (error) {
     // Log detailed error internally
-    logger.error('Failed to send email - exception thrown', error as Error, { 
-      metadata: { 
-        to: maskEmail(to), 
+    logger.error('Failed to send email - exception thrown', error as Error, {
+      metadata: {
+        to: maskEmail(to),
         subject,
         errorDetails: error instanceof Error ? error.stack : String(error)
-      } 
+      }
     });
     // Return generic error message to avoid leaking sensitive details
-    return { 
-      success: false, 
-      id: '', 
-      error: 'Failed to send email. Please try again later.' 
+    return {
+      success: false,
+      id: '',
+      error: 'Failed to send email. Please try again later.'
     };
   }
 }
@@ -243,46 +245,46 @@ export async function sendVerificationEmail(
   if (!businessName || businessName.trim().length === 0) {
     return { success: false, id: '', error: 'Business name is required for verification email' };
   }
-  
+
   // Validate verification URL
   let canonicalUrl: URL;
   try {
     canonicalUrl = new URL(verificationUrl);
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL;
-    
+
     if (!appUrl) {
       return { success: false, id: '', error: 'App URL not configured' };
     }
-    
+
     const expectedHost = new URL(appUrl).host;
     if (canonicalUrl.host !== expectedHost) {
       return { success: false, id: '', error: `Invalid verification URL - host mismatch` };
     }
-    
+
     // Enforce HTTPS in production, allow HTTP only in development
     const isProduction = process.env.NODE_ENV === 'production';
     const isDevelopment = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
-    
+
     if (isProduction && canonicalUrl.protocol !== 'https:') {
       return { success: false, id: '', error: 'Verification URL must use HTTPS in production' };
     }
-    
+
     if (canonicalUrl.protocol !== 'https:' && canonicalUrl.protocol !== 'http:') {
       return { success: false, id: '', error: 'Invalid verification URL protocol' };
     }
-    
+
     // Allow HTTP only in development/test environments
     if (canonicalUrl.protocol === 'http:' && !isDevelopment) {
       return { success: false, id: '', error: 'HTTP protocol is only allowed in development' };
     }
-  } catch (error) {
+  } catch {
     return { success: false, id: '', error: 'Invalid verification URL format' };
   }
-  
+
   // Use the canonical URL string from the validated URL object
   const canonicalUrlString = canonicalUrl.toString();
   const emailContent = getVerificationEmailTemplate(businessName, canonicalUrlString, businessEmail);
-  
+
   return await sendEmail({
     to: businessEmail,
     subject: emailContent.subject,
