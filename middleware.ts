@@ -172,6 +172,19 @@ export default async function middleware(
 
   // For non-subdomain requests, run auth middleware normally
   const authResponse = await authMiddleware(request, event);
+
+  // Check if user is accessing protected routes
+  const protectedRoutes = ['/dashboard', '/settings', '/business'];
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+
+  // If accessing a protected route and auth middleware returned a response (likely unauthenticated)
+  // redirect to sign-in page
+  if (isProtectedRoute && authResponse && authResponse.status !== 200) {
+    const signInUrl = new URL('/sign-in', request.url);
+    signInUrl.searchParams.set('redirect_url', pathname);
+    return NextResponse.redirect(signInUrl);
+  }
+
   if (authResponse) {
     return authResponse;
   }

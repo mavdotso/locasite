@@ -22,7 +22,9 @@ export default function BusinessEdit({
 }) {
   const router = useRouter();
   const claimAttemptedRef = useRef(false);
-  const [isClaimingBusiness, setIsClaimingBusiness] = useState(false);
+  const syncAttemptedRef = useRef(false);
+  const [isInitializing, setIsInitializing] = useState(false);
+  const [initMessage, setInitMessage] = useState("Loading...");
 
   // All hooks must be called before any conditional returns
   const user = useQuery(api.auth.currentUser);
@@ -52,62 +54,85 @@ export default function BusinessEdit({
     api.businesses.claimBusinessAfterAuth,
   );
 
-  // Claim business if it's unclaimed and user is authenticated
+  // Combined initialization effect for claiming and syncing
   useEffect(() => {
-    if (business && user && !business.userId && !claimAttemptedRef.current) {
-      // Mark claim as attempted to prevent re-runs
-      claimAttemptedRef.current = true;
-      setIsClaimingBusiness(true);
-      
-      // Business is unclaimed, claim it for the current user
-      claimBusinessAfterAuth({ businessId: business._id })
-        .then(() => {
-          toast.success("Business claimed successfully!");
-        })
-        .catch((error) => {
+    async function initializeBusiness() {
+      if (!business || !user) return;
+
+      let needsInitialization = false;
+
+      // Step 1: Claim business if unclaimed
+      if (!business.userId && !claimAttemptedRef.current) {
+        claimAttemptedRef.current = true;
+        needsInitialization = true;
+        setIsInitializing(true);
+        setInitMessage("Setting up your business...");
+
+        try {
+          const claimResult = await claimBusinessAfterAuth({ businessId: business._id });
+          if (!claimResult.alreadyClaimed) {
+            // Business was newly claimed
+          }
+        } catch (error) {
           console.error("Failed to claim business:", error);
-          // Check if business was already claimed by another user
           if (error.message?.includes("already claimed by another user")) {
             toast.error("This business has already been claimed by another user");
-            // Redirect to dashboard since they can't edit this business
             router.push("/dashboard");
+            return;
           } else {
             toast.error("Unable to claim this business. Please try again.");
+            setIsInitializing(false);
+            return;
           }
-        })
-        .finally(() => {
-          setIsClaimingBusiness(false);
-        });
+        }
+      }
+
+      // Step 2: Sync domain if needed (without page reload)
+      if (syncStatus && !syncStatus.synced && !syncAttemptedRef.current && !pages) {
+        syncAttemptedRef.current = true;
+        if (!needsInitialization) {
+          needsInitialization = true;
+          setIsInitializing(true);
+          setInitMessage("Finalizing setup...");
+        }
+
+        try {
+          await syncBusinessDomain({ businessId: business._id });
+          // Don't reload - the data will update reactively
+        } catch (error) {
+          console.error("Failed to sync domain:", error);
+          // Don't show error toast for sync issues - they're not critical
+        }
+      }
+
+      // Step 3: Complete initialization if we did anything
+      if (needsInitialization) {
+        // Small delay to ensure data updates have propagated
+        setTimeout(() => {
+          toast.success("Your business is ready!");
+          setIsInitializing(false);
+        }, 500);
+      }
     }
+
+    initializeBusiness();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [business?._id, business?.userId, user, claimBusinessAfterAuth]);
+  }, [business?._id, business?.userId, user, syncStatus, pages]);
 
-  useEffect(() => {
-    if (syncStatus && !syncStatus.synced && business && user && !pages) {
-      syncBusinessDomain({ businessId: business._id })
-        .then((result) => {
-          if (result.success) {
-            toast.success("Business setup completed");
-            window.location.reload();
-          }
-        })
-        .catch(() => {
-          toast.error(
-            "Failed to complete business setup. Please refresh the page.",
-          );
-        });
-    }
-  }, [syncStatus, business, user, pages, syncBusinessDomain]);
-
-  // Loading state while fetching business or claiming
-  if (editData === undefined || isClaimingBusiness) {
+  // Loading state while fetching business or initializing
+  if (editData === undefined || isInitializing) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">
-            {isClaimingBusiness ? "Claiming your business..." : "Loading..."}
-          </p>
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 max-w-sm w-full">
+          <div className="flex flex-col items-center">
+            <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
+            <h2 className="text-lg font-semibold mb-2">
+              {isInitializing ? "Setting Up Your Business" : "Loading"}
+            </h2>
+            <p className="text-muted-foreground text-center">
+              {initMessage}
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -122,8 +147,16 @@ export default function BusinessEdit({
   if (business.userId && user && business.userId !== user._id) {
     router.push(`/dashboard`);
     return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 max-w-sm w-full">
+          <div className="flex flex-col items-center">
+            <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
+            <h2 className="text-lg font-semibold mb-2">Redirecting</h2>
+            <p className="text-muted-foreground text-center">
+              Taking you to your dashboard...
+            </p>
+          </div>
+        </div>
       </div>
     );
   }

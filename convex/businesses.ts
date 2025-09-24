@@ -8,6 +8,7 @@ import { v } from "convex/values";
 import { Doc, Id } from "./_generated/dataModel";
 import { getUserFromAuth } from "./lib/helpers";
 import { partialAdvancedThemeSchemaV } from "./lib/themeSchema";
+import { internal } from "./_generated/api";
 import { getThemeSuggestions } from "./lib/themeSuggestions";
 import { themePresets } from "./lib/themePresets";
 import { api } from "./_generated/api";
@@ -326,13 +327,13 @@ export const getBusinessPublic = query({
   handler: async (ctx, args) => {
     const business = await ctx.db.get(args.businessId);
     if (!business) return null;
-    
+
     // Remove sensitive fields before returning
-    const { 
+    const {
       googleBusinessAuth,
-      ...publicData 
+      ...publicData
     } = business;
-    
+
     return publicData;
   },
 });
@@ -620,7 +621,6 @@ export const createBusinessWithoutAuth = internalMutation({
       ),
       photos: v.array(v.string()),
       description: v.optional(v.string()),
-      category: v.optional(v.string()),
     }),
   },
   handler: async (ctx, args) => {
@@ -630,22 +630,193 @@ export const createBusinessWithoutAuth = internalMutation({
       .query("businesses")
       .withIndex("by_placeId", (q) => q.eq("placeId", args.businessData.placeId))
       .first();
-    
+
     if (existingBusiness) {
       // Return existing business instead of creating duplicate
       // This ensures idempotency - multiple scrapes of the same place return the same business
-      return { businessId: existingBusiness._id };
+      return { businessId: existingBusiness._id, domainId: existingBusiness.domainId };
     }
-    
-    // Create the business without userId (unclaimed)
+
+    // Generate subdomain from business name
+    const subdomain = args.businessData.name
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .substring(0, 63);
+
+    // Create a domain for the business
+    const domainId = await ctx.db.insert("domains", {
+      name: args.businessData.name,
+      subdomain,
+      createdAt: Date.now()
+    });
+
+    // Create the business without userId (unclaimed) but with domainId
     const businessId = await ctx.db.insert("businesses", {
       ...args.businessData,
+      domainId,
       createdAt: Date.now(),
       // userId is optional, so we don't set it
       isPublished: false,
     });
 
-    return { businessId };
+    // Create default page content using the same structure as pagesSimple
+    const sections = [
+      // Header section
+      {
+        id: "header-1",
+        variationId: "header-section",
+        order: 0,
+        data: {
+          id: "header",
+          type: "header-section",
+          content: {
+            businessName: args.businessData.name,
+            logo: args.businessData.name,
+            logoAlt: args.businessData.name,
+            menuItems: [
+              { label: "Home", link: "#hero" },
+              { label: "About", link: "#about" },
+              { label: "Services", link: "#services" },
+              { label: "Gallery", link: "#gallery" },
+              { label: "Contact", link: "#contact" },
+            ],
+            showButton: true,
+            buttonText: "Get Started",
+            buttonLink: "#contact",
+          },
+          style: {
+            backgroundColor: "#FFFFFF",
+            textColor: "#000000",
+            sticky: true,
+          },
+        },
+      },
+      // Hero section
+      {
+        id: "hero-1",
+        variationId: "hero-center-bg",
+        order: 1,
+        data: {
+          id: "hero",
+          type: "hero-section",
+          content: {
+            title: args.businessData.name,
+            subtitle: args.businessData.description || "Welcome to our business. We're here to serve you with excellence.",
+            ctaButton: {
+              label: "Contact Us",
+              href: "#contact",
+            },
+            backgroundImage: args.businessData.photos?.[0] || "",
+          },
+          style: {
+            backgroundColor: "#1F2937",
+            overlay: true,
+            overlayOpacity: 0.5,
+          },
+        },
+      },
+      // About section
+      {
+        id: "about-1",
+        variationId: "about-text-image",
+        order: 2,
+        data: {
+          id: "about",
+          type: "about-section",
+          content: {
+            title: `About ${args.businessData.name}`,
+            description: args.businessData.description || "We are dedicated to providing exceptional service and quality to our customers.",
+            image: args.businessData.photos?.[1] || "",
+            features: ["Professional Service", "Quality Guaranteed", "Customer Satisfaction"],
+          },
+          style: {
+            backgroundColor: "#FFFFFF",
+          },
+        },
+      },
+      // Gallery section
+      {
+        id: "gallery-1",
+        variationId: "gallery-grid",
+        order: 3,
+        data: {
+          id: "gallery",
+          type: "gallery-grid",
+          content: {
+            title: "Gallery",
+            subtitle: "Take a look at our work",
+            images: args.businessData.photos?.slice(0, 6).map((photo, index) => ({
+              src: photo,
+              alt: `${args.businessData.name} image ${index + 1}`,
+            })) || [],
+            columns: 3,
+          },
+          style: {
+            backgroundColor: "#FFFFFF",
+          },
+        },
+      },
+      // Contact section
+      {
+        id: "contact-1",
+        variationId: "contact-form-map",
+        order: 4,
+        data: {
+          id: "contact",
+          type: "contact-form-map",
+          content: {
+            title: "Get in Touch",
+            subtitle: "We'd love to hear from you",
+            address: args.businessData.address,
+            phone: args.businessData.phone,
+            email: "",
+            hours: args.businessData.hours,
+            mapUrl: `https://maps.google.com/?q=${encodeURIComponent(args.businessData.address)}`,
+            showMap: true,
+            showForm: true,
+          },
+          style: {
+            backgroundColor: "#F0F7FF",
+          },
+        },
+      },
+    ];
+
+    // Create page data in simple mode format
+    const pageData = {
+      mode: "simple",
+      title: args.businessData.name || "Welcome",
+      sections,
+      theme: {
+        colors: {
+          primary: "#3B82F6",
+          secondary: "#10B981",
+          accent: "#F59E0B",
+          background: "#FFFFFF",
+          text: "#1F2937",
+          muted: "#F3F4F6",
+        },
+        fonts: {
+          heading: "Inter",
+          body: "Inter",
+        },
+        spacing: {
+          sectionPadding: "80px",
+        },
+      },
+    };
+
+    // Create the homepage
+    await ctx.db.insert("pages", {
+      domainId,
+      content: JSON.stringify(pageData),
+      isPublished: false,
+      lastEditedAt: Date.now(),
+    });
+
+    return { businessId, domainId };
   },
 });
 
@@ -656,28 +827,33 @@ export const claimBusinessAfterAuth = mutation({
   },
   handler: async (ctx, args) => {
     const user = await getUserFromAuth(ctx);
-    
+
     // Get the business
     const business = await ctx.db.get(args.businessId);
     if (!business) {
       throw new Error("Business not found");
     }
-    
+
     // Check if already claimed by another user (race condition protection)
     if (business.userId && business.userId !== user._id) {
       throw new Error("Business already claimed by another user");
     }
-    
+
     // If already claimed by this user, just return success
     if (business.userId === user._id) {
       return { businessId: args.businessId, alreadyClaimed: true };
     }
-    
+
     // Claim the business
     await ctx.db.patch(args.businessId, {
       userId: user._id,
     });
-    
+
+    // Schedule image download to media library in the background
+    await ctx.scheduler.runAfter(0, internal.storeBusinessImages.internalStoreBusinessImages, {
+      businessId: args.businessId,
+    });
+
     return { businessId: args.businessId, alreadyClaimed: false };
   },
 });
@@ -727,6 +903,11 @@ export const createFromPreview = mutation({
       createdAt: Date.now(),
       userId: user._id,
       isPublished: false, // Start as unpublished
+    });
+
+    // Schedule image download to media library in the background
+    await ctx.scheduler.runAfter(0, internal.storeBusinessImages.internalStoreBusinessImages, {
+      businessId,
     });
 
     return { businessId };

@@ -24,6 +24,15 @@ export const canPublishBusiness = query({
       };
     }
 
+    // TEMPORARILY DISABLED VERIFICATION REQUIREMENTS
+    // Allow all owned businesses to publish without verification
+    return {
+      canPublish: true,
+      reason: "Business can publish",
+      requiresVerification: false,
+    };
+
+    /* ORIGINAL VERIFICATION LOGIC - COMMENTED OUT FOR NOW
     // Check if business is already verified
     if (business.canPublish === true) {
       return {
@@ -98,6 +107,7 @@ export const canPublishBusiness = query({
       reason: "Business can publish without verification",
       requiresVerification: false,
     };
+    END OF ORIGINAL VERIFICATION LOGIC */
   },
 });
 

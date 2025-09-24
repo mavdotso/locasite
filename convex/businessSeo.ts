@@ -8,6 +8,8 @@ export const updateSeoSettings = mutation({
     seoTitle: v.optional(v.string()),
     seoDescription: v.optional(v.string()),
     seoKeywords: v.optional(v.array(v.string())),
+    ogTitle: v.optional(v.string()),
+    ogDescription: v.optional(v.string()),
     favicon: v.optional(v.string()),
     faviconStorageId: v.optional(v.id("_storage")),
     ogImage: v.optional(v.string()),
@@ -131,6 +133,8 @@ export const getSeoSettings = query({
       seoTitle: business.seoTitle,
       seoDescription: business.seoDescription,
       seoKeywords: business.seoKeywords,
+      ogTitle: business.ogTitle,
+      ogDescription: business.ogDescription,
       favicon: business.favicon,
       ogImage: business.ogImage,
     };

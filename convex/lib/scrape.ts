@@ -194,21 +194,18 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
     // Always create the business (without auth requirement)
     let businessId = null;
     let domainId = null;
-    
+
     try {
       // Create business without authentication (internal mutation)
-      // Include category from Google Places types for better categorization
       const result = await ctx.runMutation(
         internal.businesses.createBusinessWithoutAuth,
         {
-          businessData: {
-            ...businessData,
-            category: place.types?.[0] || undefined,
-          },
+          businessData,
         },
       );
-      
+
       businessId = result.businessId;
+      domainId = result.domainId;
     } catch (error) {
       logger.error("Error creating business from Google Maps", error, {
         metadata: { 

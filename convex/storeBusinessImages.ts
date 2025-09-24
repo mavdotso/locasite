@@ -1,4 +1,4 @@
-import { action, internalMutation } from "./_generated/server";
+import { action, internalMutation, internalAction } from "./_generated/server";
 import { v } from "convex/values";
 import { api, internal } from "./_generated/api";
 
@@ -128,5 +128,95 @@ export const updateBusinessPhotos = internalMutation({
     await ctx.db.patch(args.businessId, {
       photos: args.photos,
     });
+  },
+});
+
+// Internal action to store business images (can be scheduled from mutations)
+export const internalStoreBusinessImages = internalAction({
+  args: {
+    businessId: v.id("businesses"),
+  },
+  handler: async (ctx, args): Promise<{ success: boolean; message: string; storedUrls?: string[] }> => {
+    // Get the business via internal query
+    const business: any = await ctx.runQuery(internal.businesses.internal_getBusinessById, {
+      businessId: args.businessId,
+    });
+
+    if (!business) {
+      throw new Error("Business not found");
+    }
+
+    // Don't process if no photos or no user (unclaimed business)
+    if (!business.photos || business.photos.length === 0 || !business.userId) {
+      return { success: true, message: "No photos to process or business not claimed" };
+    }
+
+    // Store each image in the media library
+    const storedUrls: string[] = [];
+
+    for (let i = 0; i < business.photos.length; i++) {
+      const photoUrl = business.photos[i];
+
+      // Skip if already a Convex storage URL
+      if (photoUrl.includes("convex.cloud")) {
+        storedUrls.push(photoUrl);
+        continue;
+      }
+
+      try {
+        // Download the image
+        const response = await fetch(photoUrl);
+        if (!response.ok) {
+          console.error(`Failed to download image ${i + 1}: ${response.statusText}`);
+          storedUrls.push(photoUrl); // Keep original URL if download fails
+          continue;
+        }
+
+        const blob = await response.blob();
+
+        // Store the image directly in the action
+        const storageId = await ctx.storage.store(blob);
+
+        // Get the public URL
+        const url = await ctx.storage.getUrl(storageId);
+        if (!url) {
+          console.error(`Failed to get URL for stored image ${i + 1}`);
+          storedUrls.push(photoUrl); // Keep original URL if storage fails
+          continue;
+        }
+
+        // Add to media library via mutation
+        await ctx.runMutation(internal.storeBusinessImages.addToMediaLibrary, {
+          businessId: args.businessId,
+          userId: business.userId,
+          businessName: business.name,
+          storageId,
+          url,
+          fileType: blob.type || "image/jpeg",
+          fileSize: blob.size,
+          imageIndex: i,
+        });
+
+        storedUrls.push(url);
+        console.log(`Successfully stored image ${i + 1} for business ${business.name}`);
+      } catch (error) {
+        console.error(`Error processing image ${i + 1}:`, error);
+        storedUrls.push(photoUrl); // Keep original URL if any error occurs
+      }
+    }
+
+    // Update business with new URLs via mutation
+    if (storedUrls.length > 0) {
+      await ctx.runMutation(internal.storeBusinessImages.updateBusinessPhotos, {
+        businessId: args.businessId,
+        photos: storedUrls,
+      });
+    }
+
+    return {
+      success: true,
+      storedUrls,
+      message: `Processed ${storedUrls.filter(url => url.includes("convex.cloud")).length} of ${business.photos.length} images`
+    };
   },
 });

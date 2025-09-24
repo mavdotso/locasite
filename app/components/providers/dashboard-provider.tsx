@@ -18,18 +18,14 @@ const DashboardContext = createContext<DashboardContextType | undefined>(
 );
 
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
+  // Only query user, not businesses - let individual pages handle their own data
   const user = useQuery(api.auth.currentUser);
-  const businesses = useQuery(
-    api.businesses.listByUser,
-    user ? { userId: user._id } : "skip",
-  );
 
   // Track whether we've completed the initial auth check
   const [authChecked, setAuthChecked] = useState(false);
 
   // Determine loading state
-  const isLoading =
-    user === undefined || (user !== null && businesses === undefined);
+  const isLoading = user === undefined;
   const isAuthenticated = user !== null && user !== undefined;
 
   // Mark auth as checked once we have a definitive answer

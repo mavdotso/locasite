@@ -1,5 +1,5 @@
 import { Id } from "@/convex/_generated/dataModel";
-import { getTinybirdClient } from "./tinybird";
+// import { getTinybirdClient } from "./tinybird"; // COMMENTED OUT - Tinybird disabled
 
 // Analytics configuration
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
@@ -107,7 +107,7 @@ function parseUTMParams() {
 }
 
 export class Analytics {
-  private tinybird = getTinybirdClient();
+  // private tinybird = getTinybirdClient(); // COMMENTED OUT - Tinybird disabled
   private businessId: Id<"businesses">;
   private domainId?: Id<"domains">;
   private visitorId: string;
@@ -132,17 +132,18 @@ export class Analytics {
     try {
       const sessionExists = sessionStorage.getItem(`session_${this.sessionId}`);
       if (!sessionExists) {
-        await this.tinybird.updateSession({
-          sessionId: this.sessionId,
-          visitorId: this.visitorId,
-          businessId: this.businessId,
-          startTime: Math.floor(this.startTime / 1000), // Convert to seconds for Tinybird
-          pageCount: 1,
-          eventCount: 0,
-          entryPage: window.location.pathname,
-          hasConverted: false,
-          bounce: true,
-        });
+        // COMMENTED OUT - Tinybird disabled
+        // await this.tinybird.updateSession({
+        //   sessionId: this.sessionId,
+        //   visitorId: this.visitorId,
+        //   businessId: this.businessId,
+        //   startTime: Math.floor(this.startTime / 1000), // Convert to seconds for Tinybird
+        //   pageCount: 1,
+        //   eventCount: 0,
+        //   entryPage: window.location.pathname,
+        //   hasConverted: false,
+        //   bounce: true,
+        // });
         sessionStorage.setItem(`session_${this.sessionId}`, "1");
       }
 
@@ -169,27 +170,28 @@ export class Analytics {
       const referrerData = parseReferrer();
       const utmData = parseUTMParams();
 
-      await this.tinybird.trackPageView({
-        timestamp: Math.floor(Date.now() / 1000), // Convert to seconds for Tinybird
-        businessId: this.businessId,
-        domainId: this.domainId,
-        visitorId: this.visitorId,
-        sessionId: this.sessionId,
-        path: window.location.pathname,
-        title: document.title,
-        referrer: document.referrer || undefined,
-        userAgent: navigator.userAgent,
-        deviceType,
-        browser,
-        os,
-        screenWidth: window.screen.width,
-        screenHeight: window.screen.height,
-        viewportWidth: window.innerWidth,
-        viewportHeight: window.innerHeight,
-        loadTime: loadTime || undefined,
-        ...referrerData,
-        ...utmData,
-      });
+      // COMMENTED OUT - Tinybird disabled
+      // await this.tinybird.trackPageView({
+      //   timestamp: Math.floor(Date.now() / 1000), // Convert to seconds for Tinybird
+      //   businessId: this.businessId,
+      //   domainId: this.domainId,
+      //   visitorId: this.visitorId,
+      //   sessionId: this.sessionId,
+      //   path: window.location.pathname,
+      //   title: document.title,
+      //   referrer: document.referrer || undefined,
+      //   userAgent: navigator.userAgent,
+      //   deviceType,
+      //   browser,
+      //   os,
+      //   screenWidth: window.screen.width,
+      //   screenHeight: window.screen.height,
+      //   viewportWidth: window.innerWidth,
+      //   viewportHeight: window.innerHeight,
+      //   loadTime: loadTime || undefined,
+      //   ...referrerData,
+      //   ...utmData,
+      // });
     } catch (error) {
       console.error("Analytics error:", error);
     }
@@ -231,20 +233,21 @@ export class Analytics {
     try {
       const timeOnPage = Math.round((Date.now() - this.startTime) / 1000);
 
-      await this.tinybird.updateSession({
-        sessionId: this.sessionId,
-        visitorId: this.visitorId,
-        businessId: this.businessId,
-        startTime: Math.floor(this.startTime / 1000),
-        endTime: Math.floor(Date.now() / 1000),
-        duration: timeOnPage,
-        pageCount: 1, // This would need to be tracked properly
-        eventCount: this.clicks,
-        entryPage: window.location.pathname,
-        exitPage: window.location.pathname,
-        hasConverted: false,
-        bounce: timeOnPage < 10, // Consider it a bounce if less than 10 seconds
-      });
+      // COMMENTED OUT - Tinybird disabled
+      // await this.tinybird.updateSession({
+      //   sessionId: this.sessionId,
+      //   visitorId: this.visitorId,
+      //   businessId: this.businessId,
+      //   startTime: Math.floor(this.startTime / 1000),
+      //   endTime: Math.floor(Date.now() / 1000),
+      //   duration: timeOnPage,
+      //   pageCount: 1, // This would need to be tracked properly
+      //   eventCount: this.clicks,
+      //   entryPage: window.location.pathname,
+      //   exitPage: window.location.pathname,
+      //   hasConverted: false,
+      //   bounce: timeOnPage < 10, // Consider it a bounce if less than 10 seconds
+      // });
     } catch (error) {
       console.error("Analytics error:", error);
     }
@@ -257,18 +260,19 @@ export class Analytics {
     eventValue?: number,
   ) {
     try {
-      await this.tinybird.trackEvent({
-        timestamp: Math.floor(Date.now() / 1000),
-        businessId: this.businessId,
-        visitorId: this.visitorId,
-        sessionId: this.sessionId,
-        eventType,
-        eventCategory,
-        eventLabel,
-        eventValue,
-        path: window.location.pathname,
-        metadata: undefined,
-      });
+      // COMMENTED OUT - Tinybird disabled
+      // await this.tinybird.trackEvent({
+      //   timestamp: Math.floor(Date.now() / 1000),
+      //   businessId: this.businessId,
+      //   visitorId: this.visitorId,
+      //   sessionId: this.sessionId,
+      //   eventType,
+      //   eventCategory,
+      //   eventLabel,
+      //   eventValue,
+      //   path: window.location.pathname,
+      //   metadata: undefined,
+      // });
     } catch (error) {
       console.error("Analytics error:", error);
     }
@@ -278,18 +282,19 @@ export class Analytics {
     try {
       await this.trackEvent("conversion", "engagement", conversionType);
 
-      await this.tinybird.updateSession({
-        sessionId: this.sessionId,
-        visitorId: this.visitorId,
-        businessId: this.businessId,
-        hasConverted: true,
-        conversionType,
-        startTime: Math.floor(this.startTime / 1000),
-        pageCount: 1,
-        eventCount: this.clicks,
-        entryPage: window.location.pathname,
-        bounce: false,
-      });
+      // COMMENTED OUT - Tinybird disabled
+      // await this.tinybird.updateSession({
+      //   sessionId: this.sessionId,
+      //   visitorId: this.visitorId,
+      //   businessId: this.businessId,
+      //   hasConverted: true,
+      //   conversionType,
+      //   startTime: Math.floor(this.startTime / 1000),
+      //   pageCount: 1,
+      //   eventCount: this.clicks,
+      //   entryPage: window.location.pathname,
+      //   bounce: false,
+      // });
     } catch (error) {
       console.error("Analytics error:", error);
     }

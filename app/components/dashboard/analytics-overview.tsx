@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
+import dynamic from "next/dynamic";
 import {
   Card,
   CardContent,
@@ -8,24 +9,70 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/components/ui/card";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/app/components/ui/chart";
 import { Badge } from "@/app/components/ui/badge";
 import { Button } from "@/app/components/ui/button";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
+
+// Lazy load heavy chart components
+const ChartContainer = dynamic(() =>
+  import("@/app/components/ui/chart").then(mod => ({ default: mod.ChartContainer })),
+  { ssr: false }
+);
+
+const ChartTooltip = dynamic(() =>
+  import("@/app/components/ui/chart").then(mod => ({ default: mod.ChartTooltip })),
+  { ssr: false }
+);
+
+const ChartTooltipContent = dynamic(() =>
+  import("@/app/components/ui/chart").then(mod => ({ default: mod.ChartTooltipContent })),
+  { ssr: false }
+);
+
+// Lazy load Recharts components
+const LineChart = dynamic(() =>
+  import("recharts").then(mod => ({ default: mod.LineChart })),
+  { ssr: false }
+);
+
+const Line = dynamic(() =>
+  import("recharts").then(mod => ({ default: mod.Line })),
+  { ssr: false }
+);
+
+const XAxis = dynamic(() =>
+  import("recharts").then(mod => ({ default: mod.XAxis })),
+  { ssr: false }
+);
+
+const YAxis = dynamic(() =>
+  import("recharts").then(mod => ({ default: mod.YAxis })),
+  { ssr: false }
+);
+
+const CartesianGrid = dynamic(() =>
+  import("recharts").then(mod => ({ default: mod.CartesianGrid })),
+  { ssr: false }
+);
+
+const ResponsiveContainer = dynamic(() =>
+  import("recharts").then(mod => ({ default: mod.ResponsiveContainer })),
+  { ssr: false }
+);
+
+const PieChart = dynamic(() =>
+  import("recharts").then(mod => ({ default: mod.PieChart })),
+  { ssr: false }
+);
+
+const Pie = dynamic(() =>
+  import("recharts").then(mod => ({ default: mod.Pie })),
+  { ssr: false }
+);
+
+const Cell = dynamic(() =>
+  import("recharts").then(mod => ({ default: mod.Cell })),
+  { ssr: false }
+);
 import {
   Users,
   Eye,
@@ -50,8 +97,10 @@ export default function AnalyticsOverview({
 }: AnalyticsOverviewProps) {
   const [timeRange, setTimeRange] = useState<"7d" | "30d">("7d");
 
-  const startDate =
-    timeRange === "7d" ? subDays(new Date(), 7) : subDays(new Date(), 30);
+  const startDate = useMemo(() =>
+    timeRange === "7d" ? subDays(new Date(), 7) : subDays(new Date(), 30),
+    [timeRange]
+  );
 
   // Tinybird analytics
   const {
@@ -63,8 +112,8 @@ export default function AnalyticsOverview({
 
   const isLoading = tinybirdLoading;
 
-  // Normalize data
-  const analyticsData = {
+  // Memoize analytics data
+  const analyticsData = useMemo(() => ({
     totalPageViews: tinybirdSummary?.total_page_views || 0,
     uniqueVisitors: tinybirdSummary?.unique_visitors || 0,
     avgSessionDuration: tinybirdSummary?.avg_session_duration || 0,
@@ -73,10 +122,10 @@ export default function AnalyticsOverview({
       .slice(0, 5)
       .map((p) => ({ path: p.path, views: p.views })),
     recentActivity: tinybirdRealTime?.active_visitors || 0,
-  };
+  }), [tinybirdSummary, tinybirdTopPages, tinybirdRealTime]);
 
-  // Generate chart data
-  const generateDailyData = () => {
+  // Memoize chart data generation
+  const dailyData = useMemo(() => {
     const days = timeRange === "7d" ? 7 : 30;
     const data = [];
     const baseViews = analyticsData.totalPageViews / days;
@@ -91,16 +140,19 @@ export default function AnalyticsOverview({
       });
     }
     return data;
-  };
+  }, [timeRange, analyticsData.totalPageViews]);
 
-  const dailyData = generateDailyData();
-
-  // Device type data (mock for now)
-  const deviceData = [
+  // Static device data
+  const deviceData = useMemo(() => [
     { name: "Desktop", value: 65, color: "#3b82f6" },
     { name: "Mobile", value: 30, color: "#10b981" },
     { name: "Tablet", value: 5, color: "#f59e0b" },
-  ];
+  ], []);
+
+  // Memoize callbacks
+  const handleTimeRangeChange = useCallback((range: "7d" | "30d") => {
+    setTimeRange(range);
+  }, []);
 
   if (isLoading) {
     return (
@@ -135,7 +187,7 @@ export default function AnalyticsOverview({
           <div className="flex items-center gap-2">
             <div className="flex gap-1 bg-muted p-1 rounded-lg">
               <button
-                onClick={() => setTimeRange("7d")}
+                onClick={() => handleTimeRangeChange("7d")}
                 className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
                   timeRange === "7d"
                     ? "bg-background text-foreground shadow-sm"
@@ -145,7 +197,7 @@ export default function AnalyticsOverview({
                 7 days
               </button>
               <button
-                onClick={() => setTimeRange("30d")}
+                onClick={() => handleTimeRangeChange("30d")}
                 className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
                   timeRange === "30d"
                     ? "bg-background text-foreground shadow-sm"

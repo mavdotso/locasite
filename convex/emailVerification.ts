@@ -1,7 +1,7 @@
 import { mutation, query, action, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserFromAuth } from "./lib/helpers";
-import { internal, api } from "./_generated/api";
+import { internal } from "./_generated/api";
 import { logger } from "./lib/logger";
 import { convexEnv } from "./lib/env";
 
@@ -56,7 +56,7 @@ export const sendVerificationEmail = action({
       throw new Error("Claim not found");
     }
 
-    // Generate verification token using the action  
+    // Generate verification token using the action
     const token = await ctx.runAction(internal.emailActions.internal_generateToken, {});
     const expiry = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
 
@@ -73,19 +73,19 @@ export const sendVerificationEmail = action({
     // Send verification email
     const appUrl = convexEnv.NEXT_PUBLIC_APP_URL;
     const verificationUrl = `${appUrl}/verify-email?token=${token}&businessId=${args.businessId}`;
-    
+
     // Check if business has email
     if (!business.email) {
       throw new Error("No email address available for verification");
     }
     const recipientEmail = business.email;
-    
+
     const emailResult = await ctx.runAction(internal.emailActions.internal_sendVerificationEmail, {
       businessName: business.name,
       businessEmail: recipientEmail,
       verificationUrl,
     });
-    
+
     if (emailResult.success) {
       return {
         success: true,
@@ -211,7 +211,7 @@ export const resendVerificationEmail = action({
         expiry,
       },
     );
-    
+
     const newAttempts = updateResult.attempts;
 
     // Get business details
@@ -229,19 +229,19 @@ export const resendVerificationEmail = action({
     // Send verification email with new token
     const appUrl = convexEnv.NEXT_PUBLIC_APP_URL;
     const verificationUrl = `${appUrl}/verify-email?token=${token}&businessId=${claim.businessId}`;
-    
+
     // Check if business has email
     if (!business.email) {
       throw new Error("No email address available for verification");
     }
     const recipientEmail = business.email;
-    
+
     const emailResult = await ctx.runAction(internal.emailActions.internal_sendVerificationEmail, {
       businessName: business.name,
       businessEmail: recipientEmail,
       verificationUrl,
     });
-    
+
     if (emailResult.success) {
       logger.emailOperation('resend_verification', recipientEmail, true);
       return {

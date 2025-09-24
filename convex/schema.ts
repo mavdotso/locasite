@@ -139,6 +139,8 @@ export default defineSchema({
     seoTitle: v.optional(v.string()), // Custom SEO title
     seoDescription: v.optional(v.string()), // Custom SEO description
     seoKeywords: v.optional(v.array(v.string())), // Custom SEO keywords
+    ogTitle: v.optional(v.string()), // Custom Open Graph title
+    ogDescription: v.optional(v.string()), // Custom Open Graph description
     ogImage: v.optional(v.string()), // Custom OG image URL
     ogImageStorageId: v.optional(v.id("_storage")), // Convex storage ID for OG image
 
