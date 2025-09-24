@@ -32,7 +32,6 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter, useSearchParams } from "next/navigation";
 import { notFound } from "next/navigation";
-import { useCurrentUser } from "@/app/components/providers/dashboard-provider";
 
 // Lazy load heavy components
 const SeoSettings = lazy(() =>
@@ -67,8 +66,9 @@ export default function BusinessDashboard({
   const dashboardData = useQuery(api.dashboardData.getDashboardBusinessData, {
     businessId,
   });
-  // Get user from context instead of making another query
-  const user = useCurrentUser();
+  // Query user data directly - Convex handles deduplication
+  const userWithSub = useQuery(api.auth.currentUserWithSubscription);
+  const user = userWithSub?.user;
 
   const business = dashboardData?.business;
   const domain = dashboardData?.domain;

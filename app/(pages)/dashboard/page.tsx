@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useEffect, useRef, useCallback, useState } from "react";
-import { usePaginatedQuery, useQuery } from "convex/react";
+import { usePaginatedQuery } from "convex/react";
 import { Card } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Badge } from "@/app/components/ui/badge";
@@ -24,7 +24,6 @@ import { Doc } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
 import { useSubscription } from "@/app/hooks/use-subscription";
 import { canCreateBusiness } from "@/convex/lib/plans";
-import { Loader2 } from "lucide-react";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -198,7 +197,7 @@ export default function DashboardPage() {
 
       {status === "Exhausted" && ownedBusinesses.length > ITEMS_PER_PAGE && (
         <div className="text-center py-8 text-muted-foreground">
-          <p>You've reached the end of your sites</p>
+          <p>You&apos;ve reached the end of your sites</p>
         </div>
       )}
     </div>

@@ -9,7 +9,8 @@ import { toast } from "sonner";
 
 export function AuthRedirectHandler() {
   const router = useRouter();
-  const user = useQuery(api.auth.currentUser);
+  const userWithSub = useQuery(api.auth.currentUserWithSubscription);
+  const user = userWithSub?.user;
   const claimBusiness = useMutation(api.businessClaims.claimBusiness);
 
   useEffect(() => {
