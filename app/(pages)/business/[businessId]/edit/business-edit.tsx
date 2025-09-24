@@ -75,7 +75,8 @@ export default function BusinessEdit({
           }
         } catch (error) {
           console.error("Failed to claim business:", error);
-          if (error.message?.includes("already claimed by another user")) {
+          const errorMessage = error instanceof Error ? error.message : "Unknown error";
+          if (errorMessage.includes("already claimed by another user")) {
             toast.error("This business has already been claimed by another user");
             router.push("/dashboard");
             return;

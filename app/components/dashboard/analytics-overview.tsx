@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import dynamic from "next/dynamic";
 import {
   Card,
   CardContent,
@@ -12,67 +11,25 @@ import {
 import { Badge } from "@/app/components/ui/badge";
 import { Button } from "@/app/components/ui/button";
 
-// Lazy load heavy chart components
-const ChartContainer = dynamic(() =>
-  import("@/app/components/ui/chart").then(mod => ({ default: mod.ChartContainer })),
-  { ssr: false }
-);
+// Import chart components directly to avoid type issues
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/app/components/ui/chart";
 
-const ChartTooltip = dynamic(() =>
-  import("@/app/components/ui/chart").then(mod => ({ default: mod.ChartTooltip })),
-  { ssr: false }
-);
-
-const ChartTooltipContent = dynamic(() =>
-  import("@/app/components/ui/chart").then(mod => ({ default: mod.ChartTooltipContent })),
-  { ssr: false }
-);
-
-// Lazy load Recharts components
-const LineChart = dynamic(() =>
-  import("recharts").then(mod => ({ default: mod.LineChart })),
-  { ssr: false }
-);
-
-const Line = dynamic(() =>
-  import("recharts").then(mod => ({ default: mod.Line })),
-  { ssr: false }
-);
-
-const XAxis = dynamic(() =>
-  import("recharts").then(mod => ({ default: mod.XAxis })),
-  { ssr: false }
-);
-
-const YAxis = dynamic(() =>
-  import("recharts").then(mod => ({ default: mod.YAxis })),
-  { ssr: false }
-);
-
-const CartesianGrid = dynamic(() =>
-  import("recharts").then(mod => ({ default: mod.CartesianGrid })),
-  { ssr: false }
-);
-
-const ResponsiveContainer = dynamic(() =>
-  import("recharts").then(mod => ({ default: mod.ResponsiveContainer })),
-  { ssr: false }
-);
-
-const PieChart = dynamic(() =>
-  import("recharts").then(mod => ({ default: mod.PieChart })),
-  { ssr: false }
-);
-
-const Pie = dynamic(() =>
-  import("recharts").then(mod => ({ default: mod.Pie })),
-  { ssr: false }
-);
-
-const Cell = dynamic(() =>
-  import("recharts").then(mod => ({ default: mod.Cell })),
-  { ssr: false }
-);
+// Import Recharts components directly to avoid type issues
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 import {
   Users,
   Eye,

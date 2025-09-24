@@ -2,7 +2,7 @@ import { query } from "./_generated/server";
 import { v } from "convex/values";
 import { paginationOptsValidator } from "convex/server";
 import { auth } from "./auth";
-import { Id } from "./_generated/dataModel";
+import { Id, Doc } from "./_generated/dataModel";
 
 export const getDashboardBusinessData = query({
   args: { businessId: v.id("businesses") },
@@ -97,9 +97,10 @@ export const getUserBusinessesPaginated = query({
       domainIds.map(id => ctx.db.get(id))
     );
 
-    const domainMap = new Map(
-      domains.map(d => d ? [d._id, d] : null).filter(Boolean) as any
-    );
+    const domainMap = new Map<Id<"domains">, Doc<"domains">>();
+    domains.forEach(d => {
+      if (d) domainMap.set(d._id, d);
+    });
 
     // Batch check for unread messages
     const businessIds = results.page.map(b => b._id);

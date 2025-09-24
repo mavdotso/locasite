@@ -1,6 +1,7 @@
 import { action, internalMutation, internalAction } from "./_generated/server";
 import { v } from "convex/values";
 import { api, internal } from "./_generated/api";
+import { Doc } from "./_generated/dataModel";
 
 export const storeBusinessImages = action({
   args: {
@@ -138,9 +139,9 @@ export const internalStoreBusinessImages = internalAction({
   },
   handler: async (ctx, args): Promise<{ success: boolean; message: string; storedUrls?: string[] }> => {
     // Get the business via internal query
-    const business: any = await ctx.runQuery(internal.businesses.internal_getBusinessById, {
-      businessId: args.businessId,
-    });
+    const business = await ctx.runQuery(internal.businesses.internal_getBusinessById, {
+      id: args.businessId,
+    }) as Doc<"businesses"> | null;
 
     if (!business) {
       throw new Error("Business not found");

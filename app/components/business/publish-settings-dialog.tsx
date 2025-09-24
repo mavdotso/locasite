@@ -524,12 +524,12 @@ export function PublishSettingsDialog({
     {/* Media Library Dialog */}
     {showMediaLibrary && (
       <MediaLibrary
-        onSelect={(image) => {
-          setFormData({ ...formData, ogImage: image.url });
+        onSelect={(url) => {
+          setFormData({ ...formData, ogImage: url });
           setShowMediaLibrary(false);
         }}
-        onClose={() => setShowMediaLibrary(false)}
         businessId={businessId}
+        trigger={<></>}
       />
     )}
     </>

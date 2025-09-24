@@ -7,7 +7,6 @@ import { Doc } from "@/convex/_generated/dataModel";
 
 interface DashboardContextType {
   user: Doc<"users"> | null | undefined;
-  businesses: Doc<"businesses">[] | undefined;
   isLoading: boolean;
   isAuthenticated: boolean;
   authChecked: boolean;
@@ -18,28 +17,28 @@ const DashboardContext = createContext<DashboardContextType | undefined>(
 );
 
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
-  // Only query user, not businesses - let individual pages handle their own data
-  const user = useQuery(api.auth.currentUser);
+  // Use combined query that fetches user and subscription data together
+  const userWithSubscription = useQuery(api.auth.currentUserWithSubscription);
 
   // Track whether we've completed the initial auth check
   const [authChecked, setAuthChecked] = useState(false);
 
   // Determine loading state
-  const isLoading = user === undefined;
-  const isAuthenticated = user !== null && user !== undefined;
+  const isLoading = userWithSubscription === undefined;
+  const isAuthenticated = userWithSubscription !== null && userWithSubscription?.user !== null;
+  const user = userWithSubscription?.user || null;
 
   // Mark auth as checked once we have a definitive answer
   useEffect(() => {
-    if (user !== undefined) {
+    if (userWithSubscription !== undefined) {
       setAuthChecked(true);
     }
-  }, [user]);
+  }, [userWithSubscription]);
 
   return (
     <DashboardContext.Provider
       value={{
         user,
-        businesses,
         isLoading,
         isAuthenticated,
         authChecked,
