@@ -1,15 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect } from "react";
-import { api } from "@/convex/_generated/api";
-import { useAction } from "convex/react";
-import { Id } from "@/convex/_generated/dataModel";
+import { useState } from "react";
+import { ImageOff } from "lucide-react";
 
 interface ConvexImageProps {
   src: string;
   alt: string;
-  businessId?: Id<"businesses"> | string;
+  businessId?: string;
   width?: number;
   height?: number;
   fill?: boolean;
@@ -25,7 +23,6 @@ interface ConvexImageProps {
 export function ConvexImage({
   src,
   alt,
-  businessId,
   width,
   height,
   fill,
@@ -37,58 +34,31 @@ export function ConvexImage({
   sizes,
   quality,
 }: ConvexImageProps) {
-  const [imageSrc, setImageSrc] = useState(src);
-  const [isLoading, setIsLoading] = useState(false);
-  const uploadImage = useAction(
-    api.uploadBusinessImages.uploadGoogleMapsImages,
-  );
+  const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Type-safe check for businessId and src
-    if (
-      typeof businessId === "string" &&
-      businessId !== "preview" &&
-      src &&
-      typeof src === "string" &&
-      src.includes("maps.googleapis.com")
-    ) {
-      setIsLoading(true);
+  const handleError = () => {
+    setHasError(true);
+    setIsLoading(false);
+    onError?.();
+  };
 
-      // Upload the image to Convex
-      uploadImage({
-        businessId: businessId as Id<"businesses">,
-        imageUrls: [src],
-      })
-        .then((result) => {
-          if (result.storedUrls && result.storedUrls[0]) {
-            setImageSrc(result.storedUrls[0]);
-          }
-        })
-        .catch(() => {})
-        .finally(() => {
-          setIsLoading(false);
-        });
-    } else {
-      setImageSrc(src);
-    }
-  }, [src, businessId, uploadImage]);
+  const handleLoad = () => {
+    setIsLoading(false);
+    onLoad?.();
+  };
 
-  // Show loading state
-  if (isLoading) {
+  // Show placeholder for broken/missing images
+  if (hasError || !src) {
     return (
       <div
-        className={className}
-        style={{
-          ...style,
-          backgroundColor: "#f3f4f6",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: fill ? "100%" : width,
-          height: fill ? "100%" : height,
-        }}
+        className={`${className || ""} bg-gray-100 dark:bg-gray-800 flex items-center justify-center w-full h-full`}
+        aria-label={alt}
       >
-        <div className="animate-pulse">Loading...</div>
+        <div className="flex flex-col items-center gap-2 text-gray-400 dark:text-gray-600">
+          <ImageOff className="w-8 h-8" />
+          <span className="text-xs">Image not available</span>
+        </div>
       </div>
     );
   }
@@ -96,34 +66,55 @@ export function ConvexImage({
   // Render the image
   if (fill) {
     return (
-      <Image
-        src={imageSrc}
-        alt={alt}
-        fill
-        className={className}
-        priority={priority}
-        onLoad={onLoad}
-        onError={onError}
-        style={style}
-        sizes={sizes}
-        quality={quality}
-      />
+      <>
+        {isLoading && (
+          <div
+            className={`${className || ""} animate-pulse bg-gray-200 dark:bg-gray-700 absolute inset-0`}
+            aria-label="Loading image"
+          />
+        )}
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          className={className}
+          priority={priority}
+          onLoad={handleLoad}
+          onError={handleError}
+          style={style}
+          sizes={sizes}
+          quality={quality}
+        />
+      </>
     );
   }
 
   return (
-    <Image
-      src={imageSrc}
-      alt={alt}
-      width={width || 800}
-      height={height || 600}
-      className={className}
-      priority={priority}
-      onLoad={onLoad}
-      onError={onError}
-      style={style}
-      sizes={sizes}
-      quality={quality}
-    />
+    <>
+      {isLoading && (
+        <div
+          className={`${className || ""} animate-pulse bg-gray-200 dark:bg-gray-700`}
+          style={{
+            width: width || 800,
+            height: height || 600,
+            position: "absolute",
+          }}
+          aria-label="Loading image"
+        />
+      )}
+      <Image
+        src={src}
+        alt={alt}
+        width={width || 800}
+        height={height || 600}
+        className={className}
+        priority={priority}
+        onLoad={handleLoad}
+        onError={handleError}
+        style={style}
+        sizes={sizes}
+        quality={quality}
+      />
+    </>
   );
 }

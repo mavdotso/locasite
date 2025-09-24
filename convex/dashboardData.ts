@@ -115,6 +115,9 @@ export const getUserBusinessesPaginated = query({
       )
     );
 
+    // Note: Image migration is now handled by separate mutations
+    // Just mark businesses that need migration for client-side handling
+
     // Combine results
     const businessesWithMetadata = results.page.map((business, index) => {
       const domain = business.domainId ? domainMap.get(business.domainId) || null : null;
