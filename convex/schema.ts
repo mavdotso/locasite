@@ -10,25 +10,20 @@ import {
 export default defineSchema({
   ...authTables,
 
-  // Themes table for storing theme configurations
   themes: defineTable({
-    // Theme info
     name: v.string(),
     description: v.optional(v.string()),
-    isPreset: v.boolean(), // true for built-in themes, false for custom
-    presetId: v.optional(v.string()), // ID of the preset this was based on
+    isPreset: v.boolean(),
+    presetId: v.optional(v.string()),
 
-    // Theme configuration
     config: advancedThemeSchemaV,
 
-    // Ownership
-    userId: v.optional(v.id("users")), // null for preset themes
-    businessId: v.optional(v.id("businesses")), // if theme is business-specific
+    userId: v.optional(v.id("users")),
+    businessId: v.optional(v.id("businesses")),
 
-    // Metadata
     createdAt: v.number(),
     updatedAt: v.number(),
-    isPublic: v.boolean(), // whether other users can use this theme
+    isPublic: v.boolean(),
     tags: v.array(v.string()),
     industry: v.optional(v.string()),
   })
@@ -49,15 +44,14 @@ export default defineSchema({
     isVerified: v.optional(v.boolean()),
     verificationToken: v.optional(v.string()),
 
-    // SSL and verification fields
     sslStatus: v.optional(
       v.union(v.literal("pending"), v.literal("active"), v.literal("failed")),
     ),
-    sslProvider: v.optional(v.string()), // "vercel", "cloudflare", etc.
+    sslProvider: v.optional(v.string()),
     dnsRecords: v.optional(
       v.array(
         v.object({
-          type: v.string(), // "A", "CNAME", "TXT"
+          type: v.string(),
           name: v.string(),
           value: v.string(),
           required: v.boolean(),
@@ -71,11 +65,9 @@ export default defineSchema({
     lastVerificationCheck: v.optional(v.number()),
     verificationError: v.optional(v.string()),
 
-    // Vercel integration
     vercelDomainId: v.optional(v.string()),
     apexName: v.optional(v.string()),
 
-    // Timestamps
     createdAt: v.number(),
     updatedAt: v.optional(v.number()),
     verifiedAt: v.optional(v.number()),
@@ -86,7 +78,6 @@ export default defineSchema({
   pages: defineTable({
     domainId: v.id("domains"),
     content: v.string(),
-    // Draft content for unpublished changes
     draftContent: v.optional(v.string()),
     isPublished: v.optional(v.boolean()),
     lastEditedAt: v.optional(v.number()),
@@ -114,39 +105,33 @@ export default defineSchema({
     userId: v.optional(v.id("users")),
     domainId: v.optional(v.id("domains")),
 
-    // Legacy theme support (for backward compatibility)
     theme: v.optional(simpleThemeSchemaV),
 
-    // New advanced theme system
-    themeId: v.optional(v.id("themes")), // Reference to themes table
-    themeOverrides: v.optional(partialAdvancedThemeSchemaV), // Business-specific overrides
-    // Publishing state
+    themeId: v.optional(v.id("themes")),
+    themeOverrides: v.optional(partialAdvancedThemeSchemaV),
     isPublished: v.optional(v.boolean()),
     publishedAt: v.optional(v.number()),
 
-    // Publishing permissions
-    canPublish: v.optional(v.boolean()), // Can this business publish their site
-    verificationRequired: v.optional(v.boolean()), // Does this business need verification (default: true)
-    publishingBlocked: v.optional(v.boolean()), // Is publishing temporarily blocked
-    publishingBlockReason: v.optional(v.string()), // Reason for blocking
-    lastVerificationCheck: v.optional(v.number()), // Last verification timestamp
+    canPublish: v.optional(v.boolean()),
+    verificationRequired: v.optional(v.boolean()),
+    publishingBlocked: v.optional(v.boolean()),
+    publishingBlockReason: v.optional(v.string()),
+    lastVerificationCheck: v.optional(v.number()),
     verificationMethod: v.optional(
       v.union(v.literal("google"), v.literal("email"), v.literal("manual")),
     ),
     verificationCompletedAt: v.optional(v.number()),
 
-    // SEO and branding
-    favicon: v.optional(v.string()), // URL to custom favicon
-    faviconStorageId: v.optional(v.id("_storage")), // Convex storage ID for favicon
-    seoTitle: v.optional(v.string()), // Custom SEO title
-    seoDescription: v.optional(v.string()), // Custom SEO description
-    seoKeywords: v.optional(v.array(v.string())), // Custom SEO keywords
-    ogTitle: v.optional(v.string()), // Custom Open Graph title
-    ogDescription: v.optional(v.string()), // Custom Open Graph description
-    ogImage: v.optional(v.string()), // Custom OG image URL
-    ogImageStorageId: v.optional(v.id("_storage")), // Convex storage ID for OG image
+    favicon: v.optional(v.string()),
+    faviconStorageId: v.optional(v.id("_storage")),
+    seoTitle: v.optional(v.string()),
+    seoDescription: v.optional(v.string()),
+    seoKeywords: v.optional(v.array(v.string())),
+    ogTitle: v.optional(v.string()),
+    ogDescription: v.optional(v.string()),
+    ogImage: v.optional(v.string()),
+    ogImageStorageId: v.optional(v.id("_storage")),
 
-    // Draft content - stores unsaved changes
     draftContent: v.optional(
       v.object({
         name: v.optional(v.string()),
@@ -161,7 +146,6 @@ export default defineSchema({
       }),
     ),
     lastEditedAt: v.optional(v.number()),
-    // AI-generated content for website sections
     aiGeneratedContent: v.optional(
       v.object({
         hero: v.optional(
@@ -301,7 +285,6 @@ export default defineSchema({
         ),
       }),
     ),
-    // Google Business Profile integration
     googleBusinessAuth: v.optional(
       v.object({
         accessToken: v.string(),
@@ -328,7 +311,6 @@ export default defineSchema({
       }),
     ),
   })
-    // Note: placeId should be unique - enforced in mutation logic since Convex doesn't support unique indexes
     .index("by_placeId", ["placeId"])
     .index("by_userId", ["userId"])
     .index("by_domainId", ["domainId"])
@@ -354,13 +336,11 @@ export default defineSchema({
     updatedAt: v.optional(v.number()),
     notes: v.optional(v.string()),
 
-    // Email verification fields
     emailVerificationToken: v.optional(v.string()),
     emailVerificationExpiry: v.optional(v.number()),
     magicLinkSent: v.optional(v.boolean()),
     verificationAttempts: v.optional(v.number()),
 
-    // Admin review fields
     adminNotes: v.optional(v.string()),
     documentsUploaded: v.optional(v.array(v.string())),
   })
@@ -389,7 +369,6 @@ export default defineSchema({
     .index("by_business_status", ["businessId", "status"])
     .index("by_createdAt", ["createdAt"]),
 
-  // Media library for storing user-uploaded files
   mediaLibrary: defineTable({
     fileName: v.string(),
     originalName: v.string(),
@@ -455,13 +434,11 @@ export default defineSchema({
     .index("by_business_active", ["businessId", "isActive"])
     .index("by_business_order", ["businessId", "order"]),
 
-  // Stripe customer records
   stripeCustomers: defineTable({
     userId: v.id("users"),
     stripeCustomerId: v.string(),
   }).index("by_user", ["userId"]),
 
-  // Stripe subscription records
   stripeSubscriptions: defineTable({
     customerId: v.string(),
     subscriptionId: v.optional(v.string()),
@@ -485,7 +462,6 @@ export default defineSchema({
     ),
   }).index("by_customerId", ["customerId"]),
 
-  // Payment records
   payments: defineTable({
     userId: v.id("users"),
     amount: v.number(),
