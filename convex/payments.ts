@@ -2,7 +2,6 @@ import { v } from "convex/values";
 import { internalMutation, mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
-// Create a payment record
 export const create = mutation({
   args: {
     amount: v.number(),
@@ -22,7 +21,6 @@ export const create = mutation({
   },
 });
 
-// Internal mutation to fulfill payment by session ID
 export const fulfillBySessionId = internalMutation({
   args: {
     sessionId: v.string(),
@@ -48,7 +46,6 @@ export const fulfillBySessionId = internalMutation({
   },
 });
 
-// Get user's payment history
 export const listByUser = query({
   args: {
     limit: v.optional(v.number()),
@@ -67,7 +64,6 @@ export const listByUser = query({
   },
 });
 
-// Get payment by session ID
 export const getBySessionId = query({
   args: {
     sessionId: v.string(),
@@ -82,7 +78,6 @@ export const getBySessionId = query({
   },
 });
 
-// Update payment status
 export const updateStatus = internalMutation({
   args: {
     paymentId: v.id("payments"),

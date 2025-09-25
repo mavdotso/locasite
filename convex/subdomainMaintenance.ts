@@ -1,6 +1,4 @@
-/**
- * Maintenance functions for subdomain reservations
- */
+
 
 import { internalMutation } from "./_generated/server";
 

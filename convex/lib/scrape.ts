@@ -1,16 +1,16 @@
 import { RateLimiter } from "@convex-dev/rate-limiter";
 import axios from "axios";
-import { api, components, internal } from "../_generated/api";
+import { components, internal } from "../_generated/api";
 import { httpAction } from "../_generated/server";
 import { generateDefaultDescription } from "./businessDescriptions";
 import { convexEnv } from "./env";
 import { logger } from "./logger";
 
-const MINUTE = 60 * 1000; // 1 minute in milliseconds
+const MINUTE = 60 * 1000;
 
 const rateLimiter = new RateLimiter(components.rateLimiter, {
 	previewScrape: { kind: "fixed window", rate: 3, period: MINUTE },
-	businessCreation: { kind: "fixed window", rate: 5, period: MINUTE }, // Limit unauthenticated business creation
+	businessCreation: { kind: "fixed window", rate: 5, period: MINUTE },
 });
 
 interface GooglePlaceReview {
@@ -75,9 +75,6 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
 		requestUrl = url;
 		requestPreview = preview;
 
-		// Apply rate limiting for all unauthenticated requests
-		// Use different limits for preview vs full creation
-		// Parse IP address properly to prevent spoofing
 		const xff = request.headers.get("x-forwarded-for") || "";
 		const cfIp = request.headers.get("cf-connecting-ip") || "";
 		const identifier = xff.split(",")[0]?.trim() || cfIp || "anonymous";
@@ -118,13 +115,11 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
 			);
 		}
 
-		// Extract business name from URL
 		const nameMatch = requestUrl.match(/place\/([^/@]+)/);
 		let businessName = nameMatch
 			? decodeURIComponent(nameMatch[1].replace(/\+/g, " "))
 			: null;
 
-		// Try alternative pattern for complex URLs
 		if (!businessName) {
 			const complexMatch = requestUrl.match(/maps\/place\/([^/@?]+)/);
 			if (complexMatch) {
@@ -146,7 +141,6 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
 			);
 		}
 
-		// Use Google Places API to search for the business
 		const apiKey = convexEnv.GOOGLE_MAPS_API_KEY;
 		const findPlaceResponse = await axios.get(
 			`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(businessName)}&inputtype=textquery&fields=place_id,name,formatted_address&key=${apiKey}`,
@@ -172,7 +166,6 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
 
 		const placeId = findPlaceResponse.data.candidates[0].place_id;
 
-		// Get detailed information using the place_id
 		const fields = [
 			"name",
 			"formatted_address",
@@ -214,13 +207,11 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
 		const place = detailsResponse.data.result;
 
 		const MAX_PHOTOS = 25;
-		// Return only photo references to avoid exposing API key
-		// Frontend should use a browser-restricted key or proxy endpoint
+
 		const photoReferences = (place.photos ?? [])
 			.slice(0, MAX_PHOTOS)
 			.map((photo: GooglePlacePhoto) => photo.photo_reference);
 
-		// Convert photo references to absolute proxy URLs to avoid origin ambiguity
 		const baseUrl = new URL("/api/photos", convexEnv.NEXT_PUBLIC_APP_URL);
 		const photos = photoReferences.map((ref: string) => {
 			const u = new URL(baseUrl.toString());
@@ -249,21 +240,17 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
 			placeId: placeId,
 		};
 
-		// Keep the full data for response (including category for frontend use)
 		const fullBusinessData = {
 			...businessData,
 			category: place.types?.[0] || undefined,
 		};
 
-		// AI content generation removed - will be a premium feature
-
-		// Always create the business (without auth requirement)
 		let businessId = null;
 		let domainId = null;
 
 		if (!requestPreview) {
 			try {
-				// Create business without authentication (internal mutation)
+
 				const result = await ctx.runMutation(
 					internal.businesses.createBusinessWithoutAuth,
 					{

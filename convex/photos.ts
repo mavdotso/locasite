@@ -2,15 +2,10 @@ import { httpAction } from "./_generated/server";
 import { convexEnv } from "./lib/env";
 import { logger } from "./lib/logger";
 
-// Constants for photo fetching
 const MAX_WIDTH = 800;
 const GOOGLE_PHOTOS_BASE_URL =
 	"https://maps.googleapis.com/maps/api/place/photo";
 
-/**
- * Proxy endpoint for fetching Google Places photos
- * This keeps the API key server-side and prevents exposure
- */
 export const getPhoto = httpAction(async (ctx, request) => {
 	const url = new URL(request.url);
 	const photoReference = url.searchParams.get("ref");
@@ -20,7 +15,6 @@ export const getPhoto = httpAction(async (ctx, request) => {
 		return new Response("Photo reference required", { status: 400 });
 	}
 
-	// Validate width is a number and within reasonable bounds
 	const parsedWidth = parseInt(width);
 	if (isNaN(parsedWidth) || parsedWidth < 1 || parsedWidth > 2000) {
 		return new Response("Invalid width parameter", { status: 400 });
@@ -32,7 +26,7 @@ export const getPhoto = httpAction(async (ctx, request) => {
 	}
 
 	try {
-		// Fetch the photo from Google Places API with timeout
+
 		const photoUrl = `${GOOGLE_PHOTOS_BASE_URL}?maxwidth=${parsedWidth}&photoreference=${photoReference}&key=${apiKey}`;
 		const controller = new AbortController();
 		const timeout = setTimeout(() => controller.abort(), 15000);
@@ -46,17 +40,14 @@ export const getPhoto = httpAction(async (ctx, request) => {
 			return new Response("Failed to fetch photo", { status: response.status });
 		}
 
-		// Check content length before downloading
 		const len = response.headers.get("content-length");
 		const maxBytes = 5 * 1024 * 1024; // 5MB cap
 		if (len && parseInt(len, 10) > maxBytes) {
 			return new Response("Image too large", { status: 413 });
 		}
 
-		// Forward the image with appropriate headers
 		const imageBuffer = await response.arrayBuffer();
 
-		// Verify size after download
 		if (imageBuffer.byteLength > maxBytes) {
 			return new Response("Image too large", { status: 413 });
 		}

@@ -4,10 +4,8 @@ import { Resend } from 'resend';
 import { logger } from './logger';
 import { validateEmail } from './validation';
 
-// Initialize Resend client
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
-// Helper function to mask email addresses for logging
 function maskEmail(email: string): string {
   if (!email || !email.includes('@')) return 'invalid-email';
   const [localPart, domain] = email.split('@');
@@ -17,7 +15,6 @@ function maskEmail(email: string): string {
   return `${maskedLocal}@${domain}`;
 }
 
-// Helper function to escape HTML entities to prevent XSS
 function escapeHtml(text: string): string {
   const htmlEntities: Record<string, string> = {
     '&': '&amp;',
@@ -30,7 +27,6 @@ function escapeHtml(text: string): string {
   return text.replace(/[&<>"'\/]/g, (char) => htmlEntities[char] || char);
 }
 
-// Email template for verification
 const getVerificationEmailTemplate = (businessName: string, verificationUrl: string, businessEmail: string) => {
   return {
     subject: `Verify your ownership of ${businessName}`,
@@ -132,7 +128,6 @@ Someone requested to claim the business "${businessName}" using the email addres
   };
 };
 
-// Send email function with validation
 export async function sendEmail({
   to,
   subject,
@@ -144,26 +139,24 @@ export async function sendEmail({
   html: string;
   text?: string;
 }): Promise<{ success: boolean; id: string; error?: string }> {
-  // Validate email address
+
   const emailValidation = validateEmail(to);
   if (!emailValidation.valid) {
     logger.warn(`Invalid email address: ${maskEmail(to)}`, { metadata: { error: emailValidation.error } });
     return { success: false, id: '', error: emailValidation.error };
   }
 
-  // Validate subject
   if (!subject || subject.trim().length === 0) {
     return { success: false, id: '', error: 'Email subject is required' };
   }
 
-  // Validate content
   if (!html && !text) {
     return { success: false, id: '', error: 'Email content is required' };
   }
 
   if (!resend) {
     logger.warn('Email service not configured. Please set RESEND_API_KEY environment variable.');
-    // In development, log the email content instead
+
     if (process.env.NODE_ENV === 'development') {
       logger.debug(`📧 Email would be sent to: ${maskEmail(to)}`, {
         metadata: { subject, hasHtml: !!html, hasText: !!text }
@@ -173,7 +166,6 @@ export async function sendEmail({
     return { success: false, id: '', error: 'Email service not configured' };
   }
 
-  // Get from email from environment or use default for development
   const fromEmail = process.env.RESEND_FROM_EMAIL ||
     (process.env.NODE_ENV === 'development' ? 'onboarding@resend.dev' : undefined);
 
@@ -191,7 +183,6 @@ export async function sendEmail({
       text,
     });
 
-    // Check if the response contains an error (non-throwing errors)
     if (result.error || !result.data) {
       logger.error('Email send failed with provider error',
         new Error(result.error?.message || 'Unknown provider error'),
@@ -204,7 +195,7 @@ export async function sendEmail({
           }
         }
       );
-      // Return generic error message to avoid leaking provider details
+
       return {
         success: false,
         id: '',
@@ -218,7 +209,7 @@ export async function sendEmail({
 
     return { success: true, id: result.data.id || 'unknown' };
   } catch (error) {
-    // Log detailed error internally
+
     logger.error('Failed to send email - exception thrown', error as Error, {
       metadata: {
         to: maskEmail(to),
@@ -226,7 +217,7 @@ export async function sendEmail({
         errorDetails: error instanceof Error ? error.stack : String(error)
       }
     });
-    // Return generic error message to avoid leaking sensitive details
+
     return {
       success: false,
       id: '',
@@ -235,18 +226,16 @@ export async function sendEmail({
   }
 }
 
-// Send verification email with validation
 export async function sendVerificationEmail(
   businessName: string,
   businessEmail: string,
   verificationUrl: string
 ): Promise<{ success: boolean; id: string; error?: string }> {
-  // Validate inputs
+
   if (!businessName || businessName.trim().length === 0) {
     return { success: false, id: '', error: 'Business name is required for verification email' };
   }
 
-  // Validate verification URL
   let canonicalUrl: URL;
   try {
     canonicalUrl = new URL(verificationUrl);
@@ -261,7 +250,6 @@ export async function sendVerificationEmail(
       return { success: false, id: '', error: `Invalid verification URL - host mismatch` };
     }
 
-    // Enforce HTTPS in production, allow HTTP only in development
     const isProduction = process.env.NODE_ENV === 'production';
     const isDevelopment = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
 
@@ -273,7 +261,6 @@ export async function sendVerificationEmail(
       return { success: false, id: '', error: 'Invalid verification URL protocol' };
     }
 
-    // Allow HTTP only in development/test environments
     if (canonicalUrl.protocol === 'http:' && !isDevelopment) {
       return { success: false, id: '', error: 'HTTP protocol is only allowed in development' };
     }
@@ -281,7 +268,6 @@ export async function sendVerificationEmail(
     return { success: false, id: '', error: 'Invalid verification URL format' };
   }
 
-  // Use the canonical URL string from the validated URL object
   const canonicalUrlString = canonicalUrl.toString();
   const emailContent = getVerificationEmailTemplate(businessName, canonicalUrlString, businessEmail);
 

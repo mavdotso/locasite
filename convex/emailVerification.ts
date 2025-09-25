@@ -35,13 +35,12 @@ export const sendVerificationEmail = action({
 		email?: string;
 		emailSent?: boolean;
 	}> => {
-		// Get the current user
+
 		const user = await ctx.runQuery(api.auth.currentUser);
 		if (!user) {
 			throw new Error("Not authenticated");
 		}
 
-		// Load the claim and verify it exists
 		const claim = await ctx.runQuery(
 			internal.businessClaims.internal_getClaimById,
 			{
@@ -53,17 +52,14 @@ export const sendVerificationEmail = action({
 			throw new Error("Claim not found");
 		}
 
-		// Verify the claim belongs to the specified business
 		if (claim.businessId !== args.businessId) {
 			throw new Error("Unauthorized: Claim does not belong to this business");
 		}
 
-		// Verify the caller owns the claim
 		if (claim.userId !== user._id) {
 			throw new Error("Unauthorized: You do not own this claim");
 		}
 
-		// Load the business
 		const business = await ctx.runQuery(
 			internal.businesses.internal_getBusinessById,
 			{
@@ -195,13 +191,12 @@ export const resendVerificationEmail = action({
 		message: string;
 		attemptsRemaining: number;
 	}> => {
-		// Get the current user
+
 		const user = await ctx.runQuery(api.auth.currentUser);
 		if (!user) {
 			throw new Error("Not authenticated");
 		}
 
-		// Load the claim and verify it exists
 		const claim = await ctx.runQuery(
 			internal.businessClaims.internal_getClaimById,
 			{
@@ -213,7 +208,6 @@ export const resendVerificationEmail = action({
 			throw new Error("Claim not found");
 		}
 
-		// Verify the caller owns the claim
 		if (claim.userId !== user._id) {
 			throw new Error("Unauthorized: You do not own this claim");
 		}

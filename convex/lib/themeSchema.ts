@@ -1,19 +1,16 @@
 import { v } from "convex/values";
 
-// Color value object
 const colorValue = v.string();
 
-// Color schema for light/dark modes
 export const colorSchemaV = v.object({
-  // Base colors
+
   primary: colorValue,
   primaryForeground: colorValue,
   secondary: colorValue,
   secondaryForeground: colorValue,
   accent: colorValue,
   accentForeground: colorValue,
-  
-  // Semantic colors
+
   background: colorValue,
   foreground: colorValue,
   card: colorValue,
@@ -22,13 +19,11 @@ export const colorSchemaV = v.object({
   popoverForeground: colorValue,
   muted: colorValue,
   mutedForeground: colorValue,
-  
-  // UI colors
+
   border: colorValue,
   input: colorValue,
   ring: colorValue,
-  
-  // State colors
+
   destructive: colorValue,
   destructiveForeground: colorValue,
   success: colorValue,
@@ -39,14 +34,12 @@ export const colorSchemaV = v.object({
   infoForeground: colorValue,
 });
 
-// Typography schema
 export const typographySchemaV = v.object({
-  // Font families
+
   fontFamilyBase: v.string(),
   fontFamilyHeading: v.string(),
   fontFamilyMonospace: v.string(),
-  
-  // Font size scale (stored as rem values)
+
   fontSize: v.object({
     xs: v.string(),
     sm: v.string(),
@@ -62,8 +55,7 @@ export const typographySchemaV = v.object({
     xl8: v.string(),
     xl9: v.string(),
   }),
-  
-  // Font weights
+
   fontWeight: v.object({
     thin: v.number(),
     extralight: v.number(),
@@ -75,8 +67,7 @@ export const typographySchemaV = v.object({
     extrabold: v.number(),
     black: v.number(),
   }),
-  
-  // Line heights
+
   lineHeight: v.object({
     none: v.string(),
     tight: v.string(),
@@ -85,8 +76,7 @@ export const typographySchemaV = v.object({
     relaxed: v.string(),
     loose: v.string(),
   }),
-  
-  // Letter spacing
+
   letterSpacing: v.object({
     tighter: v.string(),
     tight: v.string(),
@@ -97,9 +87,8 @@ export const typographySchemaV = v.object({
   }),
 });
 
-// Spacing schema
 export const spacingSchemaV = v.object({
-  // Base spacing scale
+
   spacing: v.object({
     s0: v.string(),
     s0_5: v.string(),
@@ -136,8 +125,7 @@ export const spacingSchemaV = v.object({
     s80: v.string(),
     s96: v.string(),
   }),
-  
-  // Container sizes
+
   container: v.object({
     sm: v.string(),
     md: v.string(),
@@ -146,8 +134,7 @@ export const spacingSchemaV = v.object({
     xl2: v.string(),
     full: v.string(),
   }),
-  
-  // Section spacing
+
   sectionSpacing: v.object({
     none: v.string(),
     sm: v.string(),
@@ -158,9 +145,8 @@ export const spacingSchemaV = v.object({
   }),
 });
 
-// Effects schema
 export const effectsSchemaV = v.object({
-  // Border radius
+
   borderRadius: v.object({
     none: v.string(),
     sm: v.string(),
@@ -172,8 +158,7 @@ export const effectsSchemaV = v.object({
     xl3: v.string(),
     full: v.string(),
   }),
-  
-  // Box shadows
+
   boxShadow: v.object({
     none: v.string(),
     sm: v.string(),
@@ -184,8 +169,7 @@ export const effectsSchemaV = v.object({
     xl2: v.string(),
     inner: v.string(),
   }),
-  
-  // Transitions
+
   transition: v.object({
     none: v.string(),
     all: v.string(),
@@ -194,8 +178,7 @@ export const effectsSchemaV = v.object({
     shadow: v.string(),
     transform: v.string(),
   }),
-  
-  // Animation
+
   animation: v.object({
     none: v.string(),
     spin: v.string(),
@@ -209,7 +192,6 @@ export const effectsSchemaV = v.object({
   }),
 });
 
-// Button variant schema
 const buttonVariantV = v.object({
   base: v.string(),
   hover: v.string(),
@@ -217,16 +199,14 @@ const buttonVariantV = v.object({
   disabled: v.string(),
 });
 
-// Button size schema
 const buttonSizeV = v.object({
   padding: v.string(),
   fontSize: v.string(),
   height: v.string(),
 });
 
-// Component styles schema
 export const componentStylesSchemaV = v.object({
-  // Button styles
+
   button: v.object({
     variants: v.object({
       primary: buttonVariantV,
@@ -243,8 +223,7 @@ export const componentStylesSchemaV = v.object({
     fontWeight: v.string(),
     transition: v.string(),
   }),
-  
-  // Link styles
+
   link: v.object({
     base: v.string(),
     hover: v.string(),
@@ -252,8 +231,7 @@ export const componentStylesSchemaV = v.object({
     underline: v.boolean(),
     transition: v.string(),
   }),
-  
-  // Card styles
+
   card: v.object({
     borderRadius: v.string(),
     boxShadow: v.string(),
@@ -261,8 +239,7 @@ export const componentStylesSchemaV = v.object({
     borderWidth: v.string(),
     borderColor: v.string(),
   }),
-  
-  // Input/Form styles
+
   input: v.object({
     borderRadius: v.string(),
     borderWidth: v.string(),
@@ -274,7 +251,6 @@ export const componentStylesSchemaV = v.object({
   }),
 });
 
-// Section styles schema
 export const sectionStylesSchemaV = v.object({
   hero: v.object({
     minHeight: v.string(),
@@ -316,45 +292,35 @@ export const sectionStylesSchemaV = v.object({
   }),
 });
 
-// Main theme schema
 export const advancedThemeSchemaV = v.object({
-  // Metadata
+
   id: v.string(),
   name: v.string(),
   description: v.optional(v.string()),
   version: v.string(),
-  
-  // Dark mode support
+
   darkMode: v.boolean(),
-  
-  // Color schemes
+
   colors: v.object({
     light: colorSchemaV,
     dark: v.optional(colorSchemaV),
   }),
-  
-  // Typography
+
   typography: typographySchemaV,
-  
-  // Spacing
+
   spacing: spacingSchemaV,
-  
-  // Effects
+
   effects: effectsSchemaV,
-  
-  // Component styles
+
   components: componentStylesSchemaV,
-  
-  // Section-specific styles
+
   sections: sectionStylesSchemaV,
-  
-  // Custom CSS
+
   customCss: v.optional(v.string()),
 });
 
-// Partial theme schema for overrides
 export const partialAdvancedThemeSchemaV = v.object({
-  // All fields are optional for overrides
+
   colors: v.optional(v.object({
     light: v.optional(v.object({
       primary: v.optional(colorValue),
@@ -663,7 +629,6 @@ export const partialAdvancedThemeSchemaV = v.object({
   customCss: v.optional(v.string()),
 });
 
-// Backward-compatible simple theme schema
 export const simpleThemeSchemaV = v.object({
   colorScheme: v.optional(v.string()),
   primaryColor: v.optional(v.string()),

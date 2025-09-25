@@ -34,8 +34,6 @@ export default defineSchema({
     .index("by_preset_name", ["isPreset", "name"])
     .index("by_preset_presetId", ["isPreset", "presetId"]),
 
-  // Subdomain reservations table to enforce uniqueness at DB level
-  // This acts as a unique constraint on subdomains
   subdomainReservations: defineTable({
     subdomain: v.string(),
     domainId: v.optional(v.id("domains")), // Links to actual domain once created

@@ -18,10 +18,8 @@ export const updateSeoSettings = mutation({
   handler: async (ctx, args) => {
     const { businessId, ...seoData } = args;
 
-    // Get authenticated user
     const user = await getUserFromAuth(ctx);
 
-    // Check if user owns this business
     const business = await ctx.db.get(businessId);
     if (!business) {
       throw new Error("Business not found");
@@ -31,7 +29,6 @@ export const updateSeoSettings = mutation({
       throw new Error("Unauthorized");
     }
 
-    // Update SEO settings
     await ctx.db.patch(businessId, seoData);
 
     return { success: true };
@@ -45,10 +42,8 @@ export const uploadFavicon = mutation({
   handler: async (ctx, args) => {
     const { businessId, storageId } = args;
 
-    // Get authenticated user
     const user = await getUserFromAuth(ctx);
 
-    // Check if user owns this business
     const business = await ctx.db.get(businessId);
     if (!business) {
       throw new Error("Business not found");
@@ -58,18 +53,15 @@ export const uploadFavicon = mutation({
       throw new Error("Unauthorized");
     }
 
-    // Get the storage URL
     const url = await ctx.storage.getUrl(storageId);
     if (!url) {
       throw new Error("Failed to get storage URL");
     }
 
-    // Delete old favicon from storage if exists
     if (business.faviconStorageId) {
       await ctx.storage.delete(business.faviconStorageId);
     }
 
-    // Update business with new favicon
     await ctx.db.patch(businessId, {
       favicon: url,
       faviconStorageId: storageId,
@@ -86,10 +78,8 @@ export const uploadOgImage = mutation({
   handler: async (ctx, args) => {
     const { businessId, storageId } = args;
 
-    // Get authenticated user
     const user = await getUserFromAuth(ctx);
 
-    // Check if user owns this business
     const business = await ctx.db.get(businessId);
     if (!business) {
       throw new Error("Business not found");
@@ -99,18 +89,15 @@ export const uploadOgImage = mutation({
       throw new Error("Unauthorized");
     }
 
-    // Get the storage URL
     const url = await ctx.storage.getUrl(storageId);
     if (!url) {
       throw new Error("Failed to get storage URL");
     }
 
-    // Delete old OG image from storage if exists
     if (business.ogImageStorageId) {
       await ctx.storage.delete(business.ogImageStorageId);
     }
 
-    // Update business with new OG image
     await ctx.db.patch(businessId, {
       ogImage: url,
       ogImageStorageId: storageId,

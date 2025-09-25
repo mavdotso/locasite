@@ -5,7 +5,6 @@ import { getUserFromAuth } from "./lib/helpers";
 import { convexEnv } from "./lib/env";
 import { validateSubdomain } from "./lib/subdomainUtils";
 
-// URL-friendly string converter (same logic as frontend)
 function toUrlFriendly(input: string, maxLength: number = 30): string {
 	if (!input) return "";
 
@@ -20,7 +19,6 @@ function toUrlFriendly(input: string, maxLength: number = 30): string {
 		.replace(/-$/, "");
 }
 
-// Get domain by businessId
 export const getByBusinessId = query({
 	args: { businessId: v.id("businesses") },
 	handler: async (ctx, args) => {
@@ -30,7 +28,6 @@ export const getByBusinessId = query({
 	},
 });
 
-// Internal mutation to create a domain
 export const internal_createDomain = internalMutation({
 	args: {
 		name: v.string(),
@@ -45,7 +42,6 @@ export const internal_createDomain = internalMutation({
 	},
 });
 
-// Generate a subdomain from business name
 export const generateSubdomain = mutation({
 	args: {
 		businessId: v.id("businesses"),
@@ -59,40 +55,34 @@ export const generateSubdomain = mutation({
 			throw new Error("Business not found");
 		}
 
-		// Verify business ownership
 		if (business.userId !== user._id) {
 			throw new Error("Not authorized to create domain for this business");
 		}
 
-		// Use custom subdomain if provided, otherwise generate from business name
 		let baseSubdomain: string;
 		if (args.customSubdomain) {
-			// Make sure custom subdomain is URL-friendly
+
 			baseSubdomain = toUrlFriendly(args.customSubdomain);
 
-			// Validate the custom subdomain
 			const validation = validateSubdomain(baseSubdomain);
 			if (!validation.valid) {
 				throw new Error(validation.error || "Invalid subdomain format");
 			}
 		} else {
-			// Generate subdomain from business name
+
 			baseSubdomain = toUrlFriendly(business.name);
 
-			// Ensure it's not too short
 			if (!baseSubdomain || baseSubdomain.length < 3) {
 				baseSubdomain = `business-${Math.floor(Math.random() * 10000)}`;
 			}
 		}
 
-		// Use reservation-based approach for atomic subdomain allocation
 		const {
 			generateAndReserveUniqueSubdomain,
 			confirmReservation,
 			releaseReservation,
 		} = await import("./lib/subdomainReservation");
 
-		// Try to reserve a subdomain
 		const reservation = await generateAndReserveUniqueSubdomain(
 			ctx,
 			baseSubdomain,
@@ -107,14 +97,13 @@ export const generateSubdomain = mutation({
 		let domainId: Id<"domains"> | null = null;
 
 		try {
-			// Create the domain - this is now safe because we have the reservation
+
 			domainId = await ctx.db.insert("domains", {
 				name: business.name,
 				subdomain: reservation.subdomain,
 				createdAt: Date.now(),
 			});
 
-			// Confirm the reservation by linking it to the domain
 			await confirmReservation(ctx, reservation.reservationId, domainId);
 		} catch {
 			if (domainId) {
@@ -127,7 +116,6 @@ export const generateSubdomain = mutation({
 
 		const subdomain = reservation.subdomain;
 
-		// Associate the domain with the business
 		await ctx.db.patch(args.businessId, {
 			domainId,
 		});
@@ -136,13 +124,11 @@ export const generateSubdomain = mutation({
 	},
 });
 
-// Check subdomain availability
 export const checkAvailability = query({
 	args: { subdomain: v.string() },
 	handler: async (ctx, args) => {
 		const subdomain = toUrlFriendly(args.subdomain);
 
-		// Validate format
 		const validation = validateSubdomain(subdomain);
 		if (!validation.valid) {
 			return {
@@ -154,7 +140,6 @@ export const checkAvailability = query({
 			};
 		}
 
-		// Check availability using reservation system
 		const { isSubdomainAvailable } = await import("./lib/subdomainReservation");
 		const available = await isSubdomainAvailable(ctx, subdomain);
 
@@ -167,7 +152,6 @@ export const checkAvailability = query({
 			};
 		}
 
-		// Generate suggestions if not available
 		const { checkSubdomainAvailability } = await import("./lib/subdomainUtils");
 		const result = await checkSubdomainAvailability(ctx, subdomain);
 
@@ -181,7 +165,6 @@ export const checkAvailability = query({
 	},
 });
 
-// Get domain by ID
 export const getById = query({
 	args: { id: v.id("domains") },
 	handler: async (ctx, args) => {
@@ -189,7 +172,6 @@ export const getById = query({
 	},
 });
 
-// Get domain by subdomain
 export const getBySubdomain = query({
 	args: { subdomain: v.string() },
 	handler: async (ctx, args) => {
@@ -200,13 +182,11 @@ export const getBySubdomain = query({
 	},
 });
 
-// Get domain by domain name (handles both subdomains and custom domains)
 export const getByDomain = query({
 	args: { domain: v.string() },
 	handler: async (ctx, args) => {
 		const domain = args.domain.toLowerCase();
 
-		// First check if it's a custom domain
 		const customDomain = await ctx.db
 			.query("domains")
 			.withIndex("by_custom_domain", (q) => q.eq("customDomain", domain))
@@ -216,7 +196,6 @@ export const getByDomain = query({
 			return customDomain;
 		}
 
-		// Check if it's a subdomain (extract subdomain from full domain)
 		const rootDomain = convexEnv.NEXT_PUBLIC_ROOT_DOMAIN;
 		if (domain.endsWith(`.${rootDomain}`)) {
 			const subdomain = domain.replace(`.${rootDomain}`, "");

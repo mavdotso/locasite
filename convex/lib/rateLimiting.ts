@@ -15,8 +15,6 @@ export async function checkRateLimit(
   const now = Date.now();
   const windowStart = now - config.windowMs;
 
-  // For now, we'll use the businessClaims table to track attempts
-  // In a production system, you'd want a dedicated rate limiting table
   const recentClaims = await db
     .query("businessClaims")
     .withIndex("by_user", (q) => q.eq("userId", userId))
@@ -35,21 +33,20 @@ export async function checkRateLimit(
   };
 }
 
-// Rate limit configurations
 export const RATE_LIMITS = {
   businessClaim: {
     maxAttempts: 5,
-    windowMs: 60 * 60 * 1000, // 1 hour
+    windowMs: 60 * 60 * 1000,
     key: "business_claim",
   },
   emailVerification: {
     maxAttempts: 3,
-    windowMs: 60 * 60 * 1000, // 1 hour
+    windowMs: 60 * 60 * 1000,
     key: "email_verification",
   },
   googleVerification: {
     maxAttempts: 10,
-    windowMs: 60 * 60 * 1000, // 1 hour
+    windowMs: 60 * 60 * 1000,
     key: "google_verification",
   },
 };

@@ -11,14 +11,12 @@ import { getUserFromAuth } from "./lib/helpers";
 import { logger } from "./lib/logger";
 import { convexEnv } from "./lib/env";
 
-// Helper to validate domain format
 function isValidDomain(domain: string): boolean {
   const domainRegex =
     /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/i;
   return domainRegex.test(domain);
 }
 
-// Add a custom domain to a business
 export const addCustomDomain = mutation({
   args: {
     businessId: v.id("businesses"),
@@ -27,18 +25,15 @@ export const addCustomDomain = mutation({
   handler: async (ctx, args) => {
     const user = await getUserFromAuth(ctx);
 
-    // Get the business
     const business = await ctx.db.get(args.businessId);
     if (!business) {
       throw new Error("Business not found");
     }
 
-    // Verify ownership
     if (business.userId !== user._id) {
       throw new Error("Not authorized to manage domains for this business");
     }
 
-    // Check subscription plan
     const stripeCustomer = await ctx.db
       .query("stripeCustomers")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
@@ -63,9 +58,8 @@ export const addCustomDomain = mutation({
       );
     }
 
-    // Check domain limits based on plan
     if (subscription.planType === "PROFESSIONAL") {
-      // Professional plan: 1 custom domain per user
+
       const userBusinesses = await ctx.db
         .query("businesses")
         .withIndex("by_userId", (q) => q.eq("userId", user._id))
@@ -88,9 +82,8 @@ export const addCustomDomain = mutation({
       }
     }
 
-    // Check domain limits based on plan
     if (subscription.planType === "PROFESSIONAL") {
-      // Professional plan: 1 custom domain
+
       const existingDomains = await ctx.db
         .query("domains")
         .filter((q) =>
@@ -107,13 +100,12 @@ export const addCustomDomain = mutation({
         );
       }
     }
-    // Validate domain format
+
     const domain = args.domain.toLowerCase().trim();
     if (!isValidDomain(domain)) {
       throw new Error("Invalid domain format");
     }
 
-    // Check if domain is already in use
     const existingDomain = await ctx.db
       .query("domains")
       .withIndex("by_custom_domain", (q) => q.eq("customDomain", domain))
@@ -123,16 +115,14 @@ export const addCustomDomain = mutation({
       throw new Error("This domain is already in use");
     }
 
-    // Get or create domain record
     const domainRecord = business.domainId
       ? await ctx.db.get(business.domainId)
       : null;
 
-    // Generate token once to ensure consistency
     const token = generateVerificationToken();
     
     if (!domainRecord) {
-      // Create new domain record
+
       const domainId = await ctx.db.insert("domains", {
         name: business.name,
         subdomain: business.name.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
@@ -146,7 +136,6 @@ export const addCustomDomain = mutation({
         updatedAt: Date.now(),
       });
 
-      // Update business with domain ID
       await ctx.db.patch(args.businessId, { domainId });
 
       return {
@@ -155,7 +144,7 @@ export const addCustomDomain = mutation({
         verificationToken: token,
       };
     } else {
-      // Update existing domain record
+
       await ctx.db.patch(domainRecord._id, {
         customDomain: domain,
         domainType: "custom",
@@ -176,7 +165,6 @@ export const addCustomDomain = mutation({
   },
 });
 
-// Remove custom domain
 export const removeCustomDomain = mutation({
   args: {
     businessId: v.id("businesses"),
@@ -202,7 +190,6 @@ export const removeCustomDomain = mutation({
       throw new Error("Domain not found");
     }
 
-    // Remove custom domain but keep subdomain
     await ctx.db.patch(domain._id, {
       customDomain: undefined,
       domainType: "subdomain",
@@ -222,7 +209,6 @@ export const removeCustomDomain = mutation({
   },
 });
 
-// Get domain verification status
 export const getDomainVerificationStatus = query({
   args: {
     businessId: v.id("businesses"),
@@ -268,7 +254,6 @@ export const getDomainVerificationStatus = query({
   },
 });
 
-// Verify domain ownership (action that can make external calls)
 export const verifyDomain = action({
   args: {
     domainId: v.id("domains"),
@@ -289,7 +274,6 @@ export const verifyDomain = action({
       return { verified: true, message: "Domain is already verified" };
     }
 
-    // Increment verification attempts
     await ctx.runMutation(
       internal.customDomains.internal_updateVerificationAttempts,
       {
@@ -299,7 +283,7 @@ export const verifyDomain = action({
     );
 
     try {
-      // Perform DNS lookup for verification
+
       const verified = await verifyDnsRecords(
         domain.customDomain,
         domain.verificationToken || "",
@@ -345,7 +329,6 @@ export const verifyDomain = action({
   },
 });
 
-// Get domain by ID (public for API routes)
 export const getDomainById = query({
   args: { domainId: v.id("domains") },
   handler: async (ctx, args) => {
@@ -353,7 +336,6 @@ export const getDomainById = query({
   },
 });
 
-// Internal mutations for domain verification
 export const internal_getDomainById = internalQuery({
   args: { domainId: v.id("domains") },
   handler: async (ctx, args) => {
@@ -420,9 +402,8 @@ export const internal_updateSslStatus = internalMutation({
   },
 });
 
-// Helper functions
 function generateVerificationToken(): string {
-  // Generate cryptographically secure token
+
   const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
   const hex = Array.from(bytes)
@@ -448,16 +429,14 @@ function getRequiredDnsRecords(domain: string, verificationToken: string) {
   ];
 }
 
-// Real DNS verification using DNS lookups
 async function verifyDnsRecords(
   domain: string,
   verificationToken: string,
 ): Promise<boolean> {
   try {
-    // We'll make HTTP calls to a DNS lookup service since Convex actions can't use Node.js dns module directly
+
     const dnsApiUrl = "https://dns.google/resolve";
 
-    // Check TXT record for verification
     const txtRecordName = `_locasite-verify.${domain}`;
     const txtResponse = await fetch(
       `${dnsApiUrl}?name=${txtRecordName}&type=TXT`,
@@ -467,7 +446,7 @@ async function verifyDnsRecords(
     let txtVerified = false;
     if (txtData.Answer) {
       for (const record of txtData.Answer) {
-        // TXT records are wrapped in quotes, so we need to remove them
+
         const value = record.data.replace(/"/g, "");
         if (value === verificationToken) {
           txtVerified = true;
@@ -483,7 +462,6 @@ async function verifyDnsRecords(
       return false;
     }
 
-    // Check CNAME or A record pointing to our service
     const cnameResponse = await fetch(`${dnsApiUrl}?name=${domain}&type=CNAME`);
     const cnameData = await cnameResponse.json();
 
@@ -499,12 +477,10 @@ async function verifyDnsRecords(
       }
     }
 
-    // If no CNAME, check for A records (for apex domains)
     if (!cnameVerified) {
       const aResponse = await fetch(`${dnsApiUrl}?name=${domain}&type=A`);
       const aData = await aResponse.json();
 
-      // Vercel's anycast IPs
       const vercelIPs = ["76.76.21.21", "76.223.126.88"];
 
       if (aData.Answer) {
@@ -528,7 +504,6 @@ async function verifyDnsRecords(
   }
 }
 
-// Update domain configuration from Vercel
 export const updateDomainConfiguration = mutation({
   args: {
     businessId: v.id("businesses"),
@@ -551,7 +526,6 @@ export const updateDomainConfiguration = mutation({
       throw new Error("No domain associated with this business");
     }
 
-    // Update domain with Vercel configuration
     await ctx.db.patch(business.domainId, {
       vercelDomainId: args.vercelDomainId,
       apexName: args.apexName,
@@ -560,7 +534,6 @@ export const updateDomainConfiguration = mutation({
   },
 });
 
-// Update SSL status (public mutation for API route)
 export const updateSslStatus = mutation({
   args: {
     domainId: v.id("domains"),
@@ -572,8 +545,7 @@ export const updateSslStatus = mutation({
     sslProvider: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    // In production, you'd want to verify the caller is authorized
-    // For now, we'll just update the status
+
     await ctx.db.patch(args.domainId, {
       sslStatus: args.sslStatus,
       sslProvider: args.sslProvider,
@@ -582,18 +554,15 @@ export const updateSslStatus = mutation({
   },
 });
 
-// Get all custom domains for a user
 export const getUserCustomDomains = query({
   handler: async (ctx) => {
     const user = await getUserFromAuth(ctx);
 
-    // Get all businesses for the user
     const businesses = await ctx.db
       .query("businesses")
       .withIndex("by_userId", (q) => q.eq("userId", user._id))
       .collect();
 
-    // Get domains for each business
     const domainsPromises = businesses.map(async (business) => {
       if (!business.domainId) return null;
 

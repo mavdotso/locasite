@@ -10,11 +10,10 @@ export const getDashboardBusinessData = query({
     const business = await ctx.db.get(args.businessId);
     if (!business) return null;
 
-    // Parallel fetch domain and check for unread messages
     const [domain, hasUnread] = await Promise.all([
-      // Get domain by business's domainId
+
       business.domainId ? ctx.db.get(business.domainId) : Promise.resolve(null),
-      // Use compound index for fastest lookup
+
       ctx.db
         .query("contactMessages")
         .withIndex("by_business_status", (q) =>
@@ -43,11 +42,11 @@ export const getUserBusinessesWithMetadata = query({
 
     const businessesWithMetadata = await Promise.all(
       businesses.map(async (business) => {
-        // Parallel fetch domain and check for unread messages
+
         const [domain, hasUnread] = await Promise.all([
-          // Get domain by business's domainId
+
           business.domainId ? ctx.db.get(business.domainId) : Promise.resolve(null),
-          // Use compound index for fastest lookup
+
           ctx.db
             .query("contactMessages")
             .withIndex("by_business_status", (q) =>
@@ -72,7 +71,7 @@ export const getUserBusinessesPaginated = query({
     paginationOpts: paginationOptsValidator,
   },
   handler: async (ctx, { paginationOpts }) => {
-    // Get user ID once
+
     const userId = await auth.getUserId(ctx);
     if (!userId) {
       return {
@@ -88,7 +87,6 @@ export const getUserBusinessesPaginated = query({
       .order("desc")
       .paginate(paginationOpts);
 
-    // Batch fetch all domains at once
     const domainIds = results.page
       .map(b => b.domainId)
       .filter((id): id is Id<"domains"> => id !== null && id !== undefined);
@@ -102,7 +100,6 @@ export const getUserBusinessesPaginated = query({
       if (d) domainMap.set(d._id, d);
     });
 
-    // Batch check for unread messages
     const businessIds = results.page.map(b => b._id);
     const unreadChecks = await Promise.all(
       businessIds.map(businessId =>
@@ -115,10 +112,6 @@ export const getUserBusinessesPaginated = query({
       )
     );
 
-    // Note: Image migration is now handled by separate mutations
-    // Just mark businesses that need migration for client-side handling
-
-    // Combine results
     const businessesWithMetadata = results.page.map((business, index) => {
       const domain = business.domainId ? domainMap.get(business.domainId) || null : null;
       const hasUnread = unreadChecks[index] !== null;

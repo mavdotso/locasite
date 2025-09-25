@@ -12,14 +12,12 @@ import { logger } from "./lib/logger";
 import { internal } from "./_generated/api";
 import { checkRateLimit, RATE_LIMITS } from "./lib/rateLimiting";
 
-// Internal mutation to create a business claim
 export const internal_createBusinessClaim = internalMutation({
 	args: {
 		businessId: v.id("businesses"),
 		userId: v.id("users"),
 	},
 	handler: async (ctx, args) => {
-		// Check if there's already a pending claim for this business by this user
 		const existingClaim = await ctx.db
 			.query("businessClaims")
 			.withIndex("by_business_status", (q) =>
@@ -32,7 +30,6 @@ export const internal_createBusinessClaim = internalMutation({
 			return existingClaim._id;
 		}
 
-		// Create the claim
 		const claimId = await ctx.db.insert("businessClaims", {
 			businessId: args.businessId,
 			userId: args.userId,
@@ -56,20 +53,17 @@ export const internal_assertClaimOwnership = internalQuery({
 	},
 });
 
-// Internal mutation to approve a claim
 export const internal_approveClaim = internalMutation({
 	args: {
 		claimId: v.id("businessClaims"),
 		notes: v.optional(v.string()),
 	},
 	handler: async (ctx, args) => {
-		// Get the claim
 		const claim = await ctx.db.get(args.claimId);
 		if (!claim) {
 			throw new Error("Claim not found");
 		}
 
-		// Update the claim status
 		await ctx.db.patch(args.claimId, {
 			status: "approved",
 			googleVerificationStatus: "verified",
@@ -89,7 +83,6 @@ export const internal_approveClaim = internalMutation({
 	},
 });
 
-// Request to claim a business with verification method
 export const claimBusiness = mutation({
 	args: {
 		businessId: v.id("businesses"),
@@ -100,7 +93,6 @@ export const claimBusiness = mutation({
 	handler: async (ctx, args) => {
 		const user = await getUserFromAuth(ctx);
 
-		// Check rate limiting
 		const rateLimit = await checkRateLimit(
 			ctx.db,
 			user._id,
@@ -112,23 +104,19 @@ export const claimBusiness = mutation({
 			);
 		}
 
-		// Check if the business exists
 		const business = await ctx.db.get(args.businessId);
 		if (!business) {
 			throw new Error("Business not found");
 		}
 
-		// Check if the business is already claimed by this user
 		if (business.userId === user._id) {
 			throw new Error("You already own this business");
 		}
 
-		// Check if the business is already claimed by another user
 		if (business.userId) {
 			throw new Error("This business is already claimed by another user");
 		}
 
-		// Check for existing pending claims by this user
 		const existingClaim = await ctx.db
 			.query("businessClaims")
 			.withIndex("by_business_status", (q) =>
@@ -145,7 +133,6 @@ export const claimBusiness = mutation({
 			};
 		}
 
-		// Create the claim
 		const claimData: Omit<
 			Doc<"businessClaims">,
 			"_id" | "_creationTime" | "updatedAt" | "notes"
@@ -186,7 +173,6 @@ export const claimBusiness = mutation({
 	},
 });
 
-// Get claim by ID
 export const getClaimById = query({
 	args: {
 		claimId: v.id("businessClaims"),
@@ -199,7 +185,6 @@ export const getClaimById = query({
 			throw new Error("Claim not found");
 		}
 
-		// Only allow the user who made the claim to view it
 		if (claim.userId !== user._id) {
 			throw new Error("You don't have permission to view this claim");
 		}
@@ -208,7 +193,6 @@ export const getClaimById = query({
 	},
 });
 
-// Internal query to get a claim by ID
 export const internal_getClaimById = internalQuery({
 	args: {
 		claimId: v.id("businessClaims"),
@@ -218,7 +202,6 @@ export const internal_getClaimById = internalQuery({
 	},
 });
 
-// Internal query to get business by ID
 export const internal_getBusinessById = internalQuery({
 	args: {
 		id: v.id("businesses"),
@@ -228,7 +211,6 @@ export const internal_getBusinessById = internalQuery({
 	},
 });
 
-// Action to verify Google Business Profile ownership
 export const verifyGoogleBusinessOwnership = action({
 	args: {
 		claimId: v.id("businessClaims"),
@@ -239,7 +221,6 @@ export const verifyGoogleBusinessOwnership = action({
 			claimId: args.claimId,
 		});
 
-		// Get the claim details
 		const claim = await ctx.runQuery(
 			internal.businessClaims.internal_getClaimById,
 			{
@@ -251,7 +232,6 @@ export const verifyGoogleBusinessOwnership = action({
 			throw new Error("Claim not found");
 		}
 
-		// Get the business details
 		const business = await ctx.runQuery(
 			internal.businesses.internal_getBusinessById,
 			{
@@ -263,9 +243,7 @@ export const verifyGoogleBusinessOwnership = action({
 			throw new Error("Business not found");
 		}
 
-		// Use the Google Business Profile API to verify ownership
 		try {
-			// Make a request to the Google Business Profile API
 			const response = await fetch(
 				`https://mybusinessbusinessinformation.googleapis.com/v1/accounts/*/locations/${business.placeId}`,
 				{
@@ -277,7 +255,6 @@ export const verifyGoogleBusinessOwnership = action({
 			);
 
 			if (!response.ok) {
-				// If the response is not OK, the user doesn't have access to this business
 				await ctx.runMutation(
 					internal.businessClaims.internal_updateClaimStatus,
 					{
@@ -296,8 +273,6 @@ export const verifyGoogleBusinessOwnership = action({
 				};
 			}
 
-			// If we got a successful response, the user has access to this business in Google
-			// Approve the claim automatically
 			await ctx.runMutation(internal.businessClaims.internal_approveClaim, {
 				claimId: args.claimId,
 				notes:
@@ -329,7 +304,6 @@ export const verifyGoogleBusinessOwnership = action({
 	},
 });
 
-// Internal mutation to update claim status
 export const internal_updateClaimStatus = internalMutation({
 	args: {
 		claimId: v.id("businessClaims"),
@@ -357,7 +331,6 @@ export const internal_updateClaimStatus = internalMutation({
 	},
 });
 
-// Internal mutation to update claim for resend verification
 export const internal_updateClaimForResend = internalMutation({
 	args: {
 		claimId: v.id("businessClaims"),
@@ -379,7 +352,6 @@ export const internal_updateClaimForResend = internalMutation({
 	},
 });
 
-// Get all claims by a user with business details
 export const getClaimsByUser = query({
 	args: {},
 	handler: async (ctx) => {
@@ -390,7 +362,6 @@ export const getClaimsByUser = query({
 			.withIndex("by_user", (q) => q.eq("userId", user._id))
 			.collect();
 
-		// Fetch business details for each claim
 		const claimsWithBusiness = await Promise.all(
 			claims.map(async (claim) => {
 				const business = await ctx.db.get(claim.businessId);
@@ -405,7 +376,6 @@ export const getClaimsByUser = query({
 	},
 });
 
-// Check if a business is claimable
 export const isBusinessClaimable = query({
 	args: {
 		businessId: v.id("businesses"),
@@ -416,10 +386,8 @@ export const isBusinessClaimable = query({
 			throw new Error("Business not found");
 		}
 
-		// A business is claimable if it has no owner
 		const isClaimable = !business.userId;
 
-		// Check if there are any pending claims
 		const pendingClaims = await ctx.db
 			.query("businessClaims")
 			.withIndex("by_business_status", (q) =>
@@ -427,7 +395,6 @@ export const isBusinessClaimable = query({
 			)
 			.collect();
 
-		// Check if current user has pending claim (if authenticated)
 		let userHasPendingClaim = false;
 		try {
 			const user = await getUserFromAuth(ctx);
@@ -439,7 +406,6 @@ export const isBusinessClaimable = query({
 			}
 		} catch (error) {
 			logger.error("Error checking user claims", error);
-			// User not authenticated, ignore
 		}
 
 		return {
@@ -451,7 +417,6 @@ export const isBusinessClaimable = query({
 	},
 });
 
-// Cancel a pending claim
 export const cancelClaim = mutation({
 	args: {
 		claimId: v.id("businessClaims"),
@@ -482,7 +447,6 @@ export const cancelClaim = mutation({
 	},
 });
 
-// Check if current user has verified Google Business ownership for a business
 export const isGoogleBusinessOwner = query({
 	args: {
 		businessId: v.id("businesses"),
@@ -491,7 +455,6 @@ export const isGoogleBusinessOwner = query({
 		try {
 			const user = await getUserFromAuth(ctx);
 
-			// Check if there's an approved claim with Google verification for this business and user
 			const approvedClaim = await ctx.db
 				.query("businessClaims")
 				.withIndex("by_business_status_user", (q) =>
@@ -517,7 +480,6 @@ export const isGoogleBusinessOwner = query({
 			logger.error("Error checking Google business owner", error, {
 				metadata: { businessId: args.businessId },
 			});
-			// User not authenticated
 			return {
 				isOwner: false,
 				hasGoogleVerification: false,

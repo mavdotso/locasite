@@ -26,10 +26,8 @@ export const generateBusinessContent = action({
 
     try {
       
-      // Determine business category/industry from name and description
       const businessCategory = await inferBusinessCategory(businessData);
       
-      // Define the schema for the content structure
       const contentSchema = z.object({
         hero: z.object({
           title: z.string(),
@@ -126,7 +124,6 @@ export const generateBusinessContent = action({
         }))
       });
 
-      // Generate comprehensive content using structured output
       const result = await generateObject({
         model: openai('gpt-4o'),
         schema: contentSchema,
@@ -234,7 +231,6 @@ Requirements:
 For icons, use appropriate ones like: shield, clock, star, check, users, award, heart, globe, phone, mail, map, tool, chart, lock, zap, etc.`
       });
 
-      // The result is already a parsed object from generateObject
       const generatedContent = result.object;
 
       return {
@@ -249,7 +245,6 @@ For icons, use appropriate ones like: shield, clock, star, check, users, award, 
   }
 });
 
-// Helper function to infer business category
 async function inferBusinessCategory(businessData: Pick<PartialBusinessData, 'name' | 'address' | 'description'>): Promise<string> {
   try {
     const categoryResult = await generateText({

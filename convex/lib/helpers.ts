@@ -27,7 +27,6 @@ export async function getUserFromAuth(ctx: QueryCtx) {
   return user;
 }
 
-// Query to get current user info for frontend components
 export const getCurrentUser = query({
   args: {},
   handler: async (ctx) => {

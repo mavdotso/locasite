@@ -29,7 +29,6 @@ export const currentUserWithSubscription = query({
     const user = await ctx.db.get(userId);
     if (!user) return null;
 
-    // Get customer record
     const customer = await ctx.db
       .query("stripeCustomers")
       .withIndex("by_user", (q) => q.eq("userId", userId))
@@ -55,7 +54,6 @@ export const currentUserWithSubscription = query({
     };
 
     if (customer) {
-      // Get subscription
       const stripeSubscription = await ctx.db
         .query("stripeSubscriptions")
         .withIndex("by_customerId", (q) =>

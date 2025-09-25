@@ -2,7 +2,6 @@ import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserFromAuth } from "./lib/helpers";
 
-// Internal mutation to update a page
 export const internal_updatePage = internalMutation({
 	args: {
 		pageId: v.id("pages"),
@@ -15,7 +14,6 @@ export const internal_updatePage = internalMutation({
 	},
 });
 
-// Create default pages for a business
 export const createDefaultPages = mutation({
 	args: {
 		domainId: v.id("domains"),
@@ -29,7 +27,6 @@ export const createDefaultPages = mutation({
 			throw new Error("Business not found");
 		}
 
-		// Verify business ownership
 		if (business.userId !== user._id) {
 			throw new Error("Not authorized to create pages for this business");
 		}
@@ -39,7 +36,6 @@ export const createDefaultPages = mutation({
 			throw new Error("Domain not found");
 		}
 
-		// Check if pages already exist to avoid duplicates
 		const existingPage = await ctx.db
 			.query("pages")
 			.withIndex("by_domain", (q) => q.eq("domainId", args.domainId))
@@ -49,10 +45,8 @@ export const createDefaultPages = mutation({
 			return { pageId: existingPage._id };
 		}
 
-		// Use AI-generated content if available, otherwise fall back to basic content
 		const aiContent = business.aiGeneratedContent;
 
-		// Component type definition for visual editor format
 		interface ComponentNode {
 			id: string;
 			type: string;
@@ -61,12 +55,10 @@ export const createDefaultPages = mutation({
 			children?: ComponentNode[];
 		}
 
-		// Create components array for visual editor format with new 6-section structure
 		const components: ComponentNode[] = [];
 
 		let componentIndex = 0;
 
-		// 1. Header Section - Navigation header
 		components.push({
 			id: `component-${componentIndex++}`,
 			type: "HeaderSection",
@@ -86,7 +78,6 @@ export const createDefaultPages = mutation({
 			},
 		});
 
-		// 2. Hero Section - Main banner with background image
 		components.push({
 			id: `component-${componentIndex++}`,
 			type: "SectionBlock",
@@ -193,7 +184,6 @@ export const createDefaultPages = mutation({
 			],
 		});
 
-		// 3. About Section - About the business
 		components.push({
 			id: `component-${componentIndex++}`,
 			type: "SectionBlock",
@@ -270,7 +260,6 @@ export const createDefaultPages = mutation({
 			],
 		});
 
-		// 4. Gallery Section - Photo gallery using the GalleryGridBlock
 		if (business.photos && business.photos.length > 0) {
 			components.push({
 				id: `component-${componentIndex++}`,
@@ -310,7 +299,6 @@ export const createDefaultPages = mutation({
 			});
 		}
 
-		// 5. Reviews Section - Google Reviews using GoogleReviewsSection
 		if (business.reviews && business.reviews.length > 0) {
 			components.push({
 				id: `component-${componentIndex++}`,
@@ -328,7 +316,6 @@ export const createDefaultPages = mutation({
 			});
 		}
 
-		// 6. Contact Section - Contact information and location
 		components.push({
 			id: `component-${componentIndex++}`,
 			type: "SectionBlock",
@@ -362,7 +349,7 @@ export const createDefaultPages = mutation({
 						stackOnMobile: "yes",
 					},
 					children: [
-						// Phone card
+
 						{
 							id: `component-${componentIndex++}`,
 							type: "CardBlock",
@@ -411,7 +398,7 @@ export const createDefaultPages = mutation({
 							],
 							metadata: { columnIndex: 0 },
 						},
-						// Address card
+
 						{
 							id: `component-${componentIndex++}`,
 							type: "CardBlock",
@@ -460,7 +447,7 @@ export const createDefaultPages = mutation({
 								},
 							],
 						},
-						// Hours card
+
 						{
 							id: `component-${componentIndex++}`,
 							type: "CardBlock",
@@ -638,7 +625,6 @@ export const create = mutation({
 			lastEditedAt: now,
 		};
 
-		// Set publishedAt if creating as published
 		if (newPage.isPublished) {
 			newPage.publishedAt = now;
 		}
@@ -665,7 +651,6 @@ export const update = mutation({
 			throw new Error("Domain not found");
 		}
 
-		// Find the business for this domain
 		const business = await ctx.db
 			.query("businesses")
 			.withIndex("by_domainId", (q) => q.eq("domainId", args.domainId))
@@ -675,12 +660,10 @@ export const update = mutation({
 			throw new Error("Business not found for this domain");
 		}
 
-		// Verify business ownership
 		if (business.userId !== user._id) {
 			throw new Error("Not authorized to update pages for this business");
 		}
 
-		// Find the page
 		const page = await ctx.db
 			.query("pages")
 			.withIndex("by_domain", (q) => q.eq("domainId", args.domainId))
@@ -690,7 +673,6 @@ export const update = mutation({
 			throw new Error("Page not found");
 		}
 
-		// Update the page
 		const now = Date.now();
 		const updateFields: {
 			content: string;
@@ -703,7 +685,6 @@ export const update = mutation({
 			lastEditedAt: args.lastEditedAt ?? now,
 		};
 
-		// Only set publishedAt when explicitly provided or when publishing for the first time
 		if (args.publishedAt !== undefined) {
 			updateFields.publishedAt = args.publishedAt;
 		} else if (args.isPublished && !page.isPublished) {
@@ -734,15 +715,13 @@ export const updatePage = mutation({
 			throw new Error("Domain not found");
 		}
 
-		// First try to find business by domainId
 		let business = await ctx.db
 			.query("businesses")
 			.withIndex("by_domainId", (q) => q.eq("domainId", domain._id))
 			.first();
 
-		// If not found, try alternative approach - find business that owns this page
 		if (!business) {
-			// Alternative approach: Find all businesses and check which one has this domainId
+
 			const allBusinesses = await ctx.db.query("businesses").collect();
 
 			const businessByDomainId = allBusinesses.find(
@@ -752,7 +731,7 @@ export const updatePage = mutation({
 			if (businessByDomainId) {
 				business = businessByDomainId;
 			} else {
-				// Last resort: Check if there's a business with matching name
+
 				const businessByName = allBusinesses.find(
 					(b) => b.name === domain.name,
 				);

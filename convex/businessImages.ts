@@ -83,7 +83,6 @@ export const addBusinessImage = mutation({
 		const user = await getUserFromAuth(ctx);
 		await verifyBusinessOwnership(ctx, args.businessId, user._id);
 
-		// Get the next order number
 		const existingImages = await ctx.db
 			.query("businessImages")
 			.withIndex("by_business_type", (q) =>
@@ -111,7 +110,6 @@ export const addBusinessImage = mutation({
 	},
 });
 
-// Update image details
 export const updateBusinessImage = mutation({
 	args: {
 		imageId: v.id("businessImages"),
@@ -143,7 +141,6 @@ export const updateBusinessImage = mutation({
 	},
 });
 
-// Delete an image
 export const deleteBusinessImage = mutation({
 	args: {
 		imageId: v.id("businessImages"),
@@ -158,7 +155,6 @@ export const deleteBusinessImage = mutation({
 
 		await verifyBusinessOwnership(ctx, image.businessId, user._id);
 
-		// Delete from storage if exists
 		if (image.storageId) {
 			await ctx.storage.delete(image.storageId);
 		}
@@ -169,7 +165,6 @@ export const deleteBusinessImage = mutation({
 	},
 });
 
-// Reorder images
 export const reorderBusinessImages = mutation({
 	args: {
 		businessId: v.id("businesses"),
@@ -187,7 +182,6 @@ export const reorderBusinessImages = mutation({
 		const user = await getUserFromAuth(ctx);
 		await verifyBusinessOwnership(ctx, args.businessId, user._id);
 
-		// Update the order of each image
 		for (let i = 0; i < args.imageIds.length; i++) {
 			const imageId = args.imageIds[i];
 			const image = await ctx.db.get(imageId);
@@ -210,7 +204,6 @@ export const reorderBusinessImages = mutation({
 	},
 });
 
-// Set primary image for a type
 export const setPrimaryImage = mutation({
 	args: {
 		businessId: v.id("businesses"),
@@ -226,7 +219,6 @@ export const setPrimaryImage = mutation({
 			throw new Error("Invalid image");
 		}
 
-		// Deactivate all other images of the same type
 		const otherImages = await ctx.db
 			.query("businessImages")
 			.withIndex("by_business_type", (q) =>
@@ -243,7 +235,6 @@ export const setPrimaryImage = mutation({
 			}
 		}
 
-		// Activate the selected image and set it as first in order
 		await ctx.db.patch(args.imageId, {
 			isActive: true,
 			order: 0,
@@ -255,7 +246,6 @@ export const setPrimaryImage = mutation({
 	},
 });
 
-// Bulk add images (for migrations)
 export const bulkAddImages = mutation({
 	args: {
 		businessId: v.id("businesses"),

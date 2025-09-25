@@ -9,10 +9,8 @@ import {
 } from "./lib/themeSchema";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
-// Initialize preset themes (run once)
 export const initializePresetThemes = mutation({
 	handler: async (ctx) => {
-		// Check if presets already exist
 		const existingPresets = await ctx.db
 			.query("themes")
 			.withIndex("by_preset", (q) => q.eq("isPreset", true))
@@ -22,7 +20,6 @@ export const initializePresetThemes = mutation({
 			return { message: "Preset themes already initialized" };
 		}
 
-		// Insert all preset themes
 		const insertedIds = [];
 		for (const preset of themePresets) {
 			const id = await ctx.db.insert("themes", {
@@ -46,10 +43,8 @@ export const initializePresetThemes = mutation({
 	},
 });
 
-// Reinitialize preset themes (clears existing and adds all)
 export const reinitializePresetThemes = mutation({
 	handler: async (ctx) => {
-		// Delete existing preset themes
 		const existingPresets = await ctx.db
 			.query("themes")
 			.withIndex("by_preset", (q) => q.eq("isPreset", true))
@@ -59,7 +54,6 @@ export const reinitializePresetThemes = mutation({
 			await ctx.db.delete(preset._id);
 		}
 
-		// Insert all preset themes
 		const insertedIds = [];
 		for (const preset of themePresets) {
 			const id = await ctx.db.insert("themes", {
@@ -87,7 +81,6 @@ export const reinitializePresetThemes = mutation({
 	},
 });
 
-// Get all preset themes
 export const getPresetThemes = query({
 	handler: async (ctx) => {
 		return await ctx.db
@@ -113,7 +106,6 @@ export const getPresetById = query({
 	},
 });
 
-// Get all public themes (presets + user-shared)
 export const getPublicThemes = query({
 	handler: async (ctx) => {
 		return await ctx.db
@@ -123,7 +115,6 @@ export const getPublicThemes = query({
 	},
 });
 
-// Get user's custom themes
 export const getUserThemes = query({
 	handler: async (ctx) => {
 		const userId = await getAuthUserId(ctx);
@@ -136,7 +127,6 @@ export const getUserThemes = query({
 	},
 });
 
-// Get a single theme by ID
 export const getTheme = query({
 	args: { themeId: v.id("themes") },
 	handler: async (ctx, args) => {
@@ -144,7 +134,6 @@ export const getTheme = query({
 	},
 });
 
-// Alias for getTheme for consistency with other queries
 export const getById = query({
 	args: { themeId: v.id("themes") },
 	handler: async (ctx, args) => {
@@ -152,7 +141,6 @@ export const getById = query({
 	},
 });
 
-// Get themes by business
 export const getBusinessThemes = query({
 	args: { businessId: v.id("businesses") },
 	handler: async (ctx, args) => {
@@ -163,7 +151,6 @@ export const getBusinessThemes = query({
 	},
 });
 
-// Create a custom theme
 export const createTheme = mutation({
 	args: {
 		name: v.string(),
@@ -177,7 +164,6 @@ export const createTheme = mutation({
 	handler: async (ctx, args) => {
 		const user = await getUserFromAuth(ctx);
 
-		// If businessId provided, verify ownership
 		if (args.businessId) {
 			const business = await ctx.db.get(args.businessId);
 			if (!business || business.userId !== user._id) {
@@ -204,7 +190,6 @@ export const createTheme = mutation({
 	},
 });
 
-// Update a theme
 export const updateTheme = mutation({
 	args: {
 		themeId: v.id("themes"),
@@ -220,12 +205,10 @@ export const updateTheme = mutation({
 		const theme = await ctx.db.get(args.themeId);
 		if (!theme) throw new Error("Theme not found");
 
-		// Check ownership
 		if (theme.userId !== user._id) {
 			throw new Error("Unauthorized");
 		}
 
-		// Don't allow editing preset themes
 		if (theme.isPreset) {
 			throw new Error("Cannot edit preset themes");
 		}
@@ -246,7 +229,6 @@ export const updateTheme = mutation({
 	},
 });
 
-// Delete a custom theme
 export const deleteTheme = mutation({
 	args: { themeId: v.id("themes") },
 	handler: async (ctx, args) => {
@@ -255,17 +237,14 @@ export const deleteTheme = mutation({
 		const theme = await ctx.db.get(args.themeId);
 		if (!theme) throw new Error("Theme not found");
 
-		// Check ownership
 		if (theme.userId !== user._id) {
 			throw new Error("Unauthorized");
 		}
 
-		// Don't allow deleting preset themes
 		if (theme.isPreset) {
 			throw new Error("Cannot delete preset themes");
 		}
 
-		// Check if any businesses are using this theme
 		const businessesUsingTheme = await ctx.db
 			.query("businesses")
 			.withIndex("by_themeId", (q) => q.eq("themeId", args.themeId))
@@ -281,7 +260,6 @@ export const deleteTheme = mutation({
 	},
 });
 
-// Apply a theme to a business
 export const applyThemeToBusiness = mutation({
 	args: {
 		businessId: v.id("businesses"),
@@ -296,11 +274,9 @@ export const applyThemeToBusiness = mutation({
 			throw new Error("Unauthorized");
 		}
 
-		// Verify theme exists and is accessible
 		const theme = await ctx.db.get(args.themeId);
 		if (!theme) throw new Error("Theme not found");
 
-		// Check if user has access to this theme
 		const hasAccess =
 			theme.isPublic ||
 			theme.userId === user._id ||
@@ -327,7 +303,6 @@ export const applyThemeToBusiness = mutation({
 	},
 });
 
-// Duplicate a theme
 export const duplicateTheme = mutation({
 	args: {
 		themeId: v.id("themes"),
@@ -340,14 +315,12 @@ export const duplicateTheme = mutation({
 		const sourceTheme = await ctx.db.get(args.themeId);
 		if (!sourceTheme) throw new Error("Theme not found");
 
-		// Check if user has access to duplicate this theme
 		const hasAccess = sourceTheme.isPublic || sourceTheme.userId === user._id;
 
 		if (!hasAccess) {
 			throw new Error("No access to duplicate this theme");
 		}
 
-		// Create new theme based on source
 		const newThemeId = await ctx.db.insert("themes", {
 			name: args.name,
 			description: sourceTheme.description
@@ -369,7 +342,6 @@ export const duplicateTheme = mutation({
 	},
 });
 
-// Convert legacy theme to new format
 export const convertLegacyTheme = mutation({
 	args: { businessId: v.id("businesses") },
 	handler: async (ctx, args) => {
@@ -384,10 +356,8 @@ export const convertLegacyTheme = mutation({
 			throw new Error("No legacy theme to convert");
 		}
 
-		// Find best matching preset or create custom theme
 		let themeId: Id<"themes"> | undefined;
 
-		// Try to match with a preset based on color scheme
 		if (business.theme.colorScheme) {
 			const presets = await ctx.db
 				.query("themes")
@@ -403,7 +373,6 @@ export const convertLegacyTheme = mutation({
 			}
 		}
 
-		// If no matching preset, use the modern-minimal as base
 		if (!themeId) {
 			const modernMinimal = await ctx.db
 				.query("themes")
@@ -417,7 +386,6 @@ export const convertLegacyTheme = mutation({
 			}
 		}
 
-		// Create theme overrides from legacy settings
 		interface ThemeOverrides {
 			colors?: {
 				light?: {
@@ -461,7 +429,6 @@ export const convertLegacyTheme = mutation({
 			};
 		}
 
-		// Update business
 		await ctx.db.patch(args.businessId, {
 			themeId,
 			themeOverrides:

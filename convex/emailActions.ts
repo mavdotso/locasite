@@ -5,7 +5,6 @@ import { v } from "convex/values";
 import { sendVerificationEmail as sendVerificationEmailUtil } from "./lib/email";
 import { logger } from "./lib/logger";
 
-// Internal action to send verification email
 export const internal_sendVerificationEmail = internalAction({
   args: {
     businessName: v.string(),
@@ -34,7 +33,6 @@ export const internal_sendVerificationEmail = internalAction({
   },
 });
 
-// Internal action to generate cryptographically secure token
 export const internal_generateToken = internalAction({
   args: {},
   handler: async (): Promise<string> => {

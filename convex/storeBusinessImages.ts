@@ -20,25 +20,21 @@ export const storeBusinessImages = action({
 			throw new Error("Not authenticated");
 		}
 
-		// Verify ownership
 		if (business.userId !== user._id) {
 			throw new Error("Not authorized to update this business");
 		}
 
-		// Store each image in the media library
 		const storedUrls: string[] = [];
 
 		for (let i = 0; i < business.photos.length; i++) {
 			const photoUrl = business.photos[i];
 
-			// Skip if already a Convex storage URL
 			if (photoUrl.includes("convex.cloud")) {
 				storedUrls.push(photoUrl);
 				continue;
 			}
 
 			try {
-				// Download the image with timeout and size checks
 				const controller = new AbortController();
 				const timeout = setTimeout(() => controller.abort(), 15000);
 				const response = await fetch(photoUrl, {
@@ -54,7 +50,7 @@ export const storeBusinessImages = action({
 				const len = response.headers.get("content-length");
 				const maxBytes = 5 * 1024 * 1024; // 5MB cap
 				if (len && parseInt(len, 10) > maxBytes) {
-					// Skip oversized image
+
 					storedUrls.push(photoUrl);
 					continue;
 				}
@@ -85,12 +81,11 @@ export const storeBusinessImages = action({
 				});
 
 				storedUrls.push(url);
-			} catch (error) {
-				storedUrls.push(photoUrl); // Keep original URL if any error occurs
+			} catch {
+				storedUrls.push(photoUrl);
 			}
 		}
 
-		// Update business with new URLs via mutation
 		await ctx.runMutation(internal.storeBusinessImages.updateBusinessPhotos, {
 			businessId: args.businessId,
 			photos: storedUrls,
@@ -100,7 +95,6 @@ export const storeBusinessImages = action({
 	},
 });
 
-// Internal mutation to add image to media library
 export const addToMediaLibrary = internalMutation({
 	args: {
 		businessId: v.id("businesses"),
@@ -113,7 +107,6 @@ export const addToMediaLibrary = internalMutation({
 		imageIndex: v.number(),
 	},
 	handler: async (ctx, args) => {
-		// Add to media library
 		await ctx.db.insert("mediaLibrary", {
 			fileName: `${args.businessName.toLowerCase().replace(/\s+/g, "-")}-${args.imageIndex + 1}`,
 			originalName: `${args.businessName} image ${args.imageIndex + 1}`,
@@ -133,7 +126,6 @@ export const addToMediaLibrary = internalMutation({
 	},
 });
 
-// Internal mutation to update business photos
 export const updateBusinessPhotos = internalMutation({
 	args: {
 		businessId: v.id("businesses"),
@@ -146,7 +138,6 @@ export const updateBusinessPhotos = internalMutation({
 	},
 });
 
-// Internal action to store business images (can be scheduled from mutations)
 export const internalStoreBusinessImages = internalAction({
 	args: {
 		businessId: v.id("businesses"),
@@ -155,7 +146,6 @@ export const internalStoreBusinessImages = internalAction({
 		ctx,
 		args,
 	): Promise<{ success: boolean; message: string; storedUrls?: string[] }> => {
-		// Get the business via internal query
 		const business = (await ctx.runQuery(
 			internal.businesses.internal_getBusinessById,
 			{
@@ -167,7 +157,6 @@ export const internalStoreBusinessImages = internalAction({
 			throw new Error("Business not found");
 		}
 
-		// Don't process if no photos or no user (unclaimed business)
 		if (!business.photos || business.photos.length === 0 || !business.userId) {
 			return {
 				success: true,
@@ -213,7 +202,7 @@ export const internalStoreBusinessImages = internalAction({
 				const len = response.headers.get("content-length");
 				const maxBytes = 5 * 1024 * 1024; // 5MB cap
 				if (len && parseInt(len, 10) > maxBytes) {
-					// Skip oversized image
+
 					console.error(`Image ${i + 1} too large: ${len} bytes`);
 					storedUrls.push(photoUrl);
 					continue;
@@ -228,10 +217,8 @@ export const internalStoreBusinessImages = internalAction({
 					continue;
 				}
 
-				// Store the image directly in the action
 				const storageId = await ctx.storage.store(blob);
 
-				// Get the public URL
 				const url = await ctx.storage.getUrl(storageId);
 				if (!url) {
 					console.error(`Failed to get URL for stored image ${i + 1}`);
@@ -239,7 +226,6 @@ export const internalStoreBusinessImages = internalAction({
 					continue;
 				}
 
-				// Add to media library via mutation
 				await ctx.runMutation(internal.storeBusinessImages.addToMediaLibrary, {
 					businessId: args.businessId,
 					userId: business.userId,
@@ -261,7 +247,6 @@ export const internalStoreBusinessImages = internalAction({
 			}
 		}
 
-		// Update business with new URLs via mutation
 		if (storedUrls.length > 0) {
 			await ctx.runMutation(internal.storeBusinessImages.updateBusinessPhotos, {
 				businessId: args.businessId,

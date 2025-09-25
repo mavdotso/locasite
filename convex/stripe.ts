@@ -37,14 +37,13 @@ export const fulfill = internalAction({
 				case "checkout.session.completed": {
 					const session = event.data.object as Stripe.Checkout.Session;
 					if (session.id) {
-						// Mark payment as completed
+
 						await ctx.runMutation(internal.payments.fulfillBySessionId, {
 							sessionId: session.id,
 							stripeId: session.payment_intent as string,
 						});
 					}
 
-					// Sync subscription data if customer exists
 					if (session.customer && typeof session.customer === "string") {
 						await ctx.runAction(internal.stripe.syncStripeDataToConvex, {
 							customerId: session.customer,
@@ -88,12 +87,11 @@ export const fulfill = internalAction({
 	},
 });
 
-// Sync Stripe data to Convex database
 export const syncStripeDataToConvex = internalAction({
 	args: { customerId: v.string() },
 	handler: async (ctx, args) => {
 		try {
-			// Fetch latest subscription data from Stripe
+
 			const subscriptions = await stripe.subscriptions.list({
 				customer: args.customerId,
 				limit: 1,
@@ -101,7 +99,6 @@ export const syncStripeDataToConvex = internalAction({
 				expand: ["data.default_payment_method"],
 			});
 
-			// Handle case with no subscription
 			if (subscriptions.data.length === 0) {
 				await ctx.runMutation(internal.stripe.storeSubscriptionData, {
 					customerId: args.customerId,
@@ -113,12 +110,10 @@ export const syncStripeDataToConvex = internalAction({
 				return;
 			}
 
-			// Extract subscription data
 			const subscription = subscriptions.data[0];
 			const priceId = subscription.items.data[0]?.price.id;
 			const planType = priceId ? getPlanByPriceId(priceId) : "FREE";
 
-			// Extract payment method details
 			let paymentMethod = undefined;
 			if (
 				subscription.default_payment_method &&
@@ -214,7 +209,6 @@ export const getStripeCustomerId = internalQuery({
 	},
 });
 
-// Store Stripe customer ID for a user
 export const storeStripeCustomerId = internalMutation({
 	args: {
 		userId: v.id("users"),
