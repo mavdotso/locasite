@@ -102,11 +102,10 @@ export const getPresetById = query({
 		presetId: v.string(),
 	},
 	handler: async (ctx, args) => {
-		// Find a preset theme by its name/id
 		const theme = await ctx.db
 			.query("themes")
-			.withIndex("by_preset_name", (q) =>
-				q.eq("isPreset", true).eq("name", args.presetId),
+			.withIndex("by_preset_presetId", (q) =>
+				q.eq("isPreset", true).eq("presetId", args.presetId),
 			)
 			.first();
 

@@ -1,7 +1,7 @@
-import { action, internalMutation, internalAction } from "./_generated/server";
 import { v } from "convex/values";
 import { api, internal } from "./_generated/api";
-import { Doc } from "./_generated/dataModel";
+import type { Doc } from "./_generated/dataModel";
+import { action, internalAction, internalMutation } from "./_generated/server";
 
 export const storeBusinessImages = action({
 	args: {
@@ -38,14 +38,32 @@ export const storeBusinessImages = action({
 			}
 
 			try {
-				// Download the image
-				const response = await fetch(photoUrl);
+				// Download the image with timeout and size checks
+				const controller = new AbortController();
+				const timeout = setTimeout(() => controller.abort(), 15000);
+				const response = await fetch(photoUrl, {
+					signal: controller.signal,
+					redirect: "follow",
+				});
+				clearTimeout(timeout);
 				if (!response.ok) {
 					storedUrls.push(photoUrl); // Keep original URL if download fails
 					continue;
 				}
 
+				const len = response.headers.get("content-length");
+				const maxBytes = 5 * 1024 * 1024; // 5MB cap
+				if (len && parseInt(len, 10) > maxBytes) {
+					// Skip oversized image
+					storedUrls.push(photoUrl);
+					continue;
+				}
+
 				const blob = await response.blob();
+				if (blob.size > maxBytes || !(blob.type || "").startsWith("image/")) {
+					storedUrls.push(photoUrl);
+					continue;
+				}
 
 				// Store the image directly in the action
 				const storageId = await ctx.storage.store(blob);
@@ -173,8 +191,14 @@ export const internalStoreBusinessImages = internalAction({
 			}
 
 			try {
-				// Download the image
-				const response = await fetch(photoUrl);
+				// Download the image with timeout and size checks
+				const controller = new AbortController();
+				const timeout = setTimeout(() => controller.abort(), 15000);
+				const response = await fetch(photoUrl, {
+					signal: controller.signal,
+					redirect: "follow",
+				});
+				clearTimeout(timeout);
 				if (!response.ok) {
 					console.error(
 						`Failed to download image ${i + 1}: ${response.statusText}`,
@@ -183,7 +207,23 @@ export const internalStoreBusinessImages = internalAction({
 					continue;
 				}
 
+				const len = response.headers.get("content-length");
+				const maxBytes = 5 * 1024 * 1024; // 5MB cap
+				if (len && parseInt(len, 10) > maxBytes) {
+					// Skip oversized image
+					console.error(`Image ${i + 1} too large: ${len} bytes`);
+					storedUrls.push(photoUrl);
+					continue;
+				}
+
 				const blob = await response.blob();
+				if (blob.size > maxBytes || !(blob.type || "").startsWith("image/")) {
+					console.error(
+						`Image ${i + 1} invalid: ${blob.size} bytes, type: ${blob.type}`,
+					);
+					storedUrls.push(photoUrl);
+					continue;
+				}
 
 				// Store the image directly in the action
 				const storageId = await ctx.storage.store(blob);

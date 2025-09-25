@@ -49,7 +49,6 @@ import type * as lib_themeSuggestions from "../lib/themeSuggestions.js";
 import type * as lib_types from "../lib/types.js";
 import type * as lib_validation from "../lib/validation.js";
 import type * as mediaLibrary from "../mediaLibrary.js";
-import type * as migrations_populateSubdomainReservations from "../migrations/populateSubdomainReservations.js";
 import type * as pages from "../pages.js";
 import type * as pagesSimple from "../pagesSimple.js";
 import type * as payments from "../payments.js";
@@ -120,7 +119,6 @@ declare const fullApi: ApiFromModules<{
   "lib/types": typeof lib_types;
   "lib/validation": typeof lib_validation;
   mediaLibrary: typeof mediaLibrary;
-  "migrations/populateSubdomainReservations": typeof migrations_populateSubdomainReservations;
   pages: typeof pages;
   pagesSimple: typeof pagesSimple;
   payments: typeof payments;
