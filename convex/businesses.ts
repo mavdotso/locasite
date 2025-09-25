@@ -1016,41 +1016,6 @@ export const discardDraft = mutation({
   },
 });
 
-// Simple publish toggle (without draft content)
-export const publish = mutation({
-  args: {
-    businessId: v.id("businesses"),
-  },
-  handler: async (ctx, args) => {
-    const user = await getUserFromAuth(ctx);
-
-    // Verify ownership
-    await verifyBusinessOwnership(ctx, args.businessId, user._id);
-
-    return await ctx.db.patch(args.businessId, {
-      isPublished: true,
-      publishedAt: Date.now(),
-    });
-  },
-});
-
-// Unpublish a business
-export const unpublish = mutation({
-  args: {
-    businessId: v.id("businesses"),
-  },
-  handler: async (ctx, args) => {
-    const user = await getUserFromAuth(ctx);
-
-    // Verify ownership
-    await verifyBusinessOwnership(ctx, args.businessId, user._id);
-
-    return await ctx.db.patch(args.businessId, {
-      isPublished: false,
-    });
-  },
-});
-
 // Get business with draft content merged (for editing)
 export const getByIdWithDraft = query({
   args: { id: v.id("businesses") },
