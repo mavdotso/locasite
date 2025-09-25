@@ -97,6 +97,7 @@ export default defineSchema({
     content: v.string(),
     draftContent: v.optional(v.string()),
     isPublished: v.optional(v.boolean()),
+    publishedAt: v.optional(v.number()),
     lastEditedAt: v.optional(v.number()),
   }).index("by_domain", ["domainId"]),
 

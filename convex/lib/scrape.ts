@@ -9,255 +9,259 @@ import { logger } from "./logger";
 const MINUTE = 60 * 1000; // 1 minute in milliseconds
 
 const rateLimiter = new RateLimiter(components.rateLimiter, {
-  previewScrape: { kind: "fixed window", rate: 3, period: MINUTE },
-  businessCreation: { kind: "fixed window", rate: 5, period: MINUTE }, // Limit unauthenticated business creation
+	previewScrape: { kind: "fixed window", rate: 3, period: MINUTE },
+	businessCreation: { kind: "fixed window", rate: 5, period: MINUTE }, // Limit unauthenticated business creation
 });
 
 interface GooglePlaceReview {
-  author_name: string;
-  rating: number;
-  text: string;
+	author_name: string;
+	rating: number;
+	text: string;
 }
 
 interface GooglePlacePhoto {
-  photo_reference: string;
-  height: number;
-  width: number;
+	photo_reference: string;
+	height: number;
+	width: number;
 }
 
 export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
-  let requestUrl: string | undefined;
-  let requestPreview: boolean = false;
-  
-  try {
-    const { url, preview = false } = await request.json();
-    requestUrl = url;
-    requestPreview = preview;
+	let requestUrl: string | undefined;
+	let requestPreview: boolean = false;
 
-    // Apply rate limiting for all unauthenticated requests
-    // Use different limits for preview vs full creation
-    // Parse IP address properly to prevent spoofing
-    const xff = request.headers.get("x-forwarded-for") || "";
-    const cfIp = request.headers.get("cf-connecting-ip") || "";
-    const identifier = xff.split(",")[0]?.trim() || cfIp || "anonymous";
-    const rateLimitKey = requestPreview ? "previewScrape" : "businessCreation";
-    const status = await rateLimiter.limit(ctx, rateLimitKey, {
-      key: identifier,
-    });
+	try {
+		const { url, preview = false } = await request.json();
+		requestUrl = url;
+		requestPreview = preview;
 
-    if (!status.ok) {
-      return new Response(
-        JSON.stringify({
-          error: "Rate limit exceeded. Please try again in a minute.",
-        }),
-        {
-          status: 429,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
-            "Vary": "Origin",
-          },
-        },
-      );
-    }
+		// Apply rate limiting for all unauthenticated requests
+		// Use different limits for preview vs full creation
+		// Parse IP address properly to prevent spoofing
+		const xff = request.headers.get("x-forwarded-for") || "";
+		const cfIp = request.headers.get("cf-connecting-ip") || "";
+		const identifier = xff.split(",")[0]?.trim() || cfIp || "anonymous";
+		const rateLimitKey = requestPreview ? "previewScrape" : "businessCreation";
+		const status = await rateLimiter.limit(ctx, rateLimitKey, {
+			key: identifier,
+		});
 
-    if (!requestUrl || !requestUrl.includes("google.com/maps")) {
-      return new Response(
-        JSON.stringify({
-          error: "Invalid URL. Please provide a Google Maps URL.",
-        }),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
-            "Vary": "Origin",
-          },
-        },
-      );
-    }
+		if (!status.ok) {
+			return new Response(
+				JSON.stringify({
+					error: "Rate limit exceeded. Please try again in a minute.",
+				}),
+				{
+					status: 429,
+					headers: {
+						"Content-Type": "application/json",
+						"Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
+						Vary: "Origin",
+					},
+				},
+			);
+		}
 
-    // Extract business name from URL
-    const nameMatch = requestUrl.match(/place\/([^/@]+)/);
-    let businessName = nameMatch
-      ? decodeURIComponent(nameMatch[1].replace(/\+/g, " "))
-      : null;
+		if (!requestUrl || !requestUrl.includes("google.com/maps")) {
+			return new Response(
+				JSON.stringify({
+					error: "Invalid URL. Please provide a Google Maps URL.",
+				}),
+				{
+					status: 400,
+					headers: {
+						"Content-Type": "application/json",
+						"Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
+						Vary: "Origin",
+					},
+				},
+			);
+		}
 
-    // Try alternative pattern for complex URLs
-    if (!businessName) {
-      const complexMatch = requestUrl.match(/maps\/place\/([^/@?]+)/);
-      if (complexMatch) {
-        businessName = decodeURIComponent(complexMatch[1].replace(/\+/g, " "));
-      }
-    }
+		// Extract business name from URL
+		const nameMatch = requestUrl.match(/place\/([^/@]+)/);
+		let businessName = nameMatch
+			? decodeURIComponent(nameMatch[1].replace(/\+/g, " "))
+			: null;
 
-    if (!businessName) {
-      return new Response(
-        JSON.stringify({ error: "Could not extract business name from URL." }),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
-            "Vary": "Origin",
-          },
-        },
-      );
-    }
+		// Try alternative pattern for complex URLs
+		if (!businessName) {
+			const complexMatch = requestUrl.match(/maps\/place\/([^/@?]+)/);
+			if (complexMatch) {
+				businessName = decodeURIComponent(complexMatch[1].replace(/\+/g, " "));
+			}
+		}
 
-    // Use Google Places API to search for the business
-    const apiKey = convexEnv.GOOGLE_MAPS_API_KEY;
-    const findPlaceResponse = await axios.get(
-      `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(businessName)}&inputtype=textquery&fields=place_id,name,formatted_address&key=${apiKey}`,
-    );
+		if (!businessName) {
+			return new Response(
+				JSON.stringify({ error: "Could not extract business name from URL." }),
+				{
+					status: 400,
+					headers: {
+						"Content-Type": "application/json",
+						"Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
+						Vary: "Origin",
+					},
+				},
+			);
+		}
 
-    if (
-      !findPlaceResponse.data.candidates ||
-      findPlaceResponse.data.candidates.length === 0
-    ) {
-      return new Response(
-        JSON.stringify({ error: "Business not found in Google Places API." }),
-        {
-          status: 404,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
-            "Vary": "Origin",
-          },
-        },
-      );
-    }
+		// Use Google Places API to search for the business
+		const apiKey = convexEnv.GOOGLE_MAPS_API_KEY;
+		const findPlaceResponse = await axios.get(
+			`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(businessName)}&inputtype=textquery&fields=place_id,name,formatted_address&key=${apiKey}`,
+		);
 
-    const placeId = findPlaceResponse.data.candidates[0].place_id;
+		if (
+			!findPlaceResponse.data.candidates ||
+			findPlaceResponse.data.candidates.length === 0
+		) {
+			return new Response(
+				JSON.stringify({ error: "Business not found in Google Places API." }),
+				{
+					status: 404,
+					headers: {
+						"Content-Type": "application/json",
+						"Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
+						Vary: "Origin",
+					},
+				},
+			);
+		}
 
-    // Get detailed information using the place_id
-    const fields = [
-      "name",
-      "formatted_address",
-      "formatted_phone_number",
-      "website",
-      "opening_hours",
-      "rating",
-      "reviews",
-      "photos",
-      "editorial_summary",
-      "types",
-    ].join(",");
+		const placeId = findPlaceResponse.data.candidates[0].place_id;
 
-    const detailsResponse = await axios.get(
-      `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=${fields}&key=${apiKey}`,
-    );
+		// Get detailed information using the place_id
+		const fields = [
+			"name",
+			"formatted_address",
+			"formatted_phone_number",
+			"website",
+			"opening_hours",
+			"rating",
+			"reviews",
+			"photos",
+			"editorial_summary",
+			"types",
+		].join(",");
 
-    const place = detailsResponse.data.result;
+		const detailsResponse = await axios.get(
+			`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=${fields}&key=${apiKey}`,
+		);
 
-    // Format the data - limit to first 5 photos to control API costs
-    const MAX_PHOTOS = 5;
-    // Return only photo references to avoid exposing API key
-    // Frontend should use a browser-restricted key or proxy endpoint
-    const photoReferences = (place.photos ?? [])
-      .slice(0, MAX_PHOTOS)
-      .map((photo: GooglePlacePhoto) => photo.photo_reference);
+		const place = detailsResponse.data.result;
 
-    // Convert photo references to proxy URLs
-    const photos = photoReferences.map(
-      (ref: string) => `/api/photos?ref=${encodeURIComponent(ref)}&width=800`
-    );
-    
-    const businessData = {
-      name: place.name || "",
-      address: place.formatted_address || "",
-      phone: place.formatted_phone_number || "",
-      website: place.website || "",
-      hours: place.opening_hours?.weekday_text || [],
-      rating: place.rating || null,
-      reviews:
-        place.reviews?.map((review: GooglePlaceReview) => ({
-          reviewer: review.author_name,
-          rating: `${review.rating} stars`,
-          text: review.text,
-        })) || [],
-      photos: photos,
-      description:
-        place.editorial_summary?.overview ||
-        generateDefaultDescription(place.name, place.types?.[0]),
-      placeId: placeId,
-    };
-    
-    // Keep the full data for response (including category for frontend use)
-    const fullBusinessData = {
-      ...businessData,
-      category: place.types?.[0] || undefined,
-    };
+		// Format the data - limit to first 5 photos to control API costs
+		const MAX_PHOTOS = 5;
+		// Return only photo references to avoid exposing API key
+		// Frontend should use a browser-restricted key or proxy endpoint
+		const photoReferences = (place.photos ?? [])
+			.slice(0, MAX_PHOTOS)
+			.map((photo: GooglePlacePhoto) => photo.photo_reference);
 
-    // AI content generation removed - will be a premium feature
+		// Convert photo references to absolute proxy URLs to avoid origin ambiguity
+		const baseUrl = new URL("/api/photos", convexEnv.NEXT_PUBLIC_APP_URL);
+		const photos = photoReferences.map((ref: string) => {
+			const u = new URL(baseUrl.toString());
+			u.searchParams.set("ref", ref);
+			u.searchParams.set("width", "800");
+			return u.toString();
+		});
 
-    // Always create the business (without auth requirement)
-    let businessId = null;
-    let domainId = null;
+		const businessData = {
+			name: place.name || "",
+			address: place.formatted_address || "",
+			phone: place.formatted_phone_number || "",
+			website: place.website || "",
+			hours: place.opening_hours?.weekday_text || [],
+			rating: place.rating || null,
+			reviews:
+				place.reviews?.map((review: GooglePlaceReview) => ({
+					reviewer: review.author_name,
+					rating: `${review.rating} stars`,
+					text: review.text,
+				})) || [],
+			photos: photos,
+			description:
+				place.editorial_summary?.overview ||
+				generateDefaultDescription(place.name, place.types?.[0]),
+			placeId: placeId,
+		};
 
-    try {
-      // Create business without authentication (internal mutation)
-      const result = await ctx.runMutation(
-        internal.businesses.createBusinessWithoutAuth,
-        {
-          businessData,
-        },
-      );
+		// Keep the full data for response (including category for frontend use)
+		const fullBusinessData = {
+			...businessData,
+			category: place.types?.[0] || undefined,
+		};
 
-      businessId = result.businessId;
-      domainId = result.domainId;
-    } catch (error) {
-      logger.error("Error creating business from Google Maps", error, {
-        metadata: { 
-          placeId,
-          businessName: place.name,
-          preview: false,
-          identifier,
-          category: place.types?.[0]
-        }
-      });
-    }
+		// AI content generation removed - will be a premium feature
 
-    const ok = businessId !== null;
-    return new Response(
-      JSON.stringify({
-        success: ok,
-        data: fullBusinessData, // Return full data for frontend
-        businessId,
-        domainId,
-        preview: false, // Always create business now
-        hasAIContent: false,
-      }),
-      {
-        status: ok ? 200 : 500,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
-          "Vary": "Origin",
-        },
-      },
-    );
-  } catch (error) {
-    logger.error("Failed to scrape Google Maps", error, {
-      metadata: {
-        url: requestUrl || 'unknown',
-        preview: requestPreview,
-        action: 'scrapeGoogleMaps'
-      }
-    });
-    
-    return new Response(
-      JSON.stringify({
-        error: "Failed to fetch business data from Google Places API.",
-      }),
-      {
-        status: 500,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
-          "Vary": "Origin",
-        },
-      },
-    );
-  }
+		// Always create the business (without auth requirement)
+		let businessId = null;
+		let domainId = null;
+
+		try {
+			// Create business without authentication (internal mutation)
+			const result = await ctx.runMutation(
+				internal.businesses.createBusinessWithoutAuth,
+				{
+					businessData,
+				},
+			);
+
+			businessId = result.businessId;
+			domainId = result.domainId;
+		} catch (error) {
+			logger.error("Error creating business from Google Maps", error, {
+				metadata: {
+					placeId,
+					businessName: place.name,
+					preview: false,
+					identifier,
+					category: place.types?.[0],
+				},
+			});
+		}
+
+		const ok = businessId !== null;
+		return new Response(
+			JSON.stringify({
+				success: ok,
+				data: fullBusinessData, // Return full data for frontend
+				businessId,
+				domainId,
+				preview: false, // Always create business now
+				hasAIContent: false,
+			}),
+			{
+				status: ok ? 200 : 500,
+				headers: {
+					"Content-Type": "application/json",
+					"Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
+					Vary: "Origin",
+				},
+			},
+		);
+	} catch (error) {
+		logger.error("Failed to scrape Google Maps", error, {
+			metadata: {
+				url: requestUrl || "unknown",
+				preview: requestPreview,
+				action: "scrapeGoogleMaps",
+			},
+		});
+
+		return new Response(
+			JSON.stringify({
+				error: "Failed to fetch business data from Google Places API.",
+			}),
+			{
+				status: 500,
+				headers: {
+					"Content-Type": "application/json",
+					"Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
+					Vary: "Origin",
+				},
+			},
+		);
+	}
 });

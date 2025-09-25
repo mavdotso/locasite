@@ -1,293 +1,124 @@
-// Review filtering and scoring utility
+/**
+ * Simplified review filtering utility
+ * Focuses on practical filtering without over-engineering
+ */
 
 export interface Review {
-  reviewer: string;
-  rating: string;
-  text: string;
-}
-
-/**
- * Escape special regex characters in a string
- */
-function escapeRegex(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-/**
- * Parse rating from various string formats
- * Handles formats like: "5", "5 stars", "5/5", "★★★★★", "Rated 5 out of 5", etc.
- */
-function parseRating(ratingStr: string): number {
-  if (!ratingStr) return 0;
-  
-  // Handle star characters (★)
-  const starCount = (ratingStr.match(/★/g) || []).length;
-  if (starCount > 0) {
-    return Math.min(starCount, 5);
-  }
-  
-  // Handle "X out of Y" format
-  const outOfMatch = ratingStr.match(/(\d+)\s*(?:out\s*of|\/)\s*(\d+)/i);
-  if (outOfMatch) {
-    const numerator = parseInt(outOfMatch[1]);
-    const denominator = parseInt(outOfMatch[2]);
-    if (denominator > 0) {
-      // Normalize to 5-star scale
-      return Math.min(Math.round((numerator / denominator) * 5), 5);
-    }
-  }
-  
-  // Handle "X stars" or just "X" format
-  // Look for a number followed by optional "star(s)" or at the beginning/end of string
-  const simpleMatch = ratingStr.match(/\b(\d+)\s*(?:star|★)?/i);
-  if (simpleMatch) {
-    const rating = parseInt(simpleMatch[1]);
-    // Ensure it's within reasonable bounds (1-5)
-    if (rating >= 1 && rating <= 5) {
-      return rating;
-    }
-  }
-  
-  // Default to 3 if we can't parse
-  return 3;
+	reviewer: string;
+	rating: string;
+	text: string;
 }
 
 export interface FilteredReview extends Review {
-  score: number;
-  relevance: number;
-  helpful: boolean;
-}
-
-// Keywords that indicate high-quality, informative reviews
-const QUALITY_KEYWORDS = [
-  'excellent', 'amazing', 'professional', 'friendly', 'clean', 'efficient',
-  'recommend', 'best', 'great', 'wonderful', 'fantastic', 'outstanding',
-  'helpful', 'knowledgeable', 'prompt', 'reliable', 'affordable', 'quality'
-];
-
-// Keywords that might indicate less helpful reviews
-const LOW_QUALITY_INDICATORS = [
-  'ok', 'fine', 'whatever', 'meh', 'idk', 'dunno', '...'
-];
-
-// Minimum word count for a meaningful review
-const MIN_WORD_COUNT = 10;
-const PREFERRED_WORD_COUNT = 20;
-
-/**
- * Filter and score reviews based on quality and relevance
- * @param reviews Array of reviews to filter
- * @param maxReviews Maximum number of reviews to return
- * @returns Filtered and scored reviews
- */
-export function filterReviews(reviews: Review[], maxReviews: number = 10): FilteredReview[] {
-  if (!reviews || reviews.length === 0) {
-    return [];
-  }
-
-  // Score and filter reviews
-  const scoredReviews = reviews.map(review => {
-    const score = calculateReviewScore(review);
-    const relevance = calculateRelevance(review);
-    const helpful = isHelpfulReview(review);
-    
-    return {
-      ...review,
-      score,
-      relevance,
-      helpful
-    };
-  });
-
-  // Sort by score (highest first) and filter out low-quality reviews
-  const filteredReviews = scoredReviews
-    .filter(review => review.score > 0.3 && review.helpful)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, maxReviews);
-
-  // Ensure we have a good mix of ratings if possible
-  return balanceRatings(filteredReviews, scoredReviews, maxReviews);
+	score: number;
+	relevance: number;
+	helpful: boolean;
 }
 
 /**
- * Calculate a quality score for a review (0-1)
+ * Parse rating from string (handles "5", "5 stars", "5/5", etc.)
  */
-function calculateReviewScore(review: Review): number {
-  let score = 0;
-  
-  // Parse rating using improved parser
-  const rating = parseRating(review.rating);
-  
-  // Base score from rating (normalized to 0-0.3)
-  score += (rating / 5) * 0.3;
-  
-  // Word count score (0-0.3)
-  const wordCount = review.text.split(/\s+/).length;
-  if (wordCount >= PREFERRED_WORD_COUNT) {
-    score += 0.3;
-  } else if (wordCount >= MIN_WORD_COUNT) {
-    score += (wordCount / PREFERRED_WORD_COUNT) * 0.3;
-  }
-  
-  // Quality keyword score (0-0.2)
-  const lowerText = review.text.toLowerCase();
-  
-  // Precompile regex patterns for quality keywords
-  const keywordPatterns = QUALITY_KEYWORDS.map(keyword => {
-    const escapedKeyword = escapeRegex(keyword);
-    return {
-      keyword,
-      regex: new RegExp(`\\b${escapedKeyword}\\b`, 'i'),
-      negationRegex: new RegExp(`\\b(not|no|never|don't|doesn't|didn't|won't|wouldn't|couldn't|shouldn't)\\s+(?:\\w+\\s+){0,2}${escapedKeyword}\\b`, 'i')
-    };
-  });
-  
-  // Use precompiled patterns to check for keywords
-  const qualityKeywordCount = keywordPatterns.filter(pattern => {
-    const match = pattern.regex.test(review.text);
-    if (!match) return false;
-    
-    // Check if preceded by negation
-    return !pattern.negationRegex.test(review.text);
-  }).length;
-  score += Math.min(qualityKeywordCount * 0.05, 0.2);
-  
-  // Specificity score (mentions specific services, staff, etc.) (0-0.2)
-  const hasSpecificMentions = /\b(staff|service|food|atmosphere|price|location|parking|wait|clean)\b/i.test(review.text);
-  if (hasSpecificMentions) {
-    score += 0.2;
-  }
-  
-  // Penalize low-quality indicators
-  const wordBoundaryTerms = LOW_QUALITY_INDICATORS.filter(t => t !== '...');
-  const hasLowQualityIndicators =
-    new RegExp(`\\b(?:${wordBoundaryTerms.join('|')})\\b`, 'i').test(lowerText) ||
-    lowerText.includes('...');
-  if (hasLowQualityIndicators) {
-    score *= 0.7;
-  }
-  
-  // Penalize very short reviews
-  if (wordCount < 5) {
-    score *= 0.5;
-  }
-  
-  return Math.min(score, 1);
+function parseRating(ratingStr: string): number {
+	if (!ratingStr) return 0;
+
+	// Extract first number from the string
+	const match = ratingStr.match(/(\d+)/);
+	if (match) {
+		const rating = parseInt(match[1]);
+		// Assume 5-star scale
+		return Math.min(Math.max(rating, 1), 5);
+	}
+
+	// Count star symbols if present
+	const stars = (ratingStr.match(/★/g) || []).length;
+	if (stars > 0) return Math.min(stars, 5);
+
+	return 3; // Default to neutral
 }
 
 /**
- * Calculate relevance score based on recency and engagement
+ * Filter reviews to get the best quality ones
+ * @param reviews Array of reviews
+ * @param maxReviews Maximum number to return
  */
-function calculateRelevance(review: Review): number {
-  // Since we don't have timestamps, we'll use position as a proxy
-  // This can be enhanced when timestamp data is available
-  return 0.5; // Default relevance
-}
-
-/**
- * Determine if a review is helpful based on content
- */
-function isHelpfulReview(review: Review): boolean {
-  const wordCount = review.text.split(/\s+/).length;
-  
-  // Too short to be helpful
-  if (wordCount < 5) {
-    return false;
-  }
-  
-  // Check if it's just repetitive characters or spam
-  if (/^(.)\1{5,}/.test(review.text)) {
-    return false;
-  }
-  
-  // Check for all caps (might be spam or low quality)
-  // Calculate ratio based on alphabetic characters only
-  const letters = review.text.match(/[a-zA-Z]/g) || [];
-  const upperCaseLetters = review.text.match(/[A-Z]/g) || [];
-  
-  if (letters.length > 10) {
-    const upperCaseRatio = upperCaseLetters.length / letters.length;
-    if (upperCaseRatio > 0.8) {
-      return false;
-    }
-  }
-  
-  return true;
-}
-
-/**
- * Ensure a balanced mix of ratings in the final selection
- */
-function balanceRatings(
-  filteredReviews: FilteredReview[],
-  allScoredReviews: FilteredReview[],
-  maxReviews: number
+export function filterReviews(
+	reviews: Review[],
+	maxReviews: number = 10
 ): FilteredReview[] {
-  // Group reviews by rating
-  const byRating = new Map<number, FilteredReview[]>();
-  
-  allScoredReviews.forEach(review => {
-    const rating = parseRating(review.rating);
-    if (!byRating.has(rating)) {
-      byRating.set(rating, []);
-    }
-    byRating.get(rating)!.push(review);
-  });
-  
-  // If we have mostly high ratings, try to include some lower ones for balance
-  const highRatingCount = filteredReviews.filter(r => {
-    const rating = parseRating(r.rating);
-    return rating >= 4;
-  }).length;
-  
-  if (highRatingCount > maxReviews * 0.8) {
-    // Try to include some 3-star reviews if available
-    const balanced: FilteredReview[] = [...filteredReviews.slice(0, Math.floor(maxReviews * 0.7))];
-    
-    // Add some mid-range reviews
-    const midRangeReviews = allScoredReviews
-      .filter(r => {
-        const rating = parseRating(r.rating);
-        return rating === 3 && r.helpful && r.score > 0.2;
-      })
-      .slice(0, Math.floor(maxReviews * 0.3));
-    
-    balanced.push(...midRangeReviews);
-    
-    return balanced.slice(0, maxReviews);
-  }
-  
-  return filteredReviews;
+	if (!reviews || reviews.length === 0) {
+		return [];
+	}
+
+	// Score and filter reviews
+	const scored = reviews.map(review => {
+		const wordCount = review.text.trim().split(/\s+/).length;
+		const rating = parseRating(review.rating);
+
+		// Simple scoring: rating + length + quality
+		let score = 0;
+
+		// Rating score (0-40%)
+		score += (rating / 5) * 0.4;
+
+		// Length score (0-40%)
+		if (wordCount >= 20) {
+			score += 0.4;
+		} else if (wordCount >= 10) {
+			score += (wordCount / 20) * 0.4;
+		}
+
+		// Quality indicators (0-20%)
+		const hasDetails = /\b(staff|service|quality|recommend|experience)\b/i.test(review.text);
+		if (hasDetails) score += 0.2;
+
+		// Filter out obvious spam
+		const helpful = wordCount >= 5 &&
+			!/^(.)\1{5,}/.test(review.text) && // No repeated chars
+			!(review.text === review.text.toUpperCase() && wordCount > 5); // Not all caps
+
+		return {
+			...review,
+			score: Math.min(score, 1),
+			relevance: 0.5, // Simplified - not calculating complex relevance
+			helpful
+		};
+	});
+
+	// Return top scored reviews that are helpful
+	return scored
+		.filter(r => r.helpful && r.score > 0.2)
+		.sort((a, b) => b.score - a.score)
+		.slice(0, maxReviews);
 }
 
 /**
- * Get review statistics
+ * Get basic review statistics
  */
 export function getReviewStats(reviews: Review[]) {
-  if (!reviews || reviews.length === 0) {
-    return {
-      totalReviews: 0,
-      averageRating: 0,
-      ratingDistribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
-    };
-  }
-  
-  const ratingDistribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-  let totalRating = 0;
-  let validRatingCount = 0;
-  
-  reviews.forEach(review => {
-    const rating = parseRating(review.rating);
-    if (rating >= 1 && rating <= 5) {
-      ratingDistribution[rating as keyof typeof ratingDistribution]++;
-      totalRating += rating;
-      validRatingCount++;
-    }
-  });
-  
-  return {
-    totalReviews: reviews.length,
-    averageRating: validRatingCount > 0 ? totalRating / validRatingCount : 0,
-    ratingDistribution
-  };
+	if (!reviews || reviews.length === 0) {
+		return {
+			totalReviews: 0,
+			averageRating: 0,
+			ratingDistribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+		};
+	}
+
+	const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+	let sum = 0;
+	let count = 0;
+
+	reviews.forEach(review => {
+		const rating = parseRating(review.rating);
+		if (rating >= 1 && rating <= 5) {
+			distribution[rating as keyof typeof distribution]++;
+			sum += rating;
+			count++;
+		}
+	});
+
+	return {
+		totalReviews: reviews.length,
+		averageRating: count > 0 ? sum / count : 0,
+		ratingDistribution: distribution
+	};
 }

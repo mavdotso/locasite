@@ -27,15 +27,6 @@
       },
       "format_on_save": "on"
     },
-    "JSX": {
-      "formatter": {
-        "external": {
-          "command": "npx",
-          "arguments": ["biome", "format", "--stdin-file-path", "{buffer_path}"]
-        }
-      },
-      "format_on_save": "on"
-    },
     "JSON": {
       "formatter": {
         "external": {

@@ -55,7 +55,6 @@ import type * as pagesSimple from "../pagesSimple.js";
 import type * as payments from "../payments.js";
 import type * as photos from "../photos.js";
 import type * as regenerateAI from "../regenerateAI.js";
-import type * as reviewFilter from "../reviewFilter.js";
 import type * as router from "../router.js";
 import type * as storage from "../storage.js";
 import type * as storeBusinessImages from "../storeBusinessImages.js";
@@ -127,7 +126,6 @@ declare const fullApi: ApiFromModules<{
   payments: typeof payments;
   photos: typeof photos;
   regenerateAI: typeof regenerateAI;
-  reviewFilter: typeof reviewFilter;
   router: typeof router;
   storage: typeof storage;
   storeBusinessImages: typeof storeBusinessImages;
