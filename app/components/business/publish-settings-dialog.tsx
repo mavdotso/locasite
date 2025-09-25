@@ -123,7 +123,6 @@ export function PublishSettingsDialog({
     ogImage: pageData?.ogImage || "",
   });
 
-  const business = useQuery(api.businesses.getById, { id: businessId });
   const domain = useQuery(api.domains.getByBusinessId, { businessId });
   const publishBusiness = useMutation(api.businesses.publish);
   const updateSeoSettings = useMutation(api.businessSeo.updateSeoSettings);
@@ -147,7 +146,7 @@ export function PublishSettingsDialog({
     }
   };
 
-  const handleSkip = () => {
+  const _handleSkip = () => {
     if (currentStep === "seo") {
       setCurrentStep("social");
     } else if (currentStep === "social") {
@@ -158,7 +157,6 @@ export function PublishSettingsDialog({
   const handleSaveAndExit = async () => {
     setIsSaving(true);
     try {
-      // Save SEO settings
       await updateSeoSettings({
         businessId,
         seoTitle: formData.seoTitle || formData.pageTitle,
@@ -187,7 +185,6 @@ export function PublishSettingsDialog({
     setIsPublishing(true);
 
     try {
-      // Save settings
       await updateSeoSettings({
         businessId,
         seoTitle: formData.seoTitle || formData.pageTitle,
@@ -202,7 +199,6 @@ export function PublishSettingsDialog({
         onUpdatePageData(formData);
       }
 
-      // Publish the business
       await publishBusiness({ businessId });
 
       const publishedUrl = isDevelopment

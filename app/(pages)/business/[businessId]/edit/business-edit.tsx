@@ -4,7 +4,7 @@ import { notFound, useRouter } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { SimpleEditorResponsive } from "@/app/components/simple-builder/core/simple-editor-responsive";
+import dynamic from "next/dynamic";
 import type {
   SimplePageData,
   SectionInstance,
@@ -14,6 +14,23 @@ import { getPresetByType } from "@/app/components/simple-builder/sections/busine
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useRef, useState } from "react";
+
+const SimpleEditorResponsive = dynamic(
+  () => import("@/app/components/simple-builder/core/simple-editor-responsive").then(
+    (mod) => ({ default: mod.SimpleEditorResponsive })
+  ),
+  {
+    loading: () => (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-sm text-muted-foreground">Loading editor...</p>
+        </div>
+      </div>
+    ),
+    ssr: false,
+  }
+);
 
 export default function BusinessEdit({
   businessId,
@@ -26,7 +43,6 @@ export default function BusinessEdit({
   const [isInitializing, setIsInitializing] = useState(false);
   const [initMessage, setInitMessage] = useState("Loading...");
 
-  // All hooks must be called before any conditional returns
   const user = useQuery(api.auth.currentUser);
 
   // Use compound query to fetch all related data in one call

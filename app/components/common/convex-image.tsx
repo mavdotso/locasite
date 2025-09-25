@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, memo } from "react";
 import { ImageOff } from "lucide-react";
+import { cn } from "@/app/lib/utils";
 
 interface ConvexImageProps {
   src: string;
@@ -20,7 +21,7 @@ interface ConvexImageProps {
   quality?: number;
 }
 
-export function ConvexImage({
+export const ConvexImage = memo(function ConvexImage({
   src,
   alt,
   width,
@@ -52,7 +53,10 @@ export function ConvexImage({
   if (hasError || !src) {
     return (
       <div
-        className={`${className || ""} bg-gray-100 dark:bg-gray-800 flex items-center justify-center w-full h-full`}
+        className={cn(
+          "bg-gray-100 dark:bg-gray-800 flex items-center justify-center w-full h-full",
+          className
+        )}
         aria-label={alt}
       >
         <div className="flex flex-col items-center gap-2 text-gray-400 dark:text-gray-600">
@@ -69,7 +73,10 @@ export function ConvexImage({
       <>
         {isLoading && (
           <div
-            className={`${className || ""} animate-pulse bg-gray-200 dark:bg-gray-700 absolute inset-0`}
+            className={cn(
+              "animate-pulse bg-gray-200 dark:bg-gray-700 absolute inset-0",
+              className
+            )}
             aria-label="Loading image"
           />
         )}
@@ -89,24 +96,27 @@ export function ConvexImage({
     );
   }
 
+  const placeholderWidth = width || 800;
+  const placeholderHeight = height || 600;
+
   return (
-    <>
+    <div className="relative">
       {isLoading && (
         <div
-          className={`${className || ""} animate-pulse bg-gray-200 dark:bg-gray-700`}
-          style={{
-            width: width || 800,
-            height: height || 600,
-            position: "absolute",
-          }}
+          className={cn(
+            "animate-pulse bg-gray-200 dark:bg-gray-700 absolute inset-0",
+            className
+          )}
           aria-label="Loading image"
+          data-width={placeholderWidth}
+          data-height={placeholderHeight}
         />
       )}
       <Image
         src={src}
         alt={alt}
-        width={width || 800}
-        height={height || 600}
+        width={placeholderWidth}
+        height={placeholderHeight}
         className={className}
         priority={priority}
         onLoad={handleLoad}
@@ -115,6 +125,6 @@ export function ConvexImage({
         sizes={sizes}
         quality={quality}
       />
-    </>
+    </div>
   );
-}
+});

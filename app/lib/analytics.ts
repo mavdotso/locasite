@@ -1,13 +1,11 @@
 import { Id } from "@/convex/_generated/dataModel";
-// import { getTinybirdClient } from "./tinybird"; // COMMENTED OUT - Tinybird disabled
+// import { getTinybirdClient } from "./tinybird"; // Tinybird disabled
 
-// Analytics configuration
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 const VISITOR_ID_KEY = "locasite_visitor_id";
 const SESSION_ID_KEY = "locasite_session_id";
 const LAST_ACTIVITY_KEY = "locasite_last_activity";
 
-// Generate UUID
 function generateUUID(): string {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
     const r = (Math.random() * 16) | 0;
