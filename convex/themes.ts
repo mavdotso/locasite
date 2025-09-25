@@ -321,6 +321,13 @@ export const duplicateTheme = mutation({
 			throw new Error("No access to duplicate this theme");
 		}
 
+		if (args.businessId) {
+			const targetBusiness = await ctx.db.get(args.businessId);
+			if (!targetBusiness || targetBusiness.userId !== user._id) {
+				throw new Error("Unauthorized");
+			}
+		}
+
 		const newThemeId = await ctx.db.insert("themes", {
 			name: args.name,
 			description: sourceTheme.description

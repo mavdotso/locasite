@@ -1001,8 +1001,15 @@ export const discardDraft = mutation({
 export const getByIdWithDraft = query({
 	args: { id: v.id("businesses") },
 	handler: async (ctx, args) => {
+		const user = await getUserFromAuth(ctx);
+
 		const business = await ctx.db.get(args.id);
+
 		if (!business) return null;
+
+		if (business.userId !== user._id) {
+			throw new Error("Unauthorized");
+		}
 
 		if (business.draftContent) {
 			return {
@@ -1199,10 +1206,13 @@ export const deleteBusiness = mutation({
 			}
 		}
 
-		const pages = await ctx.db
-			.query("pages")
-			.withIndex("by_domain", (q) => q.eq("domainId", business.domainId!))
-			.collect();
+		let pages: Doc<"pages">[] = [];
+		if (business.domainId) {
+			pages = await ctx.db
+				.query("pages")
+				.withIndex("by_domain", (q) => q.eq("domainId", business.domainId!))
+				.collect();
+		}
 
 		for (const page of pages) {
 			await ctx.db.delete(page._id);

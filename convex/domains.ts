@@ -3,7 +3,7 @@ import { query, mutation, internalMutation } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
 import { getUserFromAuth } from "./lib/helpers";
 import { convexEnv } from "./lib/env";
-import { validateSubdomain } from "./lib/subdomainUtils";
+import { validateSubdomain } from "./lib/validation";
 
 function toUrlFriendly(input: string, maxLength: number = 30): string {
 	if (!input) return "";

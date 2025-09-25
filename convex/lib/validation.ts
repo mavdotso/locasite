@@ -1,5 +1,3 @@
-
-
 const EMAIL_REGEX =
 	/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
@@ -159,7 +157,7 @@ export function validateSubdomain(subdomain: string): {
 
 export function validateUrl(url: string): { valid: boolean; error?: string } {
 	if (!url) {
-		return { valid: true }; // URLs are often optional
+		return { valid: true };
 	}
 
 	const trimmed = url.trim();
@@ -182,7 +180,7 @@ export function validatePhone(phone: string): {
 	error?: string;
 } {
 	if (!phone) {
-		return { valid: true }; // Phone numbers are often optional
+		return { valid: true };
 	}
 
 	const cleaned = phone.replace(/\s/g, "");
