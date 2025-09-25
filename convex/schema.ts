@@ -35,7 +35,9 @@ export default defineSchema({
     .index("by_user", ["userId"])
     .index("by_business", ["businessId"])
     .index("by_preset", ["isPreset"])
-    .index("by_public", ["isPublic"]),
+    .index("by_public", ["isPublic"])
+    .index("by_preset_name", ["isPreset", "name"])
+    .index("by_preset_presetId", ["isPreset", "presetId"]),
 
   domains: defineTable({
     name: v.string(),
@@ -330,7 +332,9 @@ export default defineSchema({
     .index("by_placeId", ["placeId"])
     .index("by_userId", ["userId"])
     .index("by_domainId", ["domainId"])
-    .index("by_createdAt", ["createdAt"]),
+    .index("by_createdAt", ["createdAt"])
+    .index("by_placeId_userId", ["placeId", "userId"])
+    .index("by_themeId", ["themeId"]),
 
   businessClaims: defineTable({
     businessId: v.id("businesses"),
@@ -363,7 +367,9 @@ export default defineSchema({
     .index("by_business", ["businessId"])
     .index("by_user", ["userId"])
     .index("by_status", ["status"])
-    .index("by_business_status", ["businessId", "status"]),
+    .index("by_business_status", ["businessId", "status"])
+    .index("by_business_status_user", ["businessId", "status", "userId"])
+    .index("by_business_status_verification", ["businessId", "status", "verificationMethod", "googleVerificationStatus"]),
 
   contactMessages: defineTable({
     businessId: v.id("businesses"),
@@ -428,6 +434,33 @@ export default defineSchema({
     .index("by_file_type", ["fileType"])
     .index("by_created_at", ["createdAt"])
     .index("by_not_deleted", ["isDeleted"]),
+
+  // Business images table - stores images separately for better performance
+  businessImages: defineTable({
+    businessId: v.id("businesses"),
+    url: v.string(), // Image URL
+    storageId: v.optional(v.id("_storage")), // Convex storage ID if stored locally
+    type: v.union(
+      v.literal("photo"), // General photo from Google
+      v.literal("gallery"), // Gallery image
+      v.literal("hero"), // Hero/banner image
+      v.literal("logo"), // Business logo
+    ),
+    order: v.number(), // Display order
+    caption: v.optional(v.string()), // Image caption/alt text
+    isActive: v.boolean(), // Whether the image is currently displayed
+    source: v.union(
+      v.literal("google"), // From Google Places
+      v.literal("upload"), // User upload
+      v.literal("ai"), // AI generated
+    ),
+    createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
+  })
+    .index("by_business", ["businessId"])
+    .index("by_business_type", ["businessId", "type"])
+    .index("by_business_active", ["businessId", "isActive"])
+    .index("by_business_order", ["businessId", "order"]),
 
   // Stripe customer records
   stripeCustomers: defineTable({

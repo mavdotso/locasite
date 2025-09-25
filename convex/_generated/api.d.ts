@@ -14,6 +14,7 @@ import type * as auth from "../auth.js";
 import type * as businessClaims from "../businessClaims.js";
 import type * as businessDomainSync from "../businessDomainSync.js";
 import type * as businessEditData from "../businessEditData.js";
+import type * as businessImages from "../businessImages.js";
 import type * as businessPublishing from "../businessPublishing.js";
 import type * as businessSeo from "../businessSeo.js";
 import type * as businesses from "../businesses.js";
@@ -81,6 +82,7 @@ declare const fullApi: ApiFromModules<{
   businessClaims: typeof businessClaims;
   businessDomainSync: typeof businessDomainSync;
   businessEditData: typeof businessEditData;
+  businessImages: typeof businessImages;
   businessPublishing: typeof businessPublishing;
   businessSeo: typeof businessSeo;
   businesses: typeof businesses;

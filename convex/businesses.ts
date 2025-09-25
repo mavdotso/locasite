@@ -886,10 +886,9 @@ export const createFromPreview = mutation({
     // Check if business with this placeId already exists for this user
     const existingBusiness = await ctx.db
       .query("businesses")
-      .withIndex("by_placeId", (q) =>
-        q.eq("placeId", args.businessData.placeId),
+      .withIndex("by_placeId_userId", (q) =>
+        q.eq("placeId", args.businessData.placeId).eq("userId", user._id),
       )
-      .filter((q) => q.eq(q.field("userId"), user._id))
       .first();
 
     if (existingBusiness) {

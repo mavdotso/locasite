@@ -483,12 +483,13 @@ export const isGoogleBusinessOwner = query({
       // Check if there's an approved claim with Google verification for this business and user
       const approvedClaim = await ctx.db
         .query("businessClaims")
-        .withIndex("by_business_status", (q) =>
-          q.eq("businessId", args.businessId).eq("status", "approved"),
+        .withIndex("by_business_status_user", (q) =>
+          q.eq("businessId", args.businessId)
+            .eq("status", "approved")
+            .eq("userId", user._id),
         )
         .filter((q) =>
           q.and(
-            q.eq(q.field("userId"), user._id),
             q.eq(q.field("verificationMethod"), "google"),
             q.eq(q.field("googleVerificationStatus"), "verified"),
           ),

@@ -12,8 +12,7 @@ export const initializePresetThemes = mutation({
     // Check if presets already exist
     const existingPresets = await ctx.db
       .query("themes")
-      .withIndex("by_preset")
-      .filter((q) => q.eq(q.field("isPreset"), true))
+      .withIndex("by_preset", (q) => q.eq("isPreset", true))
       .collect();
     
     if (existingPresets.length > 0) {
@@ -50,8 +49,7 @@ export const reinitializePresetThemes = mutation({
     // Delete existing preset themes
     const existingPresets = await ctx.db
       .query("themes")
-      .withIndex("by_preset")
-      .filter((q) => q.eq(q.field("isPreset"), true))
+      .withIndex("by_preset", (q) => q.eq("isPreset", true))
       .collect();
     
     for (const preset of existingPresets) {
@@ -87,8 +85,7 @@ export const getPresetThemes = query({
   handler: async (ctx) => {
     return await ctx.db
       .query("themes")
-      .withIndex("by_preset")
-      .filter((q) => q.eq(q.field("isPreset"), true))
+      .withIndex("by_preset", (q) => q.eq("isPreset", true))
       .collect();
   },
 });
@@ -99,15 +96,11 @@ export const getPresetById = query({
   },
   handler: async (ctx, args) => {
     // Find a preset theme by its name/id
-    // Optimized: filter by name in the query instead of collecting all themes
+    // Optimized: use compound index for direct lookup
     const theme = await ctx.db
       .query("themes")
-      .withIndex("by_preset")
-      .filter((q) => 
-        q.and(
-          q.eq(q.field("isPreset"), true),
-          q.eq(q.field("name"), args.presetId)
-        )
+      .withIndex("by_preset_name", (q) =>
+        q.eq("isPreset", true).eq("name", args.presetId)
       )
       .first();
     
@@ -120,8 +113,7 @@ export const getPublicThemes = query({
   handler: async (ctx) => {
     return await ctx.db
       .query("themes")
-      .withIndex("by_public")
-      .filter((q) => q.eq(q.field("isPublic"), true))
+      .withIndex("by_public", (q) => q.eq("isPublic", true))
       .collect();
   },
 });
@@ -134,8 +126,7 @@ export const getUserThemes = query({
     
     return await ctx.db
       .query("themes")
-      .withIndex("by_user")
-      .filter((q) => q.eq(q.field("userId"), userId))
+      .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
   },
 });
@@ -162,8 +153,7 @@ export const getBusinessThemes = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("themes")
-      .withIndex("by_business")
-      .filter((q) => q.eq(q.field("businessId"), args.businessId))
+      .withIndex("by_business", (q) => q.eq("businessId", args.businessId))
       .collect();
   },
 });
@@ -273,7 +263,7 @@ export const deleteTheme = mutation({
     // Check if any businesses are using this theme
     const businessesUsingTheme = await ctx.db
       .query("businesses")
-      .filter((q) => q.eq(q.field("themeId"), args.themeId))
+      .withIndex("by_themeId", (q) => q.eq("themeId", args.themeId))
       .collect();
     
     if (businessesUsingTheme.length > 0) {
@@ -388,8 +378,7 @@ export const convertLegacyTheme = mutation({
     if (business.theme.colorScheme) {
       const presets = await ctx.db
         .query("themes")
-        .withIndex("by_preset")
-        .filter((q) => q.eq(q.field("isPreset"), true))
+        .withIndex("by_preset", (q) => q.eq("isPreset", true))
         .collect();
       
       const matchingPreset = presets.find(p => 
@@ -405,10 +394,8 @@ export const convertLegacyTheme = mutation({
     if (!themeId) {
       const modernMinimal = await ctx.db
         .query("themes")
-        .withIndex("by_preset")
-        .filter((q) => 
-          q.eq(q.field("isPreset"), true) && 
-          q.eq(q.field("presetId"), "modern-minimal")
+        .withIndex("by_preset_presetId", (q) =>
+          q.eq("isPreset", true).eq("presetId", "modern-minimal")
         )
         .first();
       
