@@ -60,32 +60,6 @@ function generateLogoPlaceholder(width: number, height: number): string {
 }
 
 /**
- * Replace placeholder URLs in content
- * Converts /api/placeholder/WxH to real placeholder images
- */
-export function replacePlaceholderUrls(content: string, businessType?: keyof typeof IMAGE_CATEGORIES): string {
-  // Pattern to match /api/placeholder/width/height or /api/placeholder/widthxheight
-  const placeholderPattern = /\/api\/placeholder\/(\d+)[x\/](\d+)/g;
-  
-  return content.replace(placeholderPattern, (match, width, height) => {
-    const w = parseInt(width);
-    const h = parseInt(height);
-    
-    // Determine category based on dimensions
-    let category: keyof typeof IMAGE_CATEGORIES = 'gallery';
-    if (w === h && w <= 200) {
-      category = 'logo';
-    } else if (w > 600 && h > 400) {
-      category = 'hero';
-    } else if (businessType) {
-      category = businessType as keyof typeof IMAGE_CATEGORIES;
-    }
-    
-    return getPlaceholderImage(w, h, category);
-  });
-}
-
-/**
  * Get a set of gallery images for a business type
  */
 export function getGalleryImages(
@@ -105,21 +79,6 @@ export function getGalleryImages(
   }
   
   return images;
-}
-
-/**
- * Get team member placeholder images
- */
-export function getTeamImages(count: number = 4): Array<{ src: string; alt: string; name: string; role: string }> {
-  const roles = ['Manager', 'Specialist', 'Coordinator', 'Lead', 'Director', 'Expert'];
-  const names = ['Alex Johnson', 'Sam Williams', 'Jordan Davis', 'Casey Brown', 'Morgan Smith', 'Taylor Jones'];
-  
-  return Array.from({ length: count }, (_, i) => ({
-    src: getPlaceholderImage(300, 300, 'team', `team-${i}`),
-    alt: `Team member ${i + 1}`,
-    name: names[i % names.length],
-    role: roles[i % roles.length]
-  }));
 }
 
 /**
