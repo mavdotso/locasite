@@ -143,32 +143,34 @@ export const internal_updateBusiness = internalMutation({
     }),
   },
   handler: async (ctx, args) => {
-     const updates = { ...args.business };
+    const updates: Partial<typeof args.business> = { ...args.business };
 
-     // Strip out undefined values
-     Object.keys(updates).forEach((key) => {
-       if (updates[key as keyof typeof updates] === undefined) {
-         delete updates[key as keyof typeof updates];
-       }
-     });
+    // Strip out undefined values
+    Object.keys(updates).forEach((key) => {
+      if (updates[key as keyof typeof updates] === undefined) {
+        delete updates[key as keyof typeof updates];
+      }
+    });
 
-     // If themeId is provided, enforce referential integrity and a single source of truth
-     if ("themeId" in updates) {
-       const themeId = updates.themeId as Id<"themes">;
-       const theme = await ctx.db.get(themeId);
-       if (!theme) {
-         throw new Error("Invalid themeId: theme not found");
-       }
-       // Allow attaching presets or a custom theme that belongs to this business
-       if (!theme.isPreset && theme.businessId !== args.id) {
-         throw new Error("Theme does not belong to this business");
-       }
-       // Prevent conflicts if both theme and themeId are provided
-       delete (updates as any).theme;
-     }
+    // If themeId is provided, enforce referential integrity and a single source of truth
+    if ("themeId" in updates) {
+      const themeId = updates.themeId as Id<"themes">;
+      const theme = await ctx.db.get(themeId);
+      if (!theme) {
+        throw new Error("Invalid themeId: theme not found");
+      }
+      // Allow attaching presets or a custom theme that belongs to this business
+      if (!theme.isPreset && theme.businessId !== args.id) {
+        throw new Error("Theme does not belong to this business");
+      }
+      // Prevent conflicts if both theme and themeId are provided
+      if ("theme" in updates) {
+        delete updates.theme;
+      }
+    }
 
-     return await ctx.db.patch(args.id, updates);
-   },
+    return await ctx.db.patch(args.id, updates);
+  },
 });
 
 // Internal mutation to delete a business

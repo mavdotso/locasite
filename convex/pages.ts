@@ -635,18 +635,24 @@ export const create = mutation({
 
     // Create new page
     const now = Date.now();
-    const newPage: any = {
+    const newPage: {
+      domainId: typeof args.domainId;
+      content: string;
+      isPublished: boolean;
+      lastEditedAt: number;
+      publishedAt?: number;
+    } = {
       domainId: args.domainId,
       content: args.content,
       isPublished: args.isPublished ?? false,
       lastEditedAt: now,
     };
-    
+
     // Set publishedAt if creating as published
     if (newPage.isPublished) {
       newPage.publishedAt = now;
     }
-    
+
     const pageId = await ctx.db.insert("pages", newPage);
 
     return pageId;
@@ -696,12 +702,17 @@ export const update = mutation({
 
     // Update the page
     const now = Date.now();
-    const updateFields: any = {
+    const updateFields: {
+      content: string;
+      isPublished: boolean | undefined;
+      lastEditedAt: number;
+      publishedAt?: number;
+    } = {
       content: args.content,
       isPublished: args.isPublished ?? page.isPublished,
       lastEditedAt: args.lastEditedAt ?? now,
     };
-    
+
     // Only set publishedAt when explicitly provided or when publishing for the first time
     if (args.publishedAt !== undefined) {
       updateFields.publishedAt = args.publishedAt;

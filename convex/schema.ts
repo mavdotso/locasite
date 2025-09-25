@@ -391,32 +391,26 @@ export default defineSchema({
 
   // Media library for storing user-uploaded files
   mediaLibrary: defineTable({
-    // File metadata
     fileName: v.string(),
     originalName: v.string(),
-    fileType: v.string(), // MIME type
-    fileSize: v.number(), // in bytes
-    storageId: v.id("_storage"), // Convex storage ID
-    url: v.string(), // Public URL
+    fileType: v.string(),
+    fileSize: v.number(),
+    storageId: v.id("_storage"),
+    url: v.string(),
 
-    // Ownership
-    userId: v.optional(v.id("users")), // User who uploaded
-    businessId: v.optional(v.id("businesses")), // Business context
+    userId: v.optional(v.id("users")),
+    businessId: v.optional(v.id("businesses")),
 
-    // Organization
-    tags: v.array(v.string()), // User-defined tags
-    folder: v.optional(v.string()), // Folder organization
-    alt: v.optional(v.string()), // Alt text for images
+    tags: v.array(v.string()),
+    folder: v.optional(v.string()),
+    alt: v.optional(v.string()),
 
-    // Usage tracking
-    usageCount: v.number(), // How many times used
+    usageCount: v.number(),
     lastUsedAt: v.optional(v.number()),
 
-    // Metadata
     createdAt: v.number(),
     updatedAt: v.optional(v.number()),
 
-    // Image-specific metadata
     dimensions: v.optional(
       v.object({
         width: v.number(),
@@ -424,7 +418,6 @@ export default defineSchema({
       }),
     ),
 
-    // Status
     isDeleted: v.boolean(),
   })
     .index("by_user", ["userId"])
@@ -435,24 +428,24 @@ export default defineSchema({
     .index("by_created_at", ["createdAt"])
     .index("by_not_deleted", ["isDeleted"]),
 
-  // Business images table - stores images separately for better performance
   businessImages: defineTable({
     businessId: v.id("businesses"),
-    url: v.string(), // Image URL
-    storageId: v.optional(v.id("_storage")), // Convex storage ID if stored locally
+    url: v.string(),
+    storageId: v.optional(v.id("_storage")),
     type: v.union(
-      v.literal("photo"), // General photo from Google
-      v.literal("gallery"), // Gallery image
-      v.literal("hero"), // Hero/banner image
-      v.literal("logo"), // Business logo
+      v.literal("photo"),
+      v.literal("gallery"),
+      v.literal("hero"),
+      v.literal("logo"),
     ),
-    order: v.number(), // Display order
-    caption: v.optional(v.string()), // Image caption/alt text
-    isActive: v.boolean(), // Whether the image is currently displayed
+    order: v.number(),
+    caption: v.optional(v.string()),
+    isActive: v.boolean(),
     source: v.union(
-      v.literal("google"), // From Google Places
-      v.literal("upload"), // User upload
-      v.literal("ai"), // AI generated
+      v.literal("google"),
+      v.literal("unsplash"),
+      v.literal("upload"),
+      v.literal("ai"),
     ),
     createdAt: v.number(),
     updatedAt: v.optional(v.number()),

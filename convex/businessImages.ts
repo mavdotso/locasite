@@ -1,11 +1,11 @@
-import { mutation, query } from "./_generated/server";
+import { mutation, query, DatabaseReader, DatabaseWriter } from "./_generated/server";
 import { v } from "convex/values";
 import { Doc, Id } from "./_generated/dataModel";
 import { getUserFromAuth } from "./lib/helpers";
 
 // Helper to verify business ownership
 async function verifyBusinessOwnership(
-  ctx: any,
+  ctx: { db: DatabaseReader | DatabaseWriter },
   businessId: Id<"businesses">,
   userId: Id<"users">
 ) {

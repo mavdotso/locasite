@@ -15,7 +15,7 @@ interface LogContext {
   userId?: string;
   businessId?: string;
   action?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 class Logger {
@@ -121,7 +121,7 @@ class Logger {
     operation: string,
     businessId: string,
     success: boolean,
-    details?: Record<string, any>
+    details?: Record<string, unknown>
   ): void {
     const level = success ? LogLevel.INFO : LogLevel.WARN;
     const message = `Business operation ${operation} ${success ? 'succeeded' : 'failed'}`;
@@ -155,7 +155,7 @@ class Logger {
     operation: string,
     domain: string,
     success: boolean,
-    details?: Record<string, any>
+    details?: Record<string, unknown>
   ): void {
     const level = success ? LogLevel.INFO : LogLevel.ERROR;
     const message = `Domain operation ${operation} for ${domain} ${success ? 'succeeded' : 'failed'}`;
