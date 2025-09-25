@@ -160,13 +160,13 @@ export class Analytics {
       const navigation = performance.getEntriesByType(
         "navigation",
       )[0] as PerformanceNavigationTiming;
-      const loadTime = navigation
+      const _loadTime = navigation
         ? Math.round(navigation.loadEventEnd - navigation.fetchStart)
         : undefined;
 
-      const { deviceType, browser, os } = parseUserAgent();
-      const referrerData = parseReferrer();
-      const utmData = parseUTMParams();
+      const { deviceType: _deviceType, browser: _browser, os: _os } = parseUserAgent();
+      const _referrerData = parseReferrer();
+      const _utmData = parseUTMParams();
 
       // COMMENTED OUT - Tinybird disabled
       // await this.tinybird.trackPageView({
@@ -229,7 +229,7 @@ export class Analytics {
 
   private async trackPageUnload() {
     try {
-      const timeOnPage = Math.round((Date.now() - this.startTime) / 1000);
+      const _timeOnPage = Math.round((Date.now() - this.startTime) / 1000);
 
       // COMMENTED OUT - Tinybird disabled
       // await this.tinybird.updateSession({
@@ -252,10 +252,10 @@ export class Analytics {
   }
 
   async trackEvent(
-    eventType: string,
-    eventCategory?: string,
-    eventLabel?: string,
-    eventValue?: number,
+    _eventType: string,
+    _eventCategory?: string,
+    _eventLabel?: string,
+    _eventValue?: number,
   ) {
     try {
       // COMMENTED OUT - Tinybird disabled

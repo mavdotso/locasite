@@ -21,6 +21,7 @@ import { Loader2, CheckCircle, Info, Globe, Search, Share2, ImageIcon, X } from 
 import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 
 const MediaLibrary = dynamic(
   () => import("@/app/components/visual-editor/library/media-library"),
@@ -364,9 +365,11 @@ export function PublishSettingsDialog({
               <div className="mt-1 space-y-2">
                 {formData.ogImage ? (
                   <div className="relative">
-                    <img
+                    <Image
                       src={formData.ogImage}
                       alt="Social media preview"
+                      width={400}
+                      height={128}
                       className="w-full h-32 object-cover rounded-lg border"
                     />
                     <Button
