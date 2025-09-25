@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -131,6 +131,30 @@ export function PublishSettingsDialog({
 		ogDescription: pageData?.ogDescription || "",
 		ogImage: pageData?.ogImage || "",
 	});
+
+	// Reset form state when dialog opens with fresh props
+	useEffect(() => {
+		if (!open) return;
+
+		setFormData({
+			// General
+			pageTitle: pageData?.pageTitle || businessName,
+			subdomain: "",
+
+			// SEO
+			seoTitle: pageData?.seoTitle || "",
+			seoDescription: pageData?.seoDescription || "",
+			seoKeywords: pageData?.seoKeywords || "",
+
+			// Social
+			ogTitle: pageData?.ogTitle || "",
+			ogDescription: pageData?.ogDescription || "",
+			ogImage: pageData?.ogImage || "",
+		});
+
+		// Reset to first step when dialog opens
+		setCurrentStep("general");
+	}, [open, pageData, businessName]);
 
 	const domain = useQuery(api.domains.getByBusinessId, { businessId });
 	const publishBusiness = useMutation(api.businessPublishing.publishBusiness);

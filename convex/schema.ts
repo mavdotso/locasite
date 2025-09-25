@@ -34,6 +34,23 @@ export default defineSchema({
     .index("by_preset_name", ["isPreset", "name"])
     .index("by_preset_presetId", ["isPreset", "presetId"]),
 
+  // Subdomain reservations table to enforce uniqueness at DB level
+  // This acts as a unique constraint on subdomains
+  subdomainReservations: defineTable({
+    subdomain: v.string(),
+    domainId: v.optional(v.id("domains")), // Links to actual domain once created
+    createdAt: v.number(),
+    expiresAt: v.optional(v.number()), // For temporary reservations during creation
+    status: v.union(
+      v.literal("reserved"), // Temporary reservation during domain creation
+      v.literal("active"), // Permanently linked to a domain
+    ),
+  })
+    .index("by_subdomain", ["subdomain"]) // Primary lookup index
+    .index("by_domain", ["domainId"])
+    .index("by_status", ["status"])
+    .index("by_expires", ["expiresAt", "status"]),
+
   domains: defineTable({
     name: v.string(),
     subdomain: v.string(),

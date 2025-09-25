@@ -69,8 +69,8 @@ export const syncBusinessDomain = mutation({
     if (!domainId) {
       // Look for existing domain
       const domains = await ctx.db.query("domains").collect();
-      let domain = domains.find(d => 
-        d.name === business.name || 
+      const domain = domains.find(d =>
+        d.name === business.name ||
         d.subdomain === business.name.toLowerCase().replace(/[^a-z0-9-]/g, '-')
       );
       

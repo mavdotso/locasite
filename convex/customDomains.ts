@@ -124,7 +124,7 @@ export const addCustomDomain = mutation({
     }
 
     // Get or create domain record
-    let domainRecord = business.domainId
+    const domainRecord = business.domainId
       ? await ctx.db.get(business.domainId)
       : null;
 

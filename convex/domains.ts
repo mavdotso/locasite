@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation, internalMutation } from "./_generated/server";
+import { Id } from "./_generated/dataModel";
 import { getUserFromAuth } from './lib/helpers';
 import { convexEnv } from './lib/env';
 import { validateSubdomain } from "./lib/subdomainUtils";
@@ -84,49 +85,39 @@ export const generateSubdomain = mutation({
             }
         }
 
-        // Use the optimized subdomain generation with retry logic for race conditions
-        let subdomain = baseSubdomain;
-        let domainId = null;
-        let attempts = 0;
-        const maxAttempts = 5;
+        // Use reservation-based approach for atomic subdomain allocation
+        const {
+            generateAndReserveUniqueSubdomain,
+            confirmReservation,
+            releaseReservation
+        } = await import("./lib/subdomainReservation");
 
-        while (!domainId && attempts < maxAttempts) {
-            attempts++;
+        // Try to reserve a subdomain
+        const reservation = await generateAndReserveUniqueSubdomain(ctx, baseSubdomain);
 
-            // Check if subdomain is available
-            const existing = await ctx.db
-                .query("domains")
-                .withIndex("by_subdomain", q => q.eq("subdomain", subdomain))
-                .first();
-
-            if (!existing) {
-                try {
-                    // Try to create the domain
-                    domainId = await ctx.db.insert("domains", {
-                        name: business.name,
-                        subdomain,
-                        createdAt: Date.now()
-                    });
-                } catch (error) {
-                    // If insertion failed, likely due to race condition
-                    // Generate a new subdomain and retry
-                    if (attempts < maxAttempts) {
-                        const { generateUniqueSubdomain } = await import("./lib/subdomainUtils");
-                        subdomain = await generateUniqueSubdomain(ctx, `${baseSubdomain}-${Date.now()}`);
-                    } else {
-                        throw new Error("Failed to create domain after multiple attempts. Please try again.");
-                    }
-                }
-            } else {
-                // Subdomain already taken, generate a new one
-                const { generateUniqueSubdomain } = await import("./lib/subdomainUtils");
-                subdomain = await generateUniqueSubdomain(ctx, baseSubdomain);
-            }
+        if (!reservation) {
+            throw new Error("Failed to reserve a unique subdomain. Please try again.");
         }
 
-        if (!domainId) {
+        let domainId: Id<"domains"> | null = null;
+
+        try {
+            // Create the domain - this is now safe because we have the reservation
+            domainId = await ctx.db.insert("domains", {
+                name: business.name,
+                subdomain: reservation.subdomain,
+                createdAt: Date.now()
+            });
+
+            // Confirm the reservation by linking it to the domain
+            await confirmReservation(ctx, reservation.reservationId, domainId);
+        } catch (error) {
+            // If domain creation failed, release the reservation
+            await releaseReservation(ctx, reservation.reservationId);
             throw new Error("Failed to create domain. Please try again.");
         }
+
+        const subdomain = reservation.subdomain;
 
         // Associate the domain with the business
         await ctx.db.patch(args.businessId, {
@@ -155,13 +146,11 @@ export const checkAvailability = query({
             };
         }
 
-        // Check if it exists
-        const existing = await ctx.db
-            .query("domains")
-            .withIndex("by_subdomain", q => q.eq("subdomain", subdomain))
-            .first();
+        // Check availability using reservation system
+        const { isSubdomainAvailable } = await import("./lib/subdomainReservation");
+        const available = await isSubdomainAvailable(ctx, subdomain);
 
-        if (!existing) {
+        if (available) {
             return {
                 available: true,
                 subdomain, // The subdomain that was checked and is available
