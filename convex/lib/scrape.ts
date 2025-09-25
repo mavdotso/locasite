@@ -250,7 +250,6 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
 
 		if (!requestPreview) {
 			try {
-
 				const result = await ctx.runMutation(
 					internal.businesses.createBusinessWithoutAuth,
 					{
@@ -282,18 +281,18 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
 			});
 		}
 
-		const ok = businessId !== null;
+		const success = requestPreview || businessId !== null;
 		return new Response(
 			JSON.stringify({
-				success: ok,
-				data: fullBusinessData, // Return full data for frontend
+				success,
+				data: fullBusinessData,
 				businessId,
 				domainId,
-				preview: false, // Always create business now
+				preview: requestPreview,
 				hasAIContent: false,
 			}),
 			{
-				status: ok ? 200 : 500,
+				status: success ? 200 : 500,
 				headers: {
 					"Content-Type": "application/json",
 					"Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
