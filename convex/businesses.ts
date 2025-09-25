@@ -97,9 +97,10 @@ export const internal_createBusiness = internalMutation({
 
 		if (existingBusiness) {
 
-			return await ctx.db.patch(existingBusiness._id, {
+			await ctx.db.patch(existingBusiness._id, {
 				...args.business,
 			});
+			return existingBusiness._id;
 		}
 
 		const businessId = await ctx.db.insert("businesses", {
@@ -302,7 +303,21 @@ export const create = mutation({
 export const getById = query({
 	args: { id: v.id("businesses") },
 	handler: async (ctx, args) => {
-		return await ctx.db.get(args.id);
+		const user = await getUserFromAuth(ctx);
+		const business = await ctx.db.get(args.id);
+
+		if (!business) {
+			throw new Error("Business not found");
+		}
+
+		// Check if the user owns this business
+		if (business.userId !== user._id) {
+			throw new Error("Unauthorized: You don't have access to this business");
+		}
+
+		// Return business without sensitive fields
+		const { googleBusinessAuth, ...sanitizedBusiness } = business;
+		return sanitizedBusiness;
 	},
 });
 
@@ -344,6 +359,12 @@ export const list = query({
 export const listByUser = query({
 	args: { userId: v.id("users") },
 	handler: async (ctx, args) => {
+		const user = await getUserFromAuth(ctx);
+
+		// Only allow users to list their own businesses
+		if (user._id !== args.userId) {
+			throw new Error("Unauthorized: You can only view your own businesses");
+		}
 
 		return await ctx.db
 			.query("businesses")

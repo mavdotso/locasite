@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, internalMutation } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
 import { getUserFromAuth } from "./lib/helpers";
 import { themePresets } from "./lib/themePresets";
@@ -9,7 +9,7 @@ import {
 } from "./lib/themeSchema";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
-export const initializePresetThemes = mutation({
+export const initializePresetThemes = internalMutation({
 	handler: async (ctx) => {
 		const existingPresets = await ctx.db
 			.query("themes")
@@ -43,7 +43,7 @@ export const initializePresetThemes = mutation({
 	},
 });
 
-export const reinitializePresetThemes = mutation({
+export const reinitializePresetThemes = internalMutation({
 	handler: async (ctx) => {
 		const existingPresets = await ctx.db
 			.query("themes")

@@ -12,8 +12,8 @@ function toUrlFriendly(input: string, maxLength: number = 30): string {
 		.toLowerCase()
 		.normalize("NFD")
 		.replace(/[\u0300-\u036f]/g, "")
-		.replace(/[^a-z0-9]+/g, "-")
-		.replace(/--+/g, "-")
+		.replace(/[^a-z0-9]/g, "-")
+		.replace(/--/g, "-")
 		.replace(/^-|-$/g, "")
 		.substring(0, maxLength)
 		.replace(/-$/, "");
@@ -61,7 +61,6 @@ export const generateSubdomain = mutation({
 
 		let baseSubdomain: string;
 		if (args.customSubdomain) {
-
 			baseSubdomain = toUrlFriendly(args.customSubdomain);
 
 			const validation = validateSubdomain(baseSubdomain);
@@ -69,7 +68,6 @@ export const generateSubdomain = mutation({
 				throw new Error(validation.error || "Invalid subdomain format");
 			}
 		} else {
-
 			baseSubdomain = toUrlFriendly(business.name);
 
 			if (!baseSubdomain || baseSubdomain.length < 3) {
@@ -97,7 +95,6 @@ export const generateSubdomain = mutation({
 		let domainId: Id<"domains"> | null = null;
 
 		try {
-
 			domainId = await ctx.db.insert("domains", {
 				name: business.name,
 				subdomain: reservation.subdomain,
@@ -140,27 +137,46 @@ export const checkAvailability = query({
 			};
 		}
 
-		const { isSubdomainAvailable } = await import("./lib/subdomainReservation");
-		const available = await isSubdomainAvailable(ctx, subdomain);
-
-		if (available) {
+		// 1) Check if a domain already exists with this subdomain
+		const existingDomain = await ctx.db
+			.query("domains")
+			.withIndex("by_subdomain", (q) => q.eq("subdomain", subdomain))
+			.first();
+		if (existingDomain) {
+			const { checkSubdomainAvailability } = await import(
+				"./lib/subdomainUtils"
+			);
+			const result = await checkSubdomainAvailability(ctx, subdomain);
 			return {
-				available: true,
-				subdomain, // The subdomain that was checked and is available
-				suggestedSubdomain: subdomain, // Same as subdomain since it's available
-				suggestions: [], // No alternatives needed since it's available
+				available: false,
+				subdomain,
+				suggestedSubdomain:
+					result.suggestions?.[0] || `${subdomain}-${Date.now()}`,
+				suggestions: result.suggestions || [],
 			};
 		}
 
+		// 2) Check active/valid reservations
+		const { isSubdomainAvailable } = await import("./lib/subdomainReservation");
+		const available = await isSubdomainAvailable(ctx, subdomain);
+		if (available) {
+			return {
+				available: true,
+				subdomain,
+				suggestedSubdomain: subdomain,
+				suggestions: [],
+			};
+		}
+
+		// 3) Provide alternatives when reserved
 		const { checkSubdomainAvailability } = await import("./lib/subdomainUtils");
 		const result = await checkSubdomainAvailability(ctx, subdomain);
-
 		return {
 			available: false,
-			subdomain: subdomain, // The original subdomain that was checked
+			subdomain,
 			suggestedSubdomain:
-				result.suggestions?.[0] || `${subdomain}-${Date.now()}`, // The recommended alternative
-			suggestions: result.suggestions || [], // All available alternatives
+				result.suggestions?.[0] || `${subdomain}-${Date.now()}`,
+			suggestions: result.suggestions || [],
 		};
 	},
 });

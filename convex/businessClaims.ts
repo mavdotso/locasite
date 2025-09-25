@@ -245,7 +245,7 @@ export const verifyGoogleBusinessOwnership = action({
 
 		try {
 			const response = await fetch(
-				`https://mybusinessbusinessinformation.googleapis.com/v1/accounts/*/locations/${business.placeId}`,
+				`https://mybusinessbusinessinformation.googleapis.com/v1/locations/${business.placeId}`,
 				{
 					headers: {
 						Authorization: `Bearer ${args.googleAccessToken}`,
