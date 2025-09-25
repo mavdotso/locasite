@@ -89,14 +89,12 @@ export const internal_createBusiness = internalMutation({
 		userId: v.id("users"),
 	},
 	handler: async (ctx, args) => {
-
 		const existingBusiness = await ctx.db
 			.query("businesses")
 			.withIndex("by_placeId", (q) => q.eq("placeId", args.business.placeId))
 			.first();
 
 		if (existingBusiness) {
-
 			await ctx.db.patch(existingBusiness._id, {
 				...args.business,
 			});
@@ -293,7 +291,7 @@ export const create = mutation({
 			...args.business,
 			createdAt: Date.now(),
 			userId: user._id,
-			isPublished: false, // Default to unpublished
+			isPublished: false,
 		});
 
 		return businessId;
@@ -310,14 +308,30 @@ export const getById = query({
 			throw new Error("Business not found");
 		}
 
-		// Check if the user owns this business
 		if (business.userId !== user._id) {
 			throw new Error("Unauthorized: You don't have access to this business");
 		}
 
-		// Return business without sensitive fields
-		const { googleBusinessAuth, ...sanitizedBusiness } = business;
+		const { googleBusinessAuth: _, ...sanitizedBusiness } = business;
 		return sanitizedBusiness;
+	},
+});
+
+export const getByIdWithAuth = query({
+	args: { id: v.id("businesses") },
+	handler: async (ctx, args) => {
+		const user = await getUserFromAuth(ctx);
+		const business = await ctx.db.get(args.id);
+
+		if (!business) {
+			throw new Error("Business not found");
+		}
+
+		if (business.userId !== user._id) {
+			throw new Error("Unauthorized: You don't have access to this business");
+		}
+
+		return business;
 	},
 });
 
@@ -327,8 +341,7 @@ export const getBusinessPublic = query({
 		const business = await ctx.db.get(args.businessId);
 		if (!business) return null;
 
-		const { ...publicData } = business;
-
+		const { googleBusinessAuth: _, userId: _userId, ...publicData } = business;
 		return publicData;
 	},
 });
@@ -361,7 +374,6 @@ export const listByUser = query({
 	handler: async (ctx, args) => {
 		const user = await getUserFromAuth(ctx);
 
-		// Only allow users to list their own businesses
 		if (user._id !== args.userId) {
 			throw new Error("Unauthorized: You can only view your own businesses");
 		}
@@ -606,7 +618,6 @@ export const createBusinessWithoutAuth = internalMutation({
 		}),
 	},
 	handler: async (ctx, args) => {
-
 		const existingBusiness = await ctx.db
 			.query("businesses")
 			.withIndex("by_placeId", (q) =>
@@ -615,7 +626,6 @@ export const createBusinessWithoutAuth = internalMutation({
 			.first();
 
 		if (existingBusiness) {
-
 			return {
 				businessId: existingBusiness._id,
 				domainId: existingBusiness.domainId,
@@ -644,7 +654,6 @@ export const createBusinessWithoutAuth = internalMutation({
 		});
 
 		const sections = [
-
 			{
 				id: "header-1",
 				variationId: "header-section",
@@ -876,7 +885,6 @@ export const createFromPreview = mutation({
 			.first();
 
 		if (existingBusiness) {
-
 			return { businessId: existingBusiness._id };
 		}
 
@@ -884,7 +892,7 @@ export const createFromPreview = mutation({
 			...args.businessData,
 			createdAt: Date.now(),
 			userId: user._id,
-			isPublished: false, // Start as unpublished
+			isPublished: false,
 		});
 
 		await ctx.scheduler.runAfter(
@@ -954,7 +962,7 @@ export const publishDraft = mutation({
 			isPublished: true,
 			publishedAt: Date.now(),
 			lastEditedAt: Date.now(),
-			draftContent: undefined, // Clear draft after publishing
+			draftContent: undefined,
 		};
 
 		if (business.draftContent.name) updates.name = business.draftContent.name;
@@ -1111,8 +1119,8 @@ export const createBusinessFromPendingData = mutation({
 				args.aiContent !== null && { aiGeneratedContent: args.aiContent }),
 			createdAt: Date.now(),
 			userId: user._id,
-			domainId: undefined, // Will be set when domain is created
-			isPublished: false, // Keep as draft until user publishes
+			domainId: undefined,
+			isPublished: false,
 			publishedAt: undefined,
 		});
 
@@ -1214,7 +1222,6 @@ export const deleteBusiness = mutation({
 			.withIndex("by_business", (q) => q.eq("businessId", args.businessId))
 			.collect();
 		for (const item of mediaItems) {
-
 			if (item.storageId) {
 				await ctx.storage.delete(item.storageId);
 			}
