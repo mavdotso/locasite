@@ -310,7 +310,13 @@ export const applyThemeToBusiness = mutation({
 			throw new Error("No access to this theme");
 		}
 
-		// Update business with new theme
+		if (args.businessId) {
+			const targetBusiness = await ctx.db.get(args.businessId);
+			if (!targetBusiness || targetBusiness.userId !== user._id) {
+				throw new Error("Unauthorized");
+			}
+		}
+
 		await ctx.db.patch(args.businessId, {
 			themeId: args.themeId,
 			themeOverrides: args.themeOverrides,

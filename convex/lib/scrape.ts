@@ -1,7 +1,7 @@
-import { httpAction } from "../_generated/server";
-import { api, components, internal } from "../_generated/api";
 import { RateLimiter } from "@convex-dev/rate-limiter";
 import axios from "axios";
+import { api, components, internal } from "../_generated/api";
+import { httpAction } from "../_generated/server";
 import { generateDefaultDescription } from "./businessDescriptions";
 import { convexEnv } from "./env";
 import { logger } from "./logger";
@@ -30,6 +30,47 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
 	let requestPreview: boolean = false;
 
 	try {
+		if (request.method === "OPTIONS") {
+			return new Response(null, {
+				status: 204,
+				headers: {
+					"Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
+					"Access-Control-Allow-Methods": "POST, OPTIONS",
+					"Access-Control-Allow-Headers": "Content-Type, Authorization",
+					Vary: "Origin",
+				},
+			});
+		}
+		if (request.method !== "POST") {
+			return new Response(JSON.stringify({ error: "Method Not Allowed" }), {
+				status: 405,
+				headers: {
+					"Content-Type": "application/json",
+					"Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
+					"Access-Control-Allow-Methods": "POST, OPTIONS",
+					"Access-Control-Allow-Headers": "Content-Type, Authorization",
+					Allow: "POST, OPTIONS",
+					Vary: "Origin",
+				},
+			});
+		}
+		const ct = request.headers.get("content-type") || "";
+		if (!ct.includes("application/json")) {
+			return new Response(
+				JSON.stringify({
+					error: "Unsupported Media Type. Use application/json.",
+				}),
+				{
+					status: 415,
+					headers: {
+						"Content-Type": "application/json",
+						"Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
+						Vary: "Origin",
+					},
+				},
+			);
+		}
+
 		const { url, preview = false } = await request.json();
 		requestUrl = url;
 		requestPreview = preview;
@@ -109,6 +150,7 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
 		const apiKey = convexEnv.GOOGLE_MAPS_API_KEY;
 		const findPlaceResponse = await axios.get(
 			`https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(businessName)}&inputtype=textquery&fields=place_id,name,formatted_address&key=${apiKey}`,
+			{ timeout: 10000 },
 		);
 
 		if (
@@ -146,12 +188,32 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
 
 		const detailsResponse = await axios.get(
 			`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=${fields}&key=${apiKey}`,
+			{ timeout: 10000 },
 		);
 
+		const statusText = detailsResponse.data.status;
+		if (statusText !== "OK" || !detailsResponse.data.result) {
+			return new Response(
+				JSON.stringify({
+					error: "Failed to retrieve place details from Google Places API.",
+					status: statusText,
+				}),
+				{
+					status:
+						statusText === "NOT_FOUND" || statusText === "ZERO_RESULTS"
+							? 404
+							: 502,
+					headers: {
+						"Content-Type": "application/json",
+						"Access-Control-Allow-Origin": convexEnv.CLIENT_ORIGIN || "*",
+						Vary: "Origin",
+					},
+				},
+			);
+		}
 		const place = detailsResponse.data.result;
 
-		// Format the data - limit to first 5 photos to control API costs
-		const MAX_PHOTOS = 5;
+		const MAX_PHOTOS = 25;
 		// Return only photo references to avoid exposing API key
 		// Frontend should use a browser-restricted key or proxy endpoint
 		const photoReferences = (place.photos ?? [])
@@ -199,25 +261,36 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
 		let businessId = null;
 		let domainId = null;
 
-		try {
-			// Create business without authentication (internal mutation)
-			const result = await ctx.runMutation(
-				internal.businesses.createBusinessWithoutAuth,
-				{
-					businessData,
-				},
-			);
+		if (!requestPreview) {
+			try {
+				// Create business without authentication (internal mutation)
+				const result = await ctx.runMutation(
+					internal.businesses.createBusinessWithoutAuth,
+					{
+						businessData,
+					},
+				);
 
-			businessId = result.businessId;
-			domainId = result.domainId;
-		} catch (error) {
-			logger.error("Error creating business from Google Maps", error, {
+				businessId = result.businessId;
+				domainId = result.domainId;
+			} catch (error) {
+				logger.error("Error creating business from Google Maps", error, {
+					metadata: {
+						placeId,
+						businessName: place.name,
+						preview: requestPreview,
+						identifier,
+						category: place.types?.[0],
+					},
+				});
+			}
+		} else {
+			logger.info("Business creation skipped for preview request", {
 				metadata: {
 					placeId,
 					businessName: place.name,
-					preview: false,
+					preview: requestPreview,
 					identifier,
-					category: place.types?.[0],
 				},
 			});
 		}

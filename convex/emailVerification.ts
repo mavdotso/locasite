@@ -1,9 +1,9 @@
-import { mutation, query, action, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
-import { getUserFromAuth } from "./lib/helpers";
-import { internal } from "./_generated/api";
-import { logger } from "./lib/logger";
+import { api, internal } from "./_generated/api";
+import { action, internalMutation, mutation, query } from "./_generated/server";
 import { convexEnv } from "./lib/env";
+import { getUserFromAuth } from "./lib/helpers";
+import { logger } from "./lib/logger";
 
 export const internal_updateClaimWithToken = internalMutation({
 	args: {
@@ -15,7 +15,7 @@ export const internal_updateClaimWithToken = internalMutation({
 		await ctx.db.patch(args.claimId, {
 			emailVerificationToken: args.token,
 			emailVerificationExpiry: args.expiry,
-			magicLinkSent: true,
+			magicLinkSent: false,
 			updatedAt: Date.now(),
 		});
 	},
@@ -35,17 +35,13 @@ export const sendVerificationEmail = action({
 		email?: string;
 		emailSent?: boolean;
 	}> => {
-		const business = await ctx.runQuery(
-			internal.businesses.internal_getBusinessById,
-			{
-				id: args.businessId,
-			},
-		);
-
-		if (!business) {
-			throw new Error("Business not found");
+		// Get the current user
+		const user = await ctx.runQuery(api.auth.currentUser);
+		if (!user) {
+			throw new Error("Not authenticated");
 		}
 
+		// Load the claim and verify it exists
 		const claim = await ctx.runQuery(
 			internal.businessClaims.internal_getClaimById,
 			{
@@ -55,6 +51,28 @@ export const sendVerificationEmail = action({
 
 		if (!claim) {
 			throw new Error("Claim not found");
+		}
+
+		// Verify the claim belongs to the specified business
+		if (claim.businessId !== args.businessId) {
+			throw new Error("Unauthorized: Claim does not belong to this business");
+		}
+
+		// Verify the caller owns the claim
+		if (claim.userId !== user._id) {
+			throw new Error("Unauthorized: You do not own this claim");
+		}
+
+		// Load the business
+		const business = await ctx.runQuery(
+			internal.businesses.internal_getBusinessById,
+			{
+				id: args.businessId,
+			},
+		);
+
+		if (!business) {
+			throw new Error("Business not found");
 		}
 
 		const token = await ctx.runAction(
@@ -177,6 +195,13 @@ export const resendVerificationEmail = action({
 		message: string;
 		attemptsRemaining: number;
 	}> => {
+		// Get the current user
+		const user = await ctx.runQuery(api.auth.currentUser);
+		if (!user) {
+			throw new Error("Not authenticated");
+		}
+
+		// Load the claim and verify it exists
 		const claim = await ctx.runQuery(
 			internal.businessClaims.internal_getClaimById,
 			{
@@ -186,6 +211,11 @@ export const resendVerificationEmail = action({
 
 		if (!claim) {
 			throw new Error("Claim not found");
+		}
+
+		// Verify the caller owns the claim
+		if (claim.userId !== user._id) {
+			throw new Error("Unauthorized: You do not own this claim");
 		}
 
 		if (claim.status !== "pending") {

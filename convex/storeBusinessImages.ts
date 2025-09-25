@@ -65,17 +65,14 @@ export const storeBusinessImages = action({
 					continue;
 				}
 
-				// Store the image directly in the action
 				const storageId = await ctx.storage.store(blob);
 
-				// Get the public URL
 				const url = await ctx.storage.getUrl(storageId);
 				if (!url) {
-					storedUrls.push(photoUrl); // Keep original URL if storage fails
+					storedUrls.push(photoUrl);
 					continue;
 				}
 
-				// Add to media library via mutation
 				await ctx.runMutation(internal.storeBusinessImages.addToMediaLibrary, {
 					businessId: args.businessId,
 					userId: user._id,
@@ -178,20 +175,26 @@ export const internalStoreBusinessImages = internalAction({
 			};
 		}
 
-		// Store each image in the media library
+		const photos = business.photos ?? [];
+		if (photos.length === 0) {
+			return {
+				success: true,
+				message: "No photos to process",
+				storedUrls: [],
+			};
+		}
+
 		const storedUrls: string[] = [];
 
-		for (let i = 0; i < business.photos.length; i++) {
-			const photoUrl = business.photos[i];
+		for (let i = 0; i < photos.length; i++) {
+			const photoUrl = photos[i];
 
-			// Skip if already a Convex storage URL
 			if (photoUrl.includes("convex.cloud")) {
 				storedUrls.push(photoUrl);
 				continue;
 			}
 
 			try {
-				// Download the image with timeout and size checks
 				const controller = new AbortController();
 				const timeout = setTimeout(() => controller.abort(), 15000);
 				const response = await fetch(photoUrl, {

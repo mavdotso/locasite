@@ -45,6 +45,17 @@ export const internal_createBusinessClaim = internalMutation({
 	},
 });
 
+export const internal_assertClaimOwnership = internalQuery({
+	args: { claimId: v.id("businessClaims") },
+	handler: async (ctx, args) => {
+		const user = await getUserFromAuth(ctx);
+		const claim = await ctx.db.get(args.claimId);
+		if (!claim) throw new Error("Claim not found");
+		if (claim.userId !== user._id) throw new Error("Forbidden");
+		return { ok: true };
+	},
+});
+
 // Internal mutation to approve a claim
 export const internal_approveClaim = internalMutation({
 	args: {
@@ -66,10 +77,13 @@ export const internal_approveClaim = internalMutation({
 			notes: args.notes,
 		});
 
-		// Update the business ownership
-		await ctx.db.patch(claim.businessId, {
-			userId: claim.userId,
-		});
+		const business = await ctx.db.get(claim.businessId);
+
+		if (business?.userId && business.userId !== claim.userId) {
+			throw new Error("Business already claimed by another user");
+		}
+
+		await ctx.db.patch(claim.businessId, { userId: claim.userId });
 
 		return true;
 	},
@@ -221,6 +235,10 @@ export const verifyGoogleBusinessOwnership = action({
 		googleAccessToken: v.string(),
 	},
 	handler: async (ctx, args) => {
+		await ctx.runQuery(internal.businessClaims.internal_assertClaimOwnership, {
+			claimId: args.claimId,
+		});
+
 		// Get the claim details
 		const claim = await ctx.runQuery(
 			internal.businessClaims.internal_getClaimById,
