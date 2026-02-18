@@ -15,7 +15,8 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import Logo from "@/app/components/ui/logo";
-import { useCurrentUser } from "@/app/components/providers/dashboard-provider";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +30,8 @@ export default function DashboardNav() {
   const router = useRouter();
   const pathname = usePathname();
   const { signOut } = useAuthActions();
-  const user = useCurrentUser();
+  const userWithSub = useQuery(api.auth.currentUserWithSubscription);
+  const user = userWithSub?.user;
 
   const handleSignOut = async () => {
     await signOut();

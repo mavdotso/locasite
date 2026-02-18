@@ -5,6 +5,7 @@ import { scrapeGoogleMaps } from "./lib/scrape";
 import { api, internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 import { convexEnv } from "./lib/env";
+import { logger } from "./lib/logger";
 
 const http = router;
 
@@ -16,7 +17,6 @@ http.route({
   handler: scrapeGoogleMaps,
 });
 
-// Add CORS preflight for the scrape endpoint
 http.route({
   path: "/scrape",
   method: "OPTIONS",
@@ -41,7 +41,6 @@ http.route({
   }),
 });
 
-// Google Business OAuth callback handler
 http.route({
   path: "/google-business/callback",
   method: "GET",
@@ -51,7 +50,6 @@ http.route({
     const state = url.searchParams.get("state");
     const error = url.searchParams.get("error");
 
-    // Handle OAuth errors
     if (error) {
       const errorDescription = url.searchParams.get("error_description");
       const appUrl = convexEnv.NEXT_PUBLIC_APP_URL;
@@ -75,14 +73,13 @@ http.route({
       });
     }
     try {
-      // Decode the state parameter
+
       const stateData = JSON.parse(Buffer.from(state, "base64").toString());
       const { claimId } = stateData;
       if (!claimId) {
         throw new Error("Missing claim ID in state");
       }
 
-      // Exchange authorization code for access token
       const tokenEndpoint = "https://oauth2.googleapis.com/token";
       const tokenParams = new URLSearchParams({
         code,
@@ -110,7 +107,6 @@ http.route({
       const tokenData = await tokenResponse.json();
       const accessToken = tokenData.access_token;
 
-      // Get the claim to find the business ID
       const claim = await ctx.runQuery(
         internal.businessClaims.internal_getClaimById,
         {
@@ -122,7 +118,6 @@ http.route({
         throw new Error("Claim not found");
       }
 
-      // Verify business ownership using the access token
       const verificationResult = await ctx.runAction(
         api.businessClaims.verifyGoogleBusinessOwnership,
         {
@@ -131,7 +126,6 @@ http.route({
         },
       );
 
-      // Redirect based on verification result
       const businessId = claim.businessId;
       const appUrl = convexEnv.NEXT_PUBLIC_APP_URL;
 
@@ -157,7 +151,7 @@ http.route({
         error instanceof Error ? error.message : "Unknown error occurred";
       const appUrl = convexEnv.NEXT_PUBLIC_APP_URL;
       if (!appUrl) {
-        // Return a proper error response if env var is missing
+
         return new Response(
           "Server configuration error: NEXT_PUBLIC_APP_URL not set",
           {
@@ -176,7 +170,6 @@ http.route({
   }),
 });
 
-// Analytics tracking endpoint
 http.route({
   path: "/analytics/track",
   method: "POST",
@@ -185,7 +178,6 @@ http.route({
       const body = await request.json();
       const { type, data } = body;
 
-      // Initialize Tinybird client
       const apiUrl = convexEnv.NEXT_PUBLIC_TINYBIRD_API_URL;
       const token = convexEnv.NEXT_PUBLIC_TINYBIRD_TOKEN;
 
@@ -199,7 +191,6 @@ http.route({
         );
       }
 
-      // Send events to Tinybird
       let datasource: string;
       let event: unknown;
 
@@ -210,7 +201,7 @@ http.route({
           break;
         case "event":
           datasource = "events";
-          // Convert metadata to JSON string for storage
+
           event = {
             ...data,
             metadata: data.metadata ? JSON.stringify(data.metadata) : undefined,
@@ -264,7 +255,6 @@ http.route({
   }),
 });
 
-// CORS preflight for analytics endpoint
 http.route({
   path: "/analytics/track",
   method: "OPTIONS",
@@ -289,7 +279,6 @@ http.route({
   }),
 });
 
-// Email verification endpoints
 http.route({
   path: "/verification/send-email",
   method: "POST",
@@ -308,7 +297,6 @@ http.route({
         );
       }
 
-      // Send verification email
       const result = await ctx.runAction(
         api.emailVerification.sendVerificationEmail,
         {
@@ -357,7 +345,6 @@ http.route({
         );
       }
 
-      // Verify the token
       const result = await ctx.runMutation(
         api.emailVerification.verifyEmailToken,
         {
@@ -388,7 +375,6 @@ http.route({
   }),
 });
 
-// CORS preflight for verification endpoints
 http.route({
   path: "/verification/send-email",
   method: "OPTIONS",
@@ -437,7 +423,6 @@ http.route({
   }),
 });
 
-// Favicon endpoint with path parameter
 http.route({
   pathPrefix: "/favicon/",
   method: "GET",
@@ -448,7 +433,7 @@ http.route({
       const subdomain = pathParts[pathParts.length - 1];
 
       if (!subdomain) {
-        // Return default favicon
+
         return new Response(null, {
           status: 302,
           headers: {
@@ -458,13 +443,12 @@ http.route({
         });
       }
 
-      // Get domain from database
       const domain = await ctx.runQuery(api.domains.getBySubdomain, {
         subdomain,
       });
 
       if (!domain) {
-        // Return default favicon
+
         return new Response(null, {
           status: 302,
           headers: {
@@ -474,13 +458,12 @@ http.route({
         });
       }
 
-      // Get the business associated with this domain
       const businesses = await ctx.runQuery(api.businesses.listByDomain, {
         domain: domain._id,
       });
 
       if (!businesses || businesses.length === 0) {
-        // Return default favicon
+
         return new Response(null, {
           status: 302,
           headers: {
@@ -492,7 +475,6 @@ http.route({
 
       const business = businesses[0];
 
-      // If business has a custom favicon, redirect to it
       if (business.favicon) {
         return new Response(null, {
           status: 302,
@@ -503,7 +485,6 @@ http.route({
         });
       }
 
-      // Otherwise, return default favicon
       return new Response(null, {
         status: 302,
         headers: {
@@ -512,7 +493,7 @@ http.route({
         },
       });
     } catch (error) {
-      // Return default favicon on error
+
       return new Response(null, {
         status: 302,
         headers: {
@@ -524,7 +505,6 @@ http.route({
   }),
 });
 
-// Robots.txt endpoint with path parameter
 http.route({
   pathPrefix: "/robots/",
   method: "GET",
@@ -544,7 +524,6 @@ http.route({
         });
       }
 
-      // Get domain from database
       const domain = await ctx.runQuery(api.domains.getBySubdomain, {
         subdomain,
       });
@@ -559,7 +538,6 @@ http.route({
         });
       }
 
-      // Get the business associated with this domain
       const businesses = await ctx.runQuery(api.businesses.listByDomain, {
         domain: domain._id,
       });
@@ -576,15 +554,13 @@ http.route({
 
       const business = businesses[0];
 
-      // Generate robots.txt content
       let robotsContent = "User-agent: *\n";
 
-      // If business is published and can publish, allow indexing
       if (business.isPublished && business.canPublish) {
         robotsContent += "Allow: /\n\n";
         robotsContent += `Sitemap: https://${subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}/sitemap.xml`;
       } else {
-        // Otherwise, disallow all
+
         robotsContent += "Disallow: /";
       }
 
@@ -607,7 +583,6 @@ http.route({
   }),
 });
 
-// Sitemap endpoint with path parameter
 http.route({
   pathPrefix: "/sitemap/",
   method: "GET",
@@ -623,7 +598,6 @@ http.route({
         });
       }
 
-      // Get domain from database
       const domain = await ctx.runQuery(api.domains.getBySubdomain, {
         subdomain,
       });
@@ -634,7 +608,6 @@ http.route({
         });
       }
 
-      // Get the business associated with this domain
       const businesses = await ctx.runQuery(api.businesses.listByDomain, {
         domain: domain._id,
       });
@@ -647,14 +620,12 @@ http.route({
 
       const business = businesses[0];
 
-      // Only generate sitemap for published businesses
       if (!business.isPublished || !business.canPublish) {
         return new Response("Sitemap not found", {
           status: 404,
         });
       }
 
-      // Generate sitemap XML
       const baseUrl = `https://${subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`;
       const lastModified = new Date(business._creationTime).toISOString();
 
@@ -683,7 +654,6 @@ http.route({
   }),
 });
 
-// Google Business auth endpoints
 http.route({
   path: "/auth/google-business",
   method: "GET",
@@ -702,7 +672,6 @@ http.route({
         );
       }
 
-      // Get the claim to verify it exists
       const claim = await ctx.runQuery(
         internal.businessClaims.internal_getClaimById,
         {
@@ -717,7 +686,6 @@ http.route({
         });
       }
 
-      // Generate OAuth URL
       const state = Buffer.from(JSON.stringify({ claimId })).toString("base64");
       const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
       authUrl.searchParams.set(
@@ -737,7 +705,6 @@ http.route({
       authUrl.searchParams.set("access_type", "offline");
       authUrl.searchParams.set("prompt", "consent");
 
-      // Redirect to Google OAuth
       return new Response(null, {
         status: 302,
         headers: {
@@ -777,7 +744,6 @@ http.route({
         );
       }
 
-      // Get the claim status
       const claim = await ctx.runQuery(api.businessClaims.getClaimById, {
         claimId: claimId as Id<"businessClaims">,
       });
@@ -836,7 +802,6 @@ http.route({
         );
       }
 
-      // Verify ownership
       const result = await ctx.runAction(
         api.businessClaims.verifyGoogleBusinessOwnership,
         {
@@ -867,7 +832,6 @@ http.route({
   }),
 });
 
-// CORS preflight for Google Business auth endpoints
 http.route({
   path: "/auth/google-business/check-status",
   method: "OPTIONS",
@@ -916,7 +880,6 @@ http.route({
   }),
 });
 
-// Domain management endpoints
 http.route({
   path: "/domains/dns-instructions",
   method: "GET",
@@ -936,7 +899,6 @@ http.route({
         );
       }
 
-      // Vercel's CNAME target
       const cnameTarget = "cname.vercel-dns.com";
 
       const instructions = {
@@ -1030,7 +992,7 @@ http.route({
         },
       });
     } catch (error) {
-      console.error("DNS instructions error:", error);
+      logger.apiError('dns-instructions', error);
       return new Response(
         JSON.stringify({ error: "Failed to generate DNS instructions" }),
         {
@@ -1042,7 +1004,6 @@ http.route({
   }),
 });
 
-// Domain SSL status endpoint
 http.route({
   path: "/domains/ssl-status",
   method: "POST",
@@ -1060,7 +1021,6 @@ http.route({
         );
       }
 
-      // Get domain info from database
       const domain = await ctx.runQuery(api.customDomains.getDomainById, {
         domainId: domainId as Id<"domains">,
       });
@@ -1078,13 +1038,12 @@ http.route({
         );
       }
 
-      // Check if we have Vercel API token
       const vercelToken = convexEnv.VERCEL_API_TOKEN;
       const projectId = convexEnv.VERCEL_PROJECT_ID;
       let sslStatus: { status: "pending" | "active" | "failed"; message: string };
 
       if (!vercelToken || !projectId) {
-        // Fallback to checking if the domain resolves with HTTPS
+
         try {
           const response = await fetch(`https://${domain.customDomain}`, {
             method: "HEAD",
@@ -1103,14 +1062,14 @@ http.route({
             };
           }
         } catch (_error) {
-          // Domain doesn't resolve with HTTPS yet
+
           sslStatus = {
             status: "pending",
             message: "SSL certificate is being provisioned",
           };
         }
       } else {
-        // Use Vercel API to check domain status
+
         const vercelResponse = await fetch(
           `https://api.vercel.com/v9/projects/${projectId}/domains/${domain.customDomain}`,
           {
@@ -1128,7 +1087,6 @@ http.route({
         } else {
           const vercelData = await vercelResponse.json();
 
-          // Check SSL status from Vercel response
           if (vercelData.verified && vercelData.ssl) {
             sslStatus = {
               status: "active",
@@ -1148,7 +1106,6 @@ http.route({
         }
       }
 
-      // Update domain SSL status in database
       await ctx.runMutation(api.customDomains.updateSslStatus, {
         domainId: domainId as Id<"domains">,
         sslStatus: sslStatus.status,
@@ -1170,7 +1127,7 @@ http.route({
         },
       );
     } catch (error) {
-      console.error("SSL status check error:", error);
+      logger.apiError('ssl-status', error);
       return new Response(
         JSON.stringify({
           error: "Failed to check SSL status",
@@ -1185,13 +1142,17 @@ http.route({
   }),
 });
 
-// Vercel domain management endpoints
 http.route({
   path: "/domains/vercel",
   method: "POST",
   handler: httpAction(async (ctx, request) => {
+    let domain: string | undefined;
+    let businessId: string | undefined;
+    
     try {
-      const { domain, businessId } = await request.json();
+      const body = await request.json();
+      domain = body.domain;
+      businessId = body.businessId;
 
       if (!domain || !businessId) {
         return new Response(
@@ -1216,7 +1177,6 @@ http.route({
         );
       }
 
-      // Add domain to Vercel project
       const vercelUrl = `https://api.vercel.com/v10/projects/${projectId}/domains`;
       const vercelResponse = await fetch(vercelUrl, {
         method: "POST",
@@ -1232,7 +1192,7 @@ http.route({
       const vercelData = await vercelResponse.json();
 
       if (!vercelResponse.ok) {
-        // Handle specific Vercel errors
+
         if (vercelData.error?.code === "domain_already_in_use") {
           return new Response(
             JSON.stringify({ error: "This domain is already in use by another Vercel project" }),
@@ -1254,7 +1214,6 @@ http.route({
         );
       }
 
-      // Update domain configuration in our database
       await ctx.runMutation(api.customDomains.updateDomainConfiguration, {
         businessId: businessId as Id<"businesses">,
         vercelDomainId: vercelData.id,
@@ -1279,7 +1238,7 @@ http.route({
         },
       );
     } catch (error) {
-      console.error("Vercel domain add error:", error);
+      logger.domainOperation('vercel_add', domain || 'unknown', false, { error: String(error) });
       return new Response(
         JSON.stringify({
           error: "Failed to add domain",
@@ -1298,9 +1257,11 @@ http.route({
   path: "/domains/vercel",
   method: "DELETE",
   handler: httpAction(async (_, request) => {
+    let domain: string | null = null;
+    
     try {
       const url = new URL(request.url);
-      const domain = url.searchParams.get("domain");
+      domain = url.searchParams.get("domain");
 
       if (!domain) {
         return new Response(
@@ -1325,7 +1286,6 @@ http.route({
         );
       }
 
-      // Remove domain from Vercel project
       const vercelUrl = `https://api.vercel.com/v9/projects/${projectId}/domains/${domain}`;
       const vercelResponse = await fetch(vercelUrl, {
         method: "DELETE",
@@ -1362,7 +1322,7 @@ http.route({
         },
       );
     } catch (error) {
-      console.error("Vercel domain remove error:", error);
+      logger.domainOperation('vercel_remove', domain || 'unknown', false, { error: String(error) });
       return new Response(
         JSON.stringify({
           error: "Failed to remove domain",
@@ -1377,13 +1337,15 @@ http.route({
   }),
 });
 
-// Domain verification endpoints
 http.route({
   path: "/domains/verify",
   method: "POST",
   handler: httpAction(async (ctx, request) => {
+    let domainId: string | undefined;
+    
     try {
-      const { domainId } = await request.json();
+      const body = await request.json();
+      domainId = body.domainId;
 
       if (!domainId) {
         return new Response(
@@ -1395,7 +1357,6 @@ http.route({
         );
       }
 
-      // Trigger domain verification
       const result = await ctx.runAction(api.customDomains.verifyDomain, {
         domainId: domainId as Id<"domains">,
       });
@@ -1408,7 +1369,7 @@ http.route({
         },
       });
     } catch (error) {
-      console.error("Domain verification error:", error);
+      logger.domainOperation('verification', domainId || 'unknown', false, { error: String(error) });
       return new Response(
         JSON.stringify({
           error: "Failed to verify domain",
@@ -1441,7 +1402,6 @@ http.route({
         );
       }
 
-      // Get domain verification status
       const status = await ctx.runQuery(
         api.customDomains.getDomainVerificationStatus,
         {
@@ -1460,7 +1420,7 @@ http.route({
         },
       );
     } catch (error) {
-      console.error("Domain status error:", error);
+      logger.apiError('domain-status', error);
       return new Response(
         JSON.stringify({
           error: "Failed to get domain status",
@@ -1475,7 +1435,6 @@ http.route({
   }),
 });
 
-// CORS preflight for domain endpoints
 http.route({
   path: "/domains/dns-instructions",
   method: "OPTIONS",
@@ -1570,6 +1529,13 @@ http.route({
       return new Response();
     }
   }),
+});
+
+import { getPhoto } from "./photos";
+http.route({
+  path: "/photos",
+  method: "GET",
+  handler: getPhoto,
 });
 
 export default http;

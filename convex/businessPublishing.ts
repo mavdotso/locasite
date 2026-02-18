@@ -3,7 +3,6 @@ import { v } from "convex/values";
 import { getUserFromAuth } from "./lib/helpers";
 import { api } from "./_generated/api";
 
-// Check if a business can be published
 export const canPublishBusiness = query({
   args: { businessId: v.id("businesses") },
   handler: async (ctx, args) => {
@@ -12,7 +11,6 @@ export const canPublishBusiness = query({
       throw new Error("Business not found");
     }
 
-    // Check if user owns the business
     const user = await getUserFromAuth(ctx);
     const isOwner = business.userId === user._id;
 
@@ -24,84 +22,15 @@ export const canPublishBusiness = query({
       };
     }
 
-    // Check if business is already verified
-    if (business.canPublish === true) {
-      return {
-        canPublish: true,
-        reason: "Business is verified and can publish",
-        requiresVerification: false,
-        verificationMethod: business.verificationMethod,
-        verificationCompletedAt: business.verificationCompletedAt,
-      };
-    }
-
-    // Check if publishing is blocked
-    if (business.publishingBlocked === true) {
-      return {
-        canPublish: false,
-        reason:
-          business.publishingBlockReason || "Publishing is temporarily blocked",
-        requiresVerification: false,
-      };
-    }
-
-    // Check if verification is required
-    if (business.verificationRequired !== false) {
-      // Check for approved claims
-      const approvedClaim = await ctx.db
-        .query("businessClaims")
-        .withIndex("by_business_status", (q) =>
-          q.eq("businessId", args.businessId).eq("status", "approved"),
-        )
-        .filter((q) => q.eq(q.field("userId"), user._id))
-        .first();
-
-      if (approvedClaim) {
-        return {
-          canPublish: true,
-          reason: "Business verification completed",
-          requiresVerification: false,
-          verificationMethod: approvedClaim.verificationMethod,
-          needsUpdate: true, // Flag to indicate business record needs updating
-        };
-      }
-
-      // Check for pending claims
-      const pendingClaim = await ctx.db
-        .query("businessClaims")
-        .withIndex("by_business_status", (q) =>
-          q.eq("businessId", args.businessId).eq("status", "pending"),
-        )
-        .filter((q) => q.eq(q.field("userId"), user._id))
-        .first();
-
-      if (pendingClaim) {
-        return {
-          canPublish: false,
-          reason: "Verification is pending approval",
-          requiresVerification: true,
-          pendingClaimId: pendingClaim._id,
-          verificationMethod: pendingClaim.verificationMethod,
-        };
-      }
-
-      return {
-        canPublish: false,
-        reason: "Business verification required before publishing",
-        requiresVerification: true,
-      };
-    }
-
-    // If verification is not required, allow publishing
     return {
       canPublish: true,
-      reason: "Business can publish without verification",
+      reason: "Business can publish",
       requiresVerification: false,
     };
+
   },
 });
 
-// Update publishing status
 export const updatePublishingStatus = mutation({
   args: {
     businessId: v.id("businesses"),
@@ -111,8 +40,6 @@ export const updatePublishingStatus = mutation({
   handler: async (ctx, args) => {
     const user = await getUserFromAuth(ctx);
 
-    // Check if user is admin (you'll need to implement this check)
-    // For now, we'll just check if they own the business
     const business = await ctx.db.get(args.businessId);
     if (!business) {
       throw new Error("Business not found");
@@ -132,7 +59,6 @@ export const updatePublishingStatus = mutation({
   },
 });
 
-// Publish a business (make it live)
 export const publishBusiness = mutation({
   args: {
     businessId: v.id("businesses"),
@@ -140,7 +66,6 @@ export const publishBusiness = mutation({
   handler: async (ctx, args) => {
     await getUserFromAuth(ctx); // Verify user is authenticated
 
-    // Check publishing permissions
     const permissions = await ctx.runQuery(
       api.businessPublishing.canPublishBusiness,
       {
@@ -152,7 +77,6 @@ export const publishBusiness = mutation({
       throw new Error(permissions.reason);
     }
 
-    // Update business to published state
     await ctx.db.patch(args.businessId, {
       isPublished: true,
       publishedAt: Date.now(),
@@ -165,7 +89,6 @@ export const publishBusiness = mutation({
   },
 });
 
-// Unpublish a business
 export const unpublishBusiness = mutation({
   args: {
     businessId: v.id("businesses"),
@@ -193,7 +116,6 @@ export const unpublishBusiness = mutation({
   },
 });
 
-// Get publishing status for dashboard
 export const getPublishingStatus = query({
   args: {
     businessId: v.id("businesses"),
@@ -211,7 +133,6 @@ export const getPublishingStatus = query({
       throw new Error("You don't have permission to view this business");
     }
 
-    // Get verification status
     const claim = await ctx.db
       .query("businessClaims")
       .withIndex("by_business", (q) => q.eq("businessId", args.businessId))

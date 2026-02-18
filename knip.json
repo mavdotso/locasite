@@ -1,11 +1,5 @@
 {
   "ignoreDependencies": [
-    "@radix-ui/react-hover-card",
-    "@radix-ui/react-popover",
-    "@radix-ui/react-radio-group",
-    "@radix-ui/react-scroll-area",
-    "@radix-ui/react-slider",
-    "@radix-ui/react-toggle-group",
     "react-hook-form",
     "next-themes",
     "react-window",
@@ -13,9 +7,7 @@
     "tailwindcss-animate",
     "@types/react-window",
     "eslint",
-    "eslint-config-next",
-    "react-dom",
-    "@types/react-dom"
+    "eslint-config-next"
   ],
   "ignoreWorkspaces": [],
   "ignore": [
@@ -30,6 +22,6 @@
     "app/lib/analytics.ts",
     "convex/auth.ts"
   ],
-  "ignoreBinaries": ["next"],
+  "ignoreBinaries": [],
   "ignoreExportsUsedInFile": true
 }

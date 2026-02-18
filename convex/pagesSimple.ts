@@ -3,7 +3,6 @@ import { v } from "convex/values";
 import { getUserFromAuth } from "./lib/helpers";
 import { Id } from "./_generated/dataModel";
 
-// Create a page with custom content
 export const createPageWithContent = mutation({
   args: {
     domainId: v.id("domains"),
@@ -18,7 +17,6 @@ export const createPageWithContent = mutation({
       throw new Error("Business not found");
     }
 
-    // Verify business ownership
     if (business.userId !== user._id) {
       throw new Error("Not authorized to create pages for this business");
     }
@@ -28,14 +26,12 @@ export const createPageWithContent = mutation({
       throw new Error("Domain not found");
     }
 
-    // Check if pages already exist to avoid duplicates
     const existingPage = await ctx.db
       .query("pages")
       .withIndex("by_domain", (q) => q.eq("domainId", args.domainId))
       .first();
 
     if (existingPage) {
-      // Update existing page instead of creating new one
       await ctx.db.patch(existingPage._id, {
         content: args.content,
         lastEditedAt: Date.now(),
@@ -43,7 +39,6 @@ export const createPageWithContent = mutation({
       return { pageId: existingPage._id };
     }
 
-    // Create the page with provided content
     const pageId = await ctx.db.insert("pages", {
       domainId: args.domainId,
       content: args.content,
@@ -51,13 +46,10 @@ export const createPageWithContent = mutation({
       lastEditedAt: Date.now(),
     });
 
-    // Page created successfully
-
     return { pageId };
   },
 });
 
-// Create default pages in simple mode format with EXACT same sections as preview
 export const createDefaultPagesSimple = mutation({
   args: {
     domainId: v.id("domains"),
@@ -71,7 +63,6 @@ export const createDefaultPagesSimple = mutation({
       throw new Error("Business not found");
     }
 
-    // Verify business ownership
     if (business.userId !== user._id) {
       throw new Error("Not authorized to create pages for this business");
     }
@@ -81,7 +72,6 @@ export const createDefaultPagesSimple = mutation({
       throw new Error("Domain not found");
     }
 
-    // Check if pages already exist to avoid duplicates
     const existingPage = await ctx.db
       .query("pages")
       .withIndex("by_domain", (q) => q.eq("domainId", args.domainId))
@@ -91,9 +81,7 @@ export const createDefaultPagesSimple = mutation({
       return { pageId: existingPage._id };
     }
 
-    // Create EXACT same sections as shown in preview
     const sections = [
-      // 1. Header section
       {
         id: "header-1",
         variationId: "header-section",
@@ -124,7 +112,6 @@ export const createDefaultPagesSimple = mutation({
           },
         },
       },
-      // 2. Hero section
       {
         id: "hero-1",
         variationId: "hero-center-bg",
@@ -150,7 +137,6 @@ export const createDefaultPagesSimple = mutation({
           },
         },
       },
-      // 3. About section
       {
         id: "about-1",
         variationId: "about-text-image",
@@ -175,7 +161,6 @@ export const createDefaultPagesSimple = mutation({
           },
         },
       },
-      // 4. Services section (if applicable)
       {
         id: "services-1",
         variationId: "services-3-column",
@@ -212,7 +197,6 @@ export const createDefaultPagesSimple = mutation({
           },
         },
       },
-      // 5. Gallery section
       {
         id: "gallery-1",
         variationId: "gallery-grid",
@@ -238,7 +222,6 @@ export const createDefaultPagesSimple = mutation({
           },
         },
       },
-      // 6. Contact section
       {
         id: "contact-1",
         variationId: "contact-form-map",
@@ -264,7 +247,6 @@ export const createDefaultPagesSimple = mutation({
       },
     ];
 
-    // Create page data in simple mode format
     const pageData = {
       mode: "simple",
       title: business.name || "Welcome",
@@ -288,15 +270,12 @@ export const createDefaultPagesSimple = mutation({
       },
     };
 
-    // Create the homepage
     const pageId = await ctx.db.insert("pages", {
       domainId: args.domainId,
       content: JSON.stringify(pageData),
       isPublished: false,
       lastEditedAt: Date.now(),
     });
-
-    // Simple mode page created successfully
 
     return { pageId };
   },

@@ -1,4 +1,4 @@
-// Theme type definitions (matching the schema)
+
 export interface ThemeSchema {
   id: string;
   name: string;
@@ -49,29 +49,161 @@ interface TypographySchema {
   fontFamilyBase: string;
   fontFamilyHeading: string;
   fontFamilyMonospace: string;
-  fontSize: Record<string, string>;
-  fontWeight: Record<string, number>;
-  lineHeight: Record<string, string>;
-  letterSpacing: Record<string, string>;
+  fontSize: {
+    xs: string;
+    sm: string;
+    base: string;
+    lg: string;
+    xl: string;
+    xl2: string;
+    xl3: string;
+    xl4: string;
+    xl5: string;
+    xl6: string;
+    xl7: string;
+    xl8: string;
+    xl9: string;
+  };
+  fontWeight: {
+    thin: number;
+    extralight: number;
+    light: number;
+    normal: number;
+    medium: number;
+    semibold: number;
+    bold: number;
+    extrabold: number;
+    black: number;
+  };
+  lineHeight: {
+    none: string;
+    tight: string;
+    snug: string;
+    normal: string;
+    relaxed: string;
+    loose: string;
+  };
+  letterSpacing: {
+    tighter: string;
+    tight: string;
+    normal: string;
+    wide: string;
+    wider: string;
+    widest: string;
+  };
 }
 
 interface SpacingSchema {
-  spacing: Record<string, string>;
-  container: Record<string, string>;
-  sectionSpacing: Record<string, string>;
+  spacing: {
+    s0: string;
+    s0_5: string;
+    s1: string;
+    s1_5: string;
+    s2: string;
+    s2_5: string;
+    s3: string;
+    s3_5: string;
+    s4: string;
+    s5: string;
+    s6: string;
+    s7: string;
+    s8: string;
+    s9: string;
+    s10: string;
+    s11: string;
+    s12: string;
+    s14: string;
+    s16: string;
+    s20: string;
+    s24: string;
+    s28: string;
+    s32: string;
+    s36: string;
+    s40: string;
+    s44: string;
+    s48: string;
+    s52: string;
+    s56: string;
+    s60: string;
+    s64: string;
+    s72: string;
+    s80: string;
+    s96: string;
+  };
+  container: {
+    sm: string;
+    md: string;
+    lg: string;
+    xl: string;
+    xl2: string;
+    full: string;
+  };
+  sectionSpacing: {
+    none: string;
+    sm: string;
+    md: string;
+    lg: string;
+    xl: string;
+    xl2: string;
+  };
 }
 
 interface EffectsSchema {
-  borderRadius: Record<string, string>;
-  boxShadow: Record<string, string>;
-  transition: Record<string, string>;
-  animation: Record<string, string>;
+  borderRadius: {
+    none: string;
+    sm: string;
+    base: string;
+    md: string;
+    lg: string;
+    xl: string;
+    xl2: string;
+    xl3: string;
+    full: string;
+  };
+  boxShadow: {
+    none: string;
+    sm: string;
+    base: string;
+    md: string;
+    lg: string;
+    xl: string;
+    xl2: string;
+    inner: string;
+  };
+  transition: {
+    none: string;
+    all: string;
+    colors: string;
+    opacity: string;
+    shadow: string;
+    transform: string;
+  };
+  animation: {
+    none: string;
+    spin: string;
+    ping: string;
+    pulse: string;
+    bounce: string;
+    fadeIn: string;
+    fadeOut: string;
+    slideUp: string;
+    slideDown: string;
+  };
 }
 
 interface ComponentStylesSchema {
   button: {
-    variants: Record<string, ButtonVariant>;
-    sizes: Record<string, ButtonSize>;
+    variants: {
+      primary: ButtonVariant;
+      secondary: ButtonVariant;
+      outline: ButtonVariant;
+      ghost: ButtonVariant;
+    };
+    sizes: {
+      sm: ButtonSize;
+      md: ButtonSize;
+      lg: ButtonSize;
+    };
     borderRadius: string;
     fontWeight: string;
     transition: string;
@@ -154,7 +286,6 @@ export interface ThemePreset {
   industry?: string;
 }
 
-// Default spacing values
 const defaultSpacing = {
   spacing: {
     s0: "0px",
@@ -210,7 +341,6 @@ const defaultSpacing = {
   },
 };
 
-// Default typography values
 const defaultTypography = {
   fontFamilyBase: "Inter, system-ui, -apple-system, sans-serif",
   fontFamilyHeading: "Inter, system-ui, -apple-system, sans-serif",
@@ -259,7 +389,6 @@ const defaultTypography = {
   },
 };
 
-// Default effects
 const defaultEffects = {
   borderRadius: {
     none: "0",
@@ -303,7 +432,6 @@ const defaultEffects = {
   },
 };
 
-// Modern Minimal Theme
 export const modernMinimalTheme: ThemeSchema = {
   id: "modern-minimal",
   name: "Modern Minimal",
@@ -485,7 +613,6 @@ export const modernMinimalTheme: ThemeSchema = {
   },
 };
 
-// Bold & Playful Theme
 export const boldPlayfulTheme: ThemeSchema = {
   id: "bold-playful",
   name: "Bold & Playful",
@@ -667,7 +794,6 @@ export const boldPlayfulTheme: ThemeSchema = {
   },
 };
 
-// Professional Corporate Theme
 export const professionalCorporateTheme: ThemeSchema = {
   id: "professional-corporate",
   name: "Professional Corporate",
@@ -822,7 +948,6 @@ export const professionalCorporateTheme: ThemeSchema = {
   },
 };
 
-// Elegant Luxury Theme
 export const elegantLuxuryTheme: ThemeSchema = {
   id: "elegant-luxury",
   name: "Elegant Luxury",
@@ -1017,7 +1142,6 @@ export const elegantLuxuryTheme: ThemeSchema = {
   },
 };
 
-// Restaurant & Cafe Theme
 export const restaurantCafeTheme: ThemeSchema = {
   id: "restaurant-cafe",
   name: "Restaurant & Cafe",
@@ -1199,7 +1323,6 @@ export const restaurantCafeTheme: ThemeSchema = {
   },
 };
 
-// Beauty Salon & Spa Theme
 export const beautySalonSpaTheme: ThemeSchema = {
   id: "beauty-salon-spa",
   name: "Beauty Salon & Spa",
@@ -1387,7 +1510,6 @@ export const beautySalonSpaTheme: ThemeSchema = {
   },
 };
 
-// Gym & Fitness Theme
 export const gymFitnessTheme: ThemeSchema = {
   id: "gym-fitness",
   name: "Gym & Fitness",
@@ -1577,7 +1699,6 @@ export const gymFitnessTheme: ThemeSchema = {
   },
 };
 
-// Medical & Healthcare Theme
 export const medicalHealthcareTheme: ThemeSchema = {
   id: "medical-healthcare",
   name: "Medical & Healthcare",
@@ -1732,7 +1853,6 @@ export const medicalHealthcareTheme: ThemeSchema = {
   },
 };
 
-// Automotive & Repair Theme
 export const automotiveRepairTheme: ThemeSchema = {
   id: "automotive-repair",
   name: "Automotive & Repair",
@@ -1921,7 +2041,6 @@ export const automotiveRepairTheme: ThemeSchema = {
   },
 };
 
-// All theme presets
 export const themePresets: ThemePreset[] = [
   {
     id: "modern-minimal",
@@ -2006,7 +2125,6 @@ export const themePresets: ThemePreset[] = [
   },
 ];
 
-// Helper function to get theme by ID
 export function getThemePreset(id: string): ThemePreset | undefined {
   return themePresets.find((preset) => preset.id === id);
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Globe, ArrowRight } from "lucide-react";
+import { Globe, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import BusinessLivePreview from "./business-live-preview";
 import { BusinessData } from "@/convex/businesses";
@@ -44,7 +44,19 @@ export function BrowserMockup({
 
           {/* Preview Content */}
           <div className="relative overflow-hidden rounded-b-xl bg-background">
-            {previewData ? (
+            {isLoading ? (
+              <div className="flex h-[400px] items-center justify-center">
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 max-w-sm w-full">
+                  <div className="flex flex-col items-center">
+                    <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
+                    <h2 className="text-lg font-semibold mb-2">Generating Preview</h2>
+                    <p className="text-muted-foreground text-center">
+                      Creating your website preview...
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : previewData ? (
               <div className="relative">
                 <div className="h-[700px] overflow-y-auto">
                   <BusinessLivePreview businessData={previewData} />

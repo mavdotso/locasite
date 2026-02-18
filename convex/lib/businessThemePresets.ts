@@ -1,6 +1,5 @@
 import { ThemeSchema } from "./themePresets";
 
-// Restaurant Theme - Warm and Inviting
 export const restaurantTheme: ThemeSchema = {
   id: "restaurant-modern",
   name: "Modern Restaurant",
@@ -312,7 +311,6 @@ export const restaurantTheme: ThemeSchema = {
   },
 };
 
-// Medical/Healthcare Theme - Clean and Professional
 export const medicalTheme: ThemeSchema = {
   id: "medical-modern",
   name: "Modern Medical",
@@ -597,7 +595,6 @@ export const medicalTheme: ThemeSchema = {
   },
 };
 
-// Beauty/Salon Theme - Elegant and Soft
 export const beautyTheme: ThemeSchema = {
   id: "beauty-modern",
   name: "Modern Beauty",
@@ -909,7 +906,6 @@ export const beautyTheme: ThemeSchema = {
   },
 };
 
-// Fitness/Gym Theme - Bold and Energetic
 export const fitnessTheme: ThemeSchema = {
   id: "fitness-modern",
   name: "Modern Fitness",
@@ -1221,7 +1217,6 @@ export const fitnessTheme: ThemeSchema = {
   },
 };
 
-// Professional Services Theme - Clean and Trustworthy
 export const professionalTheme: ThemeSchema = {
   id: "professional-modern",
   name: "Modern Professional",
@@ -1533,7 +1528,6 @@ export const professionalTheme: ThemeSchema = {
   },
 };
 
-// Retail/Shopping Theme - Modern and Trendy
 export const retailTheme: ThemeSchema = {
   id: "retail-modern",
   name: "Modern Retail",

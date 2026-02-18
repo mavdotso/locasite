@@ -1,4 +1,5 @@
 import { SectionVariation, SectionCategory } from "../types/simple-builder";
+import { getPlaceholderImage, getGalleryImages, getBeforeAfterImages } from "@/app/lib/placeholder-images";
 
 // Helper function to generate unique IDs
 const generateId = () => Math.random().toString(36).substring(2, 9);
@@ -14,7 +15,7 @@ export const headerVariations: SectionVariation[] = [
       id: generateId(),
       type: "header-section",
       content: {
-        logo: "/api/placeholder/150/50",
+        logo: getPlaceholderImage(150, 50, 'logo'),
         logoAlt: "Company Logo",
         menuItems: [
           { label: "Home", link: "#home" },
@@ -31,7 +32,7 @@ export const headerVariations: SectionVariation[] = [
         padding: "1rem 2rem",
       },
     },
-    editableFields: ["content.logo", "content.menuItems", "content.showButton", "content.buttonText", "content.buttonLink"],
+    editableFields: ["content.logo", "content.logoAlt", "content.menuItems", "content.showButton", "content.buttonText", "content.buttonLink"],
   },
   {
     id: "header-classic",
@@ -42,7 +43,7 @@ export const headerVariations: SectionVariation[] = [
       id: generateId(),
       type: "header-classic",
       content: {
-        logo: "/api/placeholder/150/50",
+        logo: getPlaceholderImage(150, 50, 'logo'),
         logoAlt: "Company Logo",
         menuItems: [
           { label: "Home", link: "#home" },
@@ -59,7 +60,7 @@ export const headerVariations: SectionVariation[] = [
         padding: "1rem 2rem",
       },
     },
-    editableFields: ["content.logo", "content.menuItems", "content.showButton", "content.buttonText", "content.buttonLink"],
+    editableFields: ["content.logo", "content.logoAlt", "content.menuItems", "content.showButton", "content.buttonText", "content.buttonLink"],
   },
   {
     id: "header-centered",
@@ -70,7 +71,7 @@ export const headerVariations: SectionVariation[] = [
       id: generateId(),
       type: "header-centered",
       content: {
-        logo: "/api/placeholder/150/50",
+        logo: getPlaceholderImage(150, 50, 'logo'),
         logoAlt: "Company Logo",
         menuItems: [
           { label: "Home", link: "#home", enabled: true },
@@ -86,7 +87,7 @@ export const headerVariations: SectionVariation[] = [
         textAlign: "center",
       },
     },
-    editableFields: ["content.logo", "content.menuItems"],
+    editableFields: ["content.logo", "content.logoAlt", "content.menuItems"],
   },
   {
     id: "header-minimal",
@@ -97,7 +98,7 @@ export const headerVariations: SectionVariation[] = [
       id: generateId(),
       type: "header-minimal",
       content: {
-        logo: "/api/placeholder/120/40",
+        logo: getPlaceholderImage(120, 40, 'logo'),
         logoAlt: "Company Logo",
         menuItems: [
           { label: "Home", link: "#home" },
@@ -111,7 +112,7 @@ export const headerVariations: SectionVariation[] = [
         padding: "1rem 2rem",
       },
     },
-    editableFields: ["content.logo", "content.menuItems"],
+    editableFields: ["content.logo", "content.logoAlt", "content.menuItems"],
   },
 ];
 
@@ -200,7 +201,7 @@ export const heroVariations: SectionVariation[] = [
         ctaLink: "#contact",
         secondaryCtaText: "View Services",
         secondaryCtaLink: "#services",
-        image: "/api/placeholder/800/600",
+        image: getPlaceholderImage(800, 600, 'hero'),
         imageAlt: "Hero image",
       },
       style: {
@@ -278,7 +279,7 @@ export const aboutVariations: SectionVariation[] = [
         title: "About Us",
         content:
           "We are dedicated to providing exceptional service to our community. With years of experience and a commitment to excellence, we've built a reputation for quality and reliability.",
-        image: "/api/placeholder/600/400",
+        image: getPlaceholderImage(600, 400, 'gallery'),
         imagePosition: "right",
         stats: [
           { value: "10+", label: "Years Experience" },
@@ -305,7 +306,7 @@ export const aboutVariations: SectionVariation[] = [
         title: "About Us",
         content:
           "We are dedicated to providing exceptional service to our community. With years of experience and a commitment to excellence, we've built a reputation for quality and reliability.",
-        image: "/api/placeholder/600/400",
+        image: getPlaceholderImage(600, 400, 'gallery'),
         imagePosition: "right",
         stats: [
           { value: "10+", label: "Years Experience" },
@@ -579,14 +580,7 @@ export const galleryVariations: SectionVariation[] = [
       type: "gallery-grid",
       content: {
         title: "Our Work",
-        images: [
-          { src: "/api/placeholder/400/300", alt: "Gallery image 1" },
-          { src: "/api/placeholder/400/300", alt: "Gallery image 2" },
-          { src: "/api/placeholder/400/300", alt: "Gallery image 3" },
-          { src: "/api/placeholder/400/300", alt: "Gallery image 4" },
-          { src: "/api/placeholder/400/300", alt: "Gallery image 5" },
-          { src: "/api/placeholder/400/300", alt: "Gallery image 6" },
-        ],
+        images: getGalleryImages('gallery', 6),
         columns: 3,
       },
       style: {
@@ -605,14 +599,7 @@ export const galleryVariations: SectionVariation[] = [
       type: "gallery-masonry",
       content: {
         title: "Portfolio",
-        images: [
-          { src: "/api/placeholder/400/500", alt: "Gallery image 1" },
-          { src: "/api/placeholder/400/300", alt: "Gallery image 2" },
-          { src: "/api/placeholder/400/400", alt: "Gallery image 3" },
-          { src: "/api/placeholder/400/600", alt: "Gallery image 4" },
-          { src: "/api/placeholder/400/350", alt: "Gallery image 5" },
-          { src: "/api/placeholder/400/450", alt: "Gallery image 6" },
-        ],
+        images: getGalleryImages('gallery', 6),
       },
       style: {
         padding: "4rem 2rem",
@@ -630,18 +617,10 @@ export const galleryVariations: SectionVariation[] = [
       type: "gallery-before-after",
       content: {
         title: "Our Transformations",
-        comparisons: [
-          {
-            before: { src: "/api/placeholder/600/400", alt: "Before" },
-            after: { src: "/api/placeholder/600/400", alt: "After" },
-            title: "Project One",
-          },
-          {
-            before: { src: "/api/placeholder/600/400", alt: "Before" },
-            after: { src: "/api/placeholder/600/400", alt: "After" },
-            title: "Project Two",
-          },
-        ],
+        comparisons: getBeforeAfterImages('services').slice(0, 2).map((item, index) => ({
+          ...item,
+          title: `Project ${index === 0 ? 'One' : 'Two'}`
+        })),
       },
       style: {
         padding: "4rem 2rem",

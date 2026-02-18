@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useDashboardData } from "@/app/components/providers/dashboard-provider";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 import { User, AlertTriangle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -18,7 +19,8 @@ import { Label } from "@/app/components/ui/label";
 import { Separator } from "@/app/components/ui/separator";
 
 export default function UserSettings() {
-  const { user } = useDashboardData();
+  const userWithSub = useQuery(api.auth.currentUserWithSubscription);
+  const user = userWithSub?.user;
 
   // Form states
   const [profileData, setProfileData] = useState({

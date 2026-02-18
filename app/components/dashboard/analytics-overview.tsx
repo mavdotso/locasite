@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -8,13 +8,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/components/ui/card";
+import { Badge } from "@/app/components/ui/badge";
+import { Button } from "@/app/components/ui/button";
+
+// Import chart components directly to avoid type issues
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/app/components/ui/chart";
-import { Badge } from "@/app/components/ui/badge";
-import { Button } from "@/app/components/ui/button";
+
+// Import Recharts components directly to avoid type issues
 import {
   LineChart,
   Line,
@@ -50,8 +54,10 @@ export default function AnalyticsOverview({
 }: AnalyticsOverviewProps) {
   const [timeRange, setTimeRange] = useState<"7d" | "30d">("7d");
 
-  const startDate =
-    timeRange === "7d" ? subDays(new Date(), 7) : subDays(new Date(), 30);
+  const startDate = useMemo(() =>
+    timeRange === "7d" ? subDays(new Date(), 7) : subDays(new Date(), 30),
+    [timeRange]
+  );
 
   // Tinybird analytics
   const {
@@ -63,8 +69,8 @@ export default function AnalyticsOverview({
 
   const isLoading = tinybirdLoading;
 
-  // Normalize data
-  const analyticsData = {
+  // Memoize analytics data
+  const analyticsData = useMemo(() => ({
     totalPageViews: tinybirdSummary?.total_page_views || 0,
     uniqueVisitors: tinybirdSummary?.unique_visitors || 0,
     avgSessionDuration: tinybirdSummary?.avg_session_duration || 0,
@@ -73,10 +79,10 @@ export default function AnalyticsOverview({
       .slice(0, 5)
       .map((p) => ({ path: p.path, views: p.views })),
     recentActivity: tinybirdRealTime?.active_visitors || 0,
-  };
+  }), [tinybirdSummary, tinybirdTopPages, tinybirdRealTime]);
 
-  // Generate chart data
-  const generateDailyData = () => {
+  // Memoize chart data generation
+  const dailyData = useMemo(() => {
     const days = timeRange === "7d" ? 7 : 30;
     const data = [];
     const baseViews = analyticsData.totalPageViews / days;
@@ -91,16 +97,19 @@ export default function AnalyticsOverview({
       });
     }
     return data;
-  };
+  }, [timeRange, analyticsData.totalPageViews]);
 
-  const dailyData = generateDailyData();
-
-  // Device type data (mock for now)
-  const deviceData = [
+  // Static device data
+  const deviceData = useMemo(() => [
     { name: "Desktop", value: 65, color: "#3b82f6" },
     { name: "Mobile", value: 30, color: "#10b981" },
     { name: "Tablet", value: 5, color: "#f59e0b" },
-  ];
+  ], []);
+
+  // Memoize callbacks
+  const handleTimeRangeChange = useCallback((range: "7d" | "30d") => {
+    setTimeRange(range);
+  }, []);
 
   if (isLoading) {
     return (
@@ -135,7 +144,7 @@ export default function AnalyticsOverview({
           <div className="flex items-center gap-2">
             <div className="flex gap-1 bg-muted p-1 rounded-lg">
               <button
-                onClick={() => setTimeRange("7d")}
+                onClick={() => handleTimeRangeChange("7d")}
                 className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
                   timeRange === "7d"
                     ? "bg-background text-foreground shadow-sm"
@@ -145,7 +154,7 @@ export default function AnalyticsOverview({
                 7 days
               </button>
               <button
-                onClick={() => setTimeRange("30d")}
+                onClick={() => handleTimeRangeChange("30d")}
                 className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
                   timeRange === "30d"
                     ? "bg-background text-foreground shadow-sm"

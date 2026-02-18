@@ -1,6 +1,5 @@
 import { ThemeSchema } from "../themePresets";
 
-// Restaurant Theme - Warm and Inviting
 export const restaurantTheme: ThemeSchema = {
   id: "restaurant-modern",
   name: "Modern Restaurant",

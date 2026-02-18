@@ -5,49 +5,6 @@ import { SUBSCRIPTION_PLANS, type PlanType } from "./lib/plans";
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
   providers: [Google],
-  callbacks: {
-    async redirect({ redirectTo }) {
-      // Only allow relative paths to prevent open redirect attacks
-      if (!redirectTo || typeof redirectTo !== "string") {
-        return "/";
-      }
-      
-      // Prevent absolute URLs (http://, https://, //, etc.)
-      if (/^https?:\/\//i.test(redirectTo) || redirectTo.startsWith("//")) {
-        console.warn(`Blocked potential open redirect attempt: ${redirectTo}`);
-        return "/";
-      }
-      
-      // Ensure it's a relative path (starts with /)
-      if (!redirectTo.startsWith("/")) {
-        return "/";
-      }
-      
-      // Sanitize the URL - remove any special characters that could be used for attacks
-      const sanitizedPath = redirectTo.replace(/[^a-zA-Z0-9\-_\/]/g, '');
-      
-      // Allow redirects to business editor pages with proper ID validation
-      if (sanitizedPath.startsWith("/business/") && sanitizedPath.includes("/edit")) {
-        const businessIdMatch = sanitizedPath.match(/^\/business\/([a-zA-Z0-9_]+)\/edit$/);
-        if (businessIdMatch && businessIdMatch[1].length >= 10 && businessIdMatch[1].length <= 30) {
-          return sanitizedPath;
-        }
-        console.warn(`Invalid business ID format in redirect: ${sanitizedPath}`);
-        return "/";
-      }
-      
-      // Allow other safe internal paths
-      if (sanitizedPath.startsWith("/dashboard") || 
-          sanitizedPath.startsWith("/settings") ||
-          sanitizedPath === "/") {
-        return sanitizedPath;
-      }
-      
-      // Default to home page for any other paths
-      console.warn(`Unrecognized redirect path: ${sanitizedPath}`);
-      return "/";
-    }
-  }
 });
 
 export const currentUser = query({
@@ -68,11 +25,10 @@ export const currentUserWithSubscription = query({
     if (userId === null) {
       return null;
     }
-    
+
     const user = await ctx.db.get(userId);
     if (!user) return null;
-    
-    // Get customer record
+
     const customer = await ctx.db
       .query("stripeCustomers")
       .withIndex("by_user", (q) => q.eq("userId", userId))
@@ -90,7 +46,7 @@ export const currentUserWithSubscription = query({
       };
       plan?: typeof SUBSCRIPTION_PLANS[PlanType];
     };
-    
+
     let subscription: SubscriptionInfo = {
       planType: "FREE" as PlanType,
       status: "active",
@@ -98,7 +54,6 @@ export const currentUserWithSubscription = query({
     };
 
     if (customer) {
-      // Get subscription
       const stripeSubscription = await ctx.db
         .query("stripeSubscriptions")
         .withIndex("by_customerId", (q) =>

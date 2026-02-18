@@ -5,12 +5,10 @@ import { api } from "@/convex/_generated/api";
 import { PlanType } from "@/convex/lib/plans";
 
 export function useSubscription() {
-  const currentUser = useQuery(api.auth.currentUser);
-  const subscription = useQuery(
-    api.subscriptions.getUserSubscription,
-    currentUser ? {} : "skip",
-  );
+  // Use combined query that fetches user and subscription in one go
+  const userWithSubscription = useQuery(api.auth.currentUserWithSubscription);
 
+  const subscription = userWithSubscription?.subscription;
   const planType: PlanType = subscription?.planType || "FREE";
   const isActive =
     subscription?.status === "active" || subscription?.status === "trialing";
@@ -18,8 +16,7 @@ export function useSubscription() {
   return {
     planType: isActive ? planType : "FREE",
     subscription,
-    isLoading:
-      currentUser === undefined || (currentUser && subscription === undefined),
+    isLoading: userWithSubscription === undefined,
     canUseFeature: (requiredPlan: PlanType) => {
       const plans: PlanType[] = ["FREE", "PROFESSIONAL", "BUSINESS"];
       const currentIndex = plans.indexOf(isActive ? planType : "FREE");

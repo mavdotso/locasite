@@ -1,6 +1,6 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
-import { api } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 import { Doc } from "./_generated/dataModel";
 import { AIContentResult } from "./lib/types";
 
@@ -11,77 +11,63 @@ export const applyBusinessTemplate = action({
     regenerateContent: v.optional(v.boolean())
   },
   handler: async (ctx, args) => {
-    // Get the business
     const business: Doc<"businesses"> | null = await ctx.runQuery(api.businesses.getById, { id: args.businessId });
     if (!business) {
       throw new Error("Business not found");
     }
 
     try {
-      // First, regenerate AI content if requested or if none exists
       if (args.regenerateContent || !business.aiGeneratedContent) {
-        // TODO: Call regenerateAI action once Convex API is regenerated
-        // await ctx.runAction(api.regenerateAI.regenerateAIContentForBusiness, {
-        //   businessId: args.businessId,
-        //   includeReviews: true
-        // });
+        await ctx.runAction(api.regenerateAI.regenerateAIContentForBusiness, {
+          businessId: args.businessId,
+          includeReviews: true
+        });
       }
 
-      // Get the domain/page for this business
-      // const domain = business.domainId ? await ctx.runQuery(api.domains.getById, { id: business.domainId }) : null;
-      const domain = null; // TODO: Implement domain query
+      const domain = business.domainId ? await ctx.runQuery(api.domains.getById, { id: business.domainId }) : null;
       if (!domain) {
-        return { success: false, error: 'No domain found' };
+        return { success: false, error: 'No domain found for this business' };
       }
-      
-      // TODO: Remove this early return once domain queries are implemented
-      return { success: false, error: 'Template application not yet implemented' };
 
-      // const page = await ctx.runQuery(api.pages.getByDomainId, { domainId: domain._id });
-      const page = null; // TODO: Implement page query
+      const page = await ctx.runQuery(api.pages.getByDomainId, { domainId: domain._id });
       if (!page) {
-        // Create a new page if none exists
-        // TODO: Implement page creation
-        // await ctx.runMutation(api.pages.create, {
-        //   domainId: domain._id,
-        //   content: '{"components":[]}'
-        // });
+        await ctx.runMutation(api.pages.create, {
+          domainId: domain._id,
+          content: '{"components":[]}',
+          isPublished: false
+        });
       }
 
-      // Get updated business with AI content
       const updatedBusiness = await ctx.runQuery(api.businesses.getById, { id: args.businessId });
       if (!updatedBusiness) {
         throw new Error("Business not found after update");
       }
 
-      // Determine the appropriate template based on business category
       const businessCategory = await inferBusinessCategory(updatedBusiness!);
       const templateId = args.templateId || getTemplateIdForCategory(businessCategory);
 
-      // Generate the page content based on the template
       const pageContent = await generatePageContent(templateId, updatedBusiness!);
 
-      // Update the page with the new content
-      // TODO: Implement page update
-      // await ctx.runMutation(api.pages.update, {
-      //   domainId: domain._id,
-      //   content: JSON.stringify(pageContent),
-      //   isPublished: true
-      // });
+      const now = Date.now();
+      await ctx.runMutation(api.pages.update, {
+        domainId: domain._id,
+        content: JSON.stringify(pageContent),
+        isPublished: true,
+        lastEditedAt: now,
+        publishedAt: now
+      });
 
-      // Also apply a matching theme preset if available
       const themePresetId = getThemePresetForTemplate(templateId);
       if (themePresetId) {
-        // TODO: Implement theme preset application
-        // const themePreset = await ctx.runQuery(api.themes.getPresetById, { presetId: themePresetId });
-        // if (themePreset) {
-        //   await ctx.runMutation(api.businesses.update, {
-        //     id: args.businessId,
-        //     business: {
-        //       themeId: themePreset._id
-        //     }
-        //   });
-        // }
+        const themePreset = await ctx.runQuery(api.themes.getPresetById, { presetId: themePresetId });
+        if (themePreset) {
+          await ctx.runMutation(internal.businesses.internal_updateBusiness, {
+            id: args.businessId,
+            business: {
+              themeId: themePreset._id
+            }
+          });
+        }
       }
 
       return { 
@@ -99,12 +85,10 @@ export const applyBusinessTemplate = action({
   }
 });
 
-// Helper function to infer business category
 async function inferBusinessCategory(business: Doc<"businesses">): Promise<string> {
   const name = business.name.toLowerCase();
   const description = (business.description || '').toLowerCase();
   
-  // Simple keyword-based categorization
   if (name.includes('restaurant') || name.includes('cafe') || name.includes('bar') || 
       name.includes('kitchen') || name.includes('grill') || description.includes('food')) {
     return 'restaurant';
@@ -130,11 +114,9 @@ async function inferBusinessCategory(business: Doc<"businesses">): Promise<strin
     return 'retail';
   }
   
-  // Default to professional services
   return 'professional';
 }
 
-// Map category to template ID
 function getTemplateIdForCategory(category: string): string {
   const categoryMap: Record<string, string> = {
     'restaurant': 'restaurant',
@@ -148,7 +130,6 @@ function getTemplateIdForCategory(category: string): string {
   return categoryMap[category] || 'professional';
 }
 
-// Map template to theme preset
 function getThemePresetForTemplate(templateId: string): string | null {
   const themeMap: Record<string, string> = {
     'restaurant': 'restaurant',
@@ -162,7 +143,6 @@ function getThemePresetForTemplate(templateId: string): string | null {
   return themeMap[templateId] || null;
 }
 
-// Section type for page components
 interface PageSection {
   id: string;
   type: string;
@@ -170,14 +150,11 @@ interface PageSection {
   children?: PageSection[];
 }
 
-// Generate page content based on template and business data
 async function generatePageContent(templateId: string, business: Doc<"businesses">) {
   const aiContent = business.aiGeneratedContent as AIContentResult | undefined;
   
-  // Base sections that all templates should have
   const sections: (PageSection | null)[] = [];
   
-  // Add sections based on template type with AI-generated content
   switch (templateId) {
     case 'restaurant':
       sections.push(
@@ -263,7 +240,6 @@ async function generatePageContent(templateId: string, business: Doc<"businesses
   };
 }
 
-// Helper functions to create sections
 function createHeroSection(business: Doc<"businesses">): PageSection {
   const aiContent = business.aiGeneratedContent;
   return {

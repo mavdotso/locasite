@@ -1,5 +1,6 @@
 "use client";
 
+import { lazy, Suspense, useMemo } from "react";
 import { Button } from "@/app/components/ui/button";
 import {
   Card,
@@ -31,8 +32,24 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter, useSearchParams } from "next/navigation";
 import { notFound } from "next/navigation";
-import { SeoSettings } from "@/app/components/business/seo-settings";
-import AnalyticsOverview from "@/app/components/dashboard/analytics-overview";
+
+// Lazy load heavy components
+const SeoSettings = lazy(() =>
+  import("@/app/components/business/seo-settings").then(module => ({
+    default: module.SeoSettings
+  }))
+);
+
+const AnalyticsOverview = lazy(() =>
+  import("@/app/components/dashboard/analytics-overview")
+);
+
+// Loading component for lazy loaded components
+const TabContentLoader = () => (
+  <div className="flex items-center justify-center h-64">
+    <Loader2 className="h-8 w-8 animate-spin" />
+  </div>
+);
 
 interface BusinessDashboardProps {
   businessId: Id<"businesses">;
@@ -49,11 +66,18 @@ export default function BusinessDashboard({
   const dashboardData = useQuery(api.dashboardData.getDashboardBusinessData, {
     businessId,
   });
-  const user = useQuery(api.auth.currentUser);
+  // Query user data directly - Convex handles deduplication
+  const userWithSub = useQuery(api.auth.currentUserWithSubscription);
+  const user = userWithSub?.user;
 
   const business = dashboardData?.business;
   const domain = dashboardData?.domain;
   const unreadCount = dashboardData?.unreadCount ?? 0;
+
+  // Memoize computed values
+  const isPublished = useMemo(() => !!domain, [domain]);
+  const canClaim = useMemo(() => !business?.userId, [business?.userId]);
+
   // Loading state while fetching business data
   if (business === undefined) {
     return (
@@ -77,9 +101,6 @@ export default function BusinessDashboard({
       </div>
     );
   }
-
-  const isPublished = !!domain;
-  const canClaim = !business.userId;
 
   return (
     <div className="container max-w-6xl p-8 mx-auto">
@@ -350,14 +371,18 @@ export default function BusinessDashboard({
           </Card>
         </TabsContent>
 
-        {/* Analytics Tab */}
+        {/* Analytics Tab - Lazy loaded */}
         <TabsContent value="analytics">
-          <AnalyticsOverview businessId={businessId} />
+          <Suspense fallback={<TabContentLoader />}>
+            <AnalyticsOverview businessId={businessId} />
+          </Suspense>
         </TabsContent>
 
-        {/* SEO Tab */}
+        {/* SEO Tab - Lazy loaded */}
         <TabsContent value="seo">
-          <SeoSettings businessId={businessId} />
+          <Suspense fallback={<TabContentLoader />}>
+            <SeoSettings businessId={businessId} />
+          </Suspense>
         </TabsContent>
       </Tabs>
     </div>

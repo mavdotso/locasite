@@ -61,7 +61,7 @@ export default async function CustomDomainPage({
   }
 
   // Get the page content
-  const page = await fetchQuery(api.pages.getHomepageByDomain, {
+  const page = await fetchQuery(api.pages.getByDomainId, {
     domainId: domainRecord._id,
   });
   if (!page) {

@@ -122,8 +122,8 @@ export function PageSettings({
   // Convex queries and mutations
   const domain = useQuery(api.domains.getByBusinessId, { businessId });
   const generateSubdomain = useMutation(api.domains.generateSubdomain);
-  const publishBusiness = useMutation(api.businesses.publish);
-  const unpublishBusiness = useMutation(api.businesses.unpublish);
+  const publishBusiness = useMutation(api.businessPublishing.publishBusiness);
+  const unpublishBusiness = useMutation(api.businessPublishing.unpublishBusiness);
   const generateUploadUrl = useMutation(api.storage.generateUploadUrl);
   const uploadFavicon = useMutation(api.businessSeo.uploadFavicon);
   const updateSeoSettings = useMutation(api.businessSeo.updateSeoSettings);

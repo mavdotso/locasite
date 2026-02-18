@@ -4,7 +4,6 @@ import { internal } from "./_generated/api";
 
 const http = httpRouter();
 
-// Stripe webhook endpoint
 http.route({
   path: "/stripe",
   method: "POST",
@@ -22,7 +21,6 @@ http.route({
       signature,
       payload: await request.text(),
     });
-
 
     if (!result.success) {
     }

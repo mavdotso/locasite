@@ -1,4 +1,4 @@
-// Common AI content generation interfaces
+
 export interface AIContentResult {
     hero?: {
         title: string;
@@ -95,7 +95,6 @@ export interface AIContentResult {
     };
 }
 
-// Page section types - using discriminated unions for better type safety
 export type PageSection =
     | {
         type: "hero";
@@ -142,7 +141,6 @@ export type PageSection =
         }>;
     };
 
-// Business data interface for consistency across files
 export interface StandardBusinessData {
     name: string;
     placeId: string;
@@ -160,7 +158,6 @@ export interface StandardBusinessData {
     images?: string[];
 }
 
-// Partial business data interface for AI functions where not all fields are required
 export interface PartialBusinessData {
     name: string;
     address?: string;

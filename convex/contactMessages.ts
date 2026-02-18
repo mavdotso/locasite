@@ -80,19 +80,16 @@ export const getUnreadCount = query({
 export const getTotalUnreadCount = query({
   args: {},
   handler: async (ctx) => {
-    // Get all unread messages across all businesses for the current user
     const userId = await getAuthUserId(ctx);
     if (!userId) {
       return 0;
     }
 
-    // Get all businesses owned by this user
     const userBusinesses = await ctx.db
       .query("businesses")
       .withIndex("by_userId", q => q.eq("userId", userId))
       .collect();
 
-    // Count unread messages for all user's businesses
     let totalUnread = 0;
     for (const business of userBusinesses) {
       const unreadMessages = await ctx.db
@@ -111,19 +108,16 @@ export const getTotalUnreadCount = query({
 export const getAllUserMessages = query({
   args: {},
   handler: async (ctx) => {
-    // Get all messages across all businesses for the current user
     const userId = await getAuthUserId(ctx);
     if (!userId) {
       return [];
     }
 
-    // Get all businesses owned by this user
     const userBusinesses = await ctx.db
       .query("businesses")
       .withIndex("by_userId", q => q.eq("userId", userId))
       .collect();
 
-    // Get all messages for all user's businesses
     const allMessages = [];
     for (const business of userBusinesses) {
       const businessMessages = await ctx.db
@@ -132,7 +126,6 @@ export const getAllUserMessages = query({
         .order("desc")
         .collect();
       
-      // Add business info to each message
       for (const message of businessMessages) {
         allMessages.push({
           ...message,
@@ -144,7 +137,6 @@ export const getAllUserMessages = query({
       }
     }
 
-    // Sort by creation date (newest first)
     allMessages.sort((a, b) => b.createdAt - a.createdAt);
 
     return allMessages;
