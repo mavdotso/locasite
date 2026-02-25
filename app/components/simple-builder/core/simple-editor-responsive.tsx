@@ -110,14 +110,36 @@ export function SimpleEditorResponsive({
           ? `${baseId}-${existingSectionsOfType.length + 1}`
           : baseId;
 
+      // Deep clone the template
+      const templateClone = JSON.parse(JSON.stringify(variation.template));
+      templateClone.id = sectionId;
+
+      // Replace placeholders with actual business data
+      const replacePlaceholders = (obj: unknown): unknown => {
+        if (typeof obj === "string") {
+          return obj
+            .replace(/\{businessName\}/g, businessData?.businessName || "Your Business")
+            .replace(/\{businessAddress\}/g, businessData?.businessAddress || "123 Main Street")
+            .replace(/\{businessPhone\}/g, businessData?.businessPhone || "(555) 123-4567")
+            .replace(/\{businessEmail\}/g, businessData?.businessEmail || "info@business.com")
+            .replace(/\{businessMainPhoto\}/g, businessData?.businessMainPhoto || "")
+            .replace(/\{businessHours\}/g, businessData?.businessHours || "Mon-Fri: 9AM-5PM")
+            .replace(/\{businessDescription\}/g, businessData?.businessDescription || "Your trusted local business");
+        }
+        if (Array.isArray(obj)) return obj.map(replacePlaceholders);
+        if (obj && typeof obj === "object") {
+          return Object.fromEntries(
+            Object.entries(obj as Record<string, unknown>).map(([k, v]) => [k, replacePlaceholders(v)])
+          );
+        }
+        return obj;
+      };
+
       const newSection: SectionInstance = {
         id: generateId(),
         variationId: variation.id,
         order: 0, // Will be set properly below
-        data: {
-          ...JSON.parse(JSON.stringify(variation.template)), // Deep clone
-          id: sectionId, // Override the ID in the data
-        },
+        data: replacePlaceholders(templateClone) as SectionInstance["data"],
       };
 
       setPageData((prev) => {
@@ -154,7 +176,7 @@ export function SimpleEditorResponsive({
       setIsAddingSectionOpen(false);
       setSelectedSectionId(newSection.id);
     },
-    [pageData.sections],
+    [pageData.sections, businessData],
   );
 
   const handleUpdateSection = useCallback(

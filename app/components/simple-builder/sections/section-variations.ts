@@ -127,7 +127,7 @@ export const heroVariations: SectionVariation[] = [
       type: "hero-section",
       content: {
         title: "Welcome to {businessName}",
-        subtitle: "Your trusted partner for quality services",
+        subtitle: "{businessDescription}",
         ctaText: "Get Started",
         ctaLink: "#contact",
         secondaryCtaText: "Learn More",
@@ -277,7 +277,7 @@ export const aboutVariations: SectionVariation[] = [
       content: {
         title: "About Us",
         content:
-          "We are dedicated to providing exceptional service to our community. With years of experience and a commitment to excellence, we've built a reputation for quality and reliability.",
+          "{businessDescription}",
         image: "/api/placeholder/600/400",
         imagePosition: "right",
         stats: [
@@ -666,10 +666,10 @@ export const contactVariations: SectionVariation[] = [
         showForm: true,
         showMap: true,
         showInfo: true,
-        address: "123 Main Street, City, State 12345",
-        phone: "(555) 123-4567",
-        email: "info@business.com",
-        hours: "Mon-Fri: 9AM-5PM",
+        address: "{businessAddress}",
+        phone: "{businessPhone}",
+        email: "{businessEmail}",
+        hours: "{businessHours}",
       },
       style: {
         padding: "4rem 2rem",
@@ -697,17 +697,17 @@ export const contactVariations: SectionVariation[] = [
           {
             icon: "map-pin",
             title: "Visit Us",
-            info: "123 Main Street, City, State 12345",
+            info: "{businessAddress}",
           },
           {
             icon: "phone",
             title: "Call Us",
-            info: "(555) 123-4567",
+            info: "{businessPhone}",
           },
           {
             icon: "mail",
             title: "Email Us",
-            info: "info@business.com",
+            info: "{businessEmail}",
           },
         ],
       },
