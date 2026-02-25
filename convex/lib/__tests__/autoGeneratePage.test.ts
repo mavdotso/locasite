@@ -1,8 +1,7 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import {
   generatePageFromBusinessData,
   pickTopReviews,
-  resetIdCounter,
   type BusinessDataForPage,
 } from "../autoGeneratePage";
 
@@ -51,10 +50,6 @@ function makeMinimalBusiness(): BusinessDataForPage {
 // --------------- Tests ---------------
 
 describe("generatePageFromBusinessData", () => {
-  beforeEach(() => {
-    resetIdCounter();
-  });
-
   it("returns simple mode page data with a title", () => {
     const biz = makeFullBusiness();
     const page = generatePageFromBusinessData(biz);

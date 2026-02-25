@@ -17,6 +17,7 @@ export interface BusinessDataForPage {
   name: string;
   address: string;
   phone?: string;
+  email?: string;
   website?: string;
   hours: string[];
   rating?: number;
@@ -61,7 +62,8 @@ interface SimplePageTheme {
     body: string;
   };
   spacing: {
-    sectionPadding: string;
+    section: string;
+    element: string;
   };
 }
 
@@ -74,16 +76,9 @@ export interface GeneratedPageData {
 
 // ---------- Helpers ----------
 
-let idCounter = 0;
-
-/** Deterministic ID generator (resettable for tests). */
-export function generateSectionId(prefix: string): string {
-  return `${prefix}-${++idCounter}`;
-}
-
-/** Reset the ID counter -- only needed for test determinism. */
-export function resetIdCounter(): void {
-  idCounter = 0;
+/** Deterministic ID generator based on section order. */
+function generateSectionId(prefix: string, order: number): string {
+  return `${prefix}-${order}`;
 }
 
 /** Pick the top N reviews sorted by rating descending, then by text length descending. */
@@ -120,7 +115,7 @@ function buildHeaderSection(biz: BusinessDataForPage, order: number): SectionIns
   menuItems.push({ label: "Contact", link: "#contact" });
 
   return {
-    id: generateSectionId("header"),
+    id: generateSectionId("header", order),
     variationId: "header-section",
     order,
     data: {
@@ -150,7 +145,7 @@ function buildHeroSection(biz: BusinessDataForPage, order: number): SectionInsta
     biz.description || tagline;
 
   return {
-    id: generateSectionId("hero"),
+    id: generateSectionId("hero", order),
     variationId: "hero-center-bg",
     order,
     data: {
@@ -180,7 +175,7 @@ function buildAboutSection(biz: BusinessDataForPage, order: number): SectionInst
     generateDefaultDescription(biz.name, biz.category);
 
   return {
-    id: generateSectionId("about"),
+    id: generateSectionId("about", order),
     variationId: "about-text-image",
     order,
     data: {
@@ -232,7 +227,7 @@ function buildServicesSection(
   ];
 
   return {
-    id: generateSectionId("services"),
+    id: generateSectionId("services", order),
     variationId: "services-3-column",
     order,
     data: {
@@ -258,7 +253,7 @@ function buildGallerySection(
   if (validPhotos.length < 3) return null;
 
   return {
-    id: generateSectionId("gallery"),
+    id: generateSectionId("gallery", order),
     variationId: "gallery-grid",
     order,
     data: {
@@ -289,7 +284,7 @@ function buildReviewsSection(
   const topReviews = pickTopReviews(biz.reviews, 3);
 
   return {
-    id: generateSectionId("reviews"),
+    id: generateSectionId("reviews", order),
     variationId: "reviews-section",
     order,
     data: {
@@ -314,7 +309,7 @@ function buildReviewsSection(
 
 function buildContactSection(biz: BusinessDataForPage, order: number): SectionInstance {
   return {
-    id: generateSectionId("contact"),
+    id: generateSectionId("contact", order),
     variationId: "contact-form-map",
     order,
     data: {
@@ -325,7 +320,7 @@ function buildContactSection(biz: BusinessDataForPage, order: number): SectionIn
         subtitle: "We'd love to hear from you",
         address: biz.address,
         phone: biz.phone || "",
-        email: "",
+        email: biz.email || "",
         hours: biz.hours,
         mapUrl: `https://maps.google.com/?q=${encodeURIComponent(biz.address)}`,
         showMap: true,
@@ -396,7 +391,8 @@ export function generatePageFromBusinessData(biz: BusinessDataForPage): Generate
         body: "Inter",
       },
       spacing: {
-        sectionPadding: "80px",
+        section: "80px",
+        element: "16px",
       },
     },
   };
