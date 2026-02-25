@@ -299,7 +299,10 @@ export const create = mutation({
 export const getById = query({
   args: { id: v.id("businesses") },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.id);
+    const business = await ctx.db.get(args.id);
+    if (!business) return null;
+    const { googleBusinessAuth: _, ...safe } = business;
+    return safe;
   },
 });
 
@@ -331,8 +334,8 @@ export const getByPlaceId = query({
   },
 });
 
-// List all businesses
-export const list = query({
+// List all businesses (internal only - admin use)
+export const list = internalQuery({
   args: {
     limit: v.optional(v.number()),
   },
@@ -345,14 +348,14 @@ export const list = query({
   },
 });
 
-// List businesses for a user
+// List businesses for the authenticated user
 export const listByUser = query({
-  args: { userId: v.id("users") },
-  handler: async (ctx, args) => {
-    // Optional: Add auth check if you want to restrict who can view a user's businesses
+  args: {},
+  handler: async (ctx) => {
+    const user = await getUserFromAuth(ctx);
     return await ctx.db
       .query("businesses")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .withIndex("by_userId", (q) => q.eq("userId", user._id))
       .order("desc")
       .collect();
   },

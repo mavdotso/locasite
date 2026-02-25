@@ -1,12 +1,18 @@
 import { query } from "./_generated/server";
 import { v } from "convex/values";
-import { auth } from "./auth";
+import { getUserFromAuth } from "./lib/helpers";
 
 export const getDashboardBusinessData = query({
   args: { businessId: v.id("businesses") },
   handler: async (ctx, args) => {
+    const user = await getUserFromAuth(ctx);
+
     const business = await ctx.db.get(args.businessId);
     if (!business) return null;
+
+    if (business.userId !== user._id) {
+      throw new Error("Not authorized to view this business");
+    }
 
     // Get domain by business's domainId
     const domain = business.domainId
@@ -16,7 +22,7 @@ export const getDashboardBusinessData = query({
     // Count unread messages
     const messages = await ctx.db
       .query("contactMessages")
-      .filter((q) => q.eq(q.field("businessId"), args.businessId))
+      .withIndex("by_business", (q) => q.eq("businessId", args.businessId))
       .collect();
 
     const unreadCount = messages.filter((m) => m.status === "unread").length;
@@ -27,12 +33,11 @@ export const getDashboardBusinessData = query({
 
 export const getUserBusinessesWithMetadata = query({
   handler: async (ctx) => {
-    const userId = await auth.getUserId(ctx);
-    if (!userId) return [];
+    const user = await getUserFromAuth(ctx);
 
     const businesses = await ctx.db
       .query("businesses")
-      .filter((q) => q.eq(q.field("userId"), userId))
+      .withIndex("by_userId", (q) => q.eq("userId", user._id))
       .order("desc")
       .collect();
 
@@ -46,7 +51,7 @@ export const getUserBusinessesWithMetadata = query({
         // Count unread messages
         const messages = await ctx.db
           .query("contactMessages")
-          .filter((q) => q.eq(q.field("businessId"), business._id))
+          .withIndex("by_business", (q) => q.eq("businessId", business._id))
           .collect();
 
         const unreadCount = messages.filter(

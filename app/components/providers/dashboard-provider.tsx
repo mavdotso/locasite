@@ -21,7 +21,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const user = useQuery(api.auth.currentUser);
   const businesses = useQuery(
     api.businesses.listByUser,
-    user ? { userId: user._id } : "skip",
+    user ? {} : "skip",
   );
 
   // Track whether we've completed the initial auth check

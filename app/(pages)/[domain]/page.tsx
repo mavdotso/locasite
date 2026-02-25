@@ -173,15 +173,11 @@ export default async function BusinessPage({ params }: PageProps) {
       domain: businessDomain,
     });
 
-    // If no page found, check if there are any pages and use the first one
+    // If no page found, check if there's a homepage for this domain
     if (!page) {
-      const allPages = await fetchQuery(api.pages.listByDomain, {
+      page = await fetchQuery(api.pages.getHomepageByDomain, {
         domainId: domain._id,
       });
-
-      if (allPages && allPages.length > 0) {
-        page = allPages[0];
-      }
     }
 
     if (!page) {

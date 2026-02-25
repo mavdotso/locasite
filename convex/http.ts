@@ -1149,7 +1149,7 @@ http.route({
       }
 
       // Update domain SSL status in database
-      await ctx.runMutation(api.customDomains.updateSslStatus, {
+      await ctx.runMutation(internal.customDomains.internal_updateSslStatus, {
         domainId: domainId as Id<"domains">,
         sslStatus: sslStatus.status,
         sslProvider: "vercel",

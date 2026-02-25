@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { query, mutation, internalMutation } from "./_generated/server";
+import { query, mutation, internalMutation, internalQuery } from "./_generated/server";
 import { getUserFromAuth } from './lib/helpers';
 import { convexEnv } from './lib/env';
 
@@ -173,7 +173,7 @@ export const getByDomain = query({
 });
 
 
-export const list = query({
+export const list = internalQuery({
     handler: async (ctx) => {
         return await ctx.db.query('domains').collect();
     }

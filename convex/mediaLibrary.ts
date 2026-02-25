@@ -228,6 +228,8 @@ export const deleteMediaFile = mutation({
 export const trackUsage = mutation({
   args: { mediaId: v.id("mediaLibrary") },
   handler: async (ctx, args) => {
+    await getUserFromAuth(ctx);
+
     const media = await ctx.db.get(args.mediaId);
     if (!media) {
       return; // Silently fail if media not found

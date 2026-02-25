@@ -548,27 +548,7 @@ export const updateDomainConfiguration = mutation({
   },
 });
 
-// Update SSL status (public mutation for API route)
-export const updateSslStatus = mutation({
-  args: {
-    domainId: v.id("domains"),
-    sslStatus: v.union(
-      v.literal("pending"),
-      v.literal("active"),
-      v.literal("failed"),
-    ),
-    sslProvider: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    // In production, you'd want to verify the caller is authorized
-    // For now, we'll just update the status
-    await ctx.db.patch(args.domainId, {
-      sslStatus: args.sslStatus,
-      sslProvider: args.sslProvider,
-      updatedAt: Date.now(),
-    });
-  },
-});
+// updateSslStatus is now internal only - use internal_updateSslStatus instead
 
 // Get all custom domains for a user
 export const getUserCustomDomains = query({

@@ -546,6 +546,22 @@ export const listByDomain = query({
     domainId: v.id("domains"),
   },
   handler: async (ctx, args) => {
+    const user = await getUserFromAuth(ctx);
+
+    // Look up the business that owns this domain
+    const business = await ctx.db
+      .query("businesses")
+      .withIndex("by_domainId", (q) => q.eq("domainId", args.domainId))
+      .first();
+
+    if (!business) {
+      throw new Error("Business not found for this domain");
+    }
+
+    if (business.userId !== user._id) {
+      throw new Error("Not authorized to view pages for this domain");
+    }
+
     return await ctx.db
       .query("pages")
       .withIndex("by_domain", (q) => q.eq("domainId", args.domainId))

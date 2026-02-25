@@ -1,10 +1,12 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { getUserFromAuth } from "./lib/helpers";
 
 // Function to generate a signed URL for uploading a file
 export const generateUploadUrl = mutation({
   args: {},
   handler: async (ctx) => {
+    await getUserFromAuth(ctx);
     return await ctx.storage.generateUploadUrl();
   },
 });
@@ -17,11 +19,17 @@ export const storeFile = mutation({
     fileType: v.string(),
   },
   handler: async (ctx, args) => {
+    const user = await getUserFromAuth(ctx);
+
     // Get the business
     const business = await ctx.db.get(args.businessId);
 
     if (!business) {
       throw new Error("Business not found");
+    }
+
+    if (business.userId !== user._id) {
+      throw new Error("Not authorized to store files for this business");
     }
 
     // Create a URL for the stored file

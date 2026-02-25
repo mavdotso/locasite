@@ -27,7 +27,6 @@ export function BusinessVerification({
   const business = useQuery(api.businesses.getById, { id: businessId });
   const claimBusiness = useMutation(api.businessClaims.claimBusiness);
   const [isConnecting, setIsConnecting] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
 
   const handleConnectGoogle = async () => {
     try {
@@ -50,18 +49,6 @@ export function BusinessVerification({
     }
   };
 
-  const handleVerifyBusiness = async () => {
-    try {
-      setIsVerifying(true);
-      toast.success("Verification initiated");
-    } catch (error) {
-      console.error("Error verifying business:", error);
-      toast.error("Failed to verify business");
-    } finally {
-      setIsVerifying(false);
-    }
-  };
-
   if (!business) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -70,9 +57,10 @@ export function BusinessVerification({
     );
   }
 
-  const googleAuth = business.googleBusinessAuth;
-  const isConnected = !!googleAuth;
-  const isVerified = googleAuth?.verificationStatus === "verified";
+  // googleBusinessAuth is stripped from getById for security.
+  // Verification status is determined via business claims instead.
+  const isConnected = false;
+  const isVerified = false;
 
   return (
     <div className="space-y-6">
@@ -166,46 +154,7 @@ export function BusinessVerification({
                 )}
               </div>
 
-              {/* Google Business Accounts */}
-              {googleAuth?.accounts && googleAuth.accounts.length > 0 && (
-                <div className="border-t pt-4">
-                  <h4 className="font-medium mb-3">Google Business Accounts</h4>
-                  <div className="space-y-2">
-                    {googleAuth.accounts.map((account) => (
-                      <div
-                        key={account.accountId}
-                        className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50"
-                      >
-                        <div>
-                          <p className="font-medium">{account.accountName}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Type: {account.type} • ID: {account.accountId}
-                          </p>
-                        </div>
-                        {account.verificationState === "VERIFIED" ? (
-                          <Badge className="gap-1 bg-green-100 text-green-800">
-                            <CheckCircle className="h-3 w-3" />
-                            Verified
-                          </Badge>
-                        ) : (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleVerifyBusiness()}
-                            disabled={isVerifying}
-                          >
-                            {isVerifying ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              "Verify"
-                            )}
-                          </Button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {/* Google Business Accounts - populated after connecting */}
             </>
           )}
 
