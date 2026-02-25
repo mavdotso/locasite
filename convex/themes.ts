@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
 import { getUserFromAuth } from "./lib/helpers";
 import { themePresets } from "./lib/themePresets";
@@ -7,7 +7,7 @@ import { advancedThemeSchemaV, partialAdvancedThemeSchemaV } from "./lib/themeSc
 import { getAuthUserId } from "@convex-dev/auth/server";
 
 // Initialize preset themes (run once)
-export const initializePresetThemes = mutation({
+export const initializePresetThemes = internalMutation({
   handler: async (ctx) => {
     // Check if presets already exist
     const existingPresets = await ctx.db
@@ -45,7 +45,7 @@ export const initializePresetThemes = mutation({
 });
 
 // Reinitialize preset themes (clears existing and adds all)
-export const reinitializePresetThemes = mutation({
+export const reinitializePresetThemes = internalMutation({
   handler: async (ctx) => {
     // Delete existing preset themes
     const existingPresets = await ctx.db
