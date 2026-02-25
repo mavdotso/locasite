@@ -173,6 +173,14 @@ export const getByDomain = query({
 });
 
 
+// Internal query to get domain by ID
+export const internal_getDomainById = internalQuery({
+    args: { id: v.id("domains") },
+    handler: async (ctx, args) => {
+        return await ctx.db.get(args.id);
+    },
+});
+
 export const list = internalQuery({
     handler: async (ctx) => {
         return await ctx.db.query('domains').collect();

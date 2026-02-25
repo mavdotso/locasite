@@ -1297,7 +1297,7 @@ http.route({
 http.route({
   path: "/domains/vercel",
   method: "DELETE",
-  handler: httpAction(async (_, request) => {
+  handler: httpAction(async (ctx, request) => {
     try {
       const url = new URL(request.url);
       const domain = url.searchParams.get("domain");
@@ -1309,6 +1309,42 @@ http.route({
             status: 400,
             headers: { "Content-Type": "application/json" },
           },
+        );
+      }
+
+      // Validate businessId ownership
+      const businessId = url.searchParams.get("businessId");
+      if (!businessId) {
+        return new Response(
+          JSON.stringify({ error: "businessId is required" }),
+          { status: 400, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      // Verify the domain belongs to this business
+      const business = await ctx.runQuery(
+        internal.businesses.internal_getBusinessById,
+        { id: businessId as Id<"businesses"> },
+      );
+      if (!business || !business.domainId) {
+        return new Response(
+          JSON.stringify({ error: "Business not found" }),
+          { status: 404, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      const domainRecord = await ctx.runQuery(
+        internal.domains.internal_getDomainById,
+        { id: business.domainId },
+      );
+      if (
+        !domainRecord ||
+        (domainRecord.customDomain !== domain &&
+          domainRecord.subdomain !== domain)
+      ) {
+        return new Response(
+          JSON.stringify({ error: "Domain does not belong to this business" }),
+          { status: 403, headers: { "Content-Type": "application/json" } },
         );
       }
 

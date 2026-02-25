@@ -126,7 +126,7 @@ export default function DomainSettingsPage() {
       // Remove from Vercel first
       if (domainStatus?.domain) {
         const vercelResponse = await fetch(
-          `${env.NEXT_PUBLIC_CONVEX_URL}/domains/vercel?domain=${domainStatus.domain}`,
+          `${env.NEXT_PUBLIC_CONVEX_URL}/domains/vercel?domain=${domainStatus.domain}&businessId=${businessId}`,
           {
             method: "DELETE",
           },
