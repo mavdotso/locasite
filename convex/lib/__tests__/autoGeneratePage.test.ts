@@ -180,12 +180,15 @@ describe("generatePageFromBusinessData", () => {
     const content = contact?.data.content as {
       address: string;
       phone: string;
-      hours: string[];
+      hours: string;
     };
 
     expect(content.address).toBe("123 Main St, Springfield, IL 62701");
     expect(content.phone).toBe("(555) 123-4567");
-    expect(content.hours).toHaveLength(3);
+    // hours is now a comma-separated string to match ContactSection's expected prop type
+    expect(content.hours).toContain("Monday");
+    expect(content.hours).toContain("Tuesday");
+    expect(content.hours).toContain("Wednesday");
   });
 
   it("uses description for hero subtitle when available", () => {
@@ -210,10 +213,11 @@ describe("generatePageFromBusinessData", () => {
     const biz = makeFullBusiness({ description: undefined, category: "restaurant" });
     const page = generatePageFromBusinessData(biz);
     const about = page.sections.find((s) => s.data.id === "about");
-    const content = about?.data.content as { description: string };
+    const content = about?.data.content as { content: string };
 
-    expect(content.description).toContain("Joe's Pizza");
-    expect(content.description).toContain("restaurant");
+    // The about section uses "content" prop (matching AboutSection component interface)
+    expect(content.content).toContain("Joe's Pizza");
+    expect(content.content).toContain("restaurant");
   });
 
   it("header menu items match generated sections", () => {

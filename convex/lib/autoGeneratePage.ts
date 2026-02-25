@@ -154,16 +154,16 @@ function buildHeroSection(biz: BusinessDataForPage, order: number): SectionInsta
       content: {
         title: biz.name,
         subtitle,
-        ctaButton: {
-          label: "Contact Us",
-          href: "#contact",
-        },
+        ctaText: "Contact Us",
+        ctaLink: "#contact",
+        secondaryCtaText: "Learn More",
+        secondaryCtaLink: "#about",
         backgroundImage: biz.photos[0] || "",
+        overlay: true,
+        overlayOpacity: 0.5,
       },
       style: {
         backgroundColor: "#1F2937",
-        overlay: true,
-        overlayOpacity: 0.5,
       },
     },
   };
@@ -183,12 +183,13 @@ function buildAboutSection(biz: BusinessDataForPage, order: number): SectionInst
       type: "about-section",
       content: {
         title: `About ${biz.name}`,
-        description: aboutText,
+        content: aboutText,
         image: biz.photos[1] || "",
-        features: [
-          "Professional Service",
-          "Quality Guaranteed",
-          "Customer Satisfaction",
+        imagePosition: "right",
+        stats: [
+          { value: "10+", label: "Years Experience" },
+          { value: "500+", label: "Happy Clients" },
+          { value: "24/7", label: "Support" },
         ],
       },
       style: {
@@ -293,10 +294,12 @@ function buildReviewsSection(
       content: {
         title: "What Our Customers Say",
         subtitle: "See what people are saying about us",
-        reviews: topReviews.map((r) => ({
+        reviews: topReviews.map((r, i) => ({
+          id: `review-${i}`,
           author: r.reviewer,
           rating: r.rating,
-          text: r.text,
+          content: r.text,
+          date: "",
         })),
       },
       style: {
@@ -321,8 +324,8 @@ function buildContactSection(biz: BusinessDataForPage, order: number): SectionIn
         address: biz.address,
         phone: biz.phone || "",
         email: biz.email || "",
-        hours: biz.hours,
-        mapUrl: `https://maps.google.com/?q=${encodeURIComponent(biz.address)}`,
+        hours: biz.hours.join(", "),
+        showInfo: true,
         showMap: true,
         showForm: true,
       },

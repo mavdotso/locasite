@@ -208,20 +208,17 @@ export function SitePreviewFrame({
   }
 
   // Prepare business data for template variable replacement
-  const businessData: Record<string, string> = {
-    businessName: business.name || "",
-    businessAddress: business.address || "",
-    businessPhone: business.phone || "",
-    businessEmail: business.email || "",
-    businessDescription: business.description || "",
-    businessHours: Array.isArray(business.hours)
-      ? business.hours.join(", ")
-      : "",
-    businessWebsite: business.website || "",
-    businessPhotos: Array.isArray(business.photos)
-      ? business.photos.join(",")
-      : "",
-    businessMainPhoto: business.photos?.[0] || "",
+  // Matches the shape used by BusinessPageRenderer for consistency
+  const businessData = {
+    businessName: business.name,
+    businessAddress: business.address,
+    businessPhone: business.phone,
+    businessEmail: business.email,
+    businessDescription: business.description,
+    businessHours: business.hours,
+    businessWebsite: business.website,
+    businessPhotos: business.photos,
+    businessMainPhoto: business.photos?.[0],
   };
 
   if (!parsedContent.sections || parsedContent.sections.length === 0) {
