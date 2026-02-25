@@ -438,7 +438,16 @@ export default defineSchema({
   stripeSubscriptions: defineTable({
     customerId: v.string(),
     subscriptionId: v.optional(v.string()),
-    status: v.string(),
+    status: v.union(
+      v.literal("incomplete"),
+      v.literal("incomplete_expired"),
+      v.literal("trialing"),
+      v.literal("active"),
+      v.literal("past_due"),
+      v.literal("canceled"),
+      v.literal("unpaid"),
+      v.literal("paused"),
+    ),
     priceId: v.optional(v.string()),
     planType: v.optional(
       v.union(
