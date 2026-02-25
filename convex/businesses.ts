@@ -1150,6 +1150,35 @@ export const deleteBusiness = mutation({
       await ctx.db.delete(claim._id);
     }
 
+    // Clean up Stripe records if user has no remaining businesses
+    const remainingBusinesses = await ctx.db
+      .query("businesses")
+      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .filter((q) => q.neq(q.field("_id"), args.businessId))
+      .first();
+
+    if (!remainingBusinesses) {
+      const stripeCustomer = await ctx.db
+        .query("stripeCustomers")
+        .withIndex("by_user", (q) => q.eq("userId", user._id))
+        .first();
+
+      if (stripeCustomer) {
+        const subscriptions = await ctx.db
+          .query("stripeSubscriptions")
+          .withIndex("by_customerId", (q) =>
+            q.eq("customerId", stripeCustomer.stripeCustomerId),
+          )
+          .collect();
+
+        for (const sub of subscriptions) {
+          await ctx.db.delete(sub._id);
+        }
+
+        await ctx.db.delete(stripeCustomer._id);
+      }
+    }
+
     // Delete favicon from storage if exists
     if (business.faviconStorageId) {
       await ctx.storage.delete(business.faviconStorageId);
