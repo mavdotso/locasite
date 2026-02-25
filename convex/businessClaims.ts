@@ -364,6 +364,26 @@ export const getClaimsByUser = query({
   },
 });
 
+// Get all claims by a user with business name (for dashboard claims page)
+export const getByUser = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getUserFromAuth(ctx);
+    const claims = await ctx.db
+      .query("businessClaims")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .order("desc")
+      .collect();
+    const enriched = await Promise.all(
+      claims.map(async (claim) => {
+        const business = await ctx.db.get(claim.businessId);
+        return { ...claim, businessName: business?.name ?? "Unknown" };
+      }),
+    );
+    return enriched;
+  },
+});
+
 // Check if a business is claimable
 export const isBusinessClaimable = query({
   args: {
