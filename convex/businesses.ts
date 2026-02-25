@@ -756,36 +756,52 @@ export const createBusinessWithoutAuth = internalMutation({
   },
 });
 
-// Claim an existing business after authentication
+// Claim an existing business after Google authentication.
+// Signing in with Google IS the verification — if the business is unclaimed,
+// ownership transfers immediately and the business becomes publishable.
 export const claimBusinessAfterAuth = mutation({
   args: {
     businessId: v.id("businesses"),
   },
   handler: async (ctx, args) => {
     const user = await getUserFromAuth(ctx);
-    
+
     // Get the business
     const business = await ctx.db.get(args.businessId);
     if (!business) {
       throw new Error("Business not found");
     }
-    
+
     // Check if already claimed by another user (race condition protection)
     if (business.userId && business.userId !== user._id) {
       throw new Error("Business already claimed by another user");
     }
-    
-    // If already claimed by this user, just return success
+
+    // If already claimed by this user, return early
     if (business.userId === user._id) {
       return { businessId: args.businessId, alreadyClaimed: true };
     }
-    
-    // Claim the business
+
+    // --- Transfer ownership and grant publishing permissions ---
     await ctx.db.patch(args.businessId, {
       userId: user._id,
+      canPublish: true,
+      verificationRequired: false,
     });
-    
-    return { businessId: args.businessId, alreadyClaimed: false };
+
+    // --- Create an approved claim record for audit trail ---
+    const claimId = await ctx.db.insert("businessClaims", {
+      businessId: args.businessId,
+      userId: user._id,
+      status: "approved",
+      verificationMethod: "google",
+      googleVerificationStatus: "verified",
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      notes: "Auto-approved: Google sign-in during claim flow",
+    });
+
+    return { businessId: args.businessId, alreadyClaimed: false, claimId };
   },
 });
 
