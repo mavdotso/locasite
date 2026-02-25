@@ -72,6 +72,8 @@ export function AuthRedirectHandler() {
       router.push(authRedirect);
       return;
     }
+
+    // Note: landing page → dashboard redirect is handled server-side in middleware
   }, [user, router, claimBusiness]);
 
   return null;

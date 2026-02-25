@@ -1,8 +1,29 @@
 import { type NextRequest, NextResponse, NextFetchEvent } from "next/server";
-import { convexAuthNextjsMiddleware } from "@convex-dev/auth/nextjs/server";
+import {
+  convexAuthNextjsMiddleware,
+  nextjsMiddlewareRedirect,
+} from "@convex-dev/auth/nextjs/server";
 import { env } from "./env";
 
-const authMiddleware = convexAuthNextjsMiddleware();
+const authMiddleware = convexAuthNextjsMiddleware(
+  async (request, { convexAuth }) => {
+    const isAuthenticated = await convexAuth.isAuthenticated();
+    const { pathname } = request.nextUrl;
+
+    // Authenticated users on landing page → redirect to dashboard
+    if (isAuthenticated && pathname === "/") {
+      return nextjsMiddlewareRedirect(request, "/dashboard");
+    }
+
+    // Unauthenticated users on dashboard → redirect to sign-in
+    if (!isAuthenticated && pathname.startsWith("/dashboard")) {
+      return nextjsMiddlewareRedirect(
+        request,
+        `/sign-in?redirect=${encodeURIComponent(pathname)}`,
+      );
+    }
+  },
+);
 
 function extractSubdomain(request: NextRequest): string | null {
   const url = request.url;
