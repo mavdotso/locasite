@@ -56,10 +56,83 @@
 - [x] Run comprehensive lint and build checks ✅
   - All lint checks pass with no warnings or errors
   - Build completes successfully with all pages generated
-- [ ] Set up CI/CD pipeline
+- [x] Set up CI/CD pipeline ✅
+  - GitHub Actions workflow: lint + typecheck + build on PR and push to main
 - [ ] Configure staging environment
-- [ ] Set up error monitoring (Sentry)
+- [x] Set up error monitoring (Sentry) ✅
+  - Integrated @sentry/nextjs with client + server + instrumentation configs
+  - Added global-error.tsx for unhandled React errors
 - [ ] Performance monitoring and optimization
+
+### Security (Production Readiness — Feb 2026)
+
+- [x] Add auth guards to all unprotected Convex endpoints ✅
+  - 13+ endpoints secured with getUserFromAuth + ownership checks
+  - businesses.list and domains.list converted to internalQuery
+  - listByUser now derives userId from auth (prevents BOLA)
+  - businessEditData, dashboardData, contactMessages, pages, storage, mediaLibrary all secured
+- [x] Strip OAuth tokens from public queries ✅
+  - getById now strips googleBusinessAuth from return value
+  - updateSslStatus removed as public mutation (uses internal only)
+- [x] Unify publish flow behind permission check ✅
+  - All three publish mutations (publish, publishDraft, publishBusiness) now check canPublishBusiness
+  - publishDraft now preserves themeId and themeOverrides
+- [x] Fix CORS wildcard default ✅
+  - CLIENT_ORIGIN no longer defaults to "*" — requires explicit configuration
+- [x] Add HTTP security headers ✅
+  - HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
+- [x] Proxy Tinybird writes server-side ✅
+  - Created /api/analytics API route to proxy writes with server-side token
+  - Client-side token now only used for reads
+- [x] Fix WCAG zoom violation ✅
+  - Removed user-scalable=no from both layout files
+- [x] Add input validation to contact form ✅
+  - Name 100 chars, email 254 chars + format validation, message 5000 chars
+- [x] Add rate limiting to contact form ✅
+  - 10 messages per minute per business
+- [x] Fix Stripe webhook silent failures ✅
+  - Webhook errors now logged and return 500 (enables Stripe retries)
+  - Price ID fallbacks removed (fail loudly if not set)
+  - syncStripeDataToConvex preserves original error message
+- [x] Add missing database indexes ✅
+  - Added by_themeId index on businesses
+  - Fixed businessDomainSync to use by_subdomain index instead of full table scan
+- [x] Add orphan cleanup on business deletion ✅
+  - Business claims now cascade-deleted when business is deleted
+
+### UX Gaps (Production Readiness — Feb 2026)
+
+- [x] Create missing pages (privacy, terms, claims) ✅
+  - Placeholder /privacy and /terms pages
+  - /dashboard/claims page with getByUser query
+- [x] Add loading skeletons to all dashboard routes ✅
+  - 6 loading.tsx files with route-specific pulse skeletons
+- [x] Add error boundaries to dashboard routes ✅
+  - 2 error.tsx files (dashboard + business sub-routes) with reset functionality
+- [x] Clean up fake analytics data ✅
+  - Replaced 445-line fake chart component with clean Coming Soon card
+
+### Infrastructure (Production Readiness — Feb 2026)
+
+- [x] Create .env.example ✅
+  - All 22 environment variables documented with descriptions
+- [x] Add health check endpoint ✅
+  - GET /api/health returns { status: "ok", timestamp }
+- [x] Integrate email verification (Resend) ✅
+  - sendVerificationEmail now sends actual magic link emails via Resend API
+  - resendVerificationEmail scheduler uncommented
+
+### Testing (Production Readiness — Feb 2026)
+
+- [x] Set up Vitest test infrastructure ✅
+  - vitest.config.ts with jsdom, React plugin, path aliases
+- [x] Write initial unit tests ✅
+  - 20 tests: middleware routing (6) + URL utilities (14)
+- [x] Set up Playwright E2E ✅
+  - playwright.config.ts + smoke test scaffolded
+- [x] Remove dead code ✅
+  - applyBusinessTemplate stub gutted (509 → 9 lines)
+  - Dead /app subdomain rewrite removed from middleware
 
 ## 🟡 Feature Enhancements
 
@@ -126,6 +199,7 @@
 
 ### Advanced Analytics
 
+- [ ] Wire Tinybird backend to real analytics UI (replace Coming Soon)
 - [ ] Add cohort analysis and funnel tracking
 - [ ] Implement data export functionality (CSV, JSON)
 - [ ] Create scheduled analytics reports
@@ -137,9 +211,7 @@
 - [ ] Add interactive tutorials for each section type
 - [ ] Improve mobile editing experience
 - [ ] Onboarding flow for new users
-- [ ] Interactive tutorials for each section type
 - [ ] Preview mode improvements
-- [ ] Mobile editing experience
 
 ## 🔵 Medium Priority
 
@@ -160,22 +232,22 @@
 
 ### Testing Infrastructure
 
-- [ ] Set up Jest and React Testing Library
+- [x] Set up test runner (Vitest) and React Testing Library ✅
 - [ ] Create component test suite
-- [ ] Implement CI/CD pipeline for testing
-- [ ] Add end-to-end tests with Playwright or Cypress
+- [x] Implement CI/CD pipeline for testing ✅
+- [x] Add end-to-end tests with Playwright ✅ (scaffolded, needs more tests)
 - [ ] Add tests for visual editor components
 - [ ] Add E2E tests for business creation flow
 
 ### Integrations
 
-- [ ] Implement email sending functionality in messages-management.tsx
+- [x] Implement email sending functionality (Resend) ✅
 - [ ] Multi-language support
-- [ ] Configure error monitoring (Sentry)
+- [x] Configure error monitoring (Sentry) ✅
 
 ### Infrastructure
 
-- [ ] Set up CI/CD pipeline
+- [x] Set up CI/CD pipeline ✅
 - [ ] Set up staging environment
 - [ ] Update production deployment guide
 
@@ -195,6 +267,7 @@
 - [ ] Optimize bundle size after template system removal
 - [ ] Improve loading times for section previews
 - [ ] Add progressive loading for large galleries
+- [ ] Strip googleBusinessAuth from remaining public queries (getByPlaceId, listByDomain, getByDomainId)
 
 ### Documentation
 
