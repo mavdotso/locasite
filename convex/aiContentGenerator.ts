@@ -1,9 +1,17 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
+import { components } from "./_generated/api";
+import { RateLimiter } from "@convex-dev/rate-limiter";
 import { openai } from '@ai-sdk/openai';
 import { generateObject, generateText } from 'ai';
 import { z } from 'zod';
 import { PartialBusinessData } from "./lib/types";
+
+const MINUTE = 60 * 1000; // 1 minute in milliseconds
+
+const rateLimiter = new RateLimiter(components.rateLimiter, {
+  aiContentGeneration: { kind: "fixed window", rate: 5, period: MINUTE },
+});
 
 export const generateBusinessContent = action({
   args: {
@@ -22,11 +30,16 @@ export const generateBusinessContent = action({
     })
   },
   handler: async (ctx, args) => {
-    // TODO: Add rate limiting for AI content generation.
-    // This action is called without auth during preview flow, so IP-based
-    // rate limiting (via the RateLimiter component in an httpAction wrapper)
-    // should be applied to prevent abuse.
     const { businessData } = args;
+
+    // Rate limit AI content generation by business name to prevent abuse
+    const status = await rateLimiter.limit(ctx, "aiContentGeneration", {
+      key: businessData.name,
+    });
+
+    if (!status.ok) {
+      throw new Error("Rate limit exceeded. Please try again in a minute.");
+    }
 
     try {
 
