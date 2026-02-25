@@ -32,13 +32,8 @@ async function claimBusinessAction(formData: FormData) {
         (verificationMethod as "google" | "email" | "phone") || "google",
     });
 
-    // If claim was successful and requires Google auth, redirect to verification page
-    if (result.requiresGoogleAuth) {
-      redirect(`/business/${businessIdStr}/verify?claimId=${result.claimId}`);
-    } else {
-      // For other methods, redirect to claim status page
-      redirect(`/dashboard/claims/${result.claimId}`);
-    }
+    // After successful claim, redirect to theme gallery
+    redirect(`/dashboard/business/${businessIdStr}/theme`);
   } catch (error: unknown) {
     console.error("Claim error:", error);
     const errorMessage =
