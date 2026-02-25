@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,45 +14,67 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Copy,
   CheckCircle,
   XCircle,
-  AlertCircle,
   Loader2,
   ExternalLink,
   Crown,
+  ArrowLeft,
+  Globe,
+  Link2,
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { env } from "@/env";
+
+function getDomainStatusDisplay(
+  domainStatus: {
+    domain?: string;
+    isVerified?: boolean;
+    sslStatus?: string;
+  } | null | undefined,
+) {
+  if (!domainStatus?.domain) return null;
+
+  if (domainStatus.isVerified && domainStatus.sslStatus === "active") {
+    return {
+      icon: <CheckCircle className="h-5 w-5 text-green-500" />,
+      text: `${domainStatus.domain} is live and secure`,
+      className: "text-green-700 bg-green-50 border-green-200",
+    };
+  }
+  if (domainStatus.isVerified) {
+    return {
+      icon: <Loader2 className="h-5 w-5 animate-spin text-blue-500" />,
+      text: "Almost ready! Setting up security...",
+      className: "text-blue-700 bg-blue-50 border-blue-200",
+    };
+  }
+  return {
+    icon: <Loader2 className="h-5 w-5 animate-spin text-yellow-500" />,
+    text: `Connecting ${domainStatus.domain}... This can take up to 48 hours.`,
+    className: "text-yellow-700 bg-yellow-50 border-yellow-200",
+  };
+}
 
 export default function DomainSettingsPage() {
   const params = useParams();
   const businessId = params.businessId as Id<"businesses">;
 
   const [customDomain, setCustomDomain] = useState("");
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [dnsInstructions, setDnsInstructions] = useState<{
-    domain: string;
-    verificationToken: string;
-    dnsRecords: Array<{
-      type: string;
-      name: string;
-      value: string;
-      ttl: number;
-      priority: string;
-      description: string;
-    }>;
-    instructions: {
-      general: string[];
-    };
-  } | null>(null);
+  const [isChecking, setIsChecking] = useState(false);
 
-  // Fetch domain status
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
+
+  // Fetch domain (subdomain) for this business
+  const domain = useQuery(api.domains.getByBusinessId, { businessId });
+
+  // Fetch business to check published status
+  const business = useQuery(api.businesses.getById, { id: businessId });
+
+  // Fetch custom domain status
   const domainStatus = useQuery(api.customDomains.getDomainVerificationStatus, {
     businessId,
   });
@@ -63,24 +85,13 @@ export default function DomainSettingsPage() {
   // Mutations
   const addCustomDomain = useMutation(api.customDomains.addCustomDomain);
   const removeCustomDomain = useMutation(api.customDomains.removeCustomDomain);
-  // Fetch DNS instructions when domain exists
-  useEffect(() => {
-    if (domainStatus?.domain && domainStatus?.verificationToken) {
-      fetchDnsInstructions(domainStatus.domain, domainStatus.verificationToken);
-    }
-  }, [domainStatus?.domain, domainStatus?.verificationToken]);
 
-  const fetchDnsInstructions = async (domain: string, token: string) => {
-    try {
-      const response = await fetch(
-        `${env.NEXT_PUBLIC_CONVEX_URL}/domains/dns-instructions?domain=${domain}&token=${token}`,
-      );
-      const data = await response.json();
-      setDnsInstructions(data);
-    } catch (_error) {
-      console.error("Failed to fetch DNS instructions:", _error);
-    }
-  };
+  const isPublished = business?.isPublished === true;
+  const subdomain = domain?.subdomain;
+  const subdomainUrl = subdomain ? `https://${subdomain}.${rootDomain}` : null;
+  const isPaidPlan =
+    subscription?.planType === "PROFESSIONAL" ||
+    subscription?.planType === "BUSINESS";
 
   const handleAddDomain = async () => {
     if (!customDomain) {
@@ -89,26 +100,26 @@ export default function DomainSettingsPage() {
     }
 
     try {
-      // First add to our database
       await addCustomDomain({ businessId, domain: customDomain });
 
-      // Then add to Vercel
-      const vercelResponse = await fetch(`${env.NEXT_PUBLIC_CONVEX_URL}/domains/vercel`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ domain: customDomain, businessId }),
-      });
+      const vercelResponse = await fetch(
+        `${env.NEXT_PUBLIC_CONVEX_URL}/domains/vercel`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ domain: customDomain, businessId }),
+        },
+      );
 
       const vercelData = await vercelResponse.json();
 
       if (!vercelResponse.ok) {
-        toast.error(vercelData.error || "Failed to add domain to Vercel");
-        // Optionally remove from our database if Vercel fails
+        toast.error(vercelData.error || "Failed to add domain");
         await removeCustomDomain({ businessId });
         return;
       }
 
-      toast.success("Custom domain added successfully");
+      toast.success("Domain added! Connection will begin shortly.");
       setCustomDomain("");
     } catch (error) {
       toast.error(
@@ -123,7 +134,6 @@ export default function DomainSettingsPage() {
     }
 
     try {
-      // Remove from Vercel first
       if (domainStatus?.domain) {
         const vercelResponse = await fetch(
           `${env.NEXT_PUBLIC_CONVEX_URL}/domains/vercel?domain=${domainStatus.domain}&businessId=${businessId}`,
@@ -138,10 +148,8 @@ export default function DomainSettingsPage() {
         }
       }
 
-      // Then remove from our database
       await removeCustomDomain({ businessId });
-      toast.success("Custom domain removed successfully");
-      setDnsInstructions(null);
+      toast.success("Custom domain removed");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to remove domain",
@@ -149,28 +157,33 @@ export default function DomainSettingsPage() {
     }
   };
 
-  const handleVerifyDomain = async () => {
+  const handleCheckConnection = async () => {
     if (!domainStatus?.domain) return;
 
-    setIsVerifying(true);
+    setIsChecking(true);
     try {
-      const response = await fetch(`${env.NEXT_PUBLIC_CONVEX_URL}/domains/verify`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ domainId: domainStatus.domainId }),
-      });
+      const response = await fetch(
+        `${env.NEXT_PUBLIC_CONVEX_URL}/domains/verify`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ domainId: domainStatus.domainId }),
+        },
+      );
 
       const result = await response.json();
 
       if (result.verified) {
-        toast.success("Domain verified successfully!");
+        toast.success("Domain connected successfully!");
       } else {
-        toast.error(result.message || "Domain verification failed");
+        toast.error(
+          "Not connected yet. Make sure your domain settings are correct and try again later.",
+        );
       }
     } catch (_error) {
-      toast.error("Failed to verify domain");
+      toast.error("Could not check connection. Please try again.");
     } finally {
-      setIsVerifying(false);
+      setIsChecking(false);
     }
   };
 
@@ -179,283 +192,245 @@ export default function DomainSettingsPage() {
     toast.success("Copied to clipboard");
   };
 
-  const getStatusBadge = () => {
-    if (!domainStatus?.domain) return null;
-
-    if (domainStatus.isVerified) {
-      if (domainStatus.sslStatus === "active") {
-        return <Badge className="bg-green-500">Active</Badge>;
-      } else if (domainStatus.sslStatus === "pending") {
-        return <Badge className="bg-yellow-500">SSL Pending</Badge>;
-      } else {
-        return <Badge className="bg-blue-500">Verified</Badge>;
-      }
-    } else {
-      return <Badge variant="secondary">Pending Verification</Badge>;
-    }
-  };
+  const customDomainDisplay = getDomainStatusDisplay(domainStatus);
 
   return (
     <div className="container mx-auto py-8 max-w-4xl">
+      {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Domain Settings</h1>
+        <Link
+          href={`/dashboard/business/${businessId}`}
+          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4"
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Back to dashboard
+        </Link>
+        <h1 className="text-3xl font-bold">Web Address</h1>
         <p className="text-muted-foreground mt-2">
-          Manage your custom domain for your business website
+          Manage how customers find your website
         </p>
       </div>
 
-      {/* Current Domain Status */}
+      {/* Section A: Your Free Web Address */}
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>Current Domain</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Globe className="h-5 w-5" />
+            Your Free Web Address
+          </CardTitle>
           <CardDescription>
-            Your website is currently accessible at these URLs
+            This is where your website lives on the internet
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
-            <div>
-              <p className="text-sm text-muted-foreground">Subdomain</p>
-              <p className="font-mono">
-                {domainStatus?.domain
-                  ? `${domainStatus.domain.split(".")[0]}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`
-                  : "Loading..."}
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                window.open(`https://${domainStatus?.domain}`, "_blank")
-              }
-            >
-              <ExternalLink className="h-4 w-4 mr-2" />
-              Visit
-            </Button>
-          </div>
-
-          {domainStatus?.domain && (
-            <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
-              <div>
-                <p className="text-sm text-muted-foreground">Custom Domain</p>
-                <p className="font-mono">{domainStatus.domain}</p>
+        <CardContent>
+          {isPublished && subdomain ? (
+            <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
+              <div className="flex items-center gap-3">
+                <CheckCircle className="h-5 w-5 text-green-500 shrink-0" />
+                <div>
+                  <p className="font-mono font-medium">
+                    {subdomain}.{rootDomain}
+                  </p>
+                  <p className="text-sm text-green-700">Live and working</p>
+                </div>
               </div>
               <div className="flex items-center gap-2">
-                {getStatusBadge()}
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={handleRemoveDomain}
+                  onClick={() => copyToClipboard(subdomainUrl!)}
                 >
-                  Remove
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copy Link
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(subdomainUrl!, "_blank")}
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Visit Site
                 </Button>
               </div>
+            </div>
+          ) : subdomain ? (
+            <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+              <div>
+                <p className="font-mono text-muted-foreground">
+                  {subdomain}.{rootDomain}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Publish your site to make this address active
+                </p>
+              </div>
+              <Link href={`/dashboard/business/${businessId}`}>
+                <Button variant="outline" size="sm">
+                  Go to Editor
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="p-4 bg-muted rounded-lg">
+              <p className="text-muted-foreground">
+                Publish your site first to get your web address.
+              </p>
+              <Link
+                href={`/dashboard/business/${businessId}`}
+                className="text-sm text-primary hover:underline mt-1 inline-block"
+              >
+                Go to the editor to publish
+              </Link>
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Add Custom Domain */}
-      {!domainStatus?.domain && (
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Add Custom Domain</CardTitle>
-            <CardDescription>
-              Use your own domain name for your business website
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {subscription?.planType === "FREE" ? (
-              <Alert>
-                <Crown className="h-4 w-4" />
-                <AlertTitle>Upgrade Required</AlertTitle>
-                <AlertDescription>
-                  Custom domains are available on Professional and Business
-                  plans.
-                  <Link href="/dashboard/billing" className="ml-2 underline">
-                    Upgrade now
-                  </Link>
-                </AlertDescription>
-              </Alert>
-            ) : (
-              <>
-                <div className="flex gap-4">
-                  <Input
-                    placeholder="example.com"
-                    value={customDomain}
-                    onChange={(e) => setCustomDomain(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button onClick={handleAddDomain}>Add Domain</Button>
-                </div>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Enter your domain without http:// or https://
+      {/* Section B: Use Your Own Domain */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Link2 className="h-5 w-5" />
+            Use Your Own Domain
+          </CardTitle>
+          <CardDescription>
+            Connect a custom domain like yourbusiness.com
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* FREE plan: upgrade prompt */}
+          {subscription?.planType === "FREE" && (
+            <div className="p-6 bg-muted/50 border border-dashed rounded-lg text-center">
+              <Crown className="h-8 w-8 mx-auto mb-3 text-yellow-500" />
+              <p className="font-medium mb-1">
+                Custom domains are available on Professional and Business plans
+              </p>
+              <p className="text-sm text-muted-foreground mb-4">
+                Upgrade to connect your own domain like yourbusiness.com
+              </p>
+              <Link href="/dashboard/billing">
+                <Button>
+                  <Crown className="h-4 w-4 mr-2" />
+                  Upgrade Plan
+                </Button>
+              </Link>
+            </div>
+          )}
+
+          {/* Paid plan, no custom domain: input form */}
+          {isPaidPlan && !domainStatus?.domain && (
+            <div className="space-y-4">
+              <div className="flex gap-3">
+                <Input
+                  placeholder="yourbusiness.com"
+                  value={customDomain}
+                  onChange={(e) => setCustomDomain(e.target.value)}
+                  className="flex-1"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleAddDomain();
+                  }}
+                />
+                <Button onClick={handleAddDomain}>Connect Domain</Button>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Enter your domain without http:// or https://
+              </p>
+              {subscription?.planType === "PROFESSIONAL" && (
+                <p className="text-sm text-muted-foreground">
+                  Professional plan includes 1 custom domain. Upgrade to
+                  Business for unlimited domains.
                 </p>
-                {subscription?.planType === "PROFESSIONAL" && (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Professional plan includes 1 custom domain. Upgrade to
-                    Business for unlimited domains.
-                  </p>
-                )}
-              </>
-            )}
-          </CardContent>
-        </Card>
-      )}
+              )}
+            </div>
+          )}
 
-      {/* Domain Verification */}
-      {domainStatus?.domain && !domainStatus.isVerified && dnsInstructions && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Domain Verification</CardTitle>
-            <CardDescription>
-              Follow these steps to verify your domain ownership
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="instructions" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="instructions">Instructions</TabsTrigger>
-                <TabsTrigger value="records">DNS Records</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="instructions" className="space-y-4">
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>DNS Configuration Required</AlertTitle>
-                  <AlertDescription>
-                    You need to add DNS records to verify domain ownership and
-                    point your domain to Locasite.
-                  </AlertDescription>
-                </Alert>
-
-                <div className="space-y-2">
-                  <h4 className="font-semibold">General Instructions:</h4>
-                  <ol className="list-decimal list-inside space-y-1 text-sm">
-                    {dnsInstructions.instructions.general.map(
-                      (step: string, index: number) => (
-                        <li key={index}>{step}</li>
-                      ),
-                    )}
-                  </ol>
+          {/* Custom domain exists but not verified: connecting state */}
+          {domainStatus?.domain &&
+            !domainStatus.isVerified &&
+            customDomainDisplay && (
+              <div className="space-y-4">
+                <div
+                  className={`flex items-center gap-3 p-4 border rounded-lg ${customDomainDisplay.className}`}
+                >
+                  {customDomainDisplay.icon}
+                  <p className="font-medium">{customDomainDisplay.text}</p>
                 </div>
-
-                <div className="pt-4">
-                  <Button
-                    onClick={handleVerifyDomain}
-                    disabled={isVerifying}
-                    className="w-full"
-                  >
-                    {isVerifying ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Verifying...
-                      </>
-                    ) : (
-                      "Verify Domain"
-                    )}
-                  </Button>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="records" className="space-y-4">
-                {dnsInstructions.dnsRecords.map((record, index) => (
-                  <div key={index} className="border rounded-lg p-4 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Badge variant="outline">{record.type} Record</Badge>
-                      <Badge
-                        variant={
-                          record.priority === "Required"
-                            ? "destructive"
-                            : "secondary"
-                        }
-                      >
-                        {record.priority}
-                      </Badge>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div>
-                        <p className="text-sm font-medium">Name/Host:</p>
-                        <div className="flex items-center gap-2">
-                          <code className="flex-1 p-2 bg-muted rounded text-sm">
-                            {record.name}
-                          </code>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => copyToClipboard(record.name)}
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div>
-                        <p className="text-sm font-medium">Value/Points to:</p>
-                        <div className="flex items-center gap-2">
-                          <code className="flex-1 p-2 bg-muted rounded text-sm break-all">
-                            {record.value}
-                          </code>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => copyToClipboard(record.value)}
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-
-                      <p className="text-sm text-muted-foreground">
-                        {record.description}
-                      </p>
-                    </div>
-                  </div>
-                ))}
 
                 {domainStatus.verificationError && (
-                  <Alert variant="destructive">
-                    <XCircle className="h-4 w-4" />
-                    <AlertTitle>Verification Error</AlertTitle>
-                    <AlertDescription>
-                      {domainStatus.verificationError}
-                    </AlertDescription>
-                  </Alert>
+                  <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                    <XCircle className="h-4 w-4 shrink-0" />
+                    <p>
+                      Connection issue detected. Make sure your domain settings
+                      are correct and try again.
+                    </p>
+                  </div>
                 )}
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-      )}
 
-      {/* Success State */}
-      {domainStatus?.isVerified && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-500" />
-              Domain Verified
-            </CardTitle>
-            <CardDescription>
-              Your custom domain is active and serving your website
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Alert>
-              <CheckCircle className="h-4 w-4" />
-              <AlertTitle>SSL Certificate Status</AlertTitle>
-              <AlertDescription>
-                {domainStatus.sslStatus === "active"
-                  ? "Your SSL certificate is active. Your website is secure."
-                  : domainStatus.sslStatus === "pending"
-                    ? "SSL certificate is being provisioned. This usually takes a few minutes."
-                    : "SSL certificate status unknown."}
-              </AlertDescription>
-            </Alert>
-          </CardContent>
-        </Card>
-      )}
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={handleCheckConnection}
+                    disabled={isChecking}
+                  >
+                    {isChecking ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Checking...
+                      </>
+                    ) : (
+                      "Check Connection"
+                    )}
+                  </Button>
+                  <Button variant="ghost" onClick={handleRemoveDomain}>
+                    Remove
+                  </Button>
+                </div>
+              </div>
+            )}
+
+          {/* Custom domain verified and active */}
+          {domainStatus?.domain &&
+            domainStatus.isVerified &&
+            customDomainDisplay && (
+              <div className="space-y-4">
+                <div
+                  className={`flex items-center gap-3 p-4 border rounded-lg ${customDomainDisplay.className}`}
+                >
+                  {customDomainDisplay.icon}
+                  <p className="font-medium">{customDomainDisplay.text}</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      window.open(
+                        `https://${domainStatus.domain}`,
+                        "_blank",
+                      )
+                    }
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Visit Site
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleRemoveDomain}
+                  >
+                    Remove Domain
+                  </Button>
+                </div>
+              </div>
+            )}
+
+          {/* Loading state when subscription is still loading */}
+          {subscription === undefined && (
+            <div className="flex items-center justify-center p-6">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
