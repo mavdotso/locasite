@@ -34,6 +34,9 @@ export const convexEnv = {
   // Resend (email verification)
   RESEND_API_KEY: process.env.RESEND_API_KEY!,
 
+  // Email sender
+  SENDER_EMAIL: process.env.SENDER_EMAIL || "noreply@locasite.xyz",
+
   // Tinybird Analytics (used in HTTP endpoints)
   NEXT_PUBLIC_TINYBIRD_API_URL:
     process.env.NEXT_PUBLIC_TINYBIRD_API_URL || "https://api.tinybird.co",
