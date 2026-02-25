@@ -5,6 +5,7 @@ import { scrapeGoogleMaps } from "./lib/scrape";
 import { api, internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 import { convexEnv } from "./lib/env";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 const http = router;
 
@@ -1299,6 +1300,15 @@ http.route({
   method: "DELETE",
   handler: httpAction(async (ctx, request) => {
     try {
+      // Authenticate the caller
+      const userId = await getAuthUserId(ctx);
+      if (!userId) {
+        return new Response(
+          JSON.stringify({ error: "Authentication required" }),
+          { status: 401, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
       const url = new URL(request.url);
       const domain = url.searchParams.get("domain");
 
@@ -1330,6 +1340,14 @@ http.route({
         return new Response(
           JSON.stringify({ error: "Business not found" }),
           { status: 404, headers: { "Content-Type": "application/json" } },
+        );
+      }
+
+      // Verify the authenticated user owns this business
+      if (business.userId !== userId) {
+        return new Response(
+          JSON.stringify({ error: "You do not own this business" }),
+          { status: 403, headers: { "Content-Type": "application/json" } },
         );
       }
 
