@@ -26,6 +26,7 @@ interface BusinessUpdateFields {
   hours?: string[];
   photos?: string[];
   theme?: Doc<"businesses">["theme"];
+  themeId?: Id<"themes">;
   themeOverrides?: Doc<"businesses">["themeOverrides"];
   domainId?: Id<"domains">;
 }
@@ -771,6 +772,15 @@ export const publishDraft = mutation({
       user._id,
     );
 
+    // Check publishing permissions
+    const permissions = await ctx.runQuery(
+      api.businessPublishing.canPublishBusiness,
+      { businessId: args.businessId },
+    );
+    if (!permissions.canPublish) {
+      throw new Error(permissions.reason);
+    }
+
     if (!business.draftContent) {
       throw new Error("No draft content to publish");
     }
@@ -797,6 +807,10 @@ export const publishDraft = mutation({
       updates.hours = business.draftContent.hours;
     if (business.draftContent.theme)
       updates.theme = business.draftContent.theme;
+    if (business.draftContent.themeId)
+      updates.themeId = business.draftContent.themeId;
+    if (business.draftContent.themeOverrides)
+      updates.themeOverrides = business.draftContent.themeOverrides;
 
     return await ctx.db.patch(args.businessId, updates);
   },
@@ -830,6 +844,15 @@ export const publish = mutation({
 
     // Verify ownership
     await verifyBusinessOwnership(ctx, args.businessId, user._id);
+
+    // Check publishing permissions
+    const permissions = await ctx.runQuery(
+      api.businessPublishing.canPublishBusiness,
+      { businessId: args.businessId },
+    );
+    if (!permissions.canPublish) {
+      throw new Error(permissions.reason);
+    }
 
     return await ctx.db.patch(args.businessId, {
       isPublished: true,
