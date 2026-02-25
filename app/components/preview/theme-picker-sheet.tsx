@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -71,11 +71,35 @@ export function ThemePickerSheet({
   const business = useQuery(api.businesses.getById, { id: businessId });
   const presetThemes = useQuery(api.themes.getPresetThemes);
   const applyTheme = useMutation(api.themes.applyThemeToBusiness);
+  const sheetRef = useRef<HTMLDivElement>(null);
 
-  // Close on Escape key
+  // Close on Escape key + focus trap on Tab
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      // Focus trap: keep Tab within the dialog
+      if (e.key === "Tab" && sheetRef.current) {
+        const focusable = sheetRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      }
     },
     [onClose],
   );
@@ -85,6 +109,13 @@ export function ThemePickerSheet({
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, handleKeyDown]);
+
+  // Auto-focus the sheet when it opens
+  useEffect(() => {
+    if (!isOpen || !sheetRef.current) return;
+    const closeBtn = sheetRef.current.querySelector<HTMLElement>("button");
+    if (closeBtn) closeBtn.focus();
+  }, [isOpen]);
 
   // Prevent body scroll while open
   useEffect(() => {
@@ -139,7 +170,7 @@ export function ThemePickerSheet({
       />
 
       {/* Sheet */}
-      <div className="relative z-10 w-full sm:max-w-lg bg-background rounded-t-2xl sm:rounded-2xl shadow-2xl border border-border animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:fade-in duration-200">
+      <div ref={sheetRef} className="relative z-10 w-full sm:max-w-lg bg-background rounded-t-2xl sm:rounded-2xl shadow-2xl border border-border animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:fade-in duration-200">
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
           <h2 className="text-lg font-semibold text-foreground">

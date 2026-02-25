@@ -90,6 +90,7 @@ export default function PreviewPage() {
         <PreviewActionBar
           businessId={businessId}
           subdomain={domain?.subdomain ?? null}
+          customDomain={domain?.customDomain ?? null}
           isPublished={business.isPublished ?? false}
         />
       </main>

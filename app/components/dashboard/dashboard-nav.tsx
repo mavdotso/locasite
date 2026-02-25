@@ -40,7 +40,7 @@ export default function DashboardNav() {
           {/* User dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="gap-2">
+              <Button variant="ghost" size="sm" className="gap-2" aria-label="Account menu">
                 <User className="w-4 h-4" />
                 <span className="hidden sm:inline max-w-[150px] truncate">
                   {displayName}

@@ -15,6 +15,7 @@ import { EditPanel } from "./edit-panel";
 import { ThemePickerSheet } from "@/app/components/preview/theme-picker-sheet";
 import { Button } from "@/app/components/ui/button";
 import { getVariationById } from "@/app/components/simple-builder/sections/section-variations";
+import { sanitizeCssValue } from "@/app/lib/utils";
 import type {
   SimplePageData,
   SectionInstance,
@@ -119,7 +120,7 @@ export function InlineEditor({
       businessName: business.name || "",
       businessAddress: business.address || "",
       businessPhone: business.phone || "",
-      businessEmail: (business as Record<string, unknown>).email as string || "",
+      businessEmail: business.email ?? "",
       businessDescription: business.description || "",
       businessHours: Array.isArray(business.hours)
         ? business.hours.join(", ")
@@ -333,14 +334,14 @@ export function InlineEditor({
           <style jsx global>{`
             .inline-editor-preview :root,
             .inline-editor-preview {
-              --simple-primary: ${parsedContent.theme.colors.primary};
-              --simple-secondary: ${parsedContent.theme.colors.secondary};
-              --simple-accent: ${parsedContent.theme.colors.accent};
-              --simple-background: ${parsedContent.theme.colors.background};
-              --simple-text: ${parsedContent.theme.colors.text};
-              --simple-muted: ${parsedContent.theme.colors.muted};
-              --simple-font-heading: ${parsedContent.theme.fonts.heading};
-              --simple-font-body: ${parsedContent.theme.fonts.body};
+              --simple-primary: ${sanitizeCssValue(parsedContent.theme.colors.primary)};
+              --simple-secondary: ${sanitizeCssValue(parsedContent.theme.colors.secondary)};
+              --simple-accent: ${sanitizeCssValue(parsedContent.theme.colors.accent)};
+              --simple-background: ${sanitizeCssValue(parsedContent.theme.colors.background)};
+              --simple-text: ${sanitizeCssValue(parsedContent.theme.colors.text)};
+              --simple-muted: ${sanitizeCssValue(parsedContent.theme.colors.muted)};
+              --simple-font-heading: ${sanitizeCssValue(parsedContent.theme.fonts.heading)};
+              --simple-font-body: ${sanitizeCssValue(parsedContent.theme.fonts.body)};
             }
             .inline-editor-preview .simple-section {
               font-family: var(--simple-font-body);

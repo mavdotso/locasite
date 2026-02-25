@@ -25,17 +25,25 @@ export default function SignInPage() {
   const redirect = searchParams.get("redirect");
   const [pendingBusiness, setPendingBusiness] = useState<PendingBusinessData | null>(null);
 
+  // Persist the redirect URL to sessionStorage on mount so it survives
+  // the OAuth round-trip (the query param may be lost after the callback).
+  useEffect(() => {
+    if (redirect) {
+      sessionStorage.setItem("authRedirect", redirect);
+    }
+  }, [redirect]);
+
   useEffect(() => {
     const pending = sessionStorage.getItem("pendingBusinessData");
     if (pending) {
       try {
         const data = JSON.parse(pending);
-        
+
         // Validate essential fields
         if (!data || typeof data !== 'object') {
           throw new Error('Invalid data structure');
         }
-        
+
         // Sanitize data - limit string lengths and remove private fields
         const sanitizedData: PendingBusinessData = {
           name: typeof data.name === 'string' ? data.name.substring(0, 100) : undefined,
@@ -43,7 +51,7 @@ export default function SignInPage() {
             Object.entries(data).filter(([key]) => !key.startsWith('_') && key !== 'name')
           )
         };
-        
+
         setPendingBusiness(sanitizedData);
       } catch (error) {
         console.error("Failed to parse pending business data:", error);

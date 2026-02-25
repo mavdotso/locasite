@@ -1,6 +1,6 @@
-import { action } from "./_generated/server";
+import { action, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
-import { api } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 
 export const uploadGoogleMapsImages = action({
   args: {
@@ -50,18 +50,21 @@ export const uploadGoogleMapsImages = action({
           continue;
         }
 
-        // Add to media library
-        await ctx.runMutation(api.mediaLibrary.uploadFile, {
-          fileName: `${business.name.toLowerCase().replace(/\s+/g, "-")}-${i + 1}`,
-          originalName: `${business.name} image ${i + 1}`,
-          fileType: blob.type || "image/jpeg",
-          fileSize: blob.size,
-          storageId,
-          businessId,
-          folder: "scraped",
-          alt: `${business.name} image ${i + 1}`,
-          tags: ["scraped", "google-maps"],
-        });
+        // Add to media library via internal mutation (no auth required).
+        // This action is scheduled from createBusinessWithoutAuth which has
+        // no auth context, so we cannot call the public uploadFile mutation.
+        await ctx.runMutation(
+          internal.uploadBusinessImages.internal_addToMediaLibrary,
+          {
+            businessId,
+            businessName: business.name,
+            storageId,
+            url,
+            fileType: blob.type || "image/jpeg",
+            fileSize: blob.size,
+            imageIndex: i,
+          },
+        );
 
         storedUrls.push(url);
       } catch (error) {
@@ -71,7 +74,43 @@ export const uploadGoogleMapsImages = action({
 
     // Don't update business photos here to avoid race conditions
     // Each image component will handle its own URL
-    
+
     return { success: true, storedUrls };
+  },
+});
+
+// Internal mutation to add scraped image to media library (no auth required).
+// Used by uploadGoogleMapsImages which runs in a scheduled action without auth context.
+export const internal_addToMediaLibrary = internalMutation({
+  args: {
+    businessId: v.id("businesses"),
+    businessName: v.string(),
+    storageId: v.id("_storage"),
+    url: v.string(),
+    fileType: v.string(),
+    fileSize: v.number(),
+    imageIndex: v.number(),
+  },
+  handler: async (ctx, args) => {
+    // Look up the business to find the owner (if any)
+    const business = await ctx.db.get(args.businessId);
+    const userId = business?.userId;
+
+    await ctx.db.insert("mediaLibrary", {
+      fileName: `${args.businessName.toLowerCase().replace(/\s+/g, "-")}-${args.imageIndex + 1}`,
+      originalName: `${args.businessName} image ${args.imageIndex + 1}`,
+      fileType: args.fileType,
+      fileSize: args.fileSize,
+      storageId: args.storageId,
+      url: args.url,
+      userId,
+      businessId: args.businessId,
+      folder: "scraped",
+      alt: `${args.businessName} image ${args.imageIndex + 1}`,
+      tags: ["scraped", "google-maps"],
+      usageCount: 1,
+      createdAt: Date.now(),
+      isDeleted: false,
+    });
   },
 });

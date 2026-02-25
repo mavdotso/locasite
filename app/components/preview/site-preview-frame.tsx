@@ -9,6 +9,7 @@ import type {
 } from "@/app/components/simple-builder/types/simple-builder";
 import { getVariationById } from "@/app/components/simple-builder/sections/section-variations";
 import { getPresetByType } from "@/app/components/simple-builder/sections/business-presets";
+import { sanitizeCssValue } from "@/app/lib/utils";
 
 interface SitePreviewFrameProps {
   business: Doc<"businesses">;
@@ -171,7 +172,7 @@ function resolvePageContent(
           id: generateId(),
           variationId: varId,
           order: index,
-          data: v.template,
+          data: structuredClone(v.template),
         } as SectionInstance;
       })
       .filter(Boolean) as SectionInstance[];
@@ -236,14 +237,14 @@ export function SitePreviewFrame({
         <style jsx global>{`
           .site-preview-frame :root,
           .site-preview-frame {
-            --simple-primary: ${parsedContent.theme.colors.primary};
-            --simple-secondary: ${parsedContent.theme.colors.secondary};
-            --simple-accent: ${parsedContent.theme.colors.accent};
-            --simple-background: ${parsedContent.theme.colors.background};
-            --simple-text: ${parsedContent.theme.colors.text};
-            --simple-muted: ${parsedContent.theme.colors.muted};
-            --simple-font-heading: ${parsedContent.theme.fonts.heading};
-            --simple-font-body: ${parsedContent.theme.fonts.body};
+            --simple-primary: ${sanitizeCssValue(parsedContent.theme.colors.primary)};
+            --simple-secondary: ${sanitizeCssValue(parsedContent.theme.colors.secondary)};
+            --simple-accent: ${sanitizeCssValue(parsedContent.theme.colors.accent)};
+            --simple-background: ${sanitizeCssValue(parsedContent.theme.colors.background)};
+            --simple-text: ${sanitizeCssValue(parsedContent.theme.colors.text)};
+            --simple-muted: ${sanitizeCssValue(parsedContent.theme.colors.muted)};
+            --simple-font-heading: ${sanitizeCssValue(parsedContent.theme.fonts.heading)};
+            --simple-font-body: ${sanitizeCssValue(parsedContent.theme.fonts.body)};
           }
           .site-preview-frame .simple-section {
             font-family: var(--simple-font-body);

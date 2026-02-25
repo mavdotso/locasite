@@ -13,12 +13,14 @@ import { ThemePickerSheet } from "./theme-picker-sheet";
 interface PreviewActionBarProps {
   businessId: Id<"businesses">;
   subdomain: string | null;
+  customDomain?: string | null;
   isPublished: boolean;
 }
 
 export function PreviewActionBar({
   businessId,
   subdomain,
+  customDomain,
   isPublished,
 }: PreviewActionBarProps) {
   const router = useRouter();
@@ -35,7 +37,11 @@ export function PreviewActionBar({
 
   const rootDomain =
     process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
-  const siteUrl = subdomain ? `${subdomain}.${rootDomain}` : null;
+  const siteUrl = customDomain
+    ? customDomain
+    : subdomain
+      ? `${subdomain}.${rootDomain}`
+      : null;
 
   const handleGoLive = async () => {
     setError(null);

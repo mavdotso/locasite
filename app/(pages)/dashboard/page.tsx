@@ -147,7 +147,7 @@ function BusinessCard({
 
         {/* Actions */}
         <div className="flex items-center gap-3">
-          {isLive ? (
+          {isLive && siteUrl ? (
             <>
               <Button asChild variant="outline" className="flex-1">
                 <a

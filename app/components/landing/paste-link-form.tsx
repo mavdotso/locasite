@@ -22,12 +22,21 @@ function getConvexSiteUrl(): string {
 }
 
 function isValidGoogleMapsUrl(url: string): boolean {
-  return (
-    url.includes("google.com/maps") ||
-    url.includes("maps.google.com") ||
-    url.includes("goo.gl/maps") ||
-    url.includes("maps.app.goo.gl")
-  );
+  try {
+    const parsed = new URL(url);
+    // Only allow http/https protocols to prevent javascript: and other scheme attacks
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return false;
+    }
+    const hostname = parsed.hostname;
+    return (
+      hostname.endsWith("google.com") ||
+      hostname.endsWith("goo.gl") ||
+      hostname.endsWith("maps.app.goo.gl")
+    );
+  } catch {
+    return false;
+  }
 }
 
 export default function PasteLinkForm() {

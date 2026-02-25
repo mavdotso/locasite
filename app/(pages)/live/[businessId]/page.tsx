@@ -10,7 +10,7 @@ import { Button } from "@/app/components/ui/button";
 import { toast } from "sonner";
 import Link from "next/link";
 
-const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.com";
+const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
 
 export default function LiveConfirmationPage() {
   const params = useParams<{ businessId: string }>();
@@ -55,9 +55,11 @@ export default function LiveConfirmationPage() {
           text: `Check out ${business.name}`,
           url: siteUrl,
         });
-      } catch (err) {
-        // User cancelled share - not an error
-        if (err instanceof Error && err.name !== "AbortError") {
+      } catch (err: unknown) {
+        // User cancelled share — not an error
+        const isAbort =
+          err instanceof DOMException && err.name === "AbortError";
+        if (!isAbort) {
           toast.error("Failed to share");
         }
       }

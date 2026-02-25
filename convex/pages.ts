@@ -11,6 +11,12 @@ export const internal_createPageWithContent = internalMutation({
     content: v.string(),
   },
   handler: async (ctx, args) => {
+    // Validate that the domain exists before creating a page for it
+    const domain = await ctx.db.get(args.domainId);
+    if (!domain) {
+      throw new Error("Domain not found");
+    }
+
     // Check if a page already exists for this domain
     const existingPage = await ctx.db
       .query("pages")
