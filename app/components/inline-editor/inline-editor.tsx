@@ -159,7 +159,7 @@ export function InlineEditor({
 
         await updatePage({
           pageId: page._id,
-          content: JSON.stringify({ mode: "simple", ...updatedContent }),
+          content: JSON.stringify({ ...updatedContent, mode: "simple" }),
         });
 
         toast.success("Section saved");
@@ -199,7 +199,7 @@ export function InlineEditor({
 
         await updatePage({
           pageId: page._id,
-          content: JSON.stringify({ mode: "simple", ...updatedContent }),
+          content: JSON.stringify({ ...updatedContent, mode: "simple" }),
         });
 
         toast.success(`${label} removed`);
@@ -239,7 +239,7 @@ export function InlineEditor({
 
         await updatePage({
           pageId: page._id,
-          content: JSON.stringify({ mode: "simple", ...updatedContent }),
+          content: JSON.stringify({ ...updatedContent, mode: "simple" }),
         });
 
         toast.success(`${SECTION_LABELS[category]} added`);
@@ -316,9 +316,9 @@ export function InlineEditor({
           <Button
             size="sm"
             onClick={handleGoLive}
-            disabled={isPublishing}
+            disabled={isPublishing || user === undefined}
           >
-            {isPublishing ? (
+            {isPublishing || user === undefined ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               "Go Live"
@@ -332,7 +332,6 @@ export function InlineEditor({
         {/* Theme CSS variables */}
         {parsedContent.theme && (
           <style jsx global>{`
-            .inline-editor-preview :root,
             .inline-editor-preview {
               --simple-primary: ${sanitizeCssValue(parsedContent.theme.colors.primary)};
               --simple-secondary: ${sanitizeCssValue(parsedContent.theme.colors.secondary)};

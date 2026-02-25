@@ -17,7 +17,13 @@ export function cn(...inputs: ClassValue[]) {
 export function sanitizeCssValue(value: string): string {
   if (typeof value !== "string") return "";
   const trimmed = value.trim();
-  // Block dangerous characters: ; { } < > and url(
-  if (/[;{}<>]/.test(trimmed) || /url\s*\(/i.test(trimmed)) return "";
+  // Normalize CSS hex escapes (e.g., \75 -> u, \72 -> r, \6c -> l)
+  // so that obfuscated sequences like \75\72\6c( are caught as url(
+  const normalized = trimmed.replace(/\\([0-9a-fA-F]{1,6})\s?/g, (_, hex) =>
+    String.fromCodePoint(parseInt(hex, 16))
+  );
+  // Block dangerous characters and url( in the normalized value
+  const dangerous = /[;{}<>\\]|url\s*\(/i;
+  if (dangerous.test(normalized)) return "";
   return trimmed;
 }

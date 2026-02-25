@@ -27,8 +27,9 @@ export default function SignInPage() {
 
   // Persist the redirect URL to sessionStorage on mount so it survives
   // the OAuth round-trip (the query param may be lost after the callback).
+  // Only allow relative paths to prevent open-redirect attacks.
   useEffect(() => {
-    if (redirect) {
+    if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
       sessionStorage.setItem("authRedirect", redirect);
     }
   }, [redirect]);
@@ -64,7 +65,8 @@ export default function SignInPage() {
   const handleSignIn = async () => {
     try {
       // Store redirect URL in sessionStorage before signing in
-      if (redirect) {
+      // Only allow relative paths to prevent open-redirect attacks.
+      if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
         sessionStorage.setItem("authRedirect", redirect);
       }
       await signIn("google");

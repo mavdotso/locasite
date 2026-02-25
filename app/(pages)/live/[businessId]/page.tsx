@@ -172,7 +172,7 @@ export default function LiveConfirmationPage() {
         {!domain?.customDomain && (
           <div className="text-center space-y-2">
             <p className="text-sm text-muted-foreground">
-              Want <span className="font-medium">{business.name.toLowerCase().replace(/[^a-z0-9]+/g, "")}.com</span> instead?
+              Want <span className="font-medium">{business.name.toLowerCase().replace(/[^a-z0-9]+/g, "") || "your-business"}.com</span> instead?
             </p>
             <Link
               href={`/dashboard/business/${businessId}/domain`}

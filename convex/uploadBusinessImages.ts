@@ -57,7 +57,6 @@ export const uploadGoogleMapsImages = action({
           internal.uploadBusinessImages.internal_addToMediaLibrary,
           {
             businessId,
-            businessName: business.name,
             storageId,
             url,
             fileType: blob.type || "image/jpeg",
@@ -84,7 +83,6 @@ export const uploadGoogleMapsImages = action({
 export const internal_addToMediaLibrary = internalMutation({
   args: {
     businessId: v.id("businesses"),
-    businessName: v.string(),
     storageId: v.id("_storage"),
     url: v.string(),
     fileType: v.string(),
@@ -92,13 +90,17 @@ export const internal_addToMediaLibrary = internalMutation({
     imageIndex: v.number(),
   },
   handler: async (ctx, args) => {
-    // Look up the business to find the owner (if any)
+    // Look up the business — fail fast if it no longer exists
     const business = await ctx.db.get(args.businessId);
-    const userId = business?.userId;
+    if (!business) {
+      throw new Error(`Business ${args.businessId} not found`);
+    }
+    const userId = business.userId;
+    const businessName = business.name;
 
     await ctx.db.insert("mediaLibrary", {
-      fileName: `${args.businessName.toLowerCase().replace(/\s+/g, "-")}-${args.imageIndex + 1}`,
-      originalName: `${args.businessName} image ${args.imageIndex + 1}`,
+      fileName: `${businessName.toLowerCase().replace(/\s+/g, "-")}-${args.imageIndex + 1}`,
+      originalName: `${businessName} image ${args.imageIndex + 1}`,
       fileType: args.fileType,
       fileSize: args.fileSize,
       storageId: args.storageId,
@@ -106,7 +108,7 @@ export const internal_addToMediaLibrary = internalMutation({
       userId,
       businessId: args.businessId,
       folder: "scraped",
-      alt: `${args.businessName} image ${args.imageIndex + 1}`,
+      alt: `${businessName} image ${args.imageIndex + 1}`,
       tags: ["scraped", "google-maps"],
       usageCount: 1,
       createdAt: Date.now(),
