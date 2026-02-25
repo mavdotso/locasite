@@ -30,7 +30,7 @@ export const regenerateAIContentForBusiness = action({
         phone?: string;
         website?: string;
         description?: string;
-        reviews: Array<{ reviewer: string; rating: string; text: string }>;
+        reviews: Array<{ reviewer: string; rating: number; text: string }>;
         rating?: number;
       } = {
         name: business.name,

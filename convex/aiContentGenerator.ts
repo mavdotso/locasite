@@ -23,7 +23,7 @@ export const generateBusinessContent = action({
       description: v.optional(v.string()),
       reviews: v.optional(v.array(v.object({
         reviewer: v.string(),
-        rating: v.string(),
+        rating: v.number(),
         text: v.string()
       }))),
       rating: v.optional(v.number()),

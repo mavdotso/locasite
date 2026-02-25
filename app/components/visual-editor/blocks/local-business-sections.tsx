@@ -1348,7 +1348,7 @@ export const GoogleReviewsSection: ComponentConfig = {
 
         return {
           author: String(r.reviewer || "Anonymous"),
-          rating: parseInt(String(r.rating)) || 5,
+          rating: Number(r.rating) || 5,
           text: String(reviewText),
           date: "Google Review",
         };

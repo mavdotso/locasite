@@ -132,7 +132,7 @@ export default function BusinessLivePreview({
             reviews: businessData.reviews?.slice(0, 3).map((review, index) => ({
               id: `review-${index}`,
               author: review.reviewer || `Customer ${index + 1}`,
-              rating: parseInt(review.rating) || 5,
+              rating: review.rating || 5,
               content: review.text || "Great experience!",
               date: "Recently",
             })) || [

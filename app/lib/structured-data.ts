@@ -11,7 +11,7 @@ interface BusinessData {
   rating?: number;
   reviews?: Array<{
     reviewer: string;
-    rating: string;
+    rating: number;
     text: string;
   }>;
   photos?: string[];
@@ -102,7 +102,7 @@ export function generateLocalBusinessStructuredData(
       },
       reviewRating: {
         "@type": "Rating",
-        ratingValue: parseFloat(review.rating) || 5,
+        ratingValue: review.rating || 5,
       },
       reviewBody: review.text,
     }));

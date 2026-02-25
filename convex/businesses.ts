@@ -41,7 +41,7 @@ export interface BusinessData {
   rating?: number;
   reviews: Array<{
     reviewer: string;
-    rating: string;
+    rating: number;
     text: string;
   }>;
   photos: string[];
@@ -84,7 +84,7 @@ export const internal_createBusiness = internalMutation({
       reviews: v.array(
         v.object({
           reviewer: v.string(),
-          rating: v.string(),
+          rating: v.number(),
           text: v.string(),
         }),
       ),
@@ -212,7 +212,7 @@ export const create = mutation({
       reviews: v.array(
         v.object({
           reviewer: v.string(),
-          rating: v.string(),
+          rating: v.number(),
           text: v.string(),
         }),
       ),
@@ -604,7 +604,7 @@ export const createBusinessWithoutAuth = internalMutation({
       reviews: v.array(
         v.object({
           reviewer: v.string(),
-          rating: v.string(),
+          rating: v.number(),
           text: v.string(),
         }),
       ),
@@ -686,7 +686,7 @@ export const createFromPreview = mutation({
       reviews: v.array(
         v.object({
           reviewer: v.string(),
-          rating: v.string(),
+          rating: v.number(),
           text: v.string(),
         }),
       ),
@@ -934,7 +934,7 @@ export const createBusinessFromPendingData = mutation({
       reviews: v.array(
         v.object({
           reviewer: v.string(),
-          rating: v.string(),
+          rating: v.number(),
           text: v.string(),
         }),
       ),

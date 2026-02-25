@@ -102,7 +102,7 @@ export default defineSchema({
     reviews: v.array(
       v.object({
         reviewer: v.string(),
-        rating: v.string(),
+        rating: v.number(),
         text: v.string(),
       }),
     ),

@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 interface Review {
   reviewer: string;
-  rating: string;
+  rating: number;
   text: string;
 }
 
@@ -20,7 +20,7 @@ export const filterAndEnhanceReviews = action({
   args: {
     reviews: v.array(v.object({
       reviewer: v.string(),
-      rating: v.string(),
+      rating: v.number(),
       text: v.string()
     })),
     businessName: v.string(),
@@ -122,7 +122,7 @@ Focus on identifying genuinely positive experiences that would build trust with 
     } catch (error) {
       // Fallback to simple rating-based filtering
       const simpleFiltered = reviews
-        .filter(r => parseInt(r.rating) >= 4)
+        .filter(r => r.rating >= 4)
         .slice(0, maxReviews);
       
       return {
@@ -144,7 +144,7 @@ async function generateAIReviews(
     const reviewSchema = z.object({
       reviews: z.array(z.object({
         reviewer: z.string(),
-        rating: z.string(),
+        rating: z.number(),
         text: z.string(),
         persona: z.string()
       }))

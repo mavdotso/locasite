@@ -165,7 +165,7 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
       reviews:
         place.reviews?.map((review: GooglePlaceReview) => ({
           reviewer: review.author_name,
-          rating: `${review.rating} stars`,
+          rating: Number(review.rating) || 0,
           text: review.text,
         })) || [],
       photos: photos,
