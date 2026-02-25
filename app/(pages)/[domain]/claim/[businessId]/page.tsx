@@ -26,7 +26,7 @@ async function claimBusinessAction(formData: FormData) {
   }
 
   try {
-    const result = await fetchMutation(api.businessClaims.claimBusiness, {
+    await fetchMutation(api.businessClaims.claimBusiness, {
       businessId: businessIdStr as Id<"businesses">,
       verificationMethod:
         (verificationMethod as "google" | "email" | "phone") || "google",

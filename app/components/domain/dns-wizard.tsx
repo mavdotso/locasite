@@ -138,7 +138,7 @@ function ProviderSteps({
           )}
         </Button>
         <p className="text-sm text-muted-foreground">
-          DNS changes can take up to 48 hours. We'll keep checking
+          DNS changes can take up to 48 hours. We&apos;ll keep checking
           automatically.
         </p>
       </div>
@@ -170,7 +170,7 @@ function GenericInstructions({
 
       <h3 className="font-semibold text-lg">DNS Setup Instructions</h3>
       <p className="text-muted-foreground">
-        Add these two records to your domain's DNS settings:
+        Add these two records to your domain&apos;s DNS settings:
       </p>
 
       <div className="space-y-4">
@@ -227,7 +227,7 @@ function GenericInstructions({
           )}
         </Button>
         <p className="text-sm text-muted-foreground">
-          DNS changes can take up to 48 hours. We'll keep checking
+          DNS changes can take up to 48 hours. We&apos;ll keep checking
           automatically.
         </p>
       </div>
