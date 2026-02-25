@@ -73,7 +73,7 @@ export function AuthRedirectHandler() {
       return;
     }
 
-    // Note: landing page → dashboard redirect is handled server-side in middleware
+    // Note: authenticated users stay on the landing page (no auto-redirect to dashboard)
   }, [user, router, claimBusiness]);
 
   return null;

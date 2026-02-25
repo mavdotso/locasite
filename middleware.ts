@@ -5,23 +5,27 @@ import {
 } from "@convex-dev/auth/nextjs/server";
 import { env } from "./env";
 
+// Routes that require authentication (middleware-level protection)
+const AUTH_REQUIRED_PREFIXES = ["/dashboard", "/edit"];
+
 const authMiddleware = convexAuthNextjsMiddleware(
   async (request, { convexAuth }) => {
     const isAuthenticated = await convexAuth.isAuthenticated();
     const { pathname } = request.nextUrl;
 
-    // Authenticated users on landing page → redirect to dashboard
-    if (isAuthenticated && pathname === "/") {
-      return nextjsMiddlewareRedirect(request, "/dashboard");
-    }
-
-    // Unauthenticated users on dashboard → redirect to sign-in
-    if (!isAuthenticated && pathname.startsWith("/dashboard")) {
+    // Protect auth-required routes: redirect unauthenticated users to sign-in
+    const requiresAuth = AUTH_REQUIRED_PREFIXES.some((prefix) =>
+      pathname.startsWith(prefix),
+    );
+    if (!isAuthenticated && requiresAuth) {
       return nextjsMiddlewareRedirect(
         request,
         `/sign-in?redirect=${encodeURIComponent(pathname)}`,
       );
     }
+
+    // Public routes (claim, preview, live, landing page) pass through
+    // without any auth-based redirects
   },
 );
 
