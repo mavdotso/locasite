@@ -1127,21 +1127,6 @@ export default function VisualEditor({
           businessName={business.name}
           open={showPublishDialog}
           onOpenChange={setShowPublishDialog}
-          pageData={{
-            pageTitle: pageData.title,
-            seoTitle: pageData.seoTitle,
-            seoDescription: pageData.seoDescription,
-            seoKeywords: pageData.seoKeywords,
-            ogTitle: pageData.ogTitle,
-            ogDescription: pageData.ogDescription,
-            ogImage: pageData.ogImage,
-          }}
-          onUpdatePageData={(data) => {
-            setPageData((prev) => ({
-              ...prev,
-              ...data,
-            }));
-          }}
           onPublishComplete={() => {
             // Save and reload to update UI with published state
             handleSave();

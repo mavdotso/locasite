@@ -408,7 +408,7 @@ export function SimpleEditorResponsive({
                     className="flex items-center gap-2"
                   >
                     <Rocket className="h-4 w-4" />
-                    {isPublished ? "Update" : "Publish"}
+                    {isPublished ? "Update Site" : "Go Live"}
                   </Button>
                 </div>
               </div>
@@ -794,13 +794,6 @@ export function SimpleEditorResponsive({
               }
               open={isPublishDialogOpen}
               onOpenChange={setIsPublishDialogOpen}
-              pageData={pageData}
-              onUpdatePageData={(data) => {
-                setPageData((prev) => ({
-                  ...prev,
-                  ...data,
-                }));
-              }}
               onPublishComplete={() => {
                 if (onPublishAction) {
                   onPublishAction(pageData);
