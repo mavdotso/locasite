@@ -48,6 +48,9 @@ export const env = createEnv({
       .url()
       .default("https://api.tinybird.co"),
     NEXT_PUBLIC_TINYBIRD_TOKEN: z.string(),
+
+    // Sentry
+    NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
   },
 
   /**
@@ -75,6 +78,7 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_GOOGLE_BUSINESS_CLIENT_ID,
     NEXT_PUBLIC_TINYBIRD_API_URL: process.env.NEXT_PUBLIC_TINYBIRD_API_URL,
     NEXT_PUBLIC_TINYBIRD_TOKEN: process.env.NEXT_PUBLIC_TINYBIRD_TOKEN,
+    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
   },
 
   /**
