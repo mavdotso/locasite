@@ -4,6 +4,34 @@ import { getUserFromAuth } from "./lib/helpers";
 import { PageSection } from "./lib/types";
 import { api } from "./_generated/api";
 
+// Internal mutation to create a page with auto-generated content (no auth required)
+export const internal_createPageWithContent = internalMutation({
+  args: {
+    domainId: v.id("domains"),
+    content: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Check if a page already exists for this domain
+    const existingPage = await ctx.db
+      .query("pages")
+      .withIndex("by_domain", (q) => q.eq("domainId", args.domainId))
+      .first();
+
+    if (existingPage) {
+      return { pageId: existingPage._id };
+    }
+
+    const pageId = await ctx.db.insert("pages", {
+      domainId: args.domainId,
+      content: args.content,
+      isPublished: false,
+      lastEditedAt: Date.now(),
+    });
+
+    return { pageId };
+  },
+});
+
 // Internal mutation to update a page
 export const internal_updatePage = internalMutation({
   args: {

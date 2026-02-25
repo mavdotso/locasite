@@ -10,7 +10,8 @@ import { getUserFromAuth } from "./lib/helpers";
 import { partialAdvancedThemeSchemaV } from "./lib/themeSchema";
 import { getThemeSuggestions } from "./lib/themeSuggestions";
 import { themePresets } from "./lib/themePresets";
-import { api } from "./_generated/api";
+import { api, internal } from "./_generated/api";
+import { generatePageFromBusinessData } from "./lib/autoGeneratePage";
 
 // Interface for business update operations
 interface BusinessUpdateFields {
@@ -600,7 +601,22 @@ export const updateBusinessDescription = mutation({
   },
 });
 
+// URL-friendly string converter for subdomain generation
+function toUrlFriendly(input: string, maxLength: number = 30): string {
+  if (!input) return "";
+  return input
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/--+/g, "-")
+    .replace(/^-|-$/g, "")
+    .substring(0, maxLength)
+    .replace(/-$/, "");
+}
+
 // Create business without authentication (for preview)
+// Also auto-generates a domain, page (with sections), and assigns a theme.
 export const createBusinessWithoutAuth = internalMutation({
   args: {
     businessData: v.object({
@@ -630,20 +646,111 @@ export const createBusinessWithoutAuth = internalMutation({
       .query("businesses")
       .withIndex("by_placeId", (q) => q.eq("placeId", args.businessData.placeId))
       .first();
-    
+
     if (existingBusiness) {
       // Return existing business instead of creating duplicate
       // This ensures idempotency - multiple scrapes of the same place return the same business
       return { businessId: existingBusiness._id };
     }
-    
+
     // Create the business without userId (unclaimed)
+    const { category, ...businessDataWithoutCategory } = args.businessData;
     const businessId = await ctx.db.insert("businesses", {
-      ...args.businessData,
+      ...businessDataWithoutCategory,
       createdAt: Date.now(),
       // userId is optional, so we don't set it
       isPublished: false,
     });
+
+    // --- Auto-generate domain ---
+    let subdomain = toUrlFriendly(args.businessData.name);
+    if (!subdomain || subdomain.length < 3) {
+      subdomain = `business-${Math.floor(Math.random() * 10000)}`;
+    }
+
+    // Ensure subdomain uniqueness
+    const existingDomain = await ctx.db
+      .query("domains")
+      .withIndex("by_subdomain", (q) => q.eq("subdomain", subdomain))
+      .first();
+
+    if (existingDomain) {
+      let counter = 1;
+      let candidate = `${subdomain}-${counter}`;
+      const MAX_ATTEMPTS = 100;
+      let attempts = 0;
+      while (
+        await ctx.db
+          .query("domains")
+          .withIndex("by_subdomain", (q) => q.eq("subdomain", candidate))
+          .first()
+      ) {
+        counter++;
+        attempts++;
+        if (attempts >= MAX_ATTEMPTS) {
+          // Fall back to random suffix
+          candidate = `${subdomain}-${Math.floor(Math.random() * 100000)}`;
+          break;
+        }
+        candidate = `${subdomain}-${counter}`;
+      }
+      subdomain = candidate;
+    }
+
+    const domainId = await ctx.db.insert("domains", {
+      name: args.businessData.name,
+      subdomain,
+      createdAt: Date.now(),
+    });
+
+    // Associate domain with the business
+    await ctx.db.patch(businessId, { domainId });
+
+    // --- Auto-generate page content ---
+    const pageData = generatePageFromBusinessData(args.businessData);
+    await ctx.runMutation(internal.pages.internal_createPageWithContent, {
+      domainId,
+      content: JSON.stringify(pageData),
+    });
+
+    // --- Auto-assign theme based on category ---
+    const themeSuggestions = getThemeSuggestions(category, 1);
+    const selectedPresetId = themeSuggestions[0] || "modern-minimal";
+    const themePreset = themePresets.find(
+      (preset) => preset.id === selectedPresetId,
+    );
+
+    if (themePreset) {
+      const themeId = await ctx.db.insert("themes", {
+        name: `${args.businessData.name} Theme`,
+        description: `Auto-generated theme for ${args.businessData.name}`,
+        isPreset: false,
+        presetId: selectedPresetId,
+        // @ts-expect-error Theme types have minor differences that are handled at runtime
+        config: themePreset.theme,
+        userId: undefined,
+        businessId,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        isPublic: false,
+        tags: themePreset.tags || [],
+        industry: category || themePreset.industry,
+      });
+
+      await ctx.db.patch(businessId, { themeId });
+    }
+
+    // Schedule image upload to Convex storage
+    if (args.businessData.photos && args.businessData.photos.length > 0) {
+      await ctx.scheduler.runAfter(
+        0,
+        api.uploadBusinessImages.uploadGoogleMapsImages,
+        {
+          businessId,
+          imageUrls: args.businessData.photos,
+        },
+      );
+    }
 
     return { businessId };
   },
