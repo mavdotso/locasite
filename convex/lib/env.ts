@@ -17,8 +17,8 @@ export const convexEnv = {
   // Stripe
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY!,
   STRIPE_WEBHOOKS_SECRET: process.env.STRIPE_WEBHOOKS_SECRET!,
-  STRIPE_PRICE_PROFESSIONAL: process.env.STRIPE_PRICE_PROFESSIONAL,
-  STRIPE_PRICE_BUSINESS: process.env.STRIPE_PRICE_BUSINESS,
+  STRIPE_PRICE_PROFESSIONAL: process.env.STRIPE_PRICE_PROFESSIONAL!,
+  STRIPE_PRICE_BUSINESS: process.env.STRIPE_PRICE_BUSINESS!,
 
   // Custom Domain
   CUSTOM_DOMAIN_CNAME:
@@ -30,6 +30,9 @@ export const convexEnv = {
 
   // Convex Auth
   CONVEX_SITE_URL: process.env.CONVEX_SITE_URL || "http://localhost:3000",
+
+  // Resend (email verification)
+  RESEND_API_KEY: process.env.RESEND_API_KEY!,
 
   // Tinybird Analytics (used in HTTP endpoints)
   NEXT_PUBLIC_TINYBIRD_API_URL:

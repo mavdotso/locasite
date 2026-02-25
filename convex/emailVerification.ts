@@ -1,7 +1,8 @@
 import { mutation, query, action, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserFromAuth } from "./lib/helpers";
-import { internal } from "./_generated/api";
+import { api, internal } from "./_generated/api";
+import { convexEnv } from "./lib/env";
 
 // Generate a secure verification token
 function generateVerificationToken(): string {
@@ -78,13 +79,32 @@ export const sendVerificationEmail = action({
       },
     );
 
-    // TODO: Integrate with email service (SendGrid, Resend, etc.)
-    // const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}&businessId=${args.businessId}`;
-    // await sendEmail({
-    //   to: business.email,
-    //   subject: `Verify your ownership of ${business.name}`,
-    //   html: `Click here to verify: ${verificationUrl}`
-    // });
+    // Send verification email via Resend
+    const verificationUrl = `${convexEnv.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}&businessId=${args.businessId}`;
+
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${convexEnv.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "Locasite <noreply@locasite.xyz>",
+        to: [business.email],
+        subject: `Verify your ownership of ${business.name}`,
+        html: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2>Verify Your Business Ownership</h2>
+      <p>Click the link below to verify your ownership of <strong>${business.name}</strong>:</p>
+      <p><a href="${verificationUrl}" style="display: inline-block; background: #2563eb; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none;">Verify Ownership</a></p>
+      <p style="color: #666; font-size: 14px;">This link expires in 24 hours. If you did not request this, you can ignore this email.</p>
+    </div>`,
+      }),
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`Failed to send verification email: ${errorText}`);
+    }
 
     return {
       success: true,
@@ -194,12 +214,14 @@ export const resendVerificationEmail = mutation({
     });
 
     // Send new verification email
-    // In a real implementation, you would trigger the email send here
-    // For now, we'll just return success
-    // await ctx.scheduler.runAfter(0, api.emailVerification.sendVerificationEmail, {
-    //   businessId: claim.businessId,
-    //   claimId: args.claimId,
-    // });
+    await ctx.scheduler.runAfter(
+      0,
+      api.emailVerification.sendVerificationEmail,
+      {
+        businessId: claim.businessId,
+        claimId: args.claimId,
+      },
+    );
 
     return {
       success: true,
