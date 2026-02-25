@@ -1137,6 +1137,15 @@ export const deleteBusiness = mutation({
       await ctx.db.delete(item._id);
     }
 
+    // Clean up business claims
+    const claims = await ctx.db
+      .query("businessClaims")
+      .withIndex("by_business", (q) => q.eq("businessId", args.businessId))
+      .collect();
+    for (const claim of claims) {
+      await ctx.db.delete(claim._id);
+    }
+
     // Delete favicon from storage if exists
     if (business.faviconStorageId) {
       await ctx.storage.delete(business.faviconStorageId);

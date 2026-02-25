@@ -150,7 +150,7 @@ export const syncStripeDataToConvex = internalAction({
         },
       });
     } catch (error) {
-      throw new Error("Failed to sync Stripe data");
+      throw new Error(`Failed to sync Stripe data: ${error instanceof Error ? error.message : String(error)}`);
     }
   },
 });

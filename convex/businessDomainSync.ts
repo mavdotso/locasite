@@ -11,12 +11,12 @@ export const checkBusinessDomainSync = query({
     
     // Check if business has a domain
     if (!business.domainId) {
-      // Try to find a domain that should belong to this business
-      const domains = await ctx.db.query("domains").collect();
-      const possibleDomain = domains.find(d => 
-        d.name === business.name || 
-        d.subdomain === business.name.toLowerCase().replace(/[^a-z0-9-]/g, '-')
-      );
+      // Try to find a domain that should belong to this business by subdomain
+      const slugified = business.name.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+      const possibleDomain = await ctx.db
+        .query("domains")
+        .withIndex("by_subdomain", (q) => q.eq("subdomain", slugified))
+        .first();
       
       return {
         synced: false,
@@ -67,12 +67,12 @@ export const syncBusinessDomain = mutation({
     
     // If no domainId provided, try to find or create one
     if (!domainId) {
-      // Look for existing domain
-      const domains = await ctx.db.query("domains").collect();
-      let domain = domains.find(d => 
-        d.name === business.name || 
-        d.subdomain === business.name.toLowerCase().replace(/[^a-z0-9-]/g, '-')
-      );
+      // Look for existing domain by subdomain index
+      const slugified = business.name.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+      let domain = await ctx.db
+        .query("domains")
+        .withIndex("by_subdomain", (q) => q.eq("subdomain", slugified))
+        .first();
       
       if (!domain) {
         // Create a new domain

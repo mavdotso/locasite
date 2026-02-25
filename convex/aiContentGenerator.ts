@@ -22,10 +22,14 @@ export const generateBusinessContent = action({
     })
   },
   handler: async (ctx, args) => {
+    // TODO: Add rate limiting for AI content generation.
+    // This action is called without auth during preview flow, so IP-based
+    // rate limiting (via the RateLimiter component in an httpAction wrapper)
+    // should be applied to prevent abuse.
     const { businessData } = args;
 
     try {
-      
+
       // Determine business category/industry from name and description
       const businessCategory = await inferBusinessCategory(businessData);
       

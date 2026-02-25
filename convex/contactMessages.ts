@@ -33,6 +33,16 @@ export const send = mutation({
       throw new Error("Business not found");
     }
 
+    // Rate limit: prevent spam by checking recent messages to this business
+    const recentMessages = await ctx.db
+      .query("contactMessages")
+      .withIndex("by_business", (q) => q.eq("businessId", args.businessId))
+      .filter((q) => q.gte(q.field("createdAt"), Date.now() - 60000))
+      .collect();
+    if (recentMessages.length >= 10) {
+      throw new Error("Too many messages. Please try again later.");
+    }
+
     const contactMessageId = await ctx.db.insert("contactMessages", {
       ...args,
       status: "unread",

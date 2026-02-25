@@ -29,6 +29,10 @@ export const filterAndEnhanceReviews = action({
     onlyPositive: v.optional(v.boolean())
   },
   handler: async (ctx, args) => {
+    // TODO: Add rate limiting for review filtering.
+    // This action is called without auth during preview flow, so IP-based
+    // rate limiting (via the RateLimiter component in an httpAction wrapper)
+    // should be applied to prevent abuse.
     const { reviews, businessName, businessType, maxReviews = 10, onlyPositive = true } = args;
     
     if (!reviews || reviews.length === 0) {

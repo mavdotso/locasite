@@ -328,7 +328,8 @@ export default defineSchema({
     .index("by_placeId", ["placeId"])
     .index("by_userId", ["userId"])
     .index("by_domainId", ["domainId"])
-    .index("by_createdAt", ["createdAt"]),
+    .index("by_createdAt", ["createdAt"])
+    .index("by_themeId", ["themeId"]),
 
   businessClaims: defineTable({
     businessId: v.id("businesses"),

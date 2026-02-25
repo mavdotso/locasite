@@ -25,6 +25,11 @@ http.route({
 
 
     if (!result.success) {
+      console.error("Stripe webhook fulfillment failed:", result.error);
+      return new Response(JSON.stringify({ error: "Webhook processing failed" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     return new Response(JSON.stringify({ received: true }), {
