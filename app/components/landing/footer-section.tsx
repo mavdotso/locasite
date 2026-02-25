@@ -1,5 +1,6 @@
 import Logo from "@/app/components/ui/logo";
 import Link from "next/link";
+import { SITE_CONFIG } from "@/app/lib/site-config";
 
 export default function FooterSection() {
   const currentYear = new Date().getFullYear();
@@ -72,7 +73,7 @@ export default function FooterSection() {
               </li>
               <li>
                 <a
-                  href="mailto:support@locasite.com"
+                  href={`mailto:${SITE_CONFIG.emails.support}`}
                   className="text-muted-foreground hover:text-foreground"
                 >
                   Contact

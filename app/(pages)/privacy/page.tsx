@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { SITE_CONFIG } from "@/app/lib/site-config";
 
 export const metadata: Metadata = { title: "Privacy Policy — Locasite" };
 
@@ -78,10 +79,10 @@ export default function PrivacyPolicyPage() {
               If you have questions or concerns about this privacy policy or our
               data practices, please contact us at{" "}
               <a
-                href="mailto:privacy@locasite.com"
+                href={`mailto:${SITE_CONFIG.emails.privacy}`}
                 className="text-primary hover:underline"
               >
-                privacy@locasite.com
+                {SITE_CONFIG.emails.privacy}
               </a>
               .
             </p>

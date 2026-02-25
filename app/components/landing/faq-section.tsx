@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ChevronDown, HelpCircle } from 'lucide-react';
+import { SITE_CONFIG } from '@/app/lib/site-config';
 
 const faqs = [
   {
@@ -112,7 +113,7 @@ export default function FAQSection() {
             Still have questions? We&apos;re here to help!
           </p>
           <a 
-            href="mailto:support@locasite.com" 
+            href={`mailto:${SITE_CONFIG.emails.support}`}
             className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
           >
             Contact Support

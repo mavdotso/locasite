@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { SITE_CONFIG } from "@/app/lib/site-config";
 
 export const metadata: Metadata = { title: "Terms of Service — Locasite" };
 
@@ -103,10 +104,10 @@ export default function TermsOfServicePage() {
               If you have questions about these Terms of Service, please contact
               us at{" "}
               <a
-                href="mailto:legal@locasite.com"
+                href={`mailto:${SITE_CONFIG.emails.legal}`}
                 className="text-primary hover:underline"
               >
-                legal@locasite.com
+                {SITE_CONFIG.emails.legal}
               </a>
               .
             </p>

@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
+import { SITE_CONFIG } from "@/app/lib/site-config";
 import {
   Accordion,
   AccordionContent,
@@ -52,7 +53,7 @@ export default function BillingPage() {
     if (planType === "BUSINESS") {
       // For Business plan, redirect to contact form
       window.location.href =
-        "mailto:sales@locasite.com?subject=Business Plan Inquiry";
+        `mailto:${SITE_CONFIG.emails.sales}?subject=Business Plan Inquiry`;
       return;
     }
 

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SITE_CONFIG } from "@/app/lib/site-config";
 
 interface BusinessFooterProps {
   businessName?: string;
@@ -23,7 +24,7 @@ export function BusinessFooter({
           )}
           <span>Powered by </span>
           <Link
-            href="https://locasite.com"
+            href={SITE_CONFIG.url}
             target="_blank"
             rel="noopener noreferrer"
             className="font-medium text-primary hover:underline"
