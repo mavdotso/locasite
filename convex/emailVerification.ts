@@ -8,9 +8,11 @@ import { convexEnv } from "./lib/env";
 function generateVerificationToken(): string {
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const randomValues = new Uint8Array(32);
+  crypto.getRandomValues(randomValues);
   let token = "";
   for (let i = 0; i < 32; i++) {
-    token += chars.charAt(Math.floor(Math.random() * chars.length));
+    token += chars.charAt(randomValues[i] % chars.length);
   }
   return token;
 }
@@ -89,7 +91,7 @@ export const sendVerificationEmail = action({
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Locasite <noreply@locasite.xyz>",
+        from: `Locasite <${convexEnv.SENDER_EMAIL}>`,
         to: [business.email],
         subject: `Verify your ownership of ${business.name}`,
         html: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
