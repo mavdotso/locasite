@@ -8,8 +8,12 @@ import {
 import { v } from "convex/values";
 import { Doc } from "./_generated/dataModel";
 import { getUserFromAuth } from "./lib/helpers";
-import { internal } from "./_generated/api";
-import { checkRateLimit, RATE_LIMITS } from "./lib/rateLimiting";
+import { components, internal } from "./_generated/api";
+import { RateLimiter, HOUR } from "@convex-dev/rate-limiter";
+
+const rateLimiter = new RateLimiter(components.rateLimiter, {
+  businessClaim: { kind: "fixed window", rate: 5, period: HOUR },
+});
 
 // Internal mutation to create a business claim
 export const internal_createBusinessClaim = internalMutation({
@@ -86,14 +90,12 @@ export const claimBusiness = mutation({
     const user = await getUserFromAuth(ctx);
 
     // Check rate limiting
-    const rateLimit = await checkRateLimit(
-      ctx.db,
-      user._id,
-      RATE_LIMITS.businessClaim,
-    );
-    if (!rateLimit.allowed) {
+    const rateLimitStatus = await rateLimiter.limit(ctx, "businessClaim", {
+      key: user._id,
+    });
+    if (!rateLimitStatus.ok) {
       throw new Error(
-        `Rate limit exceeded. You can try again in ${Math.ceil((rateLimit.resetTime - Date.now()) / 1000 / 60)} minutes.`,
+        `Rate limit exceeded. Please try again later.`,
       );
     }
 
