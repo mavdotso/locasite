@@ -28,6 +28,7 @@ import {
 import { toast } from "sonner";
 import Link from "next/link";
 import { env } from "@/env";
+import { DnsWizard } from "@/components/domain/dns-wizard";
 
 function getDomainStatusDisplay(
   domainStatus: {
@@ -431,6 +432,21 @@ export default function DomainSettingsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* DNS Setup Wizard - show when domain exists but not verified */}
+      {domainStatus?.domain && !domainStatus.isVerified && (
+        <div className="mt-8">
+          <DnsWizard
+            domain={domainStatus.domain}
+            cnameHost="@"
+            cnameValue="cname.vercel-dns.com"
+            txtHost="_locasite-verify"
+            txtValue={domainStatus.verificationToken || ""}
+            onVerify={handleCheckConnection}
+            isVerifying={isChecking}
+          />
+        </div>
+      )}
     </div>
   );
 }
