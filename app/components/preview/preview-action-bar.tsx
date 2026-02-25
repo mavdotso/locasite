@@ -8,6 +8,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/app/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { ThemePickerSheet } from "./theme-picker-sheet";
 
 interface PreviewActionBarProps {
   businessId: Id<"businesses">;
@@ -102,11 +103,11 @@ export function PreviewActionBar({
           </button>
         </div>
 
-        {showThemePicker && (
-          <div className="rounded-lg border bg-muted/50 p-4 text-center text-sm text-muted-foreground">
-            Theme picker coming in Task 5
-          </div>
-        )}
+        <ThemePickerSheet
+          businessId={businessId}
+          isOpen={showThemePicker}
+          onClose={() => setShowThemePicker(false)}
+        />
       </div>
     );
   }
@@ -151,12 +152,12 @@ export function PreviewActionBar({
         </button>
       </div>
 
-      {/* Theme picker placeholder (Task 5) */}
-      {showThemePicker && (
-        <div className="rounded-lg border bg-muted/50 p-4 text-center text-sm text-muted-foreground">
-          Theme picker coming in Task 5
-        </div>
-      )}
+      {/* Theme picker bottom sheet */}
+      <ThemePickerSheet
+        businessId={businessId}
+        isOpen={showThemePicker}
+        onClose={() => setShowThemePicker(false)}
+      />
 
       {/* Subdomain info */}
       {siteUrl && (
