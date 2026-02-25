@@ -1,6 +1,5 @@
 import { query } from './_generated/server';
 import { v } from 'convex/values';
-import { api } from './_generated/api';
 
 // Compound query to fetch business with domain and page data
 export const getBusinessWithDomainAndPage = query({
@@ -38,9 +37,12 @@ export const getBusinessPreviewData = query({
     const business = await ctx.db.get(args.businessId);
     if (!business) return null;
 
+    // Strip sensitive fields before returning
+    const { googleBusinessAuth: _, ...safeBusiness } = business;
+
     // Get domain
-    const domain = business.domainId 
-      ? await ctx.db.get(business.domainId)
+    const domain = safeBusiness.domainId
+      ? await ctx.db.get(safeBusiness.domainId)
       : null;
 
     // Get page if domain exists
@@ -53,12 +55,12 @@ export const getBusinessPreviewData = query({
     }
 
     // Get theme if exists
-    const theme = business.themeId 
-      ? await ctx.db.get(business.themeId)
+    const theme = safeBusiness.themeId
+      ? await ctx.db.get(safeBusiness.themeId)
       : null;
 
     return {
-      business,
+      business: safeBusiness,
       domain,
       page,
       theme
