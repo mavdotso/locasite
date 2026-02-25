@@ -56,6 +56,7 @@ import {
   Building,
   Loader2,
 } from "lucide-react";
+import { cn } from "@/app/lib/utils";
 import { SimpleComponentData } from "../types/simple-builder";
 import type { SimpleStyleOptions } from "../types/simple-builder";
 import { getVariationById } from "../sections/section-variations";
@@ -1060,50 +1061,130 @@ export function SectionSettingsSidebar({
 
             {/* Style Tab */}
             <TabsContent value="style" className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label>Background Color</Label>
-                <div className="flex gap-2">
-                  <Input
+              {/* Background Color Swatches */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Background Color</Label>
+
+                {/* Preset swatches */}
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { label: "White", value: "#ffffff" },
+                    { label: "Light Gray", value: "#f8f9fa" },
+                    { label: "Warm Gray", value: "#f5f0eb" },
+                    { label: "Light Blue", value: "#eff6ff" },
+                    { label: "Light Green", value: "#f0fdf4" },
+                    { label: "Light Purple", value: "#faf5ff" },
+                    { label: "Dark", value: "#1a1a2e" },
+                    { label: "None", value: "transparent" },
+                  ].map((swatch) => (
+                    <button
+                      key={swatch.value}
+                      title={swatch.label}
+                      onClick={() =>
+                        handleStyleChange("backgroundColor", swatch.value)
+                      }
+                      className={cn(
+                        "w-8 h-8 rounded-md border-2 transition-all hover:scale-110",
+                        localData?.style?.backgroundColor === swatch.value
+                          ? "border-primary ring-2 ring-primary/20"
+                          : "border-border",
+                      )}
+                      style={{
+                        backgroundColor:
+                          swatch.value === "transparent"
+                            ? undefined
+                            : swatch.value,
+                        backgroundImage:
+                          swatch.value === "transparent"
+                            ? "repeating-conic-gradient(#d4d4d4 0% 25%, transparent 0% 50%)"
+                            : undefined,
+                        backgroundSize:
+                          swatch.value === "transparent"
+                            ? "8px 8px"
+                            : undefined,
+                      }}
+                    />
+                  ))}
+                </div>
+
+                {/* Custom color picker */}
+                <div className="flex items-center gap-2">
+                  <input
                     type="color"
-                    value={localData.style?.backgroundColor || "#ffffff"}
+                    value={localData?.style?.backgroundColor || "#ffffff"}
                     onChange={(e) =>
                       handleStyleChange("backgroundColor", e.target.value)
                     }
-                    className="w-20"
+                    className="w-8 h-8 rounded cursor-pointer border"
                   />
-                  <Input
-                    value={localData.style?.backgroundColor || "#ffffff"}
-                    onChange={(e) =>
-                      handleStyleChange("backgroundColor", e.target.value)
-                    }
-                    placeholder="#ffffff"
-                  />
+                  <span className="text-xs text-muted-foreground">
+                    Custom color
+                  </span>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label>Text Color</Label>
-                <div className="flex gap-2">
-                  <Input
-                    type="color"
-                    value={localData.style?.textColor || "#000000"}
-                    onChange={(e) =>
-                      handleStyleChange("textColor", e.target.value)
+              {/* Text Color Toggle */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Text Color</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant={
+                      !localData?.style?.textColor ||
+                      localData.style.textColor === "#1a1a1a" ||
+                      localData.style.textColor === "#000000"
+                        ? "default"
+                        : "outline"
                     }
-                    className="w-20"
-                  />
-                  <Input
-                    value={localData.style?.textColor || "#000000"}
-                    onChange={(e) =>
-                      handleStyleChange("textColor", e.target.value)
+                    size="sm"
+                    onClick={() => handleStyleChange("textColor", "#1a1a1a")}
+                    className="h-9"
+                  >
+                    Dark Text
+                  </Button>
+                  <Button
+                    variant={
+                      localData?.style?.textColor === "#ffffff"
+                        ? "default"
+                        : "outline"
                     }
-                    placeholder="#000000"
-                  />
+                    size="sm"
+                    onClick={() => handleStyleChange("textColor", "#ffffff")}
+                    className="h-9"
+                  >
+                    Light Text
+                  </Button>
                 </div>
               </div>
 
+              {/* Section Spacing Presets */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Section Spacing</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { label: "Compact", value: "2rem 2rem" },
+                    { label: "Normal", value: "4rem 2rem" },
+                    { label: "Spacious", value: "6rem 2rem" },
+                  ].map((opt) => (
+                    <Button
+                      key={opt.label}
+                      variant={
+                        localData?.style?.padding === opt.value
+                          ? "default"
+                          : "outline"
+                      }
+                      size="sm"
+                      onClick={() => handleStyleChange("padding", opt.value)}
+                      className="h-9"
+                    >
+                      {opt.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Text Alignment */}
               <div className="space-y-2">
-                <Label>Text Alignment</Label>
+                <Label className="text-sm font-medium">Text Alignment</Label>
                 <Select
                   value={localData.style?.textAlign || "left"}
                   onValueChange={(value) =>
@@ -1121,8 +1202,9 @@ export function SectionSettingsSidebar({
                 </Select>
               </div>
 
+              {/* Font Size */}
               <div className="space-y-2">
-                <Label>Font Size</Label>
+                <Label className="text-sm font-medium">Font Size</Label>
                 <Select
                   value={localData.style?.fontSize || "medium"}
                   onValueChange={(value) =>
