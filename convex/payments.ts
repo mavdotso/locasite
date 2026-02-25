@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { internalMutation, mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { getUserFromAuth } from "./lib/helpers";
 
 // Create a payment record
 export const create = mutation({
@@ -73,12 +74,18 @@ export const getBySessionId = query({
     sessionId: v.string(),
   },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const user = await getUserFromAuth(ctx);
+
+    const payment = await ctx.db
       .query("payments")
       .withIndex("stripeSessionId", (q) =>
         q.eq("stripeSessionId", args.sessionId),
       )
       .first();
+
+    if (!payment || payment.userId !== user._id) return null;
+
+    return payment;
   },
 });
 

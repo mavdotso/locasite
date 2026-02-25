@@ -198,14 +198,14 @@ export default async function BusinessPage({ params }: PageProps) {
       notFound();
     }
 
+    // Watermark visibility: default to showing watermark for free-plan businesses.
+    // Subscription check requires auth, so on public pages we fall back to
+    // checking the authenticated user's subscription (business owner viewing their own site).
     let showWatermark = true;
-    if (businessData.userId) {
+    try {
       const subscription = await fetchQuery(
         api.subscriptions.getUserSubscriptionByUserId,
-        {
-          userId: businessData.userId,
-        },
-      ).catch(() => null);
+      );
 
       if (
         subscription &&
@@ -214,6 +214,8 @@ export default async function BusinessPage({ params }: PageProps) {
       ) {
         showWatermark = false;
       }
+    } catch {
+      // No auth context (public visitor) — keep watermark visible
     }
 
     // Content parsing is now handled by BusinessPageRenderer

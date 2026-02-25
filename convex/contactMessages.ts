@@ -140,6 +140,14 @@ export const getUnreadCount = query({
     businessId: v.id("businesses"),
   },
   handler: async (ctx, args) => {
+    const user = await getUserFromAuth(ctx);
+
+    // Verify business ownership
+    const business = await ctx.db.get(args.businessId);
+    if (!business || business.userId !== user._id) {
+      return 0;
+    }
+
     const unreadMessages = await ctx.db
       .query("contactMessages")
       .withIndex("by_business_status", (q) =>

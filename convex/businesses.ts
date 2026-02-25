@@ -882,8 +882,12 @@ export const unpublish = mutation({
 export const getByIdWithDraft = query({
   args: { id: v.id("businesses") },
   handler: async (ctx, args) => {
+    const user = await getUserFromAuth(ctx);
+
     const business = await ctx.db.get(args.id);
     if (!business) return null;
+
+    if (business.userId !== user._id) return null;
 
     // If there's draft content, merge it with the main content
     if (business.draftContent) {

@@ -138,6 +138,14 @@ export const getById = query({
 export const getBusinessThemes = query({
   args: { businessId: v.id("businesses") },
   handler: async (ctx, args) => {
+    const user = await getUserFromAuth(ctx);
+
+    // Verify business ownership
+    const business = await ctx.db.get(args.businessId);
+    if (!business || business.userId !== user._id) {
+      return [];
+    }
+
     return await ctx.db
       .query("themes")
       .withIndex("by_business")

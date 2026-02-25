@@ -4,6 +4,7 @@ import { api, internal } from "./_generated/api";
 import { stripe } from "./lib/stripe";
 import { SUBSCRIPTION_PLANS, type PlanType } from "./lib/plans";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { getUserFromAuth } from "./lib/helpers";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
@@ -86,14 +87,16 @@ export const subscribe = action({
   },
 });
 
-// Get user's current subscription by userId (for server-side queries)
+// Server-side variant that throws on unauthenticated access.
+// See getUserSubscription below for the client-safe version that returns null.
 export const getUserSubscriptionByUserId = query({
-  args: { userId: v.id("users") },
-  handler: async (ctx, args) => {
+  args: {},
+  handler: async (ctx) => {
+    const user = await getUserFromAuth(ctx);
     // Get customer record
     const customer = await ctx.db
       .query("stripeCustomers")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
       .first();
 
     if (!customer) {
