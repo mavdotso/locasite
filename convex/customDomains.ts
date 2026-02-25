@@ -3,6 +3,7 @@ import {
   mutation,
   query,
   action,
+  internalAction,
   internalMutation,
   internalQuery,
 } from "./_generated/server";
@@ -145,6 +146,12 @@ export const addCustomDomain = mutation({
       // Update business with domain ID
       await ctx.db.patch(args.businessId, { domainId });
 
+      // Schedule auto-verification check in 5 minutes
+      await ctx.scheduler.runAfter(
+        5 * 60 * 1000,
+        internal.customDomains.checkPendingVerifications,
+      );
+
       return {
         domainId,
         domain,
@@ -162,6 +169,12 @@ export const addCustomDomain = mutation({
         verificationError: undefined,
         updatedAt: Date.now(),
       });
+
+      // Schedule auto-verification check in 5 minutes
+      await ctx.scheduler.runAfter(
+        5 * 60 * 1000,
+        internal.customDomains.checkPendingVerifications,
+      );
 
       return {
         domainId: domainRecord._id,
@@ -414,6 +427,60 @@ export const internal_updateSslStatus = internalMutation({
       sslProvider: args.sslProvider,
       updatedAt: Date.now(),
     });
+  },
+});
+
+// Get all pending (unverified) custom domains
+export const getPendingDomains = internalQuery({
+  handler: async (ctx) => {
+    const allDomains = await ctx.db.query("domains").collect();
+    return allDomains.filter((d) => d.customDomain && !d.isVerified);
+  },
+});
+
+// Scheduled action: auto-check pending domain verifications every 5 minutes
+export const checkPendingVerifications = internalAction({
+  handler: async (ctx) => {
+    const pendingDomains = await ctx.runQuery(
+      internal.customDomains.getPendingDomains,
+    );
+
+    for (const domain of pendingDomains) {
+      if (!domain.customDomain || !domain.verificationToken) continue;
+
+      try {
+        const verified = await verifyDnsRecords(
+          domain.customDomain,
+          domain.verificationToken,
+        );
+
+        if (verified) {
+          await ctx.runMutation(
+            internal.customDomains.internal_markDomainVerified,
+            {
+              domainId: domain._id,
+            },
+          );
+        }
+      } catch (error) {
+        // Silently continue — don't fail the whole batch for one domain
+        console.error(
+          `Auto-verification failed for ${domain.customDomain}:`,
+          error,
+        );
+      }
+    }
+
+    // Re-schedule if there are still pending domains
+    const stillPending = await ctx.runQuery(
+      internal.customDomains.getPendingDomains,
+    );
+    if (stillPending.length > 0) {
+      await ctx.scheduler.runAfter(
+        5 * 60 * 1000,
+        internal.customDomains.checkPendingVerifications,
+      );
+    }
   },
 });
 
