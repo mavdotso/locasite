@@ -7,7 +7,6 @@ import { Badge } from "@/app/components/ui/badge";
 import {
   Globe,
   Edit3,
-  BarChart3,
   MessageSquare,
   Settings,
   Plus,
@@ -15,8 +14,16 @@ import {
   MapPin,
   ExternalLink,
   Sparkles,
+  MoreHorizontal,
+  Palette,
 } from "lucide-react";
 import Link from "next/link";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/app/components/ui/dropdown-menu";
 import { ConvexImage } from "@/app/components/common/convex-image";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useQuery } from "convex/react";
@@ -97,7 +104,7 @@ export default function DashboardPage() {
             <Button asChild>
               <Link href="/dashboard/new">
                 <Plus className="w-4 h-4 mr-2" />
-                Create New Site
+                Add Business
               </Link>
             </Button>
           ) : (
@@ -172,72 +179,79 @@ function BusinessCard({
           </p>
         </div>
 
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-2">
-            <Button asChild size="sm" variant="outline" className="h-9">
-              <Link href={`/business/${business._id}/edit`}>
-                <Edit3 className="w-3.5 h-3.5 mr-1.5" />
-                Edit
-              </Link>
-            </Button>
+        <div className="space-y-2">
+          {/* Primary action */}
+          <Button asChild className="w-full h-10">
+            <Link href={`/business/${business._id}/edit`}>
+              <Edit3 className="w-4 h-4 mr-2" />
+              Edit Website
+            </Link>
+          </Button>
 
-            <Button
-              asChild
-              size="sm"
-              variant="outline"
-              className="h-9 relative"
-            >
-              <Link href={`/dashboard/business/${business._id}/messages`}>
-                <MessageSquare className="w-3.5 h-3.5 mr-1.5" />
-                Messages
-                {(unreadCount || 0) > 0 && (
-                  <span className="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs bg-red-500 text-white rounded-full min-w-[18px] text-center">
-                    {unreadCount}
-                  </span>
-                )}
-              </Link>
-            </Button>
+          {/* Secondary row */}
+          <div className="flex items-center gap-2">
+            {business.isPublished && domain ? (
+              <Button asChild variant="outline" size="sm" className="flex-1 h-9">
+                <a
+                  href={`https://${domain.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz"}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Eye className="w-3.5 h-3.5 mr-1.5" />
+                  View Site
+                  <ExternalLink className="w-3 h-3 ml-1" />
+                </a>
+              </Button>
+            ) : (
+              <Button asChild variant="secondary" size="sm" className="flex-1 h-9">
+                <Link href={`/business/${business._id}/edit`}>
+                  <Globe className="w-3.5 h-3.5 mr-1.5" />
+                  Go Live
+                </Link>
+              </Button>
+            )}
 
-            <Button asChild size="sm" variant="outline" className="h-9">
-              <Link href={`/dashboard/business/${business._id}/analytics`}>
-                <BarChart3 className="w-3.5 h-3.5 mr-1.5" />
-                Analytics
-              </Link>
-            </Button>
-
-            <Button asChild size="sm" variant="outline" className="h-9">
-              <Link href={`/dashboard/business/${business._id}/settings`}>
-                <Settings className="w-3.5 h-3.5 mr-1.5" />
-                Settings
-              </Link>
-            </Button>
+            {/* Overflow menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="h-9 w-9 p-0 relative">
+                  <MoreHorizontal className="h-4 w-4" />
+                  {(unreadCount || 0) > 0 && (
+                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full" />
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href={`/dashboard/business/${business._id}/messages`} className="flex items-center">
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Messages
+                    {(unreadCount || 0) > 0 && (
+                      <span className="ml-auto pl-2 text-xs text-red-500 font-medium">{unreadCount}</span>
+                    )}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={`/dashboard/business/${business._id}/theme`} className="flex items-center">
+                    <Palette className="w-4 h-4 mr-2" />
+                    Change Theme
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={`/dashboard/business/${business._id}/domain`} className="flex items-center">
+                    <Globe className="w-4 h-4 mr-2" />
+                    Web Address
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={`/dashboard/business/${business._id}/settings`} className="flex items-center">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Settings
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-
-          {business.isPublished && domain ? (
-            <Button asChild size="sm" className="w-full h-9">
-              <a
-                href={`https://${domain.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz"}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Eye className="w-3.5 h-3.5 mr-1.5" />
-                View Live Site
-                <ExternalLink className="w-3 h-3 ml-1" />
-              </a>
-            </Button>
-          ) : (
-            <Button
-              asChild
-              size="sm"
-              variant="secondary"
-              className="w-full h-9"
-            >
-              <Link href={`/dashboard/business/${business._id}/settings`}>
-                <Globe className="w-3.5 h-3.5 mr-1.5" />
-                Publish Site
-              </Link>
-            </Button>
-          )}
         </div>
       </div>
     </Card>
