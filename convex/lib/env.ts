@@ -1,6 +1,6 @@
 export const convexEnv = {
   // CORS Configuration
-  CLIENT_ORIGIN: process.env.CLIENT_ORIGIN || "*",
+  CLIENT_ORIGIN: process.env.CLIENT_ORIGIN!,
 
   // Application URLs
   NEXT_PUBLIC_APP_URL:
