@@ -284,6 +284,16 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const user = await getUserFromAuth(ctx);
 
+    // Check if business with this placeId already exists
+    const existingBusiness = await ctx.db
+      .query("businesses")
+      .withIndex("by_placeId", (q) => q.eq("placeId", args.business.placeId))
+      .first();
+
+    if (existingBusiness) {
+      throw new Error("A business with this placeId already exists");
+    }
+
     // Create the business using the internal mutation
     const businessId = await ctx.db.insert("businesses", {
       ...args.business,
