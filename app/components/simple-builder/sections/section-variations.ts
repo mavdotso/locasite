@@ -27,7 +27,7 @@ export const headerVariations: SectionVariation[] = [
         buttonLink: "#contact",
       },
       style: {
-        backgroundColor: "#ffffff",
+        backgroundColor: "transparent",
         padding: "1rem 2rem",
       },
     },
@@ -55,7 +55,7 @@ export const headerVariations: SectionVariation[] = [
         buttonLink: "#contact",
       },
       style: {
-        backgroundColor: "#ffffff",
+        backgroundColor: "transparent",
         padding: "1rem 2rem",
       },
     },
@@ -81,7 +81,7 @@ export const headerVariations: SectionVariation[] = [
         showButton: false,
       },
       style: {
-        backgroundColor: "#ffffff",
+        backgroundColor: "transparent",
         padding: "1.5rem 2rem",
         textAlign: "center",
       },
@@ -232,7 +232,7 @@ export const heroVariations: SectionVariation[] = [
       style: {
         textAlign: "center",
         padding: "6rem 2rem",
-        backgroundColor: "#f5f5f5",
+        backgroundColor: "",
       },
     },
     editableFields: ["content.title", "content.subtitle", "content.ctaText"],
@@ -465,7 +465,7 @@ export const servicesVariations: SectionVariation[] = [
       },
       style: {
         padding: "4rem 2rem",
-        backgroundColor: "#f8f9fa",
+        backgroundColor: "",
       },
     },
     editableFields: ["content.title", "content.services"],
@@ -738,7 +738,7 @@ export const contactVariations: SectionVariation[] = [
       style: {
         padding: "4rem 2rem",
         textAlign: "center",
-        backgroundColor: "#f5f5f5",
+        backgroundColor: "",
       },
     },
     editableFields: [
@@ -785,7 +785,7 @@ export const reviewsVariations: SectionVariation[] = [
       },
       style: {
         padding: "4rem 2rem",
-        backgroundColor: "#f8f9fa",
+        backgroundColor: "",
       },
     },
     editableFields: ["content.title", "content.subtitle", "content.reviews"],

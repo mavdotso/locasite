@@ -79,6 +79,15 @@ interface SectionSettingsSidebarProps {
   sectionData?: SimpleComponentData;
   variationId?: string;
   businessId?: string;
+  themeColors?: {
+    primary: string;
+    secondary: string;
+    accent: string;
+    background: string;
+    foreground: string;
+    card: string;
+    muted: string;
+  };
   onUpdate: (data: SimpleComponentData) => void;
   pageSections?: Array<{ id: string; type: string; content: unknown }>;
 }
@@ -139,6 +148,7 @@ export function SectionSettingsSidebar({
   sectionData,
   variationId,
   businessId,
+  themeColors,
   onUpdate,
   pageSections = [],
 }: SectionSettingsSidebarProps) {
@@ -1067,16 +1077,34 @@ export function SectionSettingsSidebar({
 
                 {/* Preset swatches */}
                 <div className="flex flex-wrap gap-2">
-                  {[
-                    { label: "White", value: "#ffffff" },
-                    { label: "Light Gray", value: "#f8f9fa" },
-                    { label: "Warm Gray", value: "#f5f0eb" },
-                    { label: "Light Blue", value: "#eff6ff" },
-                    { label: "Light Green", value: "#f0fdf4" },
-                    { label: "Light Purple", value: "#faf5ff" },
-                    { label: "Dark", value: "#1a1a2e" },
-                    { label: "None", value: "transparent" },
-                  ].map((swatch) => (
+                  {(() => {
+                    const themeSwatches = themeColors
+                      ? [
+                          { label: "Theme Background", value: themeColors.background },
+                          { label: "Theme Card", value: themeColors.card },
+                          { label: "Theme Muted", value: themeColors.muted },
+                          { label: "Theme Primary", value: themeColors.primary },
+                          { label: "Theme Accent", value: themeColors.accent },
+                        ]
+                      : [];
+                    const genericSwatches = [
+                      { label: "White", value: "#ffffff" },
+                      { label: "Light Gray", value: "#f8f9fa" },
+                      { label: "Warm Gray", value: "#f5f0eb" },
+                      { label: "Light Blue", value: "#eff6ff" },
+                      { label: "Light Green", value: "#f0fdf4" },
+                      { label: "Light Purple", value: "#faf5ff" },
+                      { label: "Dark", value: "#1a1a2e" },
+                      { label: "None", value: "transparent" },
+                    ];
+                    // Deduplicate: theme swatches take priority
+                    const themeValues = new Set(themeSwatches.map((s) => s.value.toLowerCase()));
+                    const deduped = [
+                      ...themeSwatches,
+                      ...genericSwatches.filter((s) => !themeValues.has(s.value.toLowerCase())),
+                    ];
+                    return deduped;
+                  })().map((swatch) => (
                     <button
                       key={swatch.value}
                       title={swatch.label}

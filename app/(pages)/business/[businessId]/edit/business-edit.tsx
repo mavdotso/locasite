@@ -321,6 +321,19 @@ export default function BusinessEdit({
     );
   }
 
+  // Compute theme colors from business theme overrides
+  const themeColors = business?.themeOverrides?.colors?.light
+    ? {
+        primary: business.themeOverrides.colors.light.primary || "#3b82f6",
+        secondary: business.themeOverrides.colors.light.secondary || "#6b7280",
+        accent: business.themeOverrides.colors.light.accent || "#f59e0b",
+        background: business.themeOverrides.colors.light.background || "#ffffff",
+        foreground: business.themeOverrides.colors.light.foreground || "#1a1a1a",
+        card: business.themeOverrides.colors.light.card || "#ffffff",
+        muted: business.themeOverrides.colors.light.muted || "#f5f5f5",
+      }
+    : undefined;
+
   // Prepare business data for template variables
   const businessData = {
     businessName: business.name,
@@ -339,6 +352,7 @@ export default function BusinessEdit({
       businessId={businessId}
       business={business}
       isPublished={business.isPublished}
+      themeColors={themeColors}
       onSaveAction={handleSave}
       onPublishAction={handlePublish}
     />

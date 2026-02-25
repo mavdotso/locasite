@@ -52,6 +52,15 @@ interface SimpleEditorProps {
   businessId?: string;
   business?: Record<string, unknown>;
   pageId?: string;
+  themeColors?: {
+    primary: string;
+    secondary: string;
+    accent: string;
+    background: string;
+    foreground: string;
+    card: string;
+    muted: string;
+  };
   onSaveAction?: (data: SimplePageData) => void;
   onPublishAction?: (data: SimplePageData) => void;
 }
@@ -62,6 +71,7 @@ export function SimpleEditorResponsive({
   isPublished = false,
   businessId,
   business,
+  themeColors,
   onSaveAction,
   onPublishAction,
 }: SimpleEditorProps) {
@@ -796,6 +806,7 @@ export function SimpleEditorResponsive({
               sectionData={settingsSection.data}
               variationId={settingsSection.variationId}
               businessId={businessId}
+              themeColors={themeColors}
               pageSections={pageData.sections.map((s) => ({
                 id: s.id,
                 type: s.variationId,
