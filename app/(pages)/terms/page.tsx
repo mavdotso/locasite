@@ -111,14 +111,6 @@ export default function TermsOfServicePage() {
               .
             </p>
           </section>
-
-          <div className="border-t border-border pt-8 mt-12">
-            <p className="text-sm text-muted-foreground">
-              These terms of service are a placeholder and will be updated with
-              complete legal terms before the general availability release of
-              Locasite.
-            </p>
-          </div>
         </div>
       </div>
     </div>
