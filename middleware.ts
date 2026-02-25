@@ -108,22 +108,6 @@ export default async function middleware(
 
   // Handle subdomain routing BEFORE auth middleware
   if (subdomain) {
-    // Special handling for 'app' subdomain
-    if (subdomain === "app") {
-      // For app subdomain, rewrite first then apply auth
-      const rewrittenRequest = NextResponse.rewrite(
-        new URL(`/app${pathname}`, request.url),
-      );
-
-      // Apply auth middleware to the rewritten request
-      const authResponse = await authMiddleware(request, event);
-      if (authResponse && authResponse.status !== 200) {
-        return authResponse;
-      }
-
-      return rewrittenRequest;
-    }
-
     // Block access to dashboard from business subdomains
     if (pathname.startsWith("/dashboard") || pathname.startsWith("/app")) {
       return NextResponse.redirect(new URL("/", request.url));
