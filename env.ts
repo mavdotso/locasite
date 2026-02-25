@@ -15,6 +15,9 @@ export const env = createEnv({
     // Google Site Verification
     GOOGLE_SITE_VERIFICATION: z.string().optional(),
 
+    // Tinybird Analytics (server-side write token)
+    TINYBIRD_WRITE_TOKEN: z.string().optional(),
+
     // Node Environment
     NODE_ENV: z
       .enum(["development", "test", "production"])
@@ -57,6 +60,7 @@ export const env = createEnv({
     VERCEL_PROJECT_ID: process.env.VERCEL_PROJECT_ID,
     VERCEL_TEAM_ID: process.env.VERCEL_TEAM_ID,
     GOOGLE_SITE_VERIFICATION: process.env.GOOGLE_SITE_VERIFICATION,
+    TINYBIRD_WRITE_TOKEN: process.env.TINYBIRD_WRITE_TOKEN,
     NODE_ENV: process.env.NODE_ENV,
 
     // Client

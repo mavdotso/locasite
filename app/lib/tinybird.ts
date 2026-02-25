@@ -68,29 +68,20 @@ export class TinybirdClient {
     this.config = config;
   }
 
-  // Send events to Tinybird Events API
+  // Send events via server-side API route to avoid exposing write token
   private async sendEvents(datasource: string, events: unknown[]) {
-    const url = `${this.config.apiUrl}/v0/events?name=${datasource}`;
+    const response = await fetch("/api/analytics", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ datasource, events }),
+    });
 
-    try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${this.config.token}`,
-          "Content-Type": "application/json",
-        },
-        body: events.map((event) => JSON.stringify(event)).join("\n"),
-      });
-
-      if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`Tinybird API error: ${response.status} - ${error}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      throw error;
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Analytics API error: ${response.status} - ${error}`);
     }
+
+    return await response.json();
   }
 
   // Track page view
