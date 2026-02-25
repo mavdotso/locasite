@@ -328,10 +328,13 @@ export const getBusinessPublic = query({
 export const getByPlaceId = query({
   args: { placeId: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const business = await ctx.db
       .query("businesses")
       .withIndex("by_placeId", (q) => q.eq("placeId", args.placeId))
       .first();
+    if (!business) return null;
+    const { googleBusinessAuth: _, ...safe } = business;
+    return safe;
   },
 });
 
