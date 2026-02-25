@@ -27,6 +27,11 @@ jobs:
         env:
           SKIP_ENV_VALIDATION: "true"
 
+      - name: Unit tests
+        run: bunx vitest run
+        env:
+          SKIP_ENV_VALIDATION: "true"
+
       - name: Build
         run: bun run build
         env:
