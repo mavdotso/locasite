@@ -476,7 +476,6 @@ async function verifyDnsRecords(
     }
 
     if (!txtVerified) {
-      console.log(`TXT verification failed for ${domain}`);
       return false;
     }
 
@@ -514,9 +513,6 @@ async function verifyDnsRecords(
       }
     }
 
-    console.log(
-      `DNS verification for ${domain}: TXT=${txtVerified}, CNAME/A=${cnameVerified}`,
-    );
     return txtVerified && cnameVerified;
   } catch (error) {
     console.error("DNS verification error:", error);
