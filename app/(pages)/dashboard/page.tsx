@@ -16,6 +16,9 @@ import {
   Sparkles,
   MoreHorizontal,
   Palette,
+  CheckCircle,
+  Circle,
+  Search,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -64,23 +67,23 @@ export default function DashboardPage() {
     return (
       <div className="max-w-2xl mx-auto">
         <Card className="p-12 text-center">
-          <Globe className="w-16 h-16 mx-auto mb-6 text-muted-foreground/50" />
-          <h2 className="text-2xl font-bold mb-4">Welcome to Locasite!</h2>
+          <MapPin className="w-16 h-16 mx-auto mb-6 text-muted-foreground/50" />
+          <h2 className="text-2xl font-bold mb-2">Find Your Business</h2>
           <p className="text-muted-foreground mb-8 text-lg">
-            Create your first business website to get started.
+            Search for your business on Google to get started with your website.
           </p>
           {canCreateMoreSites ? (
             <Button asChild size="lg">
               <Link href="/dashboard/new">
-                <Plus className="w-5 h-5 mr-2" />
-                Create Your First Site
+                <Search className="w-5 h-5 mr-2" />
+                Find My Business
               </Link>
             </Button>
           ) : (
             <Button asChild size="lg" variant="outline">
               <Link href="/dashboard/billing">
                 <Sparkles className="w-4 h-4 mr-2" />
-                Upgrade to Create Sites
+                Upgrade to Add Businesses
               </Link>
             </Button>
           )}
@@ -179,6 +182,28 @@ function BusinessCard({
           </p>
         </div>
 
+        {/* Onboarding checklist for unpublished sites */}
+        {!business.isPublished && (
+          <div className="mb-3 space-y-1">
+            <p className="text-xs font-medium text-muted-foreground mb-1.5">Getting started:</p>
+            <ChecklistItem
+              done={!!business.themeId}
+              label="Choose a look"
+              href={`/dashboard/business/${business._id}/theme`}
+            />
+            <ChecklistItem
+              done={!!business.description && business.description.length > 20}
+              label="Add your info"
+              href={`/business/${business._id}/edit`}
+            />
+            <ChecklistItem
+              done={false}
+              label="Go live"
+              href={`/business/${business._id}/edit`}
+            />
+          </div>
+        )}
+
         <div className="space-y-2">
           {/* Primary action */}
           <Button asChild className="w-full h-10">
@@ -255,5 +280,31 @@ function BusinessCard({
         </div>
       </div>
     </Card>
+  );
+}
+
+function ChecklistItem({
+  done,
+  label,
+  href,
+}: {
+  done: boolean;
+  label: string;
+  href: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="flex items-center gap-2 text-sm hover:bg-accent rounded px-2 py-1 -mx-2 transition-colors"
+    >
+      {done ? (
+        <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
+      ) : (
+        <Circle className="h-4 w-4 text-muted-foreground shrink-0" />
+      )}
+      <span className={done ? "text-muted-foreground line-through" : ""}>
+        {label}
+      </span>
+    </Link>
   );
 }
