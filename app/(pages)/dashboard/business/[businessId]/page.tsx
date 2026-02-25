@@ -1,5 +1,4 @@
-import { Id } from "@/convex/_generated/dataModel";
-import BusinessDashboard from "./business-dashboard";
+import { redirect } from "next/navigation";
 
 interface BusinessDashboardPageProps {
   params: Promise<{
@@ -11,8 +10,5 @@ export default async function BusinessDashboardPage({
   params,
 }: BusinessDashboardPageProps) {
   const { businessId } = await params;
-  const businessIdTyped = businessId as Id<"businesses">;
-
-  // Client-side auth and ownership checks will be handled in BusinessDashboardClient
-  return <BusinessDashboard businessId={businessIdTyped} />;
+  redirect(`/business/${businessId}/edit`);
 }
