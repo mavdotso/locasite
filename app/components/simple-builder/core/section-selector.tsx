@@ -1,8 +1,18 @@
 "use client";
 
 import React, { useState } from "react";
+import {
+  Menu,
+  Sparkles,
+  FileText,
+  Briefcase,
+  ImageIcon,
+  MessageSquare,
+  Phone,
+} from "lucide-react";
 import { SectionCategory } from "../types/simple-builder";
 import { getVariationsByCategory } from "../sections/section-variations";
+import { SectionMiniPreview } from "./section-mini-preview";
 import { cn } from "@/app/lib/utils";
 
 interface SectionSelectorProps {
@@ -10,14 +20,54 @@ interface SectionSelectorProps {
   onClose: () => void;
 }
 
-const categories: { id: SectionCategory; label: string; icon: string }[] = [
-  { id: "header", label: "Header", icon: "🔝" },
-  { id: "hero", label: "Hero", icon: "🏠" },
-  { id: "about", label: "About", icon: "📝" },
-  { id: "services", label: "Services", icon: "⚡" },
-  { id: "gallery", label: "Gallery", icon: "🖼️" },
-  { id: "reviews", label: "Reviews", icon: "⭐" },
-  { id: "contact", label: "Contact", icon: "📞" },
+const categories: {
+  id: SectionCategory;
+  label: string;
+  description: string;
+  icon: React.ReactNode;
+}[] = [
+  {
+    id: "header",
+    label: "Navigation Bar",
+    description: "Menu at the top of your site",
+    icon: <Menu className="h-5 w-5" />,
+  },
+  {
+    id: "hero",
+    label: "Welcome Banner",
+    description: "Eye-catching section visitors see first",
+    icon: <Sparkles className="h-5 w-5" />,
+  },
+  {
+    id: "about",
+    label: "About Your Business",
+    description: "Tell your story",
+    icon: <FileText className="h-5 w-5" />,
+  },
+  {
+    id: "services",
+    label: "What You Offer",
+    description: "Services, menu, or products",
+    icon: <Briefcase className="h-5 w-5" />,
+  },
+  {
+    id: "gallery",
+    label: "Photo Gallery",
+    description: "Photos of your work or space",
+    icon: <ImageIcon className="h-5 w-5" />,
+  },
+  {
+    id: "reviews",
+    label: "Customer Reviews",
+    description: "What customers are saying",
+    icon: <MessageSquare className="h-5 w-5" />,
+  },
+  {
+    id: "contact",
+    label: "Contact Info",
+    description: "Help customers reach you",
+    icon: <Phone className="h-5 w-5" />,
+  },
 ];
 
 export function SectionSelector({ onSelect, onClose }: SectionSelectorProps) {
@@ -42,7 +92,7 @@ export function SectionSelector({ onSelect, onClose }: SectionSelectorProps) {
         {/* Content */}
         <div className="flex h-[60vh]">
           {/* Category Sidebar */}
-          <div className="w-48 border-r bg-muted/30 p-4">
+          <div className="w-56 border-r bg-muted/30 p-4">
             <nav className="space-y-1">
               {categories.map((category) => (
                 <button
@@ -55,8 +105,13 @@ export function SectionSelector({ onSelect, onClose }: SectionSelectorProps) {
                       : "hover:bg-accent",
                   )}
                 >
-                  <span className="text-xl">{category.icon}</span>
-                  <span>{category.label}</span>
+                  <span className="shrink-0">{category.icon}</span>
+                  <div>
+                    <span className="text-sm">{category.label}</span>
+                    <span className="text-xs text-muted-foreground block">
+                      {category.description}
+                    </span>
+                  </div>
                 </button>
               ))}
             </nav>
@@ -71,9 +126,9 @@ export function SectionSelector({ onSelect, onClose }: SectionSelectorProps) {
                   onClick={() => onSelect(variation.id)}
                   className="text-left p-4 border rounded-lg hover:border-primary hover:shadow-md transition-all"
                 >
-                  {/* Preview Placeholder */}
-                  <div className="aspect-video bg-muted rounded mb-3 flex items-center justify-center">
-                    <span className="text-4xl opacity-50">📄</span>
+                  {/* Mini Layout Preview */}
+                  <div className="aspect-video rounded mb-3 overflow-hidden border bg-slate-50">
+                    <SectionMiniPreview variationId={variation.id} />
                   </div>
 
                   <h3 className="font-medium mb-1">{variation.name}</h3>
