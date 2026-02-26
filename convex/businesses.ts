@@ -3,10 +3,11 @@ import {
   query,
   internalMutation,
   internalQuery,
+  MutationCtx,
 } from "./_generated/server";
 import { v } from "convex/values";
 import { Doc, Id } from "./_generated/dataModel";
-import { getUserFromAuth } from "./lib/helpers";
+import { getUserFromAuth, sanitizePhotos } from "./lib/helpers";
 import { partialAdvancedThemeSchemaV } from "./lib/themeSchema";
 import { getThemeSuggestions } from "./lib/themeSuggestions";
 import { themePresets } from "./lib/themePresets";
@@ -155,11 +156,84 @@ export const internal_updateBusiness = internalMutation({
   },
 });
 
-// Internal mutation to delete a business
+// Cascade-delete all records associated with a business.
+// Removes: domain, pages, custom theme, contact messages,
+// media library items (+ storage blobs), business claims,
+// favicon/OG storage blobs, and the business itself.
+async function cascadeDeleteBusiness(
+  ctx: MutationCtx,
+  businessId: Id<"businesses">,
+) {
+  const business = await ctx.db.get(businessId);
+  if (!business) return;
+
+  // Delete associated pages (must come before domain deletion)
+  if (business.domainId) {
+    const pages = await ctx.db
+      .query("pages")
+      .withIndex("by_domain", (q) => q.eq("domainId", business.domainId!))
+      .collect();
+    for (const page of pages) {
+      await ctx.db.delete(page._id);
+    }
+    await ctx.db.delete(business.domainId);
+  }
+
+  // Delete associated custom theme
+  if (business.themeId) {
+    const theme = await ctx.db.get(business.themeId);
+    if (theme && !theme.isPreset) {
+      await ctx.db.delete(business.themeId);
+    }
+  }
+
+  // Delete contact messages
+  const messages = await ctx.db
+    .query("contactMessages")
+    .withIndex("by_business", (q) => q.eq("businessId", businessId))
+    .collect();
+  for (const message of messages) {
+    await ctx.db.delete(message._id);
+  }
+
+  // Delete media library items and their storage blobs
+  const mediaItems = await ctx.db
+    .query("mediaLibrary")
+    .withIndex("by_business", (q) => q.eq("businessId", businessId))
+    .collect();
+  for (const item of mediaItems) {
+    if (item.storageId) {
+      await ctx.storage.delete(item.storageId);
+    }
+    await ctx.db.delete(item._id);
+  }
+
+  // Delete business claims
+  const claims = await ctx.db
+    .query("businessClaims")
+    .withIndex("by_business", (q) => q.eq("businessId", businessId))
+    .collect();
+  for (const claim of claims) {
+    await ctx.db.delete(claim._id);
+  }
+
+  // Delete favicon/OG image from storage
+  if (business.faviconStorageId) {
+    await ctx.storage.delete(business.faviconStorageId);
+  }
+  if (business.ogImageStorageId) {
+    await ctx.storage.delete(business.ogImageStorageId);
+  }
+
+  // Finally delete the business itself
+  await ctx.db.delete(businessId);
+}
+
+// Internal mutation to delete a business (with full cascade cleanup)
 export const internal_deleteBusiness = internalMutation({
   args: { id: v.id("businesses") },
   handler: async (ctx, args) => {
-    await ctx.db.delete(args.id);
+    await cascadeDeleteBusiness(ctx, args.id);
     return true;
   },
 });
@@ -314,7 +388,7 @@ export const getById = query({
     const business = await ctx.db.get(args.id);
     if (!business) return null;
     const { googleBusinessAuth: _, ...safe } = business;
-    return safe;
+    return { ...safe, photos: sanitizePhotos(safe.photos) };
   },
 });
 
@@ -324,14 +398,14 @@ export const getBusinessPublic = query({
   handler: async (ctx, args) => {
     const business = await ctx.db.get(args.businessId);
     if (!business) return null;
-    
+
     // Remove sensitive fields before returning
-    const { 
+    const {
       googleBusinessAuth,
-      ...publicData 
+      ...publicData
     } = business;
-    
-    return publicData;
+
+    return { ...publicData, photos: sanitizePhotos(publicData.photos) };
   },
 });
 
@@ -345,7 +419,7 @@ export const getByPlaceId = query({
       .first();
     if (!business) return null;
     const { googleBusinessAuth: _, ...safe } = business;
-    return safe;
+    return { ...safe, photos: sanitizePhotos(safe.photos) };
   },
 });
 
@@ -368,11 +442,12 @@ export const listByUser = query({
   args: {},
   handler: async (ctx) => {
     const user = await getUserFromAuth(ctx);
-    return await ctx.db
+    const businesses = await ctx.db
       .query("businesses")
       .withIndex("by_userId", (q) => q.eq("userId", user._id))
       .order("desc")
       .collect();
+    return businesses.map((b) => ({ ...b, photos: sanitizePhotos(b.photos) }));
   },
 });
 
@@ -394,7 +469,7 @@ export const associateWithDomain = mutation({
   },
 });
 
-// Delete a business
+// Delete a business (with full cascade cleanup)
 export const remove = mutation({
   args: { id: v.id("businesses") },
   handler: async (ctx, args) => {
@@ -403,28 +478,30 @@ export const remove = mutation({
     // Verify ownership
     await verifyBusinessOwnership(ctx, args.id, user._id);
 
-    // Use the internal mutation directly
-    await ctx.db.delete(args.id);
+    await cascadeDeleteBusiness(ctx, args.id);
   },
 });
 
 export const listByDomain = query({
   args: { domain: v.id("domains") },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const businesses = await ctx.db
       .query("businesses")
       .withIndex("by_domainId", (q) => q.eq("domainId", args.domain))
       .collect();
+    return businesses.map((b) => ({ ...b, photos: sanitizePhotos(b.photos) }));
   },
 });
 
 export const getByDomainId = query({
   args: { domainId: v.id("domains") },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const business = await ctx.db
       .query("businesses")
       .withIndex("by_domainId", (q) => q.eq("domainId", args.domainId))
       .first();
+    if (!business) return null;
+    return { ...business, photos: sanitizePhotos(business.photos) };
   },
 });
 
@@ -1029,6 +1106,7 @@ export const getByIdWithDraft = query({
     if (business.draftContent) {
       return {
         ...business,
+        photos: sanitizePhotos(business.photos),
         // Override main fields with draft fields if they exist
         name: business.draftContent.name || business.name,
         description: business.draftContent.description || business.description,
@@ -1050,7 +1128,7 @@ export const getByIdWithDraft = query({
       };
     }
 
-    return { ...business, hasDraft: false };
+    return { ...business, photos: sanitizePhotos(business.photos), hasDraft: false };
   },
 });
 
@@ -1225,66 +1303,7 @@ export const deleteBusiness = mutation({
     const user = await getUserFromAuth(ctx);
 
     // Verify ownership
-    const business = await verifyBusinessOwnership(
-      ctx,
-      args.businessId,
-      user._id,
-    );
-
-    // Delete associated domain
-    if (business.domainId) {
-      await ctx.db.delete(business.domainId);
-    }
-
-    // Delete associated theme if it's custom
-    if (business.themeId) {
-      const theme = await ctx.db.get(business.themeId);
-      if (theme && !theme.isPreset) {
-        await ctx.db.delete(business.themeId);
-      }
-    }
-
-    // Delete associated pages
-    const pages = await ctx.db
-      .query("pages")
-      .withIndex("by_domain", (q) => q.eq("domainId", business.domainId!))
-      .collect();
-
-    for (const page of pages) {
-      await ctx.db.delete(page._id);
-    }
-
-    // Delete associated contact messages
-    const messages = await ctx.db
-      .query("contactMessages")
-      .withIndex("by_business", (q) => q.eq("businessId", args.businessId))
-      .collect();
-
-    for (const message of messages) {
-      await ctx.db.delete(message._id);
-    }
-
-    // Delete associated media library items
-    const mediaItems = await ctx.db
-      .query("mediaLibrary")
-      .withIndex("by_business", (q) => q.eq("businessId", args.businessId))
-      .collect();
-    for (const item of mediaItems) {
-      // Delete from storage
-      if (item.storageId) {
-        await ctx.storage.delete(item.storageId);
-      }
-      await ctx.db.delete(item._id);
-    }
-
-    // Clean up business claims
-    const claims = await ctx.db
-      .query("businessClaims")
-      .withIndex("by_business", (q) => q.eq("businessId", args.businessId))
-      .collect();
-    for (const claim of claims) {
-      await ctx.db.delete(claim._id);
-    }
+    await verifyBusinessOwnership(ctx, args.businessId, user._id);
 
     // Clean up Stripe records if user has no remaining businesses
     const remainingBusinesses = await ctx.db
@@ -1315,18 +1334,8 @@ export const deleteBusiness = mutation({
       }
     }
 
-    // Delete favicon from storage if exists
-    if (business.faviconStorageId) {
-      await ctx.storage.delete(business.faviconStorageId);
-    }
-
-    // Delete OG image from storage if exists
-    if (business.ogImageStorageId) {
-      await ctx.storage.delete(business.ogImageStorageId);
-    }
-
-    // Finally, delete the business
-    await ctx.db.delete(args.businessId);
+    // Cascade-delete the business and all associated records
+    await cascadeDeleteBusiness(ctx, args.businessId);
 
     return { success: true };
   },

@@ -433,8 +433,12 @@ export const internal_updateSslStatus = internalMutation({
 // Get all pending (unverified) custom domains
 export const getPendingDomains = internalQuery({
   handler: async (ctx) => {
-    const allDomains = await ctx.db.query("domains").collect();
-    return allDomains.filter((d) => d.customDomain && !d.isVerified);
+    // Use by_custom_domain index to only scan domains that have a custom domain set
+    const customDomains = await ctx.db
+      .query("domains")
+      .withIndex("by_custom_domain")
+      .collect();
+    return customDomains.filter((d) => d.customDomain && !d.isVerified);
   },
 });
 

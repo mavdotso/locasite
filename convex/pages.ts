@@ -651,35 +651,13 @@ export const updatePage = mutation({
       throw new Error("Domain not found");
     }
 
-    // First try to find business by domainId
-    let business = await ctx.db
+    const business = await ctx.db
       .query("businesses")
       .withIndex("by_domainId", (q) => q.eq("domainId", domain._id))
       .first();
 
-    // If not found, try alternative approach - find business that owns this page
     if (!business) {
-      // Alternative approach: Find all businesses and check which one has this domainId
-      const allBusinesses = await ctx.db.query("businesses").collect();
-
-      const businessByDomainId = allBusinesses.find(
-        (b) => b.domainId === domain._id,
-      );
-
-      if (businessByDomainId) {
-        business = businessByDomainId;
-      } else {
-        // Last resort: Check if there's a business with matching name
-        const businessByName = allBusinesses.find(
-          (b) => b.name === domain.name,
-        );
-
-        if (businessByName) {
-          business = businessByName;
-        } else {
-          throw new Error("Business not found for this domain");
-        }
-      }
+      throw new Error("Business not found for this domain");
     }
 
     if (business.userId !== user._id) {

@@ -1,5 +1,6 @@
 import { query } from './_generated/server';
 import { v } from 'convex/values';
+import { sanitizePhotos } from './lib/helpers';
 
 // Compound query to fetch business with domain and page data
 export const getBusinessWithDomainAndPage = query({
@@ -23,7 +24,7 @@ export const getBusinessWithDomainAndPage = query({
     }
 
     return {
-      business,
+      business: { ...business, photos: sanitizePhotos(business.photos) },
       domain,
       page
     };
@@ -60,7 +61,7 @@ export const getBusinessPreviewData = query({
       : null;
 
     return {
-      business: safeBusiness,
+      business: { ...safeBusiness, photos: sanitizePhotos(safeBusiness.photos) },
       domain,
       page,
       theme
