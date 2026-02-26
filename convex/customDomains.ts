@@ -7,9 +7,16 @@ import {
   internalMutation,
   internalQuery,
 } from "./_generated/server";
-import { internal } from "./_generated/api";
+import { components, internal } from "./_generated/api";
 import { getUserFromAuth } from "./lib/helpers";
 import { convexEnv } from "./lib/env";
+import { RateLimiter } from "@convex-dev/rate-limiter";
+
+const HOUR = 60 * 60 * 1000;
+
+const rateLimiter = new RateLimiter(components.rateLimiter, {
+  addCustomDomain: { kind: "fixed window", rate: 5, period: HOUR },
+});
 
 // Helper to validate domain format
 function isValidDomain(domain: string): boolean {
@@ -26,6 +33,16 @@ export const addCustomDomain = mutation({
   },
   handler: async (ctx, args) => {
     const user = await getUserFromAuth(ctx);
+
+    // Rate limit: 5 domain additions per hour per user
+    const rateLimitStatus = await rateLimiter.limit(ctx, "addCustomDomain", {
+      key: user._id,
+    });
+    if (!rateLimitStatus.ok) {
+      throw new Error(
+        "Rate limit exceeded: you can add up to 5 custom domains per hour. Please try again later.",
+      );
+    }
 
     // Get the business
     const business = await ctx.db.get(args.businessId);
@@ -124,7 +141,7 @@ export const addCustomDomain = mutation({
     }
 
     // Get or create domain record
-    let domainRecord = business.domainId
+    const domainRecord = business.domainId
       ? await ctx.db.get(business.domainId)
       : null;
 
@@ -433,8 +450,12 @@ export const internal_updateSslStatus = internalMutation({
 // Get all pending (unverified) custom domains
 export const getPendingDomains = internalQuery({
   handler: async (ctx) => {
-    const allDomains = await ctx.db.query("domains").collect();
-    return allDomains.filter((d) => d.customDomain && !d.isVerified);
+    // Use by_custom_domain index to only scan domains that have a custom domain set
+    const customDomains = await ctx.db
+      .query("domains")
+      .withIndex("by_custom_domain")
+      .collect();
+    return customDomains.filter((d) => d.customDomain && !d.isVerified);
   },
 });
 

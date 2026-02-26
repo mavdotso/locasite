@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { Check, X, Sparkles } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { useState } from "react";
@@ -114,7 +115,7 @@ export default function PricingSection() {
         window.location.href = checkoutUrl;
       }
     } catch (error) {
-      console.error("Subscription error:", error);
+      Sentry.captureException(error);
       toast.error("Failed to start subscription. Please try again.");
     } finally {
       setLoading(null);

@@ -79,7 +79,8 @@ export default defineSchema({
     verifiedAt: v.optional(v.number()),
   })
     .index("by_subdomain", ["subdomain"])
-    .index("by_custom_domain", ["customDomain"]),
+    .index("by_custom_domain", ["customDomain"])
+    .index("by_isVerified", ["isVerified"]),
 
   pages: defineTable({
     domainId: v.id("domains"),
@@ -329,7 +330,8 @@ export default defineSchema({
     .index("by_userId", ["userId"])
     .index("by_domainId", ["domainId"])
     .index("by_createdAt", ["createdAt"])
-    .index("by_themeId", ["themeId"]),
+    .index("by_themeId", ["themeId"])
+    .index("by_isPublished", ["isPublished"]),
 
   businessClaims: defineTable({
     businessId: v.id("businesses"),
@@ -465,7 +467,9 @@ export default defineSchema({
         last4: v.optional(v.string()),
       }),
     ),
-  }).index("by_customerId", ["customerId"]),
+  })
+    .index("by_customerId", ["customerId"])
+    .index("by_status", ["status"]),
 
   // Payment records
   payments: defineTable({
@@ -484,5 +488,6 @@ export default defineSchema({
   })
     .index("stripeSessionId", ["stripeSessionId"])
     .index("stripeId", ["stripeId"])
-    .index("by_user", ["userId"]),
+    .index("by_user", ["userId"])
+    .index("by_status", ["status"]),
 });

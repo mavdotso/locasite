@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useQuery } from "convex/react";
@@ -120,7 +121,7 @@ export default function VerifyBusinessPage({ params }: VerifyPageProps) {
       // Redirect to Google OAuth
       window.location.href = authUrl;
     } catch (error: unknown) {
-      console.error("Verification error:", error);
+      Sentry.captureException(error);
       const errorMessage =
         error instanceof Error ? error.message : "Failed to verify ownership";
       setVerificationStatus("error");

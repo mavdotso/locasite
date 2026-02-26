@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { Preloaded, usePreloadedQuery, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id, Doc } from "@/convex/_generated/dataModel";
@@ -266,7 +267,7 @@ export function BusinessPreviewWrapper({
     try {
       parsedContent = JSON.parse(pageContent);
     } catch (e) {
-      console.error("Failed to parse page content", e);
+      Sentry.captureException(e);
       return <main className="flex-grow"></main>;
     }
 

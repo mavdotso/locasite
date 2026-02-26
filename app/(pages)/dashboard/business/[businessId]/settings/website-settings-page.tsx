@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -299,7 +300,7 @@ export default function WebsiteSettingsPage({
       }));
       toast.success("Favicon uploaded successfully");
     } catch (error) {
-      console.error("Error uploading favicon:", error);
+      Sentry.captureException(error);
       toast.error("Failed to upload favicon");
     }
   };
@@ -310,7 +311,7 @@ export default function WebsiteSettingsPage({
       // In the future, you might want to save this to the database
       toast.success("General settings saved successfully");
     } catch (error) {
-      console.error("Error saving general settings:", error);
+      Sentry.captureException(error);
       toast.error("Failed to save general settings");
     }
   };
@@ -330,7 +331,7 @@ export default function WebsiteSettingsPage({
 
       toast.success("SEO settings saved successfully");
     } catch (error) {
-      console.error("Error saving SEO settings:", error);
+      Sentry.captureException(error);
       toast.error("Failed to save SEO settings");
     }
   };
@@ -360,7 +361,7 @@ export default function WebsiteSettingsPage({
 
       toast.success("Social media settings saved successfully");
     } catch (error) {
-      console.error("Error saving social settings:", error);
+      Sentry.captureException(error);
       toast.error("Failed to save social settings");
     }
   };
@@ -382,7 +383,7 @@ export default function WebsiteSettingsPage({
       toast.success("Website deleted successfully");
       router.push("/dashboard");
     } catch (error) {
-      console.error("Error deleting business:", error);
+      Sentry.captureException(error);
       toast.error("Failed to delete website");
     } finally {
       setIsDeleting(false);

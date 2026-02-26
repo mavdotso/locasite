@@ -146,14 +146,15 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
 
     // Format the data - limit to first 5 photos to control API costs
     const MAX_PHOTOS = 5;
-    // TODO: Return only photo references instead of full URLs with API keys
-    // This would require frontend updates to use a browser-restricted key or proxy endpoint
-    const photos = (place.photos ?? [])
+    // Store only photo references — full URLs with API keys are constructed
+    // server-side in uploadGoogleMapsImages, never sent to the client
+    const photoReferences = (place.photos ?? [])
       .slice(0, MAX_PHOTOS)
-      .map(
-        (photo: GooglePlacePhoto) =>
-          `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${photo.photo_reference}&key=${apiKey}`,
-      );
+      .map((photo: GooglePlacePhoto) => photo.photo_reference);
+    const photos = photoReferences.map(
+      (ref: string) =>
+        `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${ref}&key=${apiKey}`,
+    );
 
     const businessData = {
       name: place.name || "",
@@ -168,16 +169,18 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
           rating: Number(review.rating) || 0,
           text: review.text,
         })) || [],
-      photos: photos,
+      photos: photos, // Server-side only — contains API key URLs for storage upload
       description:
         place.editorial_summary?.overview ||
         generateDefaultDescription(place.name, place.types?.[0]),
       placeId: placeId,
     };
-    
-    // Keep the full data for response (including category for frontend use)
-    const fullBusinessData = {
+
+    // Client-safe response data — uses photo references (no API keys)
+    // Photos will be served from Convex storage after the upload action runs
+    const clientBusinessData = {
       ...businessData,
+      photos: photoReferences, // Safe: just reference strings, no API keys
       category: place.types?.[0] || undefined,
     };
 
@@ -209,7 +212,7 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
     return new Response(
       JSON.stringify({
         success: ok,
-        data: fullBusinessData, // Return full data for frontend
+        data: clientBusinessData, // Client-safe data (no API keys in photo URLs)
         businessId,
         domainId,
         preview: false, // Always create business now
