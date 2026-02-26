@@ -656,6 +656,24 @@ export const update = mutation({
       );
     }
 
+    // Validate string field lengths
+    const { business } = args;
+    if (business.name !== undefined && business.name.length > 200) {
+      throw new Error("Business name must be 200 characters or fewer");
+    }
+    if (business.description !== undefined && business.description.length > 5000) {
+      throw new Error("Description must be 5000 characters or fewer");
+    }
+    if (business.phone !== undefined && business.phone.length > 30) {
+      throw new Error("Phone number must be 30 characters or fewer");
+    }
+    if (business.website !== undefined && business.website.length > 500) {
+      throw new Error("Website URL must be 500 characters or fewer");
+    }
+    if (business.address !== undefined && business.address.length > 500) {
+      throw new Error("Address must be 500 characters or fewer");
+    }
+
     // Verify ownership
     await verifyBusinessOwnership(ctx, args.id, user._id);
 
