@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { Id } from "@/convex/_generated/dataModel";
 import { getTinybirdClient } from "./tinybird";
 
@@ -91,7 +92,7 @@ function parseReferrer() {
       referrerPath: url.pathname,
     };
   } catch (error) {
-    console.error("Error getting location data:", error);
+    Sentry.captureException(error);
     return {};
   }
 }
@@ -152,7 +153,7 @@ export class Analytics {
       // Set up event listeners
       this.setupEventListeners();
     } catch (error) {
-      console.error("Analytics error:", error);
+      Sentry.captureException(error);
     }
   }
 
@@ -191,7 +192,7 @@ export class Analytics {
         ...utmData,
       });
     } catch (error) {
-      console.error("Analytics error:", error);
+      Sentry.captureException(error);
     }
   }
 
@@ -246,7 +247,7 @@ export class Analytics {
         bounce: timeOnPage < 10, // Consider it a bounce if less than 10 seconds
       });
     } catch (error) {
-      console.error("Analytics error:", error);
+      Sentry.captureException(error);
     }
   }
 
@@ -270,7 +271,7 @@ export class Analytics {
         metadata: undefined,
       });
     } catch (error) {
-      console.error("Analytics error:", error);
+      Sentry.captureException(error);
     }
   }
 
@@ -291,7 +292,7 @@ export class Analytics {
         bounce: false,
       });
     } catch (error) {
-      console.error("Analytics error:", error);
+      Sentry.captureException(error);
     }
   }
 }

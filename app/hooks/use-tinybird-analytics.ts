@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { useState, useEffect } from "react";
 import { getTinybirdClient } from "@/app/lib/tinybird";
 
@@ -106,7 +107,7 @@ export function useTinybirdAnalytics(
           setRealTimeVisitors(realTimeResponse.data[0]);
         }
       } catch (error) {
-        console.error("Error fetching analytics data:", error);
+        Sentry.captureException(error);
       }
     }, 30000);
 

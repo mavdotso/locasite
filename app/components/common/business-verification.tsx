@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -42,7 +43,7 @@ export function BusinessVerification({
         window.location.href = `${process.env.NEXT_PUBLIC_CONVEX_URL}/auth/google-business?claimId=${result.claimId}`;
       }
     } catch (error) {
-      console.error("Error connecting to Google Business Profile:", error);
+      Sentry.captureException(error);
       toast.error("Failed to connect to Google Business Profile");
     } finally {
       setIsConnecting(false);

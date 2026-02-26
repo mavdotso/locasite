@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import React from "react";
 import { Doc } from "@/convex/_generated/dataModel";
 import { allComponentConfigs as componentConfigs } from "@/app/components/visual-editor/config/all-components";
@@ -40,7 +41,7 @@ export default function BusinessPageRenderer({
   try {
     parsedContent = JSON.parse(pageContent);
   } catch (error) {
-    console.error("Error parsing page content:", error);
+    Sentry.captureException(error);
     return <main className="flex-grow"></main>;
   }
 

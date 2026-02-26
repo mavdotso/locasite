@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/app/components/ui/button";
 import {
@@ -55,7 +56,7 @@ export default function SignInPage() {
 
         setPendingBusiness(sanitizedData);
       } catch (error) {
-        console.error("Failed to parse pending business data:", error);
+        Sentry.captureException(error);
         // Clear corrupted data
         sessionStorage.removeItem("pendingBusinessData");
       }
@@ -71,7 +72,7 @@ export default function SignInPage() {
       }
       await signIn("google");
     } catch (error) {
-      console.error("Sign in error:", error);
+      Sentry.captureException(error);
     }
   };
 

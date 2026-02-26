@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
@@ -28,7 +29,7 @@ export function AuthRedirectHandler() {
             "Business claimed successfully! You can now edit your website.",
           );
         } catch (claimError) {
-          console.error("Error claiming business:", claimError);
+          Sentry.captureException(claimError);
           // If the error is because user already owns it, that's fine
           const errorMessage =
             claimError instanceof Error
@@ -42,7 +43,7 @@ export function AuthRedirectHandler() {
         // Redirect to edit page
         router.push(`/business/${businessId}/edit`);
       } catch (error) {
-        console.error("Error claiming business:", error);
+        Sentry.captureException(error);
         toast.error("Failed to claim business. Please try again.");
 
         // Fallback to dashboard

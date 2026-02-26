@@ -11,8 +11,17 @@ import { getUserFromAuth, sanitizePhotos } from "./lib/helpers";
 import { partialAdvancedThemeSchemaV } from "./lib/themeSchema";
 import { getThemeSuggestions } from "./lib/themeSuggestions";
 import { themePresets } from "./lib/themePresets";
-import { api, internal } from "./_generated/api";
+import { api, components, internal } from "./_generated/api";
 import { generatePageFromBusinessData } from "./lib/autoGeneratePage";
+import { RateLimiter } from "@convex-dev/rate-limiter";
+
+const MINUTE = 60 * 1000;
+const HOUR = 60 * MINUTE;
+
+const rateLimiter = new RateLimiter(components.rateLimiter, {
+  businessCreate: { kind: "fixed window", rate: 5, period: HOUR },
+  businessUpdate: { kind: "fixed window", rate: 30, period: MINUTE },
+});
 
 // Interface for business update operations
 interface BusinessUpdateFields {
@@ -359,6 +368,16 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const user = await getUserFromAuth(ctx);
 
+    // Rate limit: 5 business creations per hour per user
+    const rateLimitStatus = await rateLimiter.limit(ctx, "businessCreate", {
+      key: user._id,
+    });
+    if (!rateLimitStatus.ok) {
+      throw new Error(
+        "Rate limit exceeded: you can create up to 5 businesses per hour. Please try again later.",
+      );
+    }
+
     // Check if business with this placeId already exists
     const existingBusiness = await ctx.db
       .query("businesses")
@@ -626,6 +645,16 @@ export const update = mutation({
   },
   handler: async (ctx, args) => {
     const user = await getUserFromAuth(ctx);
+
+    // Rate limit: 30 updates per minute per user
+    const rateLimitStatus = await rateLimiter.limit(ctx, "businessUpdate", {
+      key: user._id,
+    });
+    if (!rateLimitStatus.ok) {
+      throw new Error(
+        "Rate limit exceeded: you can perform up to 30 business updates per minute. Please try again later.",
+      );
+    }
 
     // Verify ownership
     await verifyBusinessOwnership(ctx, args.id, user._id);

@@ -2,7 +2,14 @@ import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserFromAuth } from "./lib/helpers";
 import { PageSection } from "./lib/types";
-import { api } from "./_generated/api";
+import { api, components } from "./_generated/api";
+import { RateLimiter } from "@convex-dev/rate-limiter";
+
+const MINUTE = 60 * 1000;
+
+const rateLimiter = new RateLimiter(components.rateLimiter, {
+  pageUpdate: { kind: "fixed window", rate: 30, period: MINUTE },
+});
 
 // Internal mutation to create a page with auto-generated content (no auth required)
 export const internal_createPageWithContent = internalMutation({
@@ -640,6 +647,16 @@ export const updatePage = mutation({
   },
   handler: async (ctx, args) => {
     const user = await getUserFromAuth(ctx);
+
+    // Rate limit: 30 page updates per minute per user
+    const rateLimitStatus = await rateLimiter.limit(ctx, "pageUpdate", {
+      key: user._id,
+    });
+    if (!rateLimitStatus.ok) {
+      throw new Error(
+        "Rate limit exceeded: you can perform up to 30 page updates per minute. Please try again later.",
+      );
+    }
 
     const page = await ctx.db.get(args.pageId);
     if (!page) {

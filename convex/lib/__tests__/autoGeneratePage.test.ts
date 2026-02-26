@@ -337,3 +337,95 @@ describe("pickTopReviews", () => {
     expect(reviews).toEqual(copy);
   });
 });
+
+// --------------- Edge case tests ---------------
+
+describe("generatePageFromBusinessData — edge cases", () => {
+  it("handles business with empty photos array", () => {
+    const biz: BusinessDataForPage = {
+      name: "No Photos Biz",
+      address: "789 Elm St",
+      hours: ["Monday: 9-5"],
+      reviews: [
+        { reviewer: "Alice", rating: 5, text: "Great service!" },
+      ],
+      photos: [],
+      category: "plumber",
+    };
+    const page = generatePageFromBusinessData(biz);
+
+    // Hero should still exist with empty background image
+    const hero = page.sections.find((s) => s.data.id === "hero");
+    expect(hero).toBeDefined();
+    expect((hero?.data.content as { backgroundImage: string }).backgroundImage).toBe("");
+
+    // About should still exist with empty image
+    const about = page.sections.find((s) => s.data.id === "about");
+    expect(about).toBeDefined();
+    expect((about?.data.content as { image: string }).image).toBe("");
+
+    // Gallery should be omitted (< 3 photos)
+    const hasGallery = page.sections.some((s) => s.data.id === "gallery");
+    expect(hasGallery).toBe(false);
+  });
+
+  it("handles business with empty reviews array", () => {
+    const biz: BusinessDataForPage = {
+      name: "No Reviews Biz",
+      address: "321 Pine Rd",
+      hours: ["Monday: 10-6"],
+      reviews: [],
+      photos: ["a.jpg", "b.jpg", "c.jpg"],
+      category: "salon",
+    };
+    const page = generatePageFromBusinessData(biz);
+
+    // Reviews section should be omitted
+    const hasReviews = page.sections.some((s) => s.data.id === "reviews");
+    expect(hasReviews).toBe(false);
+
+    // Header menu should not include Reviews link
+    const header = page.sections.find((s) => s.data.id === "header");
+    const menuLabels = (header?.data.content as { menuItems: Array<{ label: string }> }).menuItems.map((m) => m.label);
+    expect(menuLabels).not.toContain("Reviews");
+  });
+
+  it("handles business with no optional fields (minimal data)", () => {
+    const biz: BusinessDataForPage = {
+      name: "Bare Bones LLC",
+      address: "1 Simple Way",
+      hours: [],
+      reviews: [],
+      photos: [],
+    };
+    const page = generatePageFromBusinessData(biz);
+
+    // Should still produce a valid page with required sections
+    expect(page.mode).toBe("simple");
+    expect(page.title).toBe("Bare Bones LLC");
+
+    const sectionIds = page.sections.map((s) => s.data.id);
+    expect(sectionIds).toContain("header");
+    expect(sectionIds).toContain("hero");
+    expect(sectionIds).toContain("about");
+    expect(sectionIds).toContain("contact");
+
+    // Optional sections should all be omitted
+    expect(sectionIds).not.toContain("services");
+    expect(sectionIds).not.toContain("gallery");
+    expect(sectionIds).not.toContain("reviews");
+
+    // Contact section should handle missing phone/email gracefully
+    const contact = page.sections.find((s) => s.data.id === "contact");
+    const contactContent = contact?.data.content as { phone: string; email: string; hours: string };
+    expect(contactContent.phone).toBe("");
+    expect(contactContent.email).toBe("");
+    expect(contactContent.hours).toBe("");
+
+    // Section orders should still be sequential
+    const orders = page.sections.map((s) => s.order);
+    for (let i = 0; i < orders.length; i++) {
+      expect(orders[i]).toBe(i);
+    }
+  });
+});
