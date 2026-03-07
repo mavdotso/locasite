@@ -600,7 +600,7 @@ export const updateBusinessDescription = mutation({
   },
 });
 
-// Create business without authentication (for preview)
+// Create business without authentication (for preview and bulk scraping)
 export const createBusinessWithoutAuth = internalMutation({
   args: {
     businessData: v.object({
@@ -611,6 +611,7 @@ export const createBusinessWithoutAuth = internalMutation({
       website: v.optional(v.string()),
       hours: v.array(v.string()),
       rating: v.optional(v.number()),
+      reviewCount: v.optional(v.number()),
       reviews: v.array(
         v.object({
           reviewer: v.string(),
@@ -621,6 +622,7 @@ export const createBusinessWithoutAuth = internalMutation({
       photos: v.array(v.string()),
       description: v.optional(v.string()),
       category: v.optional(v.string()),
+      batchId: v.optional(v.string()),
     }),
   },
   handler: async (ctx, args) => {

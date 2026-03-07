@@ -123,6 +123,71 @@ export const generateSubdomain = mutation({
     }
 });
 
+// Internal version of generateSubdomain (no auth required, for bulk pipeline)
+export const internal_generateSubdomain = internalMutation({
+    args: {
+        businessId: v.id("businesses"),
+        customSubdomain: v.optional(v.string())
+    },
+    handler: async (ctx, args) => {
+        const business = await ctx.db.get(args.businessId);
+        if (!business) {
+            throw new Error("Business not found");
+        }
+
+        // If business already has a domain, return it
+        if (business.domainId) {
+            const existingDomain = await ctx.db.get(business.domainId);
+            if (existingDomain) {
+                return { domainId: business.domainId, subdomain: existingDomain.subdomain };
+            }
+        }
+
+        let subdomain = args.customSubdomain
+            ? toUrlFriendly(args.customSubdomain)
+            : toUrlFriendly(business.name);
+
+        if (!subdomain || subdomain.length < 3) {
+            subdomain = `business-${Math.floor(Math.random() * 10000)}`;
+        }
+
+        // Check if subdomain already exists and handle collisions
+        const existing = await ctx.db
+            .query("domains")
+            .withIndex("by_subdomain", q => q.eq("subdomain", subdomain as string))
+            .first();
+
+        if (existing) {
+            let counter = 1;
+            let newSubdomain = `${subdomain}-${counter}`;
+            const MAX_ATTEMPTS = 100;
+            let attempts = 0;
+            while (await ctx.db
+                .query("domains")
+                .withIndex("by_subdomain", q => q.eq("subdomain", newSubdomain))
+                .first()) {
+                counter++;
+                attempts++;
+                if (attempts >= MAX_ATTEMPTS) {
+                    throw new Error("Could not generate a unique subdomain");
+                }
+                newSubdomain = `${subdomain}-${counter}`;
+            }
+            subdomain = newSubdomain;
+        }
+
+        const domainId = await ctx.db.insert("domains", {
+            name: business.name,
+            subdomain,
+            createdAt: Date.now()
+        });
+
+        await ctx.db.patch(args.businessId, { domainId });
+
+        return { domainId, subdomain };
+    }
+});
+
 // Get domain by ID
 export const getById = query({
     args: { id: v.id("domains") },

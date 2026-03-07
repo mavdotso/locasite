@@ -28,6 +28,10 @@ export const convexEnv = {
   STRIPE_PRICE_PROFESSIONAL: requireEnv("STRIPE_PRICE_PROFESSIONAL"),
   STRIPE_PRICE_BUSINESS: requireEnv("STRIPE_PRICE_BUSINESS"),
 
+  // Stripe Claim Pricing (optional - for bulk pipeline paywall)
+  STRIPE_PRICE_CLAIM_SETUP: process.env.STRIPE_PRICE_CLAIM_SETUP || "",
+  STRIPE_PRICE_CLAIM_MAINTENANCE: process.env.STRIPE_PRICE_CLAIM_MAINTENANCE || "",
+
   // Custom Domain
   CUSTOM_DOMAIN_CNAME:
     process.env.CUSTOM_DOMAIN_CNAME || "cname.vercel-dns.com",

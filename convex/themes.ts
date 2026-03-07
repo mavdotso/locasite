@@ -3,6 +3,7 @@ import { internalMutation, mutation, query } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
 import { getUserFromAuth } from "./lib/helpers";
 import { themePresets } from "./lib/themePresets";
+import { getThemeSuggestions } from "./lib/themeSuggestions";
 import { advancedThemeSchemaV, partialAdvancedThemeSchemaV } from "./lib/themeSchema";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
@@ -455,5 +456,46 @@ export const convertLegacyTheme = mutation({
     });
     
     return { success: true, themeId };
+  },
+});
+
+// Internal: assign theme to business without auth (for bulk pipeline)
+export const internal_assignTheme = internalMutation({
+  args: {
+    businessId: v.id("businesses"),
+    category: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const business = await ctx.db.get(args.businessId);
+    if (!business) throw new Error("Business not found");
+
+    // Already has a theme assigned
+    if (business.themeId) return { themeId: business.themeId };
+
+    const themeSuggestions = getThemeSuggestions(args.category, 1);
+    const selectedPresetId = themeSuggestions[0] || "modern-minimal";
+
+    const themePreset = themePresets.find((p) => p.id === selectedPresetId);
+    if (!themePreset) return { themeId: null };
+
+    const themeId = await ctx.db.insert("themes", {
+      name: `${business.name} Theme`,
+      description: `Theme for ${business.name}`,
+      isPreset: false,
+      presetId: selectedPresetId,
+      // @ts-expect-error Theme types have minor differences handled at runtime
+      config: themePreset.theme,
+      userId: undefined,
+      businessId: args.businessId,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      isPublic: false,
+      tags: themePreset.tags || [],
+      industry: args.category || themePreset.industry,
+    });
+
+    await ctx.db.patch(args.businessId, { themeId });
+
+    return { themeId };
   },
 });

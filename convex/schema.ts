@@ -323,13 +323,23 @@ export default defineSchema({
         ),
       }),
     ),
+
+    // Bulk pipeline fields
+    reviewCount: v.optional(v.number()),
+    category: v.optional(v.string()),
+    claimToken: v.optional(v.string()),
+    claimTokenCreatedAt: v.optional(v.number()),
+    batchId: v.optional(v.string()),
+    claimStripeSubscriptionId: v.optional(v.string()),
   })
     // Note: placeId should be unique - enforced in mutation logic since Convex doesn't support unique indexes
     .index("by_placeId", ["placeId"])
     .index("by_userId", ["userId"])
     .index("by_domainId", ["domainId"])
     .index("by_createdAt", ["createdAt"])
-    .index("by_themeId", ["themeId"]),
+    .index("by_themeId", ["themeId"])
+    .index("by_claimToken", ["claimToken"])
+    .index("by_batchId", ["batchId"]),
 
   businessClaims: defineTable({
     businessId: v.id("businesses"),
@@ -340,7 +350,7 @@ export default defineSchema({
       v.literal("rejected"),
     ),
     verificationMethod: v.optional(
-      v.union(v.literal("google"), v.literal("email"), v.literal("phone")),
+      v.union(v.literal("google"), v.literal("email"), v.literal("phone"), v.literal("manual")),
     ),
     googleVerificationStatus: v.optional(
       v.union(v.literal("pending"), v.literal("verified"), v.literal("failed")),
@@ -358,6 +368,10 @@ export default defineSchema({
     // Admin review fields
     adminNotes: v.optional(v.string()),
     documentsUploaded: v.optional(v.array(v.string())),
+
+    // Payment fields (for claim paywall)
+    stripeSessionId: v.optional(v.string()),
+    paidAt: v.optional(v.number()),
   })
     .index("by_business", ["businessId"])
     .index("by_user", ["userId"])
@@ -485,4 +499,50 @@ export default defineSchema({
     .index("stripeSessionId", ["stripeSessionId"])
     .index("stripeId", ["stripeId"])
     .index("by_user", ["userId"]),
+
+  // Bulk scrape job tracking
+  scrapeJobs: defineTable({
+    query: v.string(),
+    city: v.string(),
+    state: v.string(),
+    category: v.string(),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("running"),
+      v.literal("completed"),
+      v.literal("failed"),
+    ),
+    totalFound: v.number(),
+    totalFiltered: v.number(),
+    totalCreated: v.number(),
+    totalSkipped: v.number(),
+    errors: v.array(v.string()),
+    minRating: v.optional(v.number()),
+    minReviews: v.optional(v.number()),
+    startedAt: v.number(),
+    completedAt: v.optional(v.number()),
+  })
+    .index("by_status", ["status"])
+    .index("by_startedAt", ["startedAt"]),
+
+  // Bulk site creation job tracking
+  siteCreationJobs: defineTable({
+    scrapeJobId: v.optional(v.id("scrapeJobs")),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("running"),
+      v.literal("completed"),
+      v.literal("failed"),
+    ),
+    totalBusinesses: v.number(),
+    sitesCreated: v.number(),
+    sitesSkipped: v.number(),
+    sitesFailed: v.number(),
+    generateAI: v.boolean(),
+    errors: v.array(v.string()),
+    startedAt: v.number(),
+    completedAt: v.optional(v.number()),
+  })
+    .index("by_status", ["status"])
+    .index("by_startedAt", ["startedAt"]),
 });

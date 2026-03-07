@@ -46,6 +46,19 @@ export const fulfill = internalAction({
             });
           }
 
+          // Handle business claim payments
+          if (session.metadata?.claimType === "business_claim") {
+            await ctx.runMutation(
+              internal.claimCheckout.internal_handleClaimPayment,
+              {
+                businessId: session.metadata.businessId as any,
+                userId: session.metadata.userId as string,
+                stripeSessionId: session.id,
+                stripeSubscriptionId: session.subscription as string | undefined,
+              },
+            );
+          }
+
           // Sync subscription data if customer exists
           if (session.customer && typeof session.customer === "string") {
             await ctx.runAction(internal.stripe.syncStripeDataToConvex, {
@@ -64,6 +77,17 @@ export const fulfill = internalAction({
             await ctx.runAction(internal.stripe.syncStripeDataToConvex, {
               customerId,
             });
+          }
+
+          // Handle claim subscription cancellation/failure
+          if (
+            event.type === "customer.subscription.deleted" &&
+            subscription.id
+          ) {
+            await ctx.runMutation(
+              internal.claimCheckout.internal_unpublishForLapsedSubscription,
+              { subscriptionId: subscription.id },
+            );
           }
           break;
         }
