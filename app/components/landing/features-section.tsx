@@ -1,168 +1,79 @@
 import {
   Globe,
-  Palette,
-  Search,
   Shield,
-  BarChart3,
-  MessageSquare,
   Smartphone,
-  Calendar,
-  Star,
-  Mail,
-  Share2,
-  TrendingUp,
+  Search,
+  MessageSquare,
+  Paintbrush,
 } from "lucide-react";
 
-const currentFeatures = [
+const features = [
   {
-    name: "Google Maps Import",
-    description: "Instant import of all your business data",
-    icon: Search,
-    color: "text-blue-600",
+    name: "Custom design",
+    description: "A unique website designed for your business, not a cookie-cutter template.",
+    icon: Paintbrush,
   },
   {
-    name: "Mobile-First Design",
-    description: "Responsive templates that look great everywhere",
+    name: "Mobile responsive",
+    description: "Looks perfect on phones, tablets, and desktops. Over 60% of your customers browse on mobile.",
     icon: Smartphone,
-    color: "text-purple-600",
   },
   {
-    name: "SEO Optimization",
-    description: "Built-in best practices for search rankings",
-    icon: TrendingUp,
-    color: "text-green-600",
+    name: "SEO built in",
+    description: "We optimize your site for Google so local customers can find you.",
+    icon: Search,
   },
   {
-    name: "Contact Forms",
-    description: "Capture leads with customizable forms",
+    name: "Contact form",
+    description: "Capture leads and inquiries directly from your website. Never miss a customer.",
     icon: MessageSquare,
-    color: "text-indigo-600",
   },
   {
-    name: "Social Integration",
-    description: "Connect all your social accounts",
-    icon: Share2,
-    color: "text-pink-600",
-  },
-  {
-    name: "Custom Domains",
-    description: "Your own domain or free subdomain",
+    name: "Custom domain",
+    description: "Your own .com domain, set up and configured by us. Professional from day one.",
     icon: Globe,
-    color: "text-orange-600",
   },
   {
-    name: "SSL Security",
-    description: "Enterprise-grade security included",
+    name: "SSL & security",
+    description: "Enterprise-grade security included. Your site and your visitors are protected.",
     icon: Shield,
-    color: "text-red-600",
-  },
-  {
-    name: "Drag & Drop Editor",
-    description: "Easy customization without coding",
-    icon: Palette,
-    color: "text-cyan-600",
   },
 ];
-
-const upcomingFeatures = [
-  {
-    name: "Analytics Dashboard",
-    description: "Track visitors and engagement metrics",
-    icon: BarChart3,
-    status: "Coming soon",
-  },
-  {
-    name: "Online Booking",
-    description: "Let customers book appointments directly",
-    icon: Calendar,
-    status: "Coming soon",
-  },
-  {
-    name: "Review Management",
-    description: "Manage and display customer reviews",
-    icon: Star,
-    status: "Coming soon",
-  },
-  {
-    name: "Email Marketing",
-    description: "Built-in email campaigns",
-    icon: Mail,
-    status: "Coming soon",
-  },
-];
-
-interface Feature {
-  name: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
-  color: string;
-  isComingSoon?: boolean;
-}
 
 export default function FeaturesSection() {
-  const allFeatures: Feature[] = [
-    ...currentFeatures.map(f => ({ ...f, isComingSoon: false })),
-    ...upcomingFeatures.map(f => ({
-      ...f,
-      color: "text-muted-foreground",
-      isComingSoon: true
-    }))
-  ];
-
   return (
-    <section id="features" className="py-24 bg-white">
-      <div className="container mx-auto px-4">
-        <div className="mx-auto max-w-2xl text-center mb-12">
-          <div className="inline-flex items-center gap-2 rounded-full bg-green-100 border border-green-200 px-4 py-1.5 text-sm font-medium text-green-700 mb-4">
-            Features & Capabilities
-          </div>
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-            Everything You Need to
-            <span className="text-primary"> Succeed Online</span>
+    <section id="features" className="py-20 md:py-28 bg-white">
+      <div className="mx-auto max-w-6xl px-6 lg:px-10">
+        <div className="text-center mb-16">
+          <span className="text-[11px] font-semibold text-brand-forest uppercase tracking-[0.12em] mb-3 block">
+            What you get
+          </span>
+          <h2 className="font-display font-extrabold text-brand-ink text-3xl md:text-[48px] leading-[1.05] tracking-[-0.025em] mb-4">
+            Everything a local business needs
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            Powerful features to help your business thrive in the digital world
+          <p className="text-brand-taupe text-[17px] leading-[1.65] max-w-lg mx-auto">
+            All included in your $149 website. No hidden fees.
           </p>
         </div>
 
-        <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {allFeatures.map((feature) => (
-              <div
-                key={feature.name}
-                className={`relative rounded-lg border p-6 transition-all ${
-                  feature.isComingSoon
-                    ? "bg-muted/50 border-dashed border-muted-foreground/30 opacity-60"
-                    : "bg-card hover:shadow-md hover:border-primary/20"
-                }`}
-              >
-                <div className="mb-4">
-                  <div
-                    className={`inline-flex rounded-lg p-3 ${
-                      feature.isComingSoon ? "bg-muted" : "bg-muted"
-                    } ${feature.color}`}
-                  >
-                    <feature.icon className="h-5 w-5" />
-                  </div>
-                  {feature.isComingSoon && (
-                    <span className="ml-2 text-xs font-medium text-muted-foreground">
-                      Coming soon
-                    </span>
-                  )}
-                </div>
-                <h3 className={`mb-1 font-semibold ${
-                  feature.isComingSoon ? "text-muted-foreground" : ""
-                }`}>
-                  {feature.name}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {feature.description}
-                </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          {features.map((feature) => (
+            <div
+              key={feature.name}
+              className="rounded-xl border border-brand-border bg-brand-cream/40 p-6 transition-all hover:shadow-sm"
+            >
+              <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-brand-forest/10 text-brand-forest mb-4">
+                <feature.icon className="h-5 w-5" />
               </div>
-            ))}
-          </div>
+              <h3 className="font-display font-bold text-brand-ink text-lg mb-1">
+                {feature.name}
+              </h3>
+              <p className="text-brand-taupe text-[14px] leading-[1.6]">
+                {feature.description}
+              </p>
+            </div>
+          ))}
         </div>
-
       </div>
     </section>
   );
