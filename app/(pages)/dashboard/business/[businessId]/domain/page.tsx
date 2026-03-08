@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { useParams } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -145,7 +146,7 @@ export default function DomainSettingsPage() {
 
         if (!vercelResponse.ok) {
           const vercelData = await vercelResponse.json();
-          console.error("Failed to remove from Vercel:", vercelData.error);
+          Sentry.captureMessage(`Failed to remove from Vercel: ${vercelData.error}`, "error");
         }
       }
 

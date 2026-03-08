@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { notFound, useRouter } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -65,7 +66,7 @@ export default function BusinessEdit({
           toast.success("Business claimed successfully!");
         })
         .catch((error) => {
-          console.error("Failed to claim business:", error);
+          Sentry.captureException(error);
           // Check if business was already claimed by another user
           if (error.message?.includes("already claimed by another user")) {
             toast.error("This business has already been claimed by another user");
@@ -221,7 +222,7 @@ export default function BusinessEdit({
         }
       }
     } catch (e) {
-      console.error("Failed to parse page content", e);
+      Sentry.captureException(e);
     }
   }
 
@@ -251,7 +252,7 @@ export default function BusinessEdit({
         );
       }
     } catch (error) {
-      console.error("Error saving page:", error);
+      Sentry.captureException(error);
       toast.error("Failed to save page");
     }
   };
@@ -280,7 +281,7 @@ export default function BusinessEdit({
         });
       }
     } catch (error) {
-      console.error("Error publishing page:", error);
+      Sentry.captureException(error);
       toast.error("Failed to save page content");
       throw error; // Re-throw to prevent the dialog from closing
     }

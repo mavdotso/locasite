@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "convex/react";
@@ -77,7 +78,7 @@ export function useBusinessScraper(): UseBusinessScraperResult {
           throw new Error("Missing deployment name");
         }
       } catch (urlError) {
-        console.error("Invalid Convex URL:", urlError);
+        Sentry.captureException(urlError);
         toast.error("Invalid Convex URL configuration");
         throw new Error("Invalid Convex URL format");
       }
@@ -142,7 +143,7 @@ export function useBusinessScraper(): UseBusinessScraperResult {
         const redirectPath = `/business/${encodeURIComponent(createdBusinessId)}/edit`;
         await signIn("google", { redirectTo: redirectPath });
       } catch (error) {
-        console.error("Error redirecting to sign in:", error);
+        Sentry.captureException(error);
         toast.error("Failed to redirect to sign in. Please try again.");
       }
       return;

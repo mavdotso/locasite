@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -79,7 +80,7 @@ export function PublishSettingsDialog({
 
       onOpenChange(false);
     } catch (error) {
-      console.error("Error publishing website:", error);
+      Sentry.captureException(error);
       toast.error("Failed to publish website");
     } finally {
       setIsPublishing(false);

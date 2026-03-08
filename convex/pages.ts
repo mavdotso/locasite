@@ -2,7 +2,48 @@ import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserFromAuth } from "./lib/helpers";
 import { PageSection } from "./lib/types";
-import { api } from "./_generated/api";
+import { api, components } from "./_generated/api";
+import { RateLimiter } from "@convex-dev/rate-limiter";
+
+const MINUTE = 60 * 1000;
+
+const rateLimiter = new RateLimiter(components.rateLimiter, {
+  pageUpdate: { kind: "fixed window", rate: 30, period: MINUTE },
+});
+
+// Internal mutation to create a page with auto-generated content (no auth required)
+export const internal_createPageWithContent = internalMutation({
+  args: {
+    domainId: v.id("domains"),
+    content: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Validate that the domain exists before creating a page for it
+    const domain = await ctx.db.get(args.domainId);
+    if (!domain) {
+      throw new Error("Domain not found");
+    }
+
+    // Check if a page already exists for this domain
+    const existingPage = await ctx.db
+      .query("pages")
+      .withIndex("by_domain", (q) => q.eq("domainId", args.domainId))
+      .first();
+
+    if (existingPage) {
+      return { pageId: existingPage._id };
+    }
+
+    const pageId = await ctx.db.insert("pages", {
+      domainId: args.domainId,
+      content: args.content,
+      isPublished: false,
+      lastEditedAt: Date.now(),
+    });
+
+    return { pageId };
+  },
+});
 
 // Internal mutation to update a page
 export const internal_updatePage = internalMutation({
@@ -607,6 +648,16 @@ export const updatePage = mutation({
   handler: async (ctx, args) => {
     const user = await getUserFromAuth(ctx);
 
+    // Rate limit: 30 page updates per minute per user
+    const rateLimitStatus = await rateLimiter.limit(ctx, "pageUpdate", {
+      key: user._id,
+    });
+    if (!rateLimitStatus.ok) {
+      throw new Error(
+        "Rate limit exceeded: you can perform up to 30 page updates per minute. Please try again later.",
+      );
+    }
+
     const page = await ctx.db.get(args.pageId);
     if (!page) {
       throw new Error("Page not found");
@@ -617,35 +668,13 @@ export const updatePage = mutation({
       throw new Error("Domain not found");
     }
 
-    // First try to find business by domainId
-    let business = await ctx.db
+    const business = await ctx.db
       .query("businesses")
       .withIndex("by_domainId", (q) => q.eq("domainId", domain._id))
       .first();
 
-    // If not found, try alternative approach - find business that owns this page
     if (!business) {
-      // Alternative approach: Find all businesses and check which one has this domainId
-      const allBusinesses = await ctx.db.query("businesses").collect();
-
-      const businessByDomainId = allBusinesses.find(
-        (b) => b.domainId === domain._id,
-      );
-
-      if (businessByDomainId) {
-        business = businessByDomainId;
-      } else {
-        // Last resort: Check if there's a business with matching name
-        const businessByName = allBusinesses.find(
-          (b) => b.name === domain.name,
-        );
-
-        if (businessByName) {
-          business = businessByName;
-        } else {
-          throw new Error("Business not found for this domain");
-        }
-      }
+      throw new Error("Business not found for this domain");
     }
 
     if (business.userId !== user._id) {

@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { useState } from "react";
 import { useQuery, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -66,7 +67,7 @@ export default function BillingPage() {
         window.location.href = url;
       }
     } catch (error) {
-      console.error("Error starting subscription:", error);
+      Sentry.captureException(error);
       toast.error("Failed to start subscription. Please try again.");
     } finally {
       setLoadingPlan(null);
@@ -88,7 +89,7 @@ export default function BillingPage() {
         "Subscription cancelled. You'll continue to have access until the end of your billing period.",
       );
     } catch (error) {
-      console.error("Error cancelling subscription:", error);
+      Sentry.captureException(error);
       toast.error("Failed to cancel subscription");
     }
   };
@@ -98,7 +99,7 @@ export default function BillingPage() {
       await reactivateSubscription();
       toast.success("Subscription reactivated successfully!");
     } catch (error) {
-      console.error("Error reactivating subscription:", error);
+      Sentry.captureException(error);
       toast.error("Failed to reactivate subscription");
     }
   };
@@ -112,7 +113,7 @@ export default function BillingPage() {
         toast.error("Unable to open billing portal. Please try again.");
       }
     } catch (error) {
-      console.error("Error creating portal session:", error);
+      Sentry.captureException(error);
       toast.error("Failed to open billing portal");
     }
   };

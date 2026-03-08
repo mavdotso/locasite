@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { NextRequest, NextResponse } from "next/server";
 
 const TINYBIRD_WRITE_TOKEN = process.env.TINYBIRD_WRITE_TOKEN;
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!response.ok) {
-      console.error("Tinybird write failed:", response.status);
+      Sentry.captureMessage(`Tinybird write failed: ${response.status}`, "error");
       return NextResponse.json(
         { error: "Analytics write failed" },
         { status: 502 },

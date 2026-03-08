@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Input } from "@/app/components/ui/input";
@@ -370,7 +371,7 @@ export function PageSettings({
 
       toast.success("Favicon uploaded successfully");
     } catch (error) {
-      console.error("Error uploading favicon:", error);
+      Sentry.captureException(error);
       toast.error("Failed to upload favicon");
     }
   };
@@ -460,7 +461,7 @@ export function PageSettings({
 
       toast.success("Settings saved successfully");
     } catch (error) {
-      console.error("Error saving settings:", error);
+      Sentry.captureException(error);
       toast.error("Failed to save settings");
     }
   };

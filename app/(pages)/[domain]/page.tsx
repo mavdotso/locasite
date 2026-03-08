@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { notFound } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import BusinessPageRenderer from "@/app/components/business/business-page-renderer";
@@ -150,7 +151,7 @@ export async function generateMetadata({
       },
     };
   } catch (error) {
-    console.error("Error generating metadata:", error);
+    Sentry.captureException(error);
     return {
       title: "Business Page",
     };
@@ -282,7 +283,7 @@ export default async function BusinessPage({ params }: PageProps) {
       </>
     );
   } catch (error) {
-    console.error("Error loading business page:", error);
+    Sentry.captureException(error);
     notFound();
   }
 }

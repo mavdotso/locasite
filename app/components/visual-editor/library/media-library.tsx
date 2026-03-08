@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import React, { useState, useRef } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -147,7 +148,7 @@ export default function MediaLibrary({
 
       toast.success(`Uploaded ${files.length} file(s) successfully`);
     } catch (error) {
-      console.error("Error uploading files:", error);
+      Sentry.captureException(error);
       toast.error("Failed to upload files");
     } finally {
       setIsUploading(false);

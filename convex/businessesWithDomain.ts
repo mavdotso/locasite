@@ -1,6 +1,6 @@
 import { query } from './_generated/server';
 import { v } from 'convex/values';
-import { api } from './_generated/api';
+import { sanitizePhotos } from './lib/helpers';
 
 // Compound query to fetch business with domain and page data
 export const getBusinessWithDomainAndPage = query({
@@ -24,7 +24,7 @@ export const getBusinessWithDomainAndPage = query({
     }
 
     return {
-      business,
+      business: { ...business, photos: sanitizePhotos(business.photos) },
       domain,
       page
     };
@@ -38,9 +38,12 @@ export const getBusinessPreviewData = query({
     const business = await ctx.db.get(args.businessId);
     if (!business) return null;
 
+    // Strip sensitive fields before returning
+    const { googleBusinessAuth: _, ...safeBusiness } = business;
+
     // Get domain
-    const domain = business.domainId 
-      ? await ctx.db.get(business.domainId)
+    const domain = safeBusiness.domainId
+      ? await ctx.db.get(safeBusiness.domainId)
       : null;
 
     // Get page if domain exists
@@ -53,12 +56,12 @@ export const getBusinessPreviewData = query({
     }
 
     // Get theme if exists
-    const theme = business.themeId 
-      ? await ctx.db.get(business.themeId)
+    const theme = safeBusiness.themeId
+      ? await ctx.db.get(safeBusiness.themeId)
       : null;
 
     return {
-      business,
+      business: { ...safeBusiness, photos: sanitizePhotos(safeBusiness.photos) },
       domain,
       page,
       theme

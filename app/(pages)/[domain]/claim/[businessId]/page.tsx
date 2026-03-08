@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { redirect } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -35,7 +36,7 @@ async function claimBusinessAction(formData: FormData) {
     // After successful claim, redirect to theme gallery
     redirect(`/dashboard/business/${businessIdStr}/theme`);
   } catch (error: unknown) {
-    console.error("Claim error:", error);
+    Sentry.captureException(error);
     const errorMessage =
       error instanceof Error ? error.message : "Failed to claim business";
     if (
@@ -99,7 +100,7 @@ export default async function ClaimBusinessPage({ params }: ClaimPageProps) {
   try {
     currentUser = await fetchQuery(api.auth.currentUser, {});
   } catch (error) {
-    console.error("Error fetching current user:", error);
+    Sentry.captureException(error);
     // User not authenticated
   }
 

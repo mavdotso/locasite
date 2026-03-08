@@ -27,6 +27,18 @@ export async function getUserFromAuth(ctx: QueryCtx) {
   return user;
 }
 
+// Strip API keys from Google Places photo URLs before sending to clients.
+// Photos are stored with API-key URLs temporarily until the upload action
+// replaces them with Convex storage URLs. This ensures keys never leak.
+export function sanitizePhotos(photos: string[]): string[] {
+  return photos.map((url) => {
+    if (url.includes("maps.googleapis.com") && url.includes("key=")) {
+      return url.replace(/&key=[^&]+/, "");
+    }
+    return url;
+  });
+}
+
 // Query to get current user info for frontend components
 export const getCurrentUser = query({
   args: {},
