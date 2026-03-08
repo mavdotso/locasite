@@ -311,3 +311,25 @@ export const getUnclaimedBusinessesWithoutSites = internalQuery({
     return businesses.map((b) => b._id);
   },
 });
+
+// Bulk publish businesses (set isPublished + canPublish)
+export const bulkPublishBusinesses = internalMutation({
+  args: {
+    businessIds: v.array(v.id("businesses")),
+  },
+  handler: async (ctx, args) => {
+    let published = 0;
+    for (const id of args.businessIds) {
+      const business = await ctx.db.get(id);
+      if (business && !business.isPublished) {
+        await ctx.db.patch(id, {
+          isPublished: true,
+          canPublish: true,
+          publishedAt: Date.now(),
+        });
+        published++;
+      }
+    }
+    return { published };
+  },
+});
