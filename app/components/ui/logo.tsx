@@ -7,6 +7,7 @@ interface LogoProps {
   height?: number;
   showText?: boolean;
   textClassName?: string;
+  innerFill?: string;
 }
 
 export default function Logo({
@@ -15,6 +16,7 @@ export default function Logo({
   height = 28,
   showText = true,
   textClassName,
+  innerFill = "var(--color-brand-forest)",
 }: LogoProps) {
   return (
     <div className={cn("flex items-center gap-2", className)}>
@@ -27,7 +29,7 @@ export default function Logo({
         className="flex-shrink-0"
       >
         <circle cx="14" cy="12" r="9" fill="currentColor" />
-        <circle cx="14" cy="12" r="4" fill="var(--color-brand-forest)" />
+        <circle cx="14" cy="12" r="4" fill={innerFill} />
         <path
           d="M14 21 L14 27"
           stroke="currentColor"

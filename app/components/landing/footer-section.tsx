@@ -1,14 +1,5 @@
 import Link from "next/link";
-
-function LogoMark() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="14" cy="12" r="9" fill="currentColor" />
-      <circle cx="14" cy="12" r="4" fill="var(--color-brand-cream)" />
-      <path d="M14 21 L14 27" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-    </svg>
-  );
-}
+import Logo from "@/app/components/ui/logo";
 
 export default function FooterSection() {
   const currentYear = new Date().getFullYear();
@@ -20,7 +11,13 @@ export default function FooterSection() {
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-brand-forest"><LogoMark /></span>
+              <Logo
+                width={24}
+                height={24}
+                showText={false}
+                className="text-brand-forest"
+                innerFill="var(--color-brand-cream)"
+              />
               <span className="font-display font-extrabold text-brand-ink text-lg tracking-tight">
                 Locosite
               </span>

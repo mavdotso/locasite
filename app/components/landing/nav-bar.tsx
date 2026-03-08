@@ -3,16 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
-
-function LogoMark({ className }: { className?: string }) {
-  return (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      <circle cx="14" cy="12" r="9" fill="currentColor" />
-      <circle cx="14" cy="12" r="4" fill="var(--color-brand-forest)" />
-      <path d="M14 21 L14 27" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-    </svg>
-  );
-}
+import Logo from '@/app/components/ui/logo';
 
 export default function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,7 +14,7 @@ export default function NavBar() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <LogoMark className="text-brand-cream" />
+            <Logo showText={false} className="text-brand-cream" />
             <span className="font-display font-extrabold text-xl text-brand-cream tracking-tight">
               Locosite
             </span>
