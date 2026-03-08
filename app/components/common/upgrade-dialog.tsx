@@ -48,9 +48,7 @@ export function UpgradeDialog({
   const handleUpgrade = async () => {
     setLoading(true);
     try {
-      const url = await subscribe({
-        planType: requiredPlan as "PROFESSIONAL" | "BUSINESS",
-      });
+      const url = await subscribe({ planType: requiredPlan });
       if (url) {
         window.location.href = url;
       }
