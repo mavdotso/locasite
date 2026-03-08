@@ -34,7 +34,7 @@ export const env = createEnv({
     NEXT_PUBLIC_CONVEX_URL: z.string().url(),
 
     // Application Configuration
-    NEXT_PUBLIC_ROOT_DOMAIN: z.string().default("locasite.xyz"),
+    NEXT_PUBLIC_ROOT_DOMAIN: z.string().default("locosite.io"),
     NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
     NEXT_PUBLIC_VERCEL_DEPLOYMENT_SUFFIX: z.string().default("vercel.app"),
 

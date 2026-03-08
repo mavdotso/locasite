@@ -1,70 +1,53 @@
-"use client";
-
-
-import { useBusinessScraper } from "@/app/hooks/use-business-scraper";
-import { BusinessURLInput } from "@/app/components/business/business-url-input";
-import { BrowserMockup } from "@/app/components/business/browser-mockup";
+import { Check } from "lucide-react";
+import Link from "next/link";
 
 export default function HeroSection() {
-  const {
-    url,
-    setUrl,
-    isLoading,
-    previewData,
-    handleGeneratePreview,
-    handleCreateWebsite,
-    isUserLoading,
-  } = useBusinessScraper();
-
   return (
-    <section id="hero" className="relative overflow-hidden bg-gradient-to-b from-white to-blue-50/50">
-      {/* Subtle gradient background - more professional */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-indigo-500/5 to-transparent" />
-        <div className="absolute top-0 -left-4 w-72 h-72 bg-blue-400/10 rounded-full filter blur-3xl" />
-        <div className="absolute bottom-0 -right-4 w-96 h-96 bg-indigo-400/10 rounded-full filter blur-3xl" />
-      </div>
+    <section id="hero" className="relative bg-brand-forest overflow-hidden">
+      <div className="mx-auto max-w-6xl px-6 lg:px-10 py-20 md:py-28">
+        {/* Eyebrow */}
+        <div className="flex justify-center mb-6">
+          <span className="inline-block bg-brand-sage/10 text-brand-sage text-[11px] font-semibold uppercase tracking-[0.12em] px-4 py-1.5 rounded-full">
+            Done-for-you websites for local businesses
+          </span>
+        </div>
 
-      <div className="container relative mx-auto px-4 py-12 md:py-20">
-        <div className="mx-auto max-w-7xl">
-          {/* Headline - Clear and compelling */}
-          <h1 className="mx-auto mb-4 max-w-4xl text-center text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-            Turn Your Google Business Into a
-            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              {" "}
-              Professional Website
-            </span>
-          </h1>
+        {/* Headline */}
+        <h1 className="text-center font-display font-extrabold text-brand-cream text-4xl sm:text-5xl md:text-6xl lg:text-[72px] leading-[1.0] tracking-[-0.03em] max-w-4xl mx-auto mb-6">
+          A professional website.
+          <br />
+          Built for you. $149.
+        </h1>
 
-          {/* Subheadline - Clear value prop */}
-          <p className="mx-auto mb-10 max-w-2xl text-center text-lg text-muted-foreground sm:text-xl">
-            Just paste your Google Maps link and get a professional website 
-            ready in seconds. No coding, no hassle.
-          </p>
+        {/* Subhead */}
+        <p className="text-center text-brand-sage text-lg md:text-[18px] leading-[1.6] max-w-xl mx-auto mb-10">
+          We design and build your website in 7 days. You focus on running your business. Hosting and updates from $9/month.
+        </p>
 
-          {/* Input and CTA Section */}
-          <div className="mx-auto mb-12 max-w-2xl">
-            <BusinessURLInput
-              url={url}
-              setUrl={setUrl}
-              isLoading={isLoading}
-              onGeneratePreview={handleGeneratePreview}
-              placeholder="Paste your Google Maps business link here..."
-              buttonText="Build My Website Free"
-            />
-            <p className="mt-3 text-center text-sm text-muted-foreground">
-              Example: https://maps.app.goo.gl/your-business-link
-            </p>
-          </div>
+        {/* CTA Buttons */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+          <Link
+            href="#pricing"
+            className="bg-brand-amber text-brand-ink font-semibold text-[16px] px-8 py-4 rounded-lg tracking-tight hover:brightness-95 transition"
+          >
+            Get my website — $149
+          </Link>
+          <Link
+            href="#examples"
+            className="border border-brand-cream/20 text-brand-cream font-semibold text-[15px] px-7 py-[14px] rounded-lg tracking-tight hover:bg-white/5 transition"
+          >
+            See examples
+          </Link>
+        </div>
 
-          {/* Live Preview Section */}
-          <div className="mx-auto max-w-6xl">
-            <BrowserMockup
-              previewData={previewData}
-              onCreateWebsite={handleCreateWebsite}
-              isLoading={isLoading || isUserLoading}
-            />
-          </div>
+        {/* Trust Bullets */}
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+          {["Ready in 7 days", "No contracts", "Cancel anytime"].map((item) => (
+            <div key={item} className="flex items-center gap-2">
+              <Check className="h-4 w-4 text-brand-amber" />
+              <span className="text-brand-sage text-sm">{item}</span>
+            </div>
+          ))}
         </div>
       </div>
     </section>

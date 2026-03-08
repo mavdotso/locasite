@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
+  <!-- Background: warm near-black -->
+  <rect width="1200" height="630" fill="#1C1007"/>
+
+  <!-- Subtle dot grid pattern for depth -->
+  <pattern id="dots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+    <circle cx="20" cy="20" r="1.5" fill="#F97316" fill-opacity="0.12"/>
+  </pattern>
+  <rect width="1200" height="630" fill="url(#dots)"/>
+
+  <!-- Large decorative pin (right side, partially cropped) -->
+  <g transform="translate(860, 80)" opacity="0.08">
+    <path fill-rule="evenodd" clip-rule="evenodd" fill="#F97316"
+      d="M180 0C80.589 0 0 80.589 0 180C0 315 180 480 180 480C180 480 360 315 360 180C360 80.589 279.411 0 180 0ZM180 240C140.235 240 108 207.765 108 168C108 128.235 140.235 96 180 96C219.765 96 252 128.235 252 168C252 207.765 219.765 240 180 240Z"/>
+  </g>
+
+  <!-- Main content: left-aligned with generous padding -->
+  <!-- Small label -->
+  <text x="100" y="220"
+    font-family="Inter, 'Helvetica Neue', Arial, sans-serif"
+    font-size="16"
+    font-weight="500"
+    letter-spacing="0.12em"
+    fill="#F97316"
+    fill-opacity="0.8">LOCOSITE.IO</text>
+
+  <!-- Pin icon (inline with headline) -->
+  <g transform="translate(96, 252) scale(3.5)">
+    <path fill-rule="evenodd" clip-rule="evenodd" fill="#F97316"
+      d="M10 2C6.686 2 4 4.686 4 8C4 11.975 10 18 10 18C10 18 16 11.975 16 8C16 4.686 13.314 2 10 2ZM10 10.5C8.619 10.5 7.5 9.381 7.5 8C7.5 6.619 8.619 5.5 10 5.5C11.381 5.5 12.5 6.619 12.5 8C12.5 9.381 11.381 10.5 10 10.5Z"/>
+  </g>
+
+  <!-- Wordmark "locosite" large -->
+  <text x="165" y="315"
+    font-family="Inter, 'Helvetica Neue', Arial, sans-serif"
+    font-size="80"
+    font-weight="700"
+    letter-spacing="-0.03em"
+    fill="#FFFBF6">locosite</text>
+
+  <!-- Tagline -->
+  <text x="100" y="380"
+    font-family="Inter, 'Helvetica Neue', Arial, sans-serif"
+    font-size="26"
+    font-weight="400"
+    letter-spacing="-0.01em"
+    fill="#FFFBF6"
+    fill-opacity="0.55">Websites for local businesses — built in minutes.</text>
+
+  <!-- Divider line -->
+  <rect x="100" y="420" width="60" height="2" fill="#F97316" rx="1"/>
+
+  <!-- Bottom detail -->
+  <text x="100" y="468"
+    font-family="Inter, 'Helvetica Neue', Arial, sans-serif"
+    font-size="16"
+    font-weight="400"
+    letter-spacing="0.04em"
+    fill="#F97316"
+    fill-opacity="0.6">Built for the businesses that build your neighborhood.</text>
+</svg>

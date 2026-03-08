@@ -10,7 +10,7 @@ import { Button } from "@/app/components/ui/button";
 import { toast } from "sonner";
 import Link from "next/link";
 
-const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
+const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
 
 export default function LiveConfirmationPage() {
   const params = useParams<{ businessId: string }>();

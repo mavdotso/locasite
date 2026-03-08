@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Bring Locasite from 31/100 to MVP-ready across security, UX, infrastructure, features, and testing.
+**Goal:** Bring Locosite from 31/100 to MVP-ready across security, UX, infrastructure, features, and testing.
 
 **Architecture:** Fix security gaps in Convex backend functions using existing auth helpers, add Next.js App Router loading/error states, integrate Sentry + Resend + CI/CD, then add test infrastructure with Vitest + Playwright.
 
@@ -711,7 +711,7 @@ Create `app/(pages)/privacy/page.tsx`:
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — Locasite",
+  title: "Privacy Policy — Locosite",
 };
 
 export default function PrivacyPage() {
@@ -723,7 +723,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-xl font-semibold mb-3">1. Information We Collect</h2>
           <p className="text-muted-foreground">
-            When you use Locasite, we collect information you provide directly, such as your
+            When you use Locosite, we collect information you provide directly, such as your
             account details, business information, and content you create. We also collect
             usage data including page views and feature interactions to improve our service.
           </p>
@@ -731,7 +731,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-xl font-semibold mb-3">2. How We Use Your Information</h2>
           <p className="text-muted-foreground">
-            We use your information to provide and improve Locasite, process transactions,
+            We use your information to provide and improve Locosite, process transactions,
             communicate with you, and ensure security. We do not sell your personal information
             to third parties.
           </p>
@@ -753,7 +753,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-xl font-semibold mb-3">5. Contact</h2>
           <p className="text-muted-foreground">
-            For privacy-related inquiries, contact us at support@locasite.com.
+            For privacy-related inquiries, contact us at support@locosite.io.
           </p>
         </section>
       </div>
@@ -1183,13 +1183,13 @@ TINYBIRD_WRITE_TOKEN=p.write-token
 OPENAI_API_KEY=sk-...
 
 # CORS origin for Convex HTTP endpoints
-CLIENT_ORIGIN=https://locasite.xyz
+CLIENT_ORIGIN=https://locosite.io
 
 # === Optional ===
 
 # Domain
-NEXT_PUBLIC_ROOT_DOMAIN=locasite.xyz
-NEXT_PUBLIC_APP_URL=https://app.locasite.xyz
+NEXT_PUBLIC_ROOT_DOMAIN=locosite.io
+NEXT_PUBLIC_APP_URL=https://app.locosite.io
 
 # Vercel (for custom domain management)
 VERCEL_API_TOKEN=your-vercel-token
@@ -1334,7 +1334,7 @@ const res = await fetch("https://api.resend.com/emails", {
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
-    from: "Locasite <noreply@locasite.xyz>",
+    from: "Locosite <noreply@locosite.io>",
     to: [business.email],
     subject: `Verify your ownership of ${business.name}`,
     html: `<p>Click the link below to verify your ownership of <strong>${business.name}</strong>:</p><p><a href="${verificationUrl}">Verify Ownership</a></p><p>This link expires in 24 hours.</p>`,
@@ -1630,7 +1630,7 @@ import { describe, it, expect } from "vitest";
 
 // Extract the routing logic into a testable function or test the URL patterns
 describe("subdomain routing logic", () => {
-  const ROOT_DOMAIN = "locasite.xyz";
+  const ROOT_DOMAIN = "locosite.io";
 
   function getSubdomain(hostname: string): string | null {
     const host = hostname.replace(/:\d+$/, "");
@@ -1645,11 +1645,11 @@ describe("subdomain routing logic", () => {
   }
 
   it("returns null for root domain", () => {
-    expect(getSubdomain("locasite.xyz")).toBeNull();
+    expect(getSubdomain("locosite.io")).toBeNull();
   });
 
   it("returns null for www", () => {
-    expect(getSubdomain("www.locasite.xyz")).toBeNull();
+    expect(getSubdomain("www.locosite.io")).toBeNull();
   });
 
   it("returns null for localhost", () => {
@@ -1657,11 +1657,11 @@ describe("subdomain routing logic", () => {
   });
 
   it("extracts subdomain from business site", () => {
-    expect(getSubdomain("joes-pizza.locasite.xyz")).toBe("joes-pizza");
+    expect(getSubdomain("joes-pizza.locosite.io")).toBe("joes-pizza");
   });
 
   it("returns null for root domain with port", () => {
-    expect(getSubdomain("locasite.xyz:3000")).toBeNull();
+    expect(getSubdomain("locosite.io:3000")).toBeNull();
   });
 });
 ```
@@ -1740,7 +1740,7 @@ import { test, expect } from "@playwright/test";
 
 test("landing page loads", async ({ page }) => {
   await page.goto("/");
-  await expect(page).toHaveTitle(/Locasite/);
+  await expect(page).toHaveTitle(/Locosite/);
 });
 
 test("health check responds", async ({ request }) => {

@@ -1,4 +1,4 @@
-# Locasite Todo List
+# Locosite Todo List
 
 ## 🔴 Critical Issues to Fix
 

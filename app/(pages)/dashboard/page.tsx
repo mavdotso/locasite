@@ -91,7 +91,7 @@ function BusinessCard({
   const isLive = business.isPublished && domain;
 
   const rootDomain =
-    process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
+    process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
 
   // Determine the site URL to display and link to
   const siteUrl = domain?.customDomain

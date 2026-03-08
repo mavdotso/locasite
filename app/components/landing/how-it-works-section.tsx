@@ -1,89 +1,57 @@
-import { Search, Sparkles, Rocket } from "lucide-react";
+import { MessageSquare, Paintbrush, Rocket } from "lucide-react";
 
 const steps = [
   {
-    icon: Search,
-    title: "Paste Your Link",
-    description: "Drop your Google Maps URL into our generator",
-    detail: "Just copy the link from Google Maps and paste it here. We'll handle the rest.",
-    color: "text-blue-600",
-    bgColor: "bg-blue-50",
+    icon: MessageSquare,
+    number: "01",
+    title: "Tell us about your business",
+    description: "Share your business name, location, and what you do. We handle everything from there.",
   },
   {
-    icon: Sparkles,
-    title: "We Import Everything",
-    description: "Photos, hours, reviews, contact info—all automatic",
-    detail: "We automatically extract all your business information from Google Maps in seconds.",
-    color: "text-purple-600",
-    bgColor: "bg-purple-50",
+    icon: Paintbrush,
+    number: "02",
+    title: "We build your website",
+    description: "Our team designs a professional, mobile-ready website tailored to your business in 7 days.",
   },
   {
     icon: Rocket,
-    title: "Website Goes Live",
-    description: "Your professional site is ready in 60 seconds",
-    detail: "Get a beautiful, mobile-responsive website instantly. Ready to share with customers.",
-    color: "text-green-600",
-    bgColor: "bg-green-50",
+    number: "03",
+    title: "Your site goes live",
+    description: "Review your site, request changes, and go live. We handle hosting, security, and updates.",
   },
 ];
 
 export default function HowItWorksSection() {
   return (
-    <section id="how-it-works" className="py-24 bg-gray-50">
-      <div className="container mx-auto px-4">
+    <section id="how-it-works" className="py-20 md:py-28 bg-brand-cream">
+      <div className="mx-auto max-w-6xl px-6 lg:px-10">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 border border-purple-200 px-4 py-1.5 text-sm font-medium text-purple-700 mb-4">
-            <Sparkles className="h-3.5 w-3.5" />
-            How It Works
-          </div>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
-            How It Works
+          <span className="text-[11px] font-semibold text-brand-forest uppercase tracking-[0.12em] mb-3 block">
+            How it works
+          </span>
+          <h2 className="font-display font-extrabold text-brand-ink text-3xl md:text-[48px] leading-[1.05] tracking-[-0.025em] mb-4">
+            Three steps to your new website
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            From Google Maps to professional website in three simple steps
+          <p className="text-brand-taupe text-[17px] leading-[1.65] max-w-lg mx-auto">
+            No templates. No DIY. We build it for you.
           </p>
         </div>
 
-        {/* Three Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {steps.map((step, index) => (
-            <div
-              key={index}
-              className="relative group"
-            >
-              <div className={`rounded-xl ${step.bgColor} p-8 h-full transition-all duration-300 group-hover:shadow-lg`}>
-                {/* Step Number */}
-                <div className="absolute -top-3 -right-3 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center">
-                  <span className="text-lg font-bold text-gray-700">{index + 1}</span>
-                </div>
-                
-                <div className={`inline-flex rounded-lg bg-white p-3 ${step.color} mb-4 shadow-sm`}>
-                  <step.icon className="h-6 w-6" />
-                </div>
-                
-                <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-                <p className="text-lg font-medium mb-3">{step.description}</p>
-                <p className="text-sm text-muted-foreground">{step.detail}</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          {steps.map((step) => (
+            <div key={step.number} className="text-center">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-brand-forest mb-5">
+                <step.icon className="h-6 w-6 text-brand-cream" />
               </div>
+              <div className="text-brand-amber font-display font-bold text-sm mb-2">{step.number}</div>
+              <h3 className="font-display font-bold text-brand-ink text-[22px] leading-[1.25] tracking-[-0.015em] mb-2">
+                {step.title}
+              </h3>
+              <p className="text-brand-taupe text-[14px] leading-[1.6]">
+                {step.description}
+              </p>
             </div>
           ))}
-        </div>
-
-        {/* Bottom CTA */}
-        <div className="mt-16 text-center">
-          <p className="text-lg font-medium mb-2">
-            Ready to see it in action?
-          </p>
-          <p className="text-muted-foreground mb-8">
-            Your business deserves a professional online presence
-          </p>
-          <a
-            href="#hero"
-            className="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-3 text-sm font-medium text-white shadow-lg transition-all hover:from-blue-700 hover:to-indigo-700 hover:shadow-xl"
-          >
-            Try It Now - It&apos;s Free
-            <Sparkles className="h-4 w-4" />
-          </a>
         </div>
       </div>
     </section>

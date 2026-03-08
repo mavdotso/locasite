@@ -84,7 +84,7 @@ export default function SignInPage() {
             <Logo width={32} height={32} showText={false} />
           </div>
           <CardTitle className="font-bold text-2xl">
-            Welcome to Locasite
+            Welcome to Locosite
           </CardTitle>
           <CardDescription>
             {pendingBusiness

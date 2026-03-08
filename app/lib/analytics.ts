@@ -4,9 +4,9 @@ import { getTinybirdClient } from "./tinybird";
 
 // Analytics configuration
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
-const VISITOR_ID_KEY = "locasite_visitor_id";
-const SESSION_ID_KEY = "locasite_session_id";
-const LAST_ACTIVITY_KEY = "locasite_last_activity";
+const VISITOR_ID_KEY = "locosite_visitor_id";
+const SESSION_ID_KEY = "locosite_session_id";
+const LAST_ACTIVITY_KEY = "locosite_last_activity";
 
 // Generate UUID
 function generateUUID(): string {

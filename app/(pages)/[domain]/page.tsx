@@ -89,7 +89,7 @@ export async function generateMetadata({
           },
         ];
 
-    const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
+    const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
     const fullUrl = `https://${businessDomain}.${rootDomain}`;
 
     return {
@@ -229,7 +229,7 @@ export default async function BusinessPage({ params }: PageProps) {
       );
     }
 
-    const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
+    const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
     const fullDomain = `${businessDomain}.${rootDomain}`;
 
     // Generate structured data

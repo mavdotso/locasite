@@ -950,11 +950,11 @@ http.route({
             value: cnameTarget,
             ttl: 3600,
             priority: "Required",
-            description: "Points your domain to Locasite's servers",
+            description: "Points your domain to Locosite's servers",
           },
           {
             type: "TXT",
-            name: `_locasite-verify.${domain}`,
+            name: `_locosite-verify.${domain}`,
             value: verificationToken,
             ttl: 3600,
             priority: "Required",

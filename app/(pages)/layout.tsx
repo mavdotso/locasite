@@ -1,39 +1,41 @@
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Inter } from "next/font/google";
 import type { Metadata } from "next";
 import "../globals.css";
 import { Toaster } from "sonner";
 import { ConvexClientProvider } from "../components/providers/convex-client-provider";
 import { AuthRedirectHandler } from "../components/auth/auth-redirect-handler";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const display = Bricolage_Grotesque({
+  variable: "--font-display",
   subsets: ["latin"],
+  weight: ["700", "800"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const body = Inter({
+  variable: "--font-body",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "Locasite - Professional Business Websites",
-    template: "%s | Locasite",
+    default: "Locosite - Professional Websites for Local Businesses | $149",
+    template: "%s | Locosite",
   },
   description:
-    "Create professional websites for your business in minutes. Import from Google Maps, customize with AI, and get online instantly. Perfect for local businesses.",
+    "We build professional websites for local businesses. Done for you in 7 days, just $149. No DIY, no hassle. Hosting and maintenance from $9/month.",
   keywords: [
-    "business website",
-    "local business",
-    "website builder",
-    "Google Maps",
-    "AI website",
-    "professional websites",
+    "local business website",
+    "website for attorneys",
+    "professional website service",
+    "done for you website",
+    "small business website",
+    "affordable website",
   ],
-  authors: [{ name: "Locasite Team" }],
-  creator: "Locasite",
-  publisher: "Locasite",
+  authors: [{ name: "Locosite Team" }],
+  creator: "Locosite",
+  publisher: "Locosite",
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   ),
@@ -41,8 +43,8 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "/",
-    siteName: "Locasite",
-    title: "Locasite - Professional Business Websites",
+    siteName: "Locosite",
+    title: "Locosite - Professional Business Websites",
     description:
       "Create professional websites for your business in minutes. Import from Google Maps, customize with AI, and get online instantly.",
     images: [
@@ -50,17 +52,17 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Locasite - Professional Business Websites",
+        alt: "Locosite - Professional Business Websites",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Locasite - Professional Business Websites",
+    title: "Locosite - Professional Business Websites",
     description:
       "Create professional websites for your business in minutes. Import from Google Maps, customize with AI, and get online instantly.",
     images: ["/og-image.png"],
-    creator: "@locasite",
+    creator: "@locosite",
   },
   robots: {
     index: true,
@@ -93,7 +95,7 @@ export default async function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${display.variable} ${body.variable} antialiased font-body`}
       >
         <ConvexAuthNextjsServerProvider>
           <ConvexClientProvider>

@@ -24,7 +24,7 @@ tb --cloud open            # Open Tinybird UI
 
 ### Application Type
 
-Locasite is a Business Site Generator SaaS that creates professional websites for businesses by scraping Google Maps data. It uses subdomain-based multi-tenancy where each business gets their own subdomain (e.g., `business-name.locasite.com`).
+Locosite is a Business Site Generator SaaS that creates professional websites for businesses by scraping Google Maps data. It uses subdomain-based multi-tenancy where each business gets their own subdomain (e.g., `business-name.locosite.io`).
 
 ### Core Technologies
 
@@ -181,7 +181,7 @@ export const createTask = mutation({
 
 ### Overview
 
-Locasite uses Tinybird for scalable analytics data storage and querying. The integration works in a hybrid mode where:
+Locosite uses Tinybird for scalable analytics data storage and querying. The integration works in a hybrid mode where:
 
 - Events are sent to both Convex (for real-time features) and Tinybird (for analytics)
 - The analytics dashboard can switch between data sources

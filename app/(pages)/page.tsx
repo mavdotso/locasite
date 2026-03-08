@@ -62,7 +62,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="border-t border-border/50 px-6 py-6">
         <div className="max-w-xl mx-auto flex items-center justify-between text-sm text-muted-foreground">
-          <span>&copy; {new Date().getFullYear()} Locasite</span>
+          <span>&copy; {new Date().getFullYear()} Locosite</span>
           <div className="flex gap-4">
             <Link
               href="/privacy"

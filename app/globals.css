@@ -9,8 +9,18 @@ html {
 }
 
 @theme {
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-body);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --color-brand-forest: #1C3D2E;
+  --color-brand-amber: #E8A857;
+  --color-brand-cream: #F2EDE4;
+  --color-brand-ink: #1F1A14;
+  --color-brand-taupe: #8C7B6A;
+  --color-brand-pine: #2A5C41;
+  --color-brand-sage: #8ABD9F;
+  --color-brand-border: #E0D8CE;
 }
 
 :root {

@@ -118,7 +118,7 @@ export default function WebsiteSettingsPage({
     isPublished: false,
   });
 
-  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
 
   // Initialize form data
   useEffect(() => {

@@ -68,7 +68,7 @@ export default function DomainSettingsPage() {
   const [customDomain, setCustomDomain] = useState("");
   const [isChecking, setIsChecking] = useState(false);
 
-  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
 
   // Fetch domain (subdomain) for this business
   const domain = useQuery(api.domains.getByBusinessId, { businessId });
@@ -441,7 +441,7 @@ export default function DomainSettingsPage() {
             domain={domainStatus.domain}
             cnameHost="@"
             cnameValue="cname.vercel-dns.com"
-            txtHost="_locasite-verify"
+            txtHost="_locosite-verify"
             txtValue={domainStatus.verificationToken || ""}
             onVerify={handleCheckConnection}
             isVerifying={isChecking}

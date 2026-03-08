@@ -100,7 +100,7 @@ export default function BusinessDashboard({
             <h1 className="text-3xl font-bold">{business.name}</h1>
             <p className="text-muted-foreground mt-2">
               {isPublished
-                ? `Published at ${domain?.subdomain}.locasite.com`
+                ? `Published at ${domain?.subdomain}.locosite.io`
                 : "Not published yet"}
             </p>
           </div>

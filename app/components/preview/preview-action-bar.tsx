@@ -36,7 +36,7 @@ export function PreviewActionBar({
   const [showThemePicker, setShowThemePicker] = useState(false);
 
   const rootDomain =
-    process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
+    process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
   const siteUrl = customDomain
     ? customDomain
     : subdomain

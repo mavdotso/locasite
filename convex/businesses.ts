@@ -739,7 +739,7 @@ function toUrlFriendly(input: string, maxLength: number = 30): string {
     .replace(/-$/, "");
 }
 
-// Create business without authentication (for preview)
+// Create business without authentication (for preview and bulk scraping)
 // Also auto-generates a domain, page (with sections), and assigns a theme.
 export const createBusinessWithoutAuth = internalMutation({
   args: {
@@ -751,6 +751,7 @@ export const createBusinessWithoutAuth = internalMutation({
       website: v.optional(v.string()),
       hours: v.array(v.string()),
       rating: v.optional(v.number()),
+      reviewCount: v.optional(v.number()),
       reviews: v.array(
         v.object({
           reviewer: v.string(),
@@ -761,6 +762,7 @@ export const createBusinessWithoutAuth = internalMutation({
       photos: v.array(v.string()),
       description: v.optional(v.string()),
       category: v.optional(v.string()),
+      batchId: v.optional(v.string()),
     }),
   },
   handler: async (ctx, args) => {

@@ -1,9 +1,9 @@
 export const SITE_CONFIG = {
-  url: "https://locasite.com",
+  url: "https://locosite.io",
   emails: {
-    support: "support@locasite.com",
-    sales: "sales@locasite.com",
-    legal: "legal@locasite.com",
-    privacy: "privacy@locasite.com",
+    support: "support@locosite.io",
+    sales: "sales@locosite.io",
+    legal: "legal@locosite.io",
+    privacy: "privacy@locosite.io",
   },
 } as const;

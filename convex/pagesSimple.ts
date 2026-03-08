@@ -1,7 +1,8 @@
-import { mutation } from "./_generated/server";
+import { mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserFromAuth } from "./lib/helpers";
 import { Id } from "./_generated/dataModel";
+import { Doc } from "./_generated/dataModel";
 
 // Create a page with custom content
 export const createPageWithContent = mutation({
@@ -57,42 +58,9 @@ export const createPageWithContent = mutation({
   },
 });
 
-// Create default pages in simple mode format with EXACT same sections as preview
-export const createDefaultPagesSimple = mutation({
-  args: {
-    domainId: v.id("domains"),
-    businessId: v.id("businesses"),
-  },
-  handler: async (ctx, args): Promise<{ pageId: Id<"pages"> }> => {
-    const user = await getUserFromAuth(ctx);
-
-    const business = await ctx.db.get(args.businessId);
-    if (!business) {
-      throw new Error("Business not found");
-    }
-
-    // Verify business ownership
-    if (business.userId !== user._id) {
-      throw new Error("Not authorized to create pages for this business");
-    }
-
-    const domain = await ctx.db.get(args.domainId);
-    if (!domain) {
-      throw new Error("Domain not found");
-    }
-
-    // Check if pages already exist to avoid duplicates
-    const existingPage = await ctx.db
-      .query("pages")
-      .withIndex("by_domain", (q) => q.eq("domainId", args.domainId))
-      .first();
-
-    if (existingPage) {
-      return { pageId: existingPage._id };
-    }
-
-    // Create EXACT same sections as shown in preview
-    const sections = [
+// Shared helper to build default page sections from business data
+function buildDefaultSections(business: Doc<"businesses">) {
+  return [
       // 1. Header section
       {
         id: "header-1",
@@ -263,40 +231,108 @@ export const createDefaultPagesSimple = mutation({
         },
       },
     ];
+}
 
-    // Create page data in simple mode format
-    const pageData = {
-      mode: "simple",
-      title: business.name || "Welcome",
-      sections,
-      theme: {
-        colors: {
-          primary: "#3B82F6",
-          secondary: "#10B981",
-          accent: "#F59E0B",
-          background: "#FFFFFF",
-          text: "#1F2937",
-          muted: "#F3F4F6",
-        },
-        fonts: {
-          heading: "Inter",
-          body: "Inter",
-        },
-        spacing: {
-          sectionPadding: "80px",
-        },
+function buildPageData(business: Doc<"businesses">) {
+  return {
+    mode: "simple",
+    title: business.name || "Welcome",
+    sections: buildDefaultSections(business),
+    theme: {
+      colors: {
+        primary: "#3B82F6",
+        secondary: "#10B981",
+        accent: "#F59E0B",
+        background: "#FFFFFF",
+        text: "#1F2937",
+        muted: "#F3F4F6",
       },
-    };
+      fonts: {
+        heading: "Inter",
+        body: "Inter",
+      },
+      spacing: {
+        sectionPadding: "80px",
+      },
+    },
+  };
+}
 
-    // Create the homepage
+// Create default pages in simple mode format with EXACT same sections as preview
+export const createDefaultPagesSimple = mutation({
+  args: {
+    domainId: v.id("domains"),
+    businessId: v.id("businesses"),
+  },
+  handler: async (ctx, args): Promise<{ pageId: Id<"pages"> }> => {
+    const user = await getUserFromAuth(ctx);
+
+    const business = await ctx.db.get(args.businessId);
+    if (!business) {
+      throw new Error("Business not found");
+    }
+
+    if (business.userId !== user._id) {
+      throw new Error("Not authorized to create pages for this business");
+    }
+
+    const domain = await ctx.db.get(args.domainId);
+    if (!domain) {
+      throw new Error("Domain not found");
+    }
+
+    const existingPage = await ctx.db
+      .query("pages")
+      .withIndex("by_domain", (q) => q.eq("domainId", args.domainId))
+      .first();
+
+    if (existingPage) {
+      return { pageId: existingPage._id };
+    }
+
     const pageId = await ctx.db.insert("pages", {
       domainId: args.domainId,
-      content: JSON.stringify(pageData),
+      content: JSON.stringify(buildPageData(business)),
       isPublished: false,
       lastEditedAt: Date.now(),
     });
 
-    // Simple mode page created successfully
+    return { pageId };
+  },
+});
+
+// Internal version (no auth required, for bulk pipeline)
+export const internal_createDefaultPagesSimple = internalMutation({
+  args: {
+    domainId: v.id("domains"),
+    businessId: v.id("businesses"),
+  },
+  handler: async (ctx, args): Promise<{ pageId: Id<"pages"> }> => {
+    const business = await ctx.db.get(args.businessId);
+    if (!business) {
+      throw new Error("Business not found");
+    }
+
+    const domain = await ctx.db.get(args.domainId);
+    if (!domain) {
+      throw new Error("Domain not found");
+    }
+
+    const existingPage = await ctx.db
+      .query("pages")
+      .withIndex("by_domain", (q) => q.eq("domainId", args.domainId))
+      .first();
+
+    if (existingPage) {
+      return { pageId: existingPage._id };
+    }
+
+    const pageId = await ctx.db.insert("pages", {
+      domainId: args.domainId,
+      content: JSON.stringify(buildPageData(business)),
+      isPublished: false,
+      lastEditedAt: Date.now(),
+    });
 
     return { pageId };
   },

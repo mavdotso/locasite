@@ -3,7 +3,12 @@ import {
   convexAuthNextjsMiddleware,
   nextjsMiddlewareRedirect,
 } from "@convex-dev/auth/nextjs/server";
-import { env } from "./env";
+// Read root domain directly from process.env to ensure proper inlining in edge runtime
+const ROOT_DOMAIN =
+  process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
+const DEPLOYMENT_SUFFIX =
+  process.env.NEXT_PUBLIC_VERCEL_DEPLOYMENT_SUFFIX || "vercel.app";
+const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL || "";
 
 // Routes that require authentication (middleware-level protection)
 const AUTH_REQUIRED_PREFIXES = ["/dashboard", "/edit"];
@@ -33,7 +38,7 @@ function extractSubdomain(request: NextRequest): string | null {
   const url = request.url;
   const host = request.headers.get("host") || "";
   const hostname = host.split(":")[0];
-  const rootDomain = env.NEXT_PUBLIC_ROOT_DOMAIN;
+  const rootDomain = ROOT_DOMAIN;
 
   // Local development environment
   if (url.includes("localhost") || url.includes("127.0.0.1")) {
@@ -77,15 +82,17 @@ export default async function middleware(
   const subdomain = extractSubdomain(request);
   const host = request.headers.get("host") || "";
   const hostname = host.split(":")[0];
-  const rootDomain = env.NEXT_PUBLIC_ROOT_DOMAIN;
+  const rootDomain = ROOT_DOMAIN;
 
   // Handle custom domains (not subdomains of root domain)
+  const deploymentSuffix = DEPLOYMENT_SUFFIX;
   const isCustomDomain =
     !subdomain &&
     hostname !== rootDomain &&
     hostname !== `www.${rootDomain}` &&
     !hostname.includes("localhost") &&
-    !hostname.includes("127.0.0.1");
+    !hostname.includes("127.0.0.1") &&
+    !(deploymentSuffix && hostname.endsWith(`.${deploymentSuffix}`));
 
   if (isCustomDomain) {
     // Block access to dashboard and admin routes from custom domains
@@ -103,7 +110,7 @@ export default async function middleware(
     if (pathname === "/sitemap.xml") {
       return NextResponse.rewrite(
         new URL(
-          `${env.NEXT_PUBLIC_CONVEX_URL}/sitemap/${hostname}`,
+          `${CONVEX_URL}/sitemap/${hostname}`,
           request.url,
         ),
       );
@@ -111,7 +118,7 @@ export default async function middleware(
     if (pathname === "/robots.txt") {
       return NextResponse.rewrite(
         new URL(
-          `${env.NEXT_PUBLIC_CONVEX_URL}/robots/${hostname}`,
+          `${CONVEX_URL}/robots/${hostname}`,
           request.url,
         ),
       );
@@ -119,7 +126,7 @@ export default async function middleware(
     if (pathname === "/favicon.ico" || pathname === "/favicon.svg") {
       return NextResponse.rewrite(
         new URL(
-          `${env.NEXT_PUBLIC_CONVEX_URL}/favicon/${hostname}`,
+          `${CONVEX_URL}/favicon/${hostname}`,
           request.url,
         ),
       );
@@ -151,7 +158,7 @@ export default async function middleware(
     if (pathname === "/sitemap.xml") {
       return NextResponse.rewrite(
         new URL(
-          `${env.NEXT_PUBLIC_CONVEX_URL}/sitemap/${subdomain}`,
+          `${CONVEX_URL}/sitemap/${subdomain}`,
           request.url,
         ),
       );
@@ -159,7 +166,7 @@ export default async function middleware(
     if (pathname === "/robots.txt") {
       return NextResponse.rewrite(
         new URL(
-          `${env.NEXT_PUBLIC_CONVEX_URL}/robots/${subdomain}`,
+          `${CONVEX_URL}/robots/${subdomain}`,
           request.url,
         ),
       );
@@ -168,7 +175,7 @@ export default async function middleware(
     if (pathname === "/favicon.ico" || pathname === "/favicon.svg") {
       return NextResponse.rewrite(
         new URL(
-          `${env.NEXT_PUBLIC_CONVEX_URL}/favicon/${subdomain}`,
+          `${CONVEX_URL}/favicon/${subdomain}`,
           request.url,
         ),
       );

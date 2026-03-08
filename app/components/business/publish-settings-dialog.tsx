@@ -39,7 +39,7 @@ export function PublishSettingsDialog({
   const publishBusiness = useMutation(api.businesses.publish);
 
   const isPublished = business?.isPublished === true;
-  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
   const isDevelopment = process.env.NODE_ENV === "development";
   const siteUrl = domain?.subdomain
     ? isDevelopment

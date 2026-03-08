@@ -515,7 +515,7 @@ function generateVerificationToken(): string {
   for (let i = 0; i < 13; i++) {
     suffix += chars.charAt(randomValues[i] % chars.length);
   }
-  return `locasite-verify-${suffix}`;
+  return `locosite-verify-${suffix}`;
 }
 
 function getRequiredDnsRecords(domain: string, verificationToken: string) {
@@ -528,7 +528,7 @@ function getRequiredDnsRecords(domain: string, verificationToken: string) {
     },
     {
       type: "TXT",
-      name: `_locasite-verify.${domain}`,
+      name: `_locosite-verify.${domain}`,
       value: verificationToken,
       required: true,
     },
@@ -545,7 +545,7 @@ async function verifyDnsRecords(
     const dnsApiUrl = "https://dns.google/resolve";
 
     // Check TXT record for verification
-    const txtRecordName = `_locasite-verify.${domain}`;
+    const txtRecordName = `_locosite-verify.${domain}`;
     const txtResponse = await fetch(
       `${dnsApiUrl}?name=${txtRecordName}&type=TXT`,
     );
