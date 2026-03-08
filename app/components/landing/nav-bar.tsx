@@ -5,6 +5,13 @@ import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import Logo from '@/app/components/ui/logo';
 
+const NAV_LINKS = [
+  { href: '#how-it-works', label: 'How it works' },
+  { href: '#features', label: 'Features' },
+  { href: '#pricing', label: 'Pricing' },
+  { href: '#faq', label: 'FAQ' },
+] as const;
+
 export default function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -22,18 +29,11 @@ export default function NavBar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
-            <Link href="#how-it-works" className="text-sm font-medium text-brand-sage hover:text-brand-cream transition-colors">
-              How it works
-            </Link>
-            <Link href="#features" className="text-sm font-medium text-brand-sage hover:text-brand-cream transition-colors">
-              Features
-            </Link>
-            <Link href="#pricing" className="text-sm font-medium text-brand-sage hover:text-brand-cream transition-colors">
-              Pricing
-            </Link>
-            <Link href="#faq" className="text-sm font-medium text-brand-sage hover:text-brand-cream transition-colors">
-              FAQ
-            </Link>
+            {NAV_LINKS.map((link) => (
+              <Link key={link.href} href={link.href} className="text-sm font-medium text-brand-sage hover:text-brand-cream transition-colors">
+                {link.label}
+              </Link>
+            ))}
           </div>
 
           {/* Desktop CTA */}
@@ -59,18 +59,11 @@ export default function NavBar() {
         {isMenuOpen && (
           <div className="md:hidden border-t border-white/10 py-4">
             <div className="flex flex-col gap-4">
-              <Link href="#how-it-works" className="text-sm font-medium text-brand-sage hover:text-brand-cream" onClick={() => setIsMenuOpen(false)}>
-                How it works
-              </Link>
-              <Link href="#features" className="text-sm font-medium text-brand-sage hover:text-brand-cream" onClick={() => setIsMenuOpen(false)}>
-                Features
-              </Link>
-              <Link href="#pricing" className="text-sm font-medium text-brand-sage hover:text-brand-cream" onClick={() => setIsMenuOpen(false)}>
-                Pricing
-              </Link>
-              <Link href="#faq" className="text-sm font-medium text-brand-sage hover:text-brand-cream" onClick={() => setIsMenuOpen(false)}>
-                FAQ
-              </Link>
+              {NAV_LINKS.map((link) => (
+                <Link key={link.href} href={link.href} className="text-sm font-medium text-brand-sage hover:text-brand-cream" onClick={() => setIsMenuOpen(false)}>
+                  {link.label}
+                </Link>
+              ))}
               <Link
                 href="#hero"
                 className="bg-brand-amber text-brand-ink text-[13px] font-semibold px-[18px] py-[9px] rounded-md text-center hover:brightness-95 transition"

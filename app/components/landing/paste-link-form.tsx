@@ -8,7 +8,7 @@ import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { env } from "@/env";
 
-function getConvexSiteUrl(): string {
+function buildConvexSiteUrl(): string {
   const convexUrl = env.NEXT_PUBLIC_CONVEX_URL;
   if (!convexUrl) {
     throw new Error("Convex URL not configured");
@@ -20,6 +20,8 @@ function getConvexSiteUrl(): string {
   }
   return `https://${deploymentName}.convex.site`;
 }
+
+const convexSiteUrl = buildConvexSiteUrl();
 
 function isValidGoogleMapsUrl(url: string): boolean {
   try {
@@ -74,8 +76,6 @@ export default function PasteLinkForm({
     setIsLoading(true);
 
     try {
-      const convexSiteUrl = getConvexSiteUrl();
-
       const response = await fetch(`${convexSiteUrl}/scrape`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

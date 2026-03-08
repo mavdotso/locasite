@@ -1,5 +1,3 @@
-"use client";
-
 import { Check } from "lucide-react";
 import PasteLinkForm from "@/app/components/landing/paste-link-form";
 

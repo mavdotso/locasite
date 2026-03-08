@@ -22,11 +22,14 @@ export const createSelfServeCheckoutSession = action({
     );
     if (!userId) throw new Error("User not found");
 
-    // Verify user owns this business
-    const business = await ctx.runQuery(
-      internal.selfServeCheckout.internal_getBusinessForCheckout,
-      { businessId: args.businessId, userId },
-    );
+    // Verify business ownership and get Stripe customer in parallel
+    const [business, stripeCustomerIdResult] = await Promise.all([
+      ctx.runQuery(
+        internal.selfServeCheckout.internal_getBusinessForCheckout,
+        { businessId: args.businessId, userId },
+      ),
+      ctx.runQuery(internal.stripe.getStripeCustomerId, { userId }),
+    ]);
 
     if (!business) {
       throw new Error("Business not found or you don't own it");
@@ -36,12 +39,8 @@ export const createSelfServeCheckoutSession = action({
       throw new Error("This site is already published");
     }
 
-    // Get or create Stripe customer
-    let stripeCustomerId = await ctx.runQuery(
-      internal.stripe.getStripeCustomerId,
-      { userId },
-    );
-
+    // Create Stripe customer if needed
+    let stripeCustomerId = stripeCustomerIdResult;
     if (!stripeCustomerId) {
       const customer = await stripe.customers.create({
         email: identity.email || undefined,
@@ -86,7 +85,7 @@ export const createSelfServeCheckoutSession = action({
 
     // Record payment attempt
     await ctx.runMutation(api.payments.create, {
-      amount: 14900, // $149 setup (first payment)
+      amount: 14900,
       stripeSessionId: session.id,
     });
 
@@ -128,7 +127,7 @@ export const internal_getBusinessForCheckout = internalQuery({
 export const internal_handleSelfServePayment = internalMutation({
   args: {
     businessId: v.id("businesses"),
-    userId: v.string(),
+    userId: v.id("users"),
     stripeSessionId: v.string(),
     stripeSubscriptionId: v.optional(v.string()),
   },
@@ -138,8 +137,6 @@ export const internal_handleSelfServePayment = internalMutation({
 
     // Already published — idempotent
     if (business.isPublished) return;
-
-    const userId = args.userId as Id<"users">;
 
     // Publish the site
     await ctx.db.patch(args.businessId, {
@@ -152,7 +149,7 @@ export const internal_handleSelfServePayment = internalMutation({
     // Create an approved claim record for audit trail
     await ctx.db.insert("businessClaims", {
       businessId: args.businessId,
-      userId,
+      userId: args.userId,
       status: "approved",
       verificationMethod: "manual",
       createdAt: Date.now(),

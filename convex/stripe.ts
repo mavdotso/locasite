@@ -61,12 +61,12 @@ export const fulfill = internalAction({
           }
 
           // Handle self-serve publish payments
-          if (session.metadata?.claimType === "self_serve_publish") {
+          else if (session.metadata?.claimType === "self_serve_publish") {
             await ctx.runMutation(
               internal.selfServeCheckout.internal_handleSelfServePayment,
               {
                 businessId: session.metadata.businessId as Id<"businesses">,
-                userId: session.metadata.userId as string,
+                userId: session.metadata.userId as Id<"users">,
                 stripeSessionId: session.id,
                 stripeSubscriptionId: session.subscription as string | undefined,
               },
