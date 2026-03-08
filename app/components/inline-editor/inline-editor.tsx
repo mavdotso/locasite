@@ -443,11 +443,13 @@ export function InlineEditor({
       )}
 
       {/* Theme picker */}
-      <ThemePickerSheet
-        businessId={businessId}
-        isOpen={showThemePicker}
-        onClose={() => setShowThemePicker(false)}
-      />
+      {showThemePicker && (
+        <ThemePickerSheet
+          businessId={businessId}
+          isOpen={showThemePicker}
+          onClose={() => setShowThemePicker(false)}
+        />
+      )}
 
       {/* Dismiss add-section dropdown on outside click */}
       {showAddSection && (

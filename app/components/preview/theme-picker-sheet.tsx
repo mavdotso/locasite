@@ -4,12 +4,11 @@ import { useEffect, useCallback, useRef } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { X, Loader2 } from "lucide-react";
+import { X, Loader2, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { ThemePreviewCard } from "./theme-preview-card";
 import { getBusinessCategoryTheme } from "@/app/components/simple-builder/core/business-category-themes";
 import { useSubscription } from "@/app/hooks/use-subscription";
-import { Lock } from "lucide-react";
 
 /**
  * Maps a business category theme name to theme industry tags for recommendation matching.
@@ -73,7 +72,7 @@ export function ThemePickerSheet({
   const business = useQuery(api.businesses.getById, { id: businessId });
   const presetThemes = useQuery(api.themes.getPresetThemes);
   const applyTheme = useMutation(api.themes.applyThemeToBusiness);
-  const { themeLimit } = useSubscription();
+  const { themeLimit, isLoading: isSubscriptionLoading } = useSubscription();
   const sheetRef = useRef<HTMLDivElement>(null);
 
   // Close on Escape key + focus trap on Tab
@@ -134,7 +133,7 @@ export function ThemePickerSheet({
 
   // Loading state
   const isLoading =
-    business === undefined || presetThemes === undefined;
+    business === undefined || presetThemes === undefined || isSubscriptionLoading;
 
   // Only show first 6 themes
   const themes = presetThemes?.slice(0, 6) ?? [];

@@ -106,11 +106,13 @@ export function PreviewActionBar({
           </button>
         </div>
 
-        <ThemePickerSheet
-          businessId={businessId}
-          isOpen={showThemePicker}
-          onClose={() => setShowThemePicker(false)}
-        />
+        {showThemePicker && (
+          <ThemePickerSheet
+            businessId={businessId}
+            isOpen={showThemePicker}
+            onClose={() => setShowThemePicker(false)}
+          />
+        )}
       </div>
     );
   }

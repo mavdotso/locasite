@@ -18,17 +18,8 @@ function EditPageInner({ businessId }: { businessId: Id<"businesses"> }) {
     { businessId },
   );
 
-  // Subscription lock — FREE users cannot edit content
-  if (!isSubscriptionLoading && !canEditContent) {
-    return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center p-8">
-        <FeatureLockOverlay feature="Content Editing" requiredPlan="PROFESSIONAL" />
-      </div>
-    );
-  }
-
-  // Loading
-  if (previewData === undefined) {
+  // Loading — wait for both subscription and preview data
+  if (previewData === undefined || isSubscriptionLoading) {
     return (
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
@@ -37,6 +28,15 @@ function EditPageInner({ businessId }: { businessId: Id<"businesses"> }) {
             Loading editor...
           </p>
         </div>
+      </div>
+    );
+  }
+
+  // Subscription lock — FREE users cannot edit content
+  if (!canEditContent) {
+    return (
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center p-8">
+        <FeatureLockOverlay feature="Content Editing" requiredPlan="PROFESSIONAL" className="max-w-md w-full" />
       </div>
     );
   }
