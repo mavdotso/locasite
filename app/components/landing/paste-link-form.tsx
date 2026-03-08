@@ -122,7 +122,7 @@ export default function PasteLinkForm({
           <Input
             id="google-maps-url-hero"
             type="url"
-            placeholder="Paste your Google Maps link..."
+            placeholder="Business name or Google Maps URL..."
             value={url}
             onChange={(e) => {
               setUrl(e.target.value);
@@ -144,7 +144,7 @@ export default function PasteLinkForm({
               </>
             ) : (
               <>
-                Create my website free
+                See Your Website
                 <ArrowRight className="h-5 w-5" />
               </>
             )}

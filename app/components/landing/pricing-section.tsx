@@ -12,42 +12,31 @@ export default function PricingSection() {
           <h2 className="font-display font-extrabold text-brand-ink text-3xl md:text-[48px] leading-[1.05] tracking-[-0.025em] mb-4">
             Simple pricing. No surprises.
           </h2>
-          <p className="text-brand-taupe text-[17px] leading-[1.65] max-w-lg mx-auto">
-            Pay once to go live. A small monthly fee keeps it running.
-          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-          {/* Launch */}
+        <div className="max-w-md mx-auto">
+          {/* Single pricing card */}
           <div className="relative rounded-xl border-2 border-brand-forest bg-white p-8">
             <div className="absolute -top-3 left-6">
               <span className="text-xs font-semibold text-brand-forest bg-[#D4EDDE] px-3 py-1 rounded-full">
-                Get started
+                Claim your site
               </span>
             </div>
             <div className="mb-6">
-              <h3 className="font-display font-bold text-brand-ink text-xl mb-2">
-                Launch your site
-              </h3>
               <div className="flex items-baseline gap-1 mb-2">
                 <span className="font-display font-extrabold text-brand-ink text-4xl">
                   $149
                 </span>
                 <span className="text-brand-taupe text-sm">one-time</span>
               </div>
-              <p className="text-brand-taupe text-[14px]">
-                Everything it takes to turn your Google listing into a live
-                website.
-              </p>
             </div>
-            <ul className="space-y-3 mb-8">
+            <ul className="space-y-3 mb-6">
               {[
-                "Auto-generated site from your Google Business profile",
-                "WYSIWYG editor — change anything yourself",
-                "Your own domain, set up for you",
-                "One-click publish",
-                "Mobile-ready design",
-                "SSL security",
+                "Professional website built from your Google Maps listing",
+                "Mobile-friendly design",
+                "Your menu, photos, hours, and reviews \u2014 already loaded",
+                "Custom URL (yourname.locosite.io or bring your own domain)",
+                "Live within 24 hours",
               ].map((f) => (
                 <li key={f} className="flex items-start gap-3">
                   <Check className="h-4 w-4 text-brand-forest flex-shrink-0 mt-0.5" />
@@ -55,85 +44,37 @@ export default function PricingSection() {
                 </li>
               ))}
             </ul>
-            <Link
-              href="#hero"
-              className="block w-full text-center bg-brand-amber text-brand-ink font-semibold text-[15px] px-7 py-3.5 rounded-lg tracking-tight hover:brightness-95 transition"
-            >
-              Create my website
-            </Link>
-          </div>
 
-          {/* Monthly */}
-          <div className="rounded-xl border border-brand-border bg-white p-8">
-            <div className="mb-6">
-              <h3 className="font-display font-bold text-brand-ink text-xl mb-2">
-                Monthly hosting
-              </h3>
+            <div className="border-t border-brand-border pt-5 mb-6">
               <div className="flex items-baseline gap-1 mb-2">
-                <span className="font-display font-extrabold text-brand-ink text-4xl">
-                  $9
+                <span className="font-display font-bold text-brand-ink text-xl">
+                  + $9
                 </span>
                 <span className="text-brand-taupe text-sm">/month</span>
               </div>
               <p className="text-brand-taupe text-[14px]">
-                Keep your site live and fast. Cancel anytime.
+                Hosting, SSL security, and site updates included. Cancel
+                anytime. No contracts.
               </p>
             </div>
-            <ul className="space-y-3 mb-8">
-              {[
-                "Reliable hosting & uptime monitoring",
-                "SSL & security updates",
-                "Basic analytics",
-                "Email support",
-              ].map((f) => (
-                <li key={f} className="flex items-start gap-3">
-                  <Check className="h-4 w-4 text-brand-forest flex-shrink-0 mt-0.5" />
-                  <span className="text-brand-ink text-[14px]">{f}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="block w-full text-center bg-brand-forest text-brand-cream font-semibold text-[15px] px-7 py-3.5 rounded-lg">
-              Included after launch
-            </div>
-          </div>
 
-          {/* Add-ons */}
-          <div className="rounded-xl border border-brand-border bg-white p-8">
-            <div className="mb-6">
-              <h3 className="font-display font-bold text-brand-ink text-xl mb-2">
-                Add-ons
-              </h3>
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className="font-display font-extrabold text-brand-ink text-2xl">
-                  Coming soon
-                </span>
-              </div>
-              <p className="text-brand-taupe text-[14px]">
-                More tools for businesses that want to grow online.
-              </p>
-            </div>
-            <ul className="space-y-3 mb-8">
-              {[
-                "AI livechat for your business",
-                "Online booking system",
-                "Advanced SEO tools",
-                "Review management",
-              ].map((f) => (
-                <li key={f} className="flex items-start gap-3">
-                  <Check className="h-4 w-4 text-brand-taupe flex-shrink-0 mt-0.5" />
-                  <span className="text-brand-taupe text-[14px]">{f}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="block w-full text-center border border-brand-border text-brand-taupe font-semibold text-[15px] px-7 py-3.5 rounded-lg">
-              Coming soon
-            </div>
+            <Link
+              href="#hero"
+              className="block w-full text-center bg-brand-amber text-brand-ink font-semibold text-[15px] px-7 py-3.5 rounded-lg tracking-tight hover:brightness-95 transition"
+            >
+              Claim My Website
+            </Link>
           </div>
         </div>
 
+        <p className="text-center text-brand-taupe text-[14px] leading-[1.6] mt-8 max-w-lg mx-auto italic">
+          Already have a site? We&apos;re probably not for you. This is built
+          for businesses on Google Maps that don&apos;t have a website yet.
+        </p>
+
         {/* Trust */}
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-          {["Takes minutes, not days", "Cancel anytime", "Money-back guarantee"].map(
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+          {["SSL secured", "Cancel anytime", "No hidden fees"].map(
             (item) => (
               <div key={item} className="flex items-center gap-2">
                 <Check className="h-4 w-4 text-brand-forest" />

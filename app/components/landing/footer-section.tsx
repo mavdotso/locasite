@@ -22,9 +22,17 @@ export default function FooterSection() {
                 Locosite
               </span>
             </div>
-            <p className="text-brand-taupe text-[14px] leading-[1.6] max-w-xs">
-              From your Google listing to a live website — in minutes.
+            <p className="text-brand-taupe text-[14px] leading-[1.6] max-w-xs mb-4">
+              Done-for-you websites for local businesses. Built from Google Maps.
+              Live in 24 hours.
             </p>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-brand-taupe text-[12px]">
+              <span>SSL secured</span>
+              <span>&middot;</span>
+              <span>Cancel anytime</span>
+              <span>&middot;</span>
+              <span>Proudly serving Orlando, FL</span>
+            </div>
           </div>
 
           {/* Links */}
@@ -46,7 +54,7 @@ export default function FooterSection() {
                   href="#features"
                   className="text-brand-taupe hover:text-brand-ink transition-colors"
                 >
-                  Features
+                  Who it&apos;s for
                 </Link>
               </li>
               <li>
@@ -92,8 +100,18 @@ export default function FooterSection() {
           </div>
         </div>
 
-        <div className="mt-10 border-t border-brand-border pt-6 text-center text-brand-taupe text-[13px]">
-          &copy; {currentYear} Locosite. All rights reserved.
+        {/* SEO footer text */}
+        <div className="mt-8 border-t border-brand-border pt-6">
+          <p className="text-brand-taupe/60 text-[12px] leading-[1.6] max-w-2xl mx-auto text-center mb-4">
+            Locosite is a done-for-you website service for local businesses. We
+            build professional websites for restaurants, plumbers, HVAC
+            contractors, landscapers, and cleaning services — directly from your
+            Google Maps listing. No design skills required. Starting at $149 +
+            $9/month. Currently serving Orlando, FL.
+          </p>
+          <p className="text-center text-brand-taupe text-[13px]">
+            &copy; {currentYear} Locosite. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

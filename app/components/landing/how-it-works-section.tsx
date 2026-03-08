@@ -1,26 +1,26 @@
-import { Link2, Paintbrush, Rocket } from "lucide-react";
+import { Globe, Eye, CreditCard } from "lucide-react";
 
 const steps = [
   {
-    icon: Link2,
+    icon: Globe,
     number: "01",
-    title: "Paste your Google Maps link",
+    title: "We build it from your Google listing",
     description:
-      "We pull your business name, address, photos, and description straight from Google. Your site builds itself.",
+      "We pull your business name, address, hours, photos, reviews, and service details directly from Google Maps. No forms to fill out. No questionnaires. Your information is already there.",
   },
   {
-    icon: Paintbrush,
+    icon: Eye,
     number: "02",
-    title: "Make it yours (or don't)",
+    title: "You preview it for free",
     description:
-      "Use our editor to change colors, swap photos, update your hours. Everything is point-and-click. Nothing is required.",
+      "Enter your business name and see your site before you pay anything. Real copy. Real photos. Real layout — not a template preview with fake content.",
   },
   {
-    icon: Rocket,
+    icon: CreditCard,
     number: "03",
-    title: "Hit Publish",
+    title: "Claim it for $149",
     description:
-      "Your site goes live on your own domain. We handle the hosting, security, and uptime — forever.",
+      "Pay once to publish. Your site goes live at a clean URL within 24 hours. We handle hosting, updates, and security for $9/month. That\u2019s it.",
   },
 ];
 
@@ -33,7 +33,7 @@ export default function HowItWorksSection() {
             How it works
           </span>
           <h2 className="font-display font-extrabold text-brand-ink text-3xl md:text-[48px] leading-[1.05] tracking-[-0.025em] mb-4">
-            Three steps. A few minutes.
+            Three steps. Done in under 24 hours.
           </h2>
         </div>
 

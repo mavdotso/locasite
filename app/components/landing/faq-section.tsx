@@ -5,44 +5,44 @@ import { ChevronDown } from 'lucide-react';
 
 const faqs = [
   {
-    question: 'How does Locosite work?',
+    question: 'How did you build my website without me asking?',
     answer:
-      'Paste your Google Maps or Google Business link. We automatically pull your business info — name, photos, hours, location — and generate a professional website. You can edit anything you want, then hit Publish. That\'s it.',
+      'We used your publicly available Google Maps listing \u2014 the same information anyone can see when they search for your business. We automated the design and layout work. Think of it as a professional website that was always waiting for you to show up.',
   },
   {
-    question: 'Do I need any technical skills?',
+    question: "What's included in the $9/month?",
     answer:
-      'None at all. If you can copy a link and click a button, you can build your website. Our editor is point-and-click — no code, no design experience needed.',
-  },
-  {
-    question: 'What do I get for $149?',
-    answer:
-      'A professionally designed website auto-generated from your Google Business profile, a WYSIWYG editor to customize anything, your own domain, one-click publish, mobile-responsive design, SSL security, and local SEO optimization.',
-  },
-  {
-    question: 'What does the $9/month cover?',
-    answer:
-      'Hosting, security updates, uptime monitoring, basic analytics, and email support. Everything you need to keep your site running smoothly. Cancel anytime.',
+      'Hosting, SSL security certificate (the padlock in browsers), automatic backups, and minor content updates when your hours or menu change. No hidden fees.',
   },
   {
     question: 'Can I use my own domain name?',
     answer:
-      'Yes. Your own domain is included with your $149 purchase. If you already own a domain, we\'ll help you connect it. If you need one, we\'ll set it up for you.',
+      "Yes. If you already own a domain (like yourrestaurant.com), we can connect it. If you don't, your site launches at yourname.locosite.io and you can add a custom domain anytime.",
   },
   {
-    question: 'What if I want to make changes later?',
+    question: "What if I don't like it?",
     answer:
-      'You can edit your site anytime using our built-in editor. Change text, swap photos, update your hours — it\'s all point-and-click. No need to contact anyone.',
+      "Preview it for free before you pay. We don't charge until you decide to publish. If the preview looks wrong, email us and we'll fix it.",
   },
   {
-    question: 'Can I cancel the monthly plan?',
+    question: 'Do I have to pay every month forever?',
     answer:
-      'Yes, cancel anytime with no questions asked. No long-term contracts. If you cancel, your site stays live until the end of your billing period.',
+      'No. The $9/month is hosting \u2014 standard for any website. If you cancel, your site comes down. The $149 one-time fee is a setup and design cost, not a recurring subscription.',
   },
   {
-    question: 'How long until my site is live?',
+    question: 'Is this just a single page or a real website?',
     answer:
-      'Minutes. Paste your Google Maps link, review the auto-generated site, make any edits you want, and hit Publish. Your site can be live the same day.',
+      "It's a real, multi-section website: home, about, menu or services, hours, contact, and a reviews section. Not a placeholder page.",
+  },
+  {
+    question: 'How is this different from my Google Business Profile?',
+    answer:
+      "Google Business Profile shows up in Maps and local search results. A website gives you a destination \u2014 somewhere to send people, run promotions, display your full menu, and own your online presence without depending on Google's algorithm or a third-party platform.",
+  },
+  {
+    question: "What happens if I don't claim my site?",
+    answer:
+      'Your preview stays up for 48 hours after we send it. After that, we archive it and may offer it to other businesses searching for that listing. The site doesn\u2019t stay live without a claim.',
   },
 ];
 
@@ -57,7 +57,7 @@ export default function FAQSection() {
             FAQ
           </span>
           <h2 className="font-display font-extrabold text-brand-ink text-3xl md:text-[48px] leading-[1.05] tracking-[-0.025em] mb-4">
-            Questions? Answers.
+            Questions we get every day
           </h2>
         </div>
 

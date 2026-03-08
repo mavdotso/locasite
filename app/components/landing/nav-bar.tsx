@@ -42,7 +42,7 @@ export default function NavBar() {
               href="#hero"
               className="bg-brand-amber text-brand-ink text-[13px] font-semibold px-[18px] py-[9px] rounded-md hover:brightness-95 transition"
             >
-              Create my website
+              See Your Website
             </Link>
           </div>
 
@@ -69,7 +69,7 @@ export default function NavBar() {
                 className="bg-brand-amber text-brand-ink text-[13px] font-semibold px-[18px] py-[9px] rounded-md text-center hover:brightness-95 transition"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Create my website
+                See Your Website
               </Link>
             </div>
           </div>

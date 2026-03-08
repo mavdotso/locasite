@@ -1,7 +1,10 @@
 import NavBar from "@/app/components/landing/nav-bar";
 import HeroSection from "@/app/components/landing/hero-section";
+import TrustBar from "@/app/components/landing/trust-bar";
+import ProblemSection from "@/app/components/landing/problem-section";
 import HowItWorksSection from "@/app/components/landing/how-it-works-section";
-import FeaturesSection from "@/app/components/landing/features-section";
+import WhoItsForSection from "@/app/components/landing/who-its-for-section";
+import ComparisonSection from "@/app/components/landing/comparison-section";
 import PricingSection from "@/app/components/landing/pricing-section";
 import TestimonialsSection from "@/app/components/landing/testimonials-section";
 import FaqSection from "@/app/components/landing/faq-section";
@@ -14,8 +17,11 @@ export default function HomePage() {
       <NavBar />
       <main>
         <HeroSection />
+        <TrustBar />
+        <ProblemSection />
         <HowItWorksSection />
-        <FeaturesSection />
+        <WhoItsForSection />
+        <ComparisonSection />
         <PricingSection />
         <TestimonialsSection />
         <FaqSection />

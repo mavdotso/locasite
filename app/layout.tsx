@@ -18,18 +18,17 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Locosite - Professional Business Websites",
+    default: "Local Business Website, Done for You \u2014 $149 | Locosite",
     template: "%s | Locosite",
   },
   description:
-    "Create professional websites for your business in minutes. Import from Google Maps, customize with AI, and get online instantly. Perfect for local businesses.",
+    "Locosite builds your business website from your Google Maps listing \u2014 no tech skills, no agency fees. Professional website live in 24 hours for $149 flat + $9/mo. Restaurants, plumbers, HVAC, landscapers.",
   keywords: [
-    "business website",
-    "local business",
-    "website builder",
-    "Google Maps",
-    "AI website",
-    "professional websites",
+    "website for local business",
+    "done for you website small business",
+    "AI website builder for local business",
+    "cheap website for small business",
+    "done for you restaurant website",
   ],
   authors: [{ name: "Locosite Team" }],
   creator: "Locosite",
@@ -40,23 +39,23 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "/",
     siteName: "Locosite",
-    title: "Locosite - Professional Business Websites",
+    title: "Local Business Website, Done for You \u2014 $149 | Locosite",
     description:
-      "Create professional websites for your business in minutes. Import from Google Maps, customize with AI, and get online instantly.",
+      "Locosite builds your business website from your Google Maps listing \u2014 no tech skills, no agency fees. Professional website live in 24 hours for $149 flat + $9/mo.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Locosite - Professional Business Websites",
+        alt: "Local Business Website, Done for You \u2014 $149 | Locosite",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Locosite - Professional Business Websites",
+    title: "Local Business Website, Done for You \u2014 $149 | Locosite",
     description:
-      "Create professional websites for your business in minutes. Import from Google Maps, customize with AI, and get online instantly.",
+      "Locosite builds your business website from your Google Maps listing \u2014 no tech skills, no agency fees. Professional website live in 24 hours for $149 flat + $9/mo.",
     images: ["/og-image.png"],
     creator: "@locosite",
   },
