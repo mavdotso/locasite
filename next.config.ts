@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "careful-emu-235.convex.cloud",
+        hostname: "striped-mandrill-483.convex.cloud",
         pathname: "**",
       },
       {
