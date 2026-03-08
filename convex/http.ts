@@ -1626,4 +1626,48 @@ http.route({
   }),
 });
 
+// Sitemap index for root domain — lists all published business sitemaps
+http.route({
+  path: "/sitemap-index",
+  method: "GET",
+  handler: httpAction(async (ctx) => {
+    try {
+      const subdomains = await ctx.runQuery(
+        internal.bulkSiteCreation.getAllPublishedSubdomains,
+        {},
+      );
+
+      const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
+
+      // Google allows max 50,000 entries per sitemap index
+      const entries = subdomains.slice(0, 50000);
+
+      const sitemapEntries = entries
+        .map(
+          (s: { subdomain: string; lastModified: string }) =>
+            `  <sitemap>
+    <loc>https://${s.subdomain}.${rootDomain}/sitemap.xml</loc>
+    <lastmod>${s.lastModified}</lastmod>
+  </sitemap>`,
+        )
+        .join("\n");
+
+      const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${sitemapEntries}
+</sitemapindex>`;
+
+      return new Response(xml, {
+        status: 200,
+        headers: {
+          "Content-Type": "application/xml",
+          "Cache-Control": "public, max-age=86400",
+        },
+      });
+    } catch {
+      return new Response("Sitemap index generation failed", { status: 500 });
+    }
+  }),
+});
+
 export default http;

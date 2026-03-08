@@ -28,6 +28,7 @@ import type * as dashboardData from "../dashboardData.js";
 import type * as domains from "../domains.js";
 import type * as emailVerification from "../emailVerification.js";
 import type * as http from "../http.js";
+import type * as indexEverything from "../indexEverything.js";
 import type * as lib_autoGeneratePage from "../lib/autoGeneratePage.js";
 import type * as lib_businessDescriptions from "../lib/businessDescriptions.js";
 import type * as lib_businessThemePresets_restaurant from "../lib/businessThemePresets/restaurant.js";
@@ -94,6 +95,7 @@ declare const fullApi: ApiFromModules<{
   domains: typeof domains;
   emailVerification: typeof emailVerification;
   http: typeof http;
+  indexEverything: typeof indexEverything;
   "lib/autoGeneratePage": typeof lib_autoGeneratePage;
   "lib/businessDescriptions": typeof lib_businessDescriptions;
   "lib/businessThemePresets/restaurant": typeof lib_businessThemePresets_restaurant;

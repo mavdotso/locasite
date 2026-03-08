@@ -186,6 +186,13 @@ export default async function middleware(
     return NextResponse.rewrite(new URL(rewritePath, request.url));
   }
 
+  // Root domain sitemap index — serves the global sitemap listing all business sitemaps
+  if (!subdomain && !isCustomDomain && pathname === "/sitemap.xml") {
+    return NextResponse.rewrite(
+      new URL(`${CONVEX_URL}/sitemap-index`, request.url),
+    );
+  }
+
   // For non-subdomain requests, run auth middleware normally
   const authResponse = await authMiddleware(request, event);
   if (authResponse) {

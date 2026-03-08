@@ -71,6 +71,11 @@ export const createSiteForBusiness = internalAction({
         claimToken,
       });
 
+      // 6. Auto-publish so the site is live and indexable
+      await ctx.runMutation(internal.bulkSiteCreation.publishBusiness, {
+        businessId: args.businessId,
+      });
+
       // Update job progress
       if (args.siteJobId) {
         await ctx.runMutation(internal.bulkSiteCreation.updateSiteJobProgress, {
@@ -139,6 +144,18 @@ export const setClaimToken = internalMutation({
     await ctx.db.patch(args.businessId, {
       claimToken: args.claimToken,
       claimTokenCreatedAt: Date.now(),
+    });
+  },
+});
+
+// Auto-publish a business so it's live and indexable
+export const publishBusiness = internalMutation({
+  args: { businessId: v.id("businesses") },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.businessId, {
+      isPublished: true,
+      canPublish: true,
+      publishedAt: Date.now(),
     });
   },
 });
@@ -232,6 +249,29 @@ export const getSiteJob = internalQuery({
   },
 });
 
+// Get all published subdomains for sitemap index
+export const getAllPublishedSubdomains = internalQuery({
+  args: {},
+  handler: async (ctx) => {
+    const businesses = await ctx.db
+      .query("businesses")
+      .withIndex("by_isPublished", (q) => q.eq("isPublished", true))
+      .collect();
+
+    const results: { subdomain: string; lastModified: string }[] = [];
+    for (const biz of businesses) {
+      if (!biz.domainId) continue;
+      const domain = await ctx.db.get(biz.domainId);
+      if (!domain?.subdomain) continue;
+      results.push({
+        subdomain: domain.subdomain,
+        lastModified: new Date(biz.publishedAt || biz._creationTime).toISOString(),
+      });
+    }
+    return results;
+  },
+});
+
 // Export claim links for outreach — CSV-ready data
 export const exportClaimLinks = internalQuery({
   args: {
@@ -263,7 +303,7 @@ export const exportClaimLinks = internalQuery({
 
     return businesses.map((b) => {
       // Get subdomain for preview URL
-      const claimUrl = `${appUrl}/claim/${b.claimToken}`;
+      const claimUrl = `${appUrl}/claim/token/${b.claimToken}`;
       return {
         businessName: b.name,
         address: b.address,
