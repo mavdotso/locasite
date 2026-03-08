@@ -101,7 +101,7 @@ export default function PasteLinkForm({
       }
 
       if (!data.success || !data.businessId) {
-        throw new Error("We couldn\u2019t create your site. Please try again.");
+        throw new Error("Site creation failed. Please try again.");
       }
 
       router.push(`/preview/${data.businessId}`);

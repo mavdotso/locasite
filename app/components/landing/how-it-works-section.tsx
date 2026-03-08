@@ -4,9 +4,9 @@ const steps = [
   {
     icon: Globe,
     number: "01",
-    title: "We build it from your Google listing",
+    title: "Built from your Google listing",
     description:
-      "We pull your business name, address, hours, photos, reviews, and service details directly from Google Maps. No forms to fill out. No questionnaires. Your information is already there.",
+      "Your business name, address, hours, photos, reviews, and service details are pulled directly from Google Maps. No forms to fill out. No questionnaires. Your information is already there.",
   },
   {
     icon: Eye,
@@ -20,7 +20,7 @@ const steps = [
     number: "03",
     title: "Claim it for $149",
     description:
-      "Pay once to publish. Your site goes live at a clean URL within 24 hours. We handle hosting, updates, and security for $9/month. That\u2019s it.",
+      "Pay once to publish. Your site goes live at a clean URL within 24 hours. Hosting, updates, and security are handled for $9/month. That\u2019s it.",
   },
 ];
 

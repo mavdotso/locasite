@@ -339,8 +339,8 @@ export default function BillingPage() {
           <AccordionItem value="refunds">
             <AccordionTrigger>Do you offer refunds?</AccordionTrigger>
             <AccordionContent>
-              We offer a 14-day money-back guarantee for new subscriptions.
-              Contact support if you&apos;re not satisfied.
+              14-day money-back guarantee for new subscriptions. Not satisfied?
+              Request a refund from your account settings.
             </AccordionContent>
           </AccordionItem>
 

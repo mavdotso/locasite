@@ -7,7 +7,7 @@ const faqs = [
   {
     question: 'How did you build my website without me asking?',
     answer:
-      'We used your publicly available Google Maps listing \u2014 the same information anyone can see when they search for your business. We automated the design and layout work. Think of it as a professional website that was always waiting for you to show up.',
+      'Your publicly available Google Maps listing — the same information anyone can see when they search for your business — was used to auto-generate the design and layout. Think of it as a professional website that was always waiting for you to show up.',
   },
   {
     question: "What's included in the $9/month?",
@@ -17,12 +17,12 @@ const faqs = [
   {
     question: 'Can I use my own domain name?',
     answer:
-      "Yes. If you already own a domain (like yourrestaurant.com), we can connect it. If you don't, your site launches at yourname.locosite.io and you can add a custom domain anytime.",
+      "Yes. If you already own a domain (like yourrestaurant.com), connect it in your dashboard. If you don't, your site launches at yourname.locosite.io and you can add a custom domain anytime.",
   },
   {
     question: "What if I don't like it?",
     answer:
-      "Preview it for free before you pay. We don't charge until you decide to publish. If the preview looks wrong, email us and we'll fix it.",
+      "Preview it for free before you pay. No charge until you decide to publish. If the preview looks wrong, request changes through your dashboard.",
   },
   {
     question: 'Do I have to pay every month forever?',
@@ -42,7 +42,7 @@ const faqs = [
   {
     question: "What happens if I don't claim my site?",
     answer:
-      'Your preview stays up for 48 hours after we send it. After that, we archive it and may offer it to other businesses searching for that listing. The site doesn\u2019t stay live without a claim.',
+      'Your preview stays up for 48 hours. After that, it\u2019s archived and may be offered to other businesses searching for that listing. The site doesn\u2019t stay live without a claim.',
   },
 ];
 
@@ -57,7 +57,7 @@ export default function FAQSection() {
             FAQ
           </span>
           <h2 className="font-display font-extrabold text-brand-ink text-3xl md:text-[48px] leading-[1.05] tracking-[-0.025em] mb-4">
-            Questions we get every day
+            Common questions
           </h2>
         </div>
 

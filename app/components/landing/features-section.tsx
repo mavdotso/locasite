@@ -11,7 +11,7 @@ const features = [
   {
     name: "Auto-built from Google Business",
     description:
-      "We pull your name, photos, hours, location, and description from your Google listing. Your site is ready before you lift a finger.",
+      "Your name, photos, hours, location, and description are pulled from your Google listing automatically. Your site is ready before you lift a finger.",
     icon: Globe,
   },
   {
@@ -29,7 +29,7 @@ const features = [
   {
     name: "One-click Publish",
     description:
-      "When you're ready, press Publish. Done. Your site is live. We manage hosting, SSL security, and uptime in the background.",
+      "When you're ready, press Publish. Done. Your site is live. Hosting, SSL security, and uptime are managed in the background.",
     icon: Rocket,
   },
   {
