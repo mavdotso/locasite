@@ -5,7 +5,7 @@ import { ChevronDown } from 'lucide-react';
 
 const faqs = [
   {
-    question: 'How does Locasite work?',
+    question: 'How does Locosite work?',
     answer: 'You tell us about your business and we build your website for you. Our team handles the design, development, and deployment. Your professional website is ready in 7 business days.',
   },
   {

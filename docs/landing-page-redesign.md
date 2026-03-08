@@ -1,4 +1,4 @@
-# Locasite Landing Page Redesign Structure
+# Locosite Landing Page Redesign Structure
 
 ## New Landing Page Flow (Mobile-First Design)
 
@@ -68,7 +68,7 @@
 
 ### 10. **Simplified Pricing**
 **Three clear tiers:**
-- **Free Forever** - 1 site, Locasite subdomain
+- **Free Forever** - 1 site, Locosite subdomain
 - **Professional ($19/mo)** - Everything to grow, custom domain
 - **Business ($49/mo)** - Multi-location, API, white-label
 

@@ -4,7 +4,7 @@ import { Phone, Mail, MapPin, Clock, Scale, ChevronRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Example Website — Carter & Associates Law",
-  description: "See what a Locasite website looks like. This is a sample site for a fictional law firm in Orlando, FL.",
+  description: "See what a Locosite website looks like. This is a sample site for a fictional law firm in Orlando, FL.",
 };
 
 function SampleNav() {
@@ -178,9 +178,9 @@ function SampleFooter() {
 export default function ExamplesPage() {
   return (
     <div className="min-h-screen bg-brand-cream">
-      {/* Banner linking back to Locasite */}
+      {/* Banner linking back to Locosite */}
       <div className="bg-brand-forest text-brand-cream py-3 px-6 text-center text-sm">
-        <span className="text-brand-sage">This is a sample website built by Locasite.</span>
+        <span className="text-brand-sage">This is a sample website built by Locosite.</span>
         {" "}
         <Link href="/#pricing" className="font-semibold text-brand-amber hover:underline inline-flex items-center gap-1">
           Get yours for $149 <ChevronRight className="h-3 w-3" />

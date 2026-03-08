@@ -1,11 +1,11 @@
-# PRODUCTION READINESS REPORT — Locasite
+# PRODUCTION READINESS REPORT — Locosite
 
 **Date:** 2026-02-25
 **Score:** 31/100
 
 ## Executive Summary
 
-Locasite scores **31/100** on production readiness. The application has a solid frontend architecture and well-structured Convex schema, but suffers from **critical security vulnerabilities** (13+ unauthenticated/unauthorized endpoints exposing all business data), **zero test coverage** (0 tests across 216 source files), and **no CI/CD, monitoring, or error tracking**. The Stripe integration is nearly complete but several core features (email verification, analytics, business templates) are stubbed out. Estimated effort to a defensible MVP: **4–6 weeks** of focused work.
+Locosite scores **31/100** on production readiness. The application has a solid frontend architecture and well-structured Convex schema, but suffers from **critical security vulnerabilities** (13+ unauthenticated/unauthorized endpoints exposing all business data), **zero test coverage** (0 tests across 216 source files), and **no CI/CD, monitoring, or error tracking**. The Stripe integration is nearly complete but several core features (email verification, analytics, business templates) are stubbed out. Estimated effort to a defensible MVP: **4–6 weeks** of focused work.
 
 ---
 
@@ -275,7 +275,7 @@ Phase 6: Post-Launch (backlog)
 
 #### Hardcoded Values
 - `CLIENT_ORIGIN` defaults to `"*"`
-- `locasite.xyz` hardcoded as domain fallback
+- `locosite.io` hardcoded as domain fallback
 - `cname.vercel-dns.com` hardcoded in DNS records
 - Vercel IPs `76.76.21.21`, `76.223.126.88` hardcoded
 - Direct `process.env` access bypassing `convexEnv` in 6+ locations

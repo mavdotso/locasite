@@ -128,7 +128,7 @@ export function PageSettings({
   const uploadFavicon = useMutation(api.businessSeo.uploadFavicon);
   const updateSeoSettings = useMutation(api.businessSeo.updateSeoSettings);
 
-  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz";
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
 
   // Initialize form data from business
   useEffect(() => {

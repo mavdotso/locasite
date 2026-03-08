@@ -1,5 +1,5 @@
 DESCRIPTION >
-    Page view events from Locasite websites
+    Page view events from Locosite websites
 
 SCHEMA >
     `timestamp` DateTime `json:$.timestamp`,

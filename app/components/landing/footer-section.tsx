@@ -22,7 +22,7 @@ export default function FooterSection() {
             <div className="flex items-center gap-2 mb-4">
               <span className="text-brand-forest"><LogoMark /></span>
               <span className="font-display font-extrabold text-brand-ink text-lg tracking-tight">
-                Locasite
+                Locosite
               </span>
             </div>
             <p className="text-brand-taupe text-[14px] leading-[1.6] max-w-xs">
@@ -52,7 +52,7 @@ export default function FooterSection() {
         </div>
 
         <div className="mt-10 border-t border-brand-border pt-6 text-center text-brand-taupe text-[13px]">
-          &copy; {currentYear} Locasite. All rights reserved.
+          &copy; {currentYear} Locosite. All rights reserved.
         </div>
       </div>
     </footer>

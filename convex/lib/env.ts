@@ -15,7 +15,7 @@ export const convexEnv = {
     process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   NEXT_PUBLIC_CONVEX_URL: requireEnv("NEXT_PUBLIC_CONVEX_URL"),
   NEXT_PUBLIC_ROOT_DOMAIN:
-    process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz",
+    process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io",
 
   // Google Services
   GOOGLE_MAPS_API_KEY: requireEnv("GOOGLE_MAPS_API_KEY"),
@@ -47,7 +47,7 @@ export const convexEnv = {
   RESEND_API_KEY: requireEnv("RESEND_API_KEY"),
 
   // Email sender
-  SENDER_EMAIL: process.env.SENDER_EMAIL || "noreply@locasite.xyz",
+  SENDER_EMAIL: process.env.SENDER_EMAIL || "noreply@locosite.io",
 
   // Tinybird Analytics (used in HTTP endpoints)
   NEXT_PUBLIC_TINYBIRD_API_URL:

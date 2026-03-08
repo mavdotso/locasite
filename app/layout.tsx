@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Locasite - Professional Business Websites",
-    template: "%s | Locasite",
+    default: "Locosite - Professional Business Websites",
+    template: "%s | Locosite",
   },
   description:
     "Create professional websites for your business in minutes. Import from Google Maps, customize with AI, and get online instantly. Perfect for local businesses.",
@@ -31,16 +31,16 @@ export const metadata: Metadata = {
     "AI website",
     "professional websites",
   ],
-  authors: [{ name: "Locasite Team" }],
-  creator: "Locasite",
-  publisher: "Locasite",
+  authors: [{ name: "Locosite Team" }],
+  creator: "Locosite",
+  publisher: "Locosite",
   metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "/",
-    siteName: "Locasite",
-    title: "Locasite - Professional Business Websites",
+    siteName: "Locosite",
+    title: "Locosite - Professional Business Websites",
     description:
       "Create professional websites for your business in minutes. Import from Google Maps, customize with AI, and get online instantly.",
     images: [
@@ -48,17 +48,17 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Locasite - Professional Business Websites",
+        alt: "Locosite - Professional Business Websites",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Locasite - Professional Business Websites",
+    title: "Locosite - Professional Business Websites",
     description:
       "Create professional websites for your business in minutes. Import from Google Maps, customize with AI, and get online instantly.",
     images: ["/og-image.png"],
-    creator: "@locasite",
+    creator: "@locosite",
   },
   robots: {
     index: true,

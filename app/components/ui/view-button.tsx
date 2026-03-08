@@ -23,7 +23,7 @@ export default function ViewButton({
 }: ViewButtonProps) {
   const domain = useQuery(api.domains.getByBusinessId, { businessId });
   
-  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'locasite.xyz';
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'locosite.io';
   const isDevelopment = process.env.NODE_ENV === 'development';
 
   if (!domain) {

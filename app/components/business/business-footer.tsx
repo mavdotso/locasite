@@ -29,7 +29,7 @@ export function BusinessFooter({
             rel="noopener noreferrer"
             className="font-medium text-primary hover:underline"
           >
-            Locasite
+            Locosite
           </Link>
         </p>
       </div>

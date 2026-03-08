@@ -36,8 +36,8 @@ export function BrowserMockup({
               <div className="mx-auto flex max-w-sm items-center gap-2 rounded-md bg-muted px-3 py-1.5 text-xs text-muted-foreground">
                 <Globe className="h-3 w-3" />
                 {previewData
-                  ? `${toUrlFriendly(previewData.name || "business")}.locasite.com`
-                  : "your-business.locasite.com"}
+                  ? `${toUrlFriendly(previewData.name || "business")}.locosite.io`
+                  : "your-business.locosite.io"}
               </div>
             </div>
           </div>

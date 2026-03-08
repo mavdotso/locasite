@@ -9,30 +9,33 @@ interface LogoProps {
   textClassName?: string;
 }
 
-export default function Logo({ 
-  className, 
-  width = 18, 
-  height = 18, 
+export default function Logo({
+  className,
+  width = 16,
+  height = 20,
   showText = true,
-  textClassName 
+  textClassName
 }: LogoProps) {
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      <svg 
-        xmlns="http://www.w3.org/2000/svg" 
-        width={width} 
-        height={height} 
-        viewBox="0 0 18 18"
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={width}
+        height={height}
+        viewBox="0 0 16 20"
         className="flex-shrink-0"
+        fill="none"
       >
-        <g fill="oklch(48.8% 0.243 264.376)">
-          <path d="M7.94127 1.36281C8.56694 0.887445 9.4333 0.886569 10.0591 1.36312L15.3088 5.35287C15.7448 5.68398 16 6.20008 16 6.746V8.72958C15.5263 8.58043 15.0224 8.5 14.5 8.5C11.7419 8.5 9.5 10.7419 9.5 13.5C9.5 14.9476 10.118 16.1292 10.8045 17H4.75C3.23079 17 2 15.7692 2 14.25V6.746C2 6.19867 2.2559 5.68346 2.69155 5.3526L7.94127 1.36281Z" fillOpacity="0.4" />
-          <path d="M14.5 10C12.5703 10 11 11.5703 11 13.5C11 16.1543 14.0107 17.8369 14.1396 17.9072C14.2519 17.9687 14.3759 18 14.5 18C14.6241 18 14.748 17.9688 14.8604 17.9072C14.9893 17.8369 18 16.1543 18 13.5C18 11.5703 16.4297 10 14.5 10ZM14.5 14.5C13.9478 14.5 13.5 14.0522 13.5 13.5C13.5 12.9478 13.9478 12.5 14.5 12.5C15.0522 12.5 15.5 12.9477 15.5 13.5C15.5 14.0523 15.0522 14.5 14.5 14.5Z" />
-        </g>
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          fill="#F97316"
+          d="M8 0C4.686 0 2 2.686 2 6C2 9.975 8 16 8 16C8 16 14 9.975 14 6C14 2.686 11.314 0 8 0ZM8 8.5C6.619 8.5 5.5 7.381 5.5 6C5.5 4.619 6.619 3.5 8 3.5C9.381 3.5 10.5 4.619 10.5 6C10.5 7.381 9.381 8.5 8 8.5Z"
+        />
       </svg>
       {showText && (
-        <span className={cn("font-bold text-xl", textClassName)}>
-          Locasite
+        <span className={cn("font-bold text-xl tracking-tight", textClassName)}>
+          locosite
         </span>
       )}
     </div>
