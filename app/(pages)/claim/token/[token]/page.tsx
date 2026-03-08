@@ -6,7 +6,6 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 
-import { SitePreviewFrame } from "@/app/components/preview/site-preview-frame";
 import { ClaimBanner } from "@/app/components/claim/claim-banner";
 
 export default function ClaimByTokenPage() {

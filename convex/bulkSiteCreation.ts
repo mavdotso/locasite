@@ -64,16 +64,11 @@ export const createSiteForBusiness = internalAction({
         );
       }
 
-      // 5. Generate claim token
+      // 5. Generate claim token + auto-publish in one mutation
       const claimToken = crypto.randomUUID();
-      await ctx.runMutation(internal.bulkSiteCreation.setClaimToken, {
+      await ctx.runMutation(internal.bulkSiteCreation.setClaimTokenAndPublish, {
         businessId: args.businessId,
         claimToken,
-      });
-
-      // 6. Auto-publish so the site is live and indexable
-      await ctx.runMutation(internal.bulkSiteCreation.publishBusiness, {
-        businessId: args.businessId,
       });
 
       // Update job progress
@@ -134,8 +129,8 @@ export const bulkCreateSites = internalAction({
   },
 });
 
-// Set claim token on a business
-export const setClaimToken = internalMutation({
+// Set claim token and auto-publish in a single mutation
+export const setClaimTokenAndPublish = internalMutation({
   args: {
     businessId: v.id("businesses"),
     claimToken: v.string(),
@@ -144,15 +139,6 @@ export const setClaimToken = internalMutation({
     await ctx.db.patch(args.businessId, {
       claimToken: args.claimToken,
       claimTokenCreatedAt: Date.now(),
-    });
-  },
-});
-
-// Auto-publish a business so it's live and indexable
-export const publishBusiness = internalMutation({
-  args: { businessId: v.id("businesses") },
-  handler: async (ctx, args) => {
-    await ctx.db.patch(args.businessId, {
       isPublished: true,
       canPublish: true,
       publishedAt: Date.now(),
@@ -251,20 +237,24 @@ export const getSiteJob = internalQuery({
 
 // Get all published subdomains for sitemap index
 export const getAllPublishedSubdomains = internalQuery({
-  args: {},
-  handler: async (ctx) => {
+  args: { limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
     const businesses = await ctx.db
       .query("businesses")
       .withIndex("by_isPublished", (q) => q.eq("isPublished", true))
-      .collect();
+      .take(args.limit ?? 50000);
+
+    // Batch-fetch all domains at once to avoid N+1
+    const domains = await ctx.db.query("domains").collect();
+    const domainMap = new Map(domains.map((d) => [d._id, d.subdomain]));
 
     const results: { subdomain: string; lastModified: string }[] = [];
     for (const biz of businesses) {
       if (!biz.domainId) continue;
-      const domain = await ctx.db.get(biz.domainId);
-      if (!domain?.subdomain) continue;
+      const subdomain = domainMap.get(biz.domainId);
+      if (!subdomain) continue;
       results.push({
-        subdomain: domain.subdomain,
+        subdomain,
         lastModified: new Date(biz.publishedAt || biz._creationTime).toISOString(),
       });
     }
