@@ -76,12 +76,14 @@ export default async function middleware(
   const rootDomain = env.NEXT_PUBLIC_ROOT_DOMAIN;
 
   // Handle custom domains (not subdomains of root domain)
+  const deploymentSuffix = env.NEXT_PUBLIC_VERCEL_DEPLOYMENT_SUFFIX;
   const isCustomDomain =
     !subdomain &&
     hostname !== rootDomain &&
     hostname !== `www.${rootDomain}` &&
     !hostname.includes("localhost") &&
-    !hostname.includes("127.0.0.1");
+    !hostname.includes("127.0.0.1") &&
+    !(deploymentSuffix && hostname.endsWith(`.${deploymentSuffix}`));
 
   if (isCustomDomain) {
     // Block access to dashboard and admin routes from custom domains
