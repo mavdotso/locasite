@@ -1,5 +1,5 @@
 DESCRIPTION >
-    Custom events tracked on Locasite websites
+    Custom events tracked on Locosite websites
 
 SCHEMA >
     `timestamp` DateTime `json:$.timestamp`,

@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { SITE_CONFIG } from "@/app/lib/site-config";
 
-export const metadata: Metadata = { title: "Terms of Service — Locasite" };
+export const metadata: Metadata = { title: "Terms of Service — Locosite" };
 
 export default function TermsOfServicePage() {
   return (
@@ -20,7 +20,7 @@ export default function TermsOfServicePage() {
               Acceptance of Terms
             </h2>
             <p className="text-muted-foreground leading-relaxed">
-              By accessing or using Locasite, you agree to be bound by these
+              By accessing or using Locosite, you agree to be bound by these
               Terms of Service. If you do not agree to these terms, you may not
               use our services. We reserve the right to update these terms at any
               time, and your continued use of the platform constitutes acceptance
@@ -33,7 +33,7 @@ export default function TermsOfServicePage() {
               Service Description
             </h2>
             <p className="text-muted-foreground leading-relaxed">
-              Locasite provides a platform for creating and hosting professional
+              Locosite provides a platform for creating and hosting professional
               business websites. Our services include website generation from
               Google Maps data, AI-powered content creation, custom domain
               support, analytics, and contact form management. Features may vary
@@ -62,10 +62,10 @@ export default function TermsOfServicePage() {
             </h2>
             <p className="text-muted-foreground leading-relaxed">
               You retain ownership of the content you create and upload to
-              Locasite. By using our services, you grant us a limited license to
+              Locosite. By using our services, you grant us a limited license to
               host, display, and distribute your content as necessary to provide
-              the service. The Locasite platform, including its design, code, and
-              branding, is owned by Locasite and protected by intellectual
+              the service. The Locosite platform, including its design, code, and
+              branding, is owned by Locosite and protected by intellectual
               property laws.
             </p>
           </section>
@@ -75,10 +75,10 @@ export default function TermsOfServicePage() {
               Limitation of Liability
             </h2>
             <p className="text-muted-foreground leading-relaxed">
-              Locasite is provided &ldquo;as is&rdquo; without warranties of any
+              Locosite is provided &ldquo;as is&rdquo; without warranties of any
               kind, either express or implied. We do not guarantee uninterrupted
               or error-free service. To the maximum extent permitted by law,
-              Locasite shall not be liable for any indirect, incidental, special,
+              Locosite shall not be liable for any indirect, incidental, special,
               or consequential damages arising from your use of the service.
             </p>
           </section>
@@ -88,7 +88,7 @@ export default function TermsOfServicePage() {
               Termination
             </h2>
             <p className="text-muted-foreground leading-relaxed">
-              We may suspend or terminate your access to Locasite at any time for
+              We may suspend or terminate your access to Locosite at any time for
               violations of these terms or for any other reason at our
               discretion. You may also close your account at any time. Upon
               termination, your right to use the service ceases immediately, and

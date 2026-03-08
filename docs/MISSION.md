@@ -1,7 +1,7 @@
-# Locasite — Mission & Vision
+# Locosite — Mission & Vision
 
-## What is Locasite?
-Business Site Generator SaaS that creates professional websites for local businesses by scraping Google Maps data. Subdomain-based multi-tenancy (e.g., `joes-pizza.locasite.com`).
+## What is Locosite?
+Business Site Generator SaaS that creates professional websites for local businesses by scraping Google Maps data. Subdomain-based multi-tenancy (e.g., `joes-pizza.locosite.io`).
 
 ## Target Users
 - Local businesses without websites
@@ -15,7 +15,7 @@ Business Site Generator SaaS that creates professional websites for local busine
 4. **Editable**: Business owners can claim and customize
 
 ## Monetization
-- Free tier: Basic site with Locasite branding
+- Free tier: Basic site with Locosite branding
 - Paid tier: Custom domain, remove branding, analytics
 - Enterprise: White-label for agencies
 

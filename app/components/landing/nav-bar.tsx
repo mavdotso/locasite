@@ -25,7 +25,7 @@ export default function NavBar() {
           <Link href="/" className="flex items-center gap-2">
             <LogoMark className="text-brand-cream" />
             <span className="font-display font-extrabold text-xl text-brand-cream tracking-tight">
-              Locasite
+              Locosite
             </span>
           </Link>
 

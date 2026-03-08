@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { SITE_CONFIG } from "@/app/lib/site-config";
 
-export const metadata: Metadata = { title: "Privacy Policy — Locasite" };
+export const metadata: Metadata = { title: "Privacy Policy — Locosite" };
 
 export default function PrivacyPolicyPage() {
   return (
@@ -20,7 +20,7 @@ export default function PrivacyPolicyPage() {
               Information We Collect
             </h2>
             <p className="text-muted-foreground leading-relaxed">
-              When you use Locasite, we collect information you provide directly,
+              When you use Locosite, we collect information you provide directly,
               such as your name, email address, and business details. We also
               collect usage data automatically, including pages visited, features
               used, and device information. If you connect third-party services

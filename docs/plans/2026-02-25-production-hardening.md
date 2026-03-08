@@ -394,7 +394,7 @@ git commit -m "security: use crypto.getRandomValues() for verification tokens"
 - Modify: `app/(pages)/privacy/page.tsx` (lines 89-95)
 - Modify: `app/(pages)/terms/page.tsx` (lines 114-119)
 
-**Context:** Both pages end with an explicit disclaimer: "This privacy policy is a placeholder and will be updated with complete legal terms before the general availability release of Locasite." This undermines user trust. The content itself is reasonable for an MVP — remove just the disclaimer.
+**Context:** Both pages end with an explicit disclaimer: "This privacy policy is a placeholder and will be updated with complete legal terms before the general availability release of Locosite." This undermines user trust. The content itself is reasonable for an MVP — remove just the disclaimer.
 
 **Step 1: Remove the placeholder disclaimer from privacy page**
 
@@ -404,7 +404,7 @@ Delete lines 89-95 in `app/(pages)/privacy/page.tsx`:
             <p className="text-sm text-muted-foreground">
               This privacy policy is a placeholder and will be updated with
               complete legal terms before the general availability release of
-              Locasite.
+              Locosite.
             </p>
           </div>
 ```
@@ -417,7 +417,7 @@ Delete lines 114-119 in `app/(pages)/terms/page.tsx`:
             <p className="text-sm text-muted-foreground">
               These terms of service are a placeholder and will be updated with
               complete legal terms before the general availability release of
-              Locasite.
+              Locosite.
             </p>
           </div>
 ```
@@ -588,7 +588,7 @@ git commit -m "fix: clean up orphaned Stripe records when last business is delet
 ### Task 9: Move hardcoded sender email to environment config
 
 **Files:**
-- Modify: `convex/emailVerification.ts` (line ~92, the "noreply@locasite.xyz" string)
+- Modify: `convex/emailVerification.ts` (line ~92, the "noreply@locosite.io" string)
 - Modify: `convex/lib/env.ts` (add new env var)
 - Modify: `.env.example` (document the new var)
 
@@ -598,19 +598,19 @@ Add to the `convexEnv` object:
 
 ```typescript
   // Email
-  SENDER_EMAIL: process.env.SENDER_EMAIL || "noreply@locasite.xyz",
+  SENDER_EMAIL: process.env.SENDER_EMAIL || "noreply@locosite.io",
 ```
 
 **Step 2: Use env var in emailVerification.ts**
 
-Replace the hardcoded `"noreply@locasite.xyz"` with `convexEnv.SENDER_EMAIL`.
+Replace the hardcoded `"noreply@locosite.io"` with `convexEnv.SENDER_EMAIL`.
 
 **Step 3: Document in .env.example**
 
 Add under the Resend section:
 ```
-# Sender email address for verification emails (optional, defaults to noreply@locasite.xyz)
-SENDER_EMAIL=noreply@locasite.xyz
+# Sender email address for verification emails (optional, defaults to noreply@locosite.io)
+SENDER_EMAIL=noreply@locosite.io
 ```
 
 **Step 4: Commit**

@@ -1,4 +1,4 @@
-# Locasite — Roadmap
+# Locosite — Roadmap
 
 ## Current Status: ~75% Ready for Alpha
 

@@ -106,7 +106,7 @@ export default function ClaimPage() {
                   <div className="w-3 h-3 rounded-full bg-green-400" />
                 </div>
                 <span className="text-xs text-gray-500 truncate flex-1 text-center">
-                  {business.previewUrl || "your-site.locasite.xyz"}
+                  {business.previewUrl || "your-site.locosite.io"}
                 </span>
               </div>
               {business.previewUrl ? (

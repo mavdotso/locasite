@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 
 // Test the subdomain extraction logic
 describe("subdomain routing logic", () => {
-  const ROOT_DOMAIN = "locasite.xyz";
+  const ROOT_DOMAIN = "locosite.io";
 
   function getSubdomain(hostname: string): string | null {
     const host = hostname.replace(/:\d+$/, "");
@@ -17,11 +17,11 @@ describe("subdomain routing logic", () => {
   }
 
   it("returns null for root domain", () => {
-    expect(getSubdomain("locasite.xyz")).toBeNull();
+    expect(getSubdomain("locosite.io")).toBeNull();
   });
 
   it("returns null for www", () => {
-    expect(getSubdomain("www.locasite.xyz")).toBeNull();
+    expect(getSubdomain("www.locosite.io")).toBeNull();
   });
 
   it("returns null for localhost", () => {
@@ -29,14 +29,14 @@ describe("subdomain routing logic", () => {
   });
 
   it("extracts subdomain from business site", () => {
-    expect(getSubdomain("joes-pizza.locasite.xyz")).toBe("joes-pizza");
+    expect(getSubdomain("joes-pizza.locosite.io")).toBe("joes-pizza");
   });
 
   it("returns null for root domain with port", () => {
-    expect(getSubdomain("locasite.xyz:3000")).toBeNull();
+    expect(getSubdomain("locosite.io:3000")).toBeNull();
   });
 
   it("handles nested subdomains", () => {
-    expect(getSubdomain("sub.joes-pizza.locasite.xyz")).toBe("sub");
+    expect(getSubdomain("sub.joes-pizza.locosite.io")).toBe("sub");
   });
 });

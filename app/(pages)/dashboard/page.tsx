@@ -218,7 +218,7 @@ function BusinessCard({
             {business.isPublished && domain ? (
               <Button asChild variant="outline" size="sm" className="flex-1 h-9">
                 <a
-                  href={`https://${domain.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locasite.xyz"}`}
+                  href={`https://${domain.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io"}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

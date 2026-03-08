@@ -6,7 +6,7 @@ const testimonials = [
     business: "Garcia Tax Services",
     location: "Orlando, FL",
     initials: "MG",
-    text: "I was quoted $3,000 for a website by a local agency. Locasite built me something just as good for $149. My clients say it looks very professional.",
+    text: "I was quoted $3,000 for a website by a local agency. Locosite built me something just as good for $149. My clients say it looks very professional.",
   },
   {
     name: "James Thompson",
@@ -33,7 +33,7 @@ export default function TestimonialsSection() {
             Testimonials
           </span>
           <h2 className="font-display font-extrabold text-brand-ink text-3xl md:text-[48px] leading-[1.05] tracking-[-0.025em] mb-4">
-            Local businesses trust Locasite
+            Local businesses trust Locosite
           </h2>
         </div>
 

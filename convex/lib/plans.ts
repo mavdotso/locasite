@@ -25,7 +25,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanType, SubscriptionPlan> = {
     features: [
       "1 business site",
       "Basic customization",
-      "Locasite subdomain",
+      "Locosite subdomain",
       "Basic analytics (Coming soon)",
     ],
     limits: {
@@ -45,7 +45,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanType, SubscriptionPlan> = {
     features: [
       "Unlimited business sites",
       "Advanced customization",
-      "Remove Locasite branding",
+      "Remove Locosite branding",
       "Priority support",
       "Advanced analytics (Coming soon)",
       "Custom favicon",

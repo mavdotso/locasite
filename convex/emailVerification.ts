@@ -91,7 +91,7 @@ export const sendVerificationEmail = action({
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `Locasite <${convexEnv.SENDER_EMAIL}>`,
+        from: `Locosite <${convexEnv.SENDER_EMAIL}>`,
         to: [business.email],
         subject: `Verify your ownership of ${business.name}`,
         html: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
