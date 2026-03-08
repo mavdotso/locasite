@@ -43,10 +43,12 @@ function isValidGoogleMapsUrl(url: string): boolean {
 
 interface PasteLinkFormProps {
   variant?: "default" | "hero";
+  ctaLabel?: string;
 }
 
 export default function PasteLinkForm({
   variant = "default",
+  ctaLabel,
 }: PasteLinkFormProps) {
   const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -144,7 +146,7 @@ export default function PasteLinkForm({
               </>
             ) : (
               <>
-                See Your Website
+                {ctaLabel || "See Your Website"}
                 <ArrowRight className="h-5 w-5" />
               </>
             )}
@@ -203,7 +205,7 @@ export default function PasteLinkForm({
           </>
         ) : (
           <>
-            See Your Website
+            {ctaLabel || "See Your Website"}
             <ArrowRight className="h-5 w-5" />
           </>
         )}

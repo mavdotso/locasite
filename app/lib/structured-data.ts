@@ -157,3 +157,67 @@ export function generateWebsiteStructuredData(
     },
   };
 }
+
+export function generateFAQPageStructuredData(
+  faqs: Array<{ question: string; answer: string }>,
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+}
+
+export function generateHowToStructuredData() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: "How to Get a Free Business Website in 30 Seconds",
+    description:
+      "Create a free professional website from your Google Maps listing in three simple steps.",
+    step: [
+      {
+        "@type": "HowToStep",
+        name: "Paste your Google Maps link",
+        text: "Copy the URL of your business from Google Maps and paste it into the Locosite form.",
+      },
+      {
+        "@type": "HowToStep",
+        name: "Preview your website",
+        text: "We auto-generate a professional website using your business name, photos, hours, and reviews. Preview it instantly.",
+      },
+      {
+        "@type": "HowToStep",
+        name: "Publish for free",
+        text: "Click publish to make your website live at yourname.locosite.io. No credit card required.",
+      },
+    ],
+  };
+}
+
+export function generateProductStructuredData() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: "Locosite Free Website",
+    description:
+      "A free professional website for local businesses, auto-generated from your Google Maps listing.",
+    brand: {
+      "@type": "Brand",
+      name: "Locosite",
+    },
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
+    },
+  };
+}
