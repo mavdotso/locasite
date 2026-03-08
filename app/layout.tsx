@@ -18,11 +18,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Local Business Website, Done for You \u2014 $149 | Locosite",
+    default: "Free Website for Your Local Business, Done for You | Locosite",
     template: "%s | Locosite",
   },
   description:
-    "Locosite builds your business website from your Google Maps listing \u2014 no tech skills, no agency fees. Professional website live in 24 hours for $149 flat + $9/mo. Restaurants, plumbers, HVAC, landscapers.",
+    "Locosite builds your business website from your Google Maps listing \u2014 no tech skills, no agency fees. Publish free, upgrade from $9/mo. Restaurants, plumbers, HVAC, landscapers.",
   keywords: [
     "website for local business",
     "done for you website small business",
@@ -39,23 +39,23 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "/",
     siteName: "Locosite",
-    title: "Local Business Website, Done for You \u2014 $149 | Locosite",
+    title: "Free Website for Your Local Business, Done for You | Locosite",
     description:
-      "Locosite builds your business website from your Google Maps listing \u2014 no tech skills, no agency fees. Professional website live in 24 hours for $149 flat + $9/mo.",
+      "Locosite builds your business website from your Google Maps listing \u2014 no tech skills, no agency fees. Publish free, upgrade from $9/mo.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Local Business Website, Done for You \u2014 $149 | Locosite",
+        alt: "Free Website for Your Local Business, Done for You | Locosite",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Local Business Website, Done for You \u2014 $149 | Locosite",
+    title: "Free Website for Your Local Business, Done for You | Locosite",
     description:
-      "Locosite builds your business website from your Google Maps listing \u2014 no tech skills, no agency fees. Professional website live in 24 hours for $149 flat + $9/mo.",
+      "Locosite builds your business website from your Google Maps listing \u2014 no tech skills, no agency fees. Publish free, upgrade from $9/mo.",
     images: ["/og-image.png"],
     creator: "@locosite",
   },

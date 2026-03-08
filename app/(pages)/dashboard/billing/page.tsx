@@ -4,7 +4,11 @@ import * as Sentry from "@sentry/nextjs";
 import { useState } from "react";
 import { useQuery, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { SUBSCRIPTION_PLANS, PlanType } from "@/convex/lib/plans";
+import {
+  PlanType,
+  SUBSCRIPTION_PLANS,
+  PLAN_DISPLAY_NAMES,
+} from "@/convex/lib/plans";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,7 +29,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
-import { SITE_CONFIG } from "@/app/lib/site-config";
 import {
   Accordion,
   AccordionContent,
@@ -50,13 +53,6 @@ export default function BillingPage() {
 
   const handleSubscribe = async (planType: PlanType) => {
     if (planType === "FREE") return;
-
-    if (planType === "BUSINESS") {
-      // For Business plan, redirect to contact form
-      window.location.href =
-        `mailto:${SITE_CONFIG.emails.sales}?subject=Business Plan Inquiry`;
-      return;
-    }
 
     setLoadingPlan(planType);
     try {
@@ -157,7 +153,7 @@ export default function BillingPage() {
               <div>
                 <p className="font-medium">Plan</p>
                 <p className="text-muted-foreground">
-                  {SUBSCRIPTION_PLANS[currentPlan].name}
+                  {PLAN_DISPLAY_NAMES[currentPlan]}
                 </p>
               </div>
               <Badge
@@ -233,13 +229,15 @@ export default function BillingPage() {
               <CardHeader>
                 <div className="flex items-center gap-2">
                   {getPlanIcon(plan.type)}
-                  <CardTitle>{plan.name}</CardTitle>
+                  <CardTitle>{PLAN_DISPLAY_NAMES[plan.type]}</CardTitle>
                 </div>
                 <div className="mt-4">
                   <span className="text-3xl font-bold">
                     ${plan.price / 100}
                   </span>
-                  <span className="text-muted-foreground">/month</span>
+                  <span className="text-muted-foreground">
+                    {plan.type === "FREE" ? "/forever" : "/mo"}
+                  </span>
                 </div>
               </CardHeader>
 
@@ -257,23 +255,32 @@ export default function BillingPage() {
                   <h4 className="font-medium text-sm">Limits</h4>
                   <ul className="space-y-1 text-sm text-muted-foreground">
                     <li>
-                      Business sites:{" "}
-                      {plan.limits.businesses === -1
+                      Themes:{" "}
+                      {plan.limits.themeCount === -1
                         ? "Unlimited"
-                        : plan.limits.businesses}
+                        : plan.limits.themeCount}
                     </li>
                     <li>
-                      Custom domains:{" "}
-                      {plan.limits.customDomains === -1
+                      Monthly visitors:{" "}
+                      {plan.limits.monthlyVisitsSoftCap === -1
                         ? "Unlimited"
-                        : plan.limits.customDomains || "Not included"}
+                        : plan.limits.monthlyVisitsSoftCap.toLocaleString()}
                     </li>
-                    {plan.limits.analytics && (
-                      <li>✓ Advanced analytics (Coming soon)</li>
+                    {plan.limits.contentEditing && <li>✓ Content editing</li>}
+                    {plan.limits.visualEditor && <li>✓ Full visual editor</li>}
+                    {plan.limits.seoEditor && <li>✓ SEO meta editor</li>}
+                    {plan.limits.googleReviews && (
+                      <li>✓ Google Reviews widget</li>
                     )}
-                    {plan.limits.removeWatermark && <li>✓ Remove watermark</li>}
+                    {plan.limits.photoGallery && <li>✓ Photo gallery</li>}
+                    {plan.limits.menuManagement && <li>✓ Menu management</li>}
+                    {plan.limits.customDomains !== 0 && (
+                      <li>✓ Custom domain</li>
+                    )}
+                    {plan.limits.removeWatermark && (
+                      <li>✓ Remove Locosite branding</li>
+                    )}
                     {plan.limits.prioritySupport && <li>✓ Priority support</li>}
-                    {plan.limits.apiAccess && <li>✓ API access</li>}
                   </ul>
                 </div>
               </CardContent>
@@ -299,9 +306,7 @@ export default function BillingPage() {
                       ? "Downgrade"
                       : plan.type === "FREE"
                         ? "Free"
-                        : plan.type === "BUSINESS"
-                          ? "Contact us"
-                          : "Upgrade"}
+                        : "Upgrade"}
                 </Button>
               </CardFooter>
             </Card>
@@ -317,30 +322,17 @@ export default function BillingPage() {
 
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="cancel">
-            <AccordionTrigger>Can I cancel anytime?</AccordionTrigger>
+            <AccordionTrigger>Can I cancel?</AccordionTrigger>
             <AccordionContent>
-              Yes, you can cancel your subscription at any time. You&apos;ll
-              continue to have access to your plan features until the end of
-              your billing period.
+              Yes, anytime. Your site stays live on the free tier.
             </AccordionContent>
           </AccordionItem>
 
           <AccordionItem value="downgrade">
-            <AccordionTrigger>
-              What happens to my sites if I downgrade?
-            </AccordionTrigger>
+            <AccordionTrigger>Can I downgrade?</AccordionTrigger>
             <AccordionContent>
-              If you exceed the limits of your new plan, you&apos;ll need to
-              choose which sites to keep active. The others will be paused but
-              not deleted.
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="refunds">
-            <AccordionTrigger>Do you offer refunds?</AccordionTrigger>
-            <AccordionContent>
-              14-day money-back guarantee for new subscriptions. Not satisfied?
-              Request a refund from your account settings.
+              Yes. Downgrading moves you to the free tier. Your site stays live
+              but editing and branding removal are locked.
             </AccordionContent>
           </AccordionItem>
 
@@ -356,12 +348,9 @@ export default function BillingPage() {
           </AccordionItem>
 
           <AccordionItem value="change-plans">
-            <AccordionTrigger>Can I change plans at any time?</AccordionTrigger>
+            <AccordionTrigger>Can I switch plans?</AccordionTrigger>
             <AccordionContent>
-              Yes, you can upgrade your plan at any time. When you upgrade,
-              you&apos;ll be charged a prorated amount for the remainder of your
-              billing cycle. Downgrades take effect at the end of your current
-              billing period.
+              Yes, upgrade or downgrade anytime. Changes are prorated.
             </AccordionContent>
           </AccordionItem>
         </Accordion>

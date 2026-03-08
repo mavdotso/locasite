@@ -6,11 +6,12 @@ import { Id, Doc } from "@/convex/_generated/dataModel";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Lock } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/app/components/ui/button";
 import { ThemePreviewCard } from "./theme-preview-card";
 import { getBusinessCategoryTheme } from "@/app/components/simple-builder/core/business-category-themes";
+import { useSubscription } from "@/app/hooks/use-subscription";
 
 interface ThemeGalleryProps {
   businessId: Id<"businesses">;
@@ -42,6 +43,7 @@ export default function ThemeGallery({ businessId }: ThemeGalleryProps) {
   const [applyingThemeId, setApplyingThemeId] = useState<Id<"themes"> | null>(
     null,
   );
+  const { themeLimit } = useSubscription();
 
   const business = useQuery(api.businesses.getById, { id: businessId });
   const presetThemes = useQuery(api.themes.getPresetThemes);
@@ -118,17 +120,54 @@ export default function ThemeGallery({ businessId }: ThemeGalleryProps) {
 
       {/* Theme grid */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {presetThemes.map((theme) => (
-          <ThemePreviewCard
-            key={theme._id}
-            theme={theme}
-            businessName={business.name}
-            businessPhoto={businessPhoto}
-            isRecommended={theme._id === recommendedThemeId}
-            isActive={business.themeId === theme._id}
-            onSelect={handleSelectTheme}
-          />
-        ))}
+        {presetThemes.map((theme, index) => {
+          // themeLimit: 1 = Free (only first theme), 5 = Starter, -1 = Pro (unlimited)
+          const isUnlocked = themeLimit === -1 || index < themeLimit;
+
+          if (!isUnlocked) {
+            return (
+              <div key={theme._id} className="relative">
+                <div className="opacity-40 pointer-events-none">
+                  <ThemePreviewCard
+                    theme={theme}
+                    businessName={business.name}
+                    businessPhoto={businessPhoto}
+                    isRecommended={theme._id === recommendedThemeId}
+                    isActive={false}
+                    onSelect={() => {}}
+                  />
+                </div>
+                <div className="absolute inset-0 flex items-center justify-center bg-background/60 rounded-lg backdrop-blur-[2px]">
+                  <div className="flex flex-col items-center gap-2 text-center p-4">
+                    <Lock className="h-5 w-5 text-muted-foreground" />
+                    <p className="text-xs text-muted-foreground">
+                      Upgrade to unlock more themes
+                    </p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => router.push("/dashboard/billing")}
+                    >
+                      Upgrade
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+          return (
+            <ThemePreviewCard
+              key={theme._id}
+              theme={theme}
+              businessName={business.name}
+              businessPhoto={businessPhoto}
+              isRecommended={theme._id === recommendedThemeId}
+              isActive={business.themeId === theme._id}
+              onSelect={handleSelectTheme}
+            />
+          );
+        })}
       </div>
 
       {/* Applying overlay */}

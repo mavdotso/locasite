@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import BusinessPageRenderer from "@/app/components/business/business-page-renderer";
 import { BusinessFooter } from "@/app/components/business/business-footer";
+import { BusinessHeaderBadge } from "@/app/components/business/business-header-badge";
 import { Metadata } from "next";
 import { fetchQuery } from "convex/nextjs";
 import {
@@ -248,6 +249,8 @@ export default async function BusinessPage({ params }: PageProps) {
           }}
         />
         <div className="flex flex-col min-h-screen">
+          <BusinessHeaderBadge show={showWatermark} />
+
           {!businessData.userId && (
             <div className="px-4 py-2 bg-amber-50 border-b border-amber-200">
               <div className="container flex items-center justify-between mx-auto">

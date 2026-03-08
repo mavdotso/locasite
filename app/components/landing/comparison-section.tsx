@@ -26,9 +26,9 @@ export default function ComparisonSection() {
     },
     {
       option: "Locosite",
-      upfront: "$149",
-      monthly: "$9",
-      time: "24 hours",
+      upfront: "$0",
+      monthly: "$0\u2013$29",
+      time: "Instant",
       who: "Us",
       highlight: true,
     },
@@ -127,8 +127,8 @@ export default function ComparisonSection() {
         </div>
 
         <p className="text-center text-brand-taupe text-[15px] leading-[1.65] mt-8 max-w-lg mx-auto italic">
-          Your website is already built. You&apos;re not paying for design time
-          — you&apos;re paying to claim what&apos;s already yours.
+          Your website is already built — publish it for free in seconds.
+          Upgrade anytime to edit content, add your domain, and more.
         </p>
       </div>
     </section>

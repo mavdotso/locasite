@@ -6,7 +6,7 @@ const testimonials = [
     business: "Garcia Tax Services",
     location: "Orlando, FL",
     initials: "MG",
-    text: "I was quoted $3,000 for a website. Locosite let me create one myself for $149. My clients say it looks very professional.",
+    text: "I was quoted $3,000 for a website. Locosite let me create one for free. My clients say it looks very professional.",
   },
   {
     name: "James Thompson",

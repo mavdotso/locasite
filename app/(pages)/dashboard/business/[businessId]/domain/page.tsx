@@ -30,6 +30,8 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { env } from "@/env";
 import { DnsWizard } from "@/components/domain/dns-wizard";
+import { useSubscription } from "@/app/hooks/use-subscription";
+import { FeatureLockOverlay } from "@/app/components/common/feature-lock-overlay";
 
 function getDomainStatusDisplay(
   domainStatus: {
@@ -83,6 +85,7 @@ export default function DomainSettingsPage() {
 
   // Fetch user subscription
   const subscription = useQuery(api.subscriptions.getUserSubscription);
+  const { canUseCustomDomain } = useSubscription();
 
   // Mutations
   const addCustomDomain = useMutation(api.customDomains.addCustomDomain);
@@ -300,22 +303,8 @@ export default function DomainSettingsPage() {
         </CardHeader>
         <CardContent>
           {/* FREE plan: upgrade prompt */}
-          {subscription?.planType === "FREE" && (
-            <div className="p-6 bg-muted/50 border border-dashed rounded-lg text-center">
-              <Crown className="h-8 w-8 mx-auto mb-3 text-yellow-500" />
-              <p className="font-medium mb-1">
-                Custom domains are available on Professional and Business plans
-              </p>
-              <p className="text-sm text-muted-foreground mb-4">
-                Upgrade to connect your own domain like yourbusiness.com
-              </p>
-              <Link href="/dashboard/billing">
-                <Button>
-                  <Crown className="h-4 w-4 mr-2" />
-                  Upgrade Plan
-                </Button>
-              </Link>
-            </div>
+          {!canUseCustomDomain && (
+            <FeatureLockOverlay feature="Custom Domain" requiredPlan="BUSINESS" />
           )}
 
           {/* Paid plan, no custom domain: input form */}

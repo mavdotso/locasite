@@ -15,6 +15,8 @@ import { getPresetByType } from "@/app/components/simple-builder/sections/busine
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useRef, useState } from "react";
+import { useSubscription } from "@/app/hooks/use-subscription";
+import { FeatureLockOverlay } from "@/app/components/common/feature-lock-overlay";
 
 export default function BusinessEdit({
   businessId,
@@ -24,6 +26,7 @@ export default function BusinessEdit({
   const router = useRouter();
   const claimAttemptedRef = useRef(false);
   const [isClaimingBusiness, setIsClaimingBusiness] = useState(false);
+  const { canEditContent, isLoading: isSubscriptionLoading } = useSubscription();
 
   // All hooks must be called before any conditional returns
   const user = useQuery(api.auth.currentUser);
@@ -125,6 +128,15 @@ export default function BusinessEdit({
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // Feature lock: content editing requires a paid plan
+  if (!isSubscriptionLoading && !canEditContent) {
+    return (
+      <div className="flex items-center justify-center h-screen p-8">
+        <FeatureLockOverlay feature="Content Editing" requiredPlan="PROFESSIONAL" className="max-w-md w-full" />
       </div>
     );
   }

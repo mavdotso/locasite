@@ -8,6 +8,8 @@ import { X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { ThemePreviewCard } from "./theme-preview-card";
 import { getBusinessCategoryTheme } from "@/app/components/simple-builder/core/business-category-themes";
+import { useSubscription } from "@/app/hooks/use-subscription";
+import { Lock } from "lucide-react";
 
 /**
  * Maps a business category theme name to theme industry tags for recommendation matching.
@@ -71,6 +73,7 @@ export function ThemePickerSheet({
   const business = useQuery(api.businesses.getById, { id: businessId });
   const presetThemes = useQuery(api.themes.getPresetThemes);
   const applyTheme = useMutation(api.themes.applyThemeToBusiness);
+  const { themeLimit } = useSubscription();
   const sheetRef = useRef<HTMLDivElement>(null);
 
   // Close on Escape key + focus trap on Tab
@@ -194,16 +197,37 @@ export function ThemePickerSheet({
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-3">
-              {themes.map((theme) => (
-                <ThemePreviewCard
-                  key={theme._id}
-                  theme={theme}
-                  businessName={business?.name ?? "Your Business"}
-                  isRecommended={theme._id === recommendedThemeId}
-                  isActive={business?.themeId === theme._id}
-                  onSelect={handleSelectTheme}
-                />
-              ))}
+              {themes.map((theme, index) => {
+                const isUnlocked = themeLimit === -1 || index < themeLimit;
+                if (!isUnlocked) {
+                  return (
+                    <div key={theme._id} className="relative">
+                      <div className="opacity-40 pointer-events-none">
+                        <ThemePreviewCard
+                          theme={theme}
+                          businessName={business?.name ?? "Your Business"}
+                          isRecommended={false}
+                          isActive={false}
+                          onSelect={() => {}}
+                        />
+                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-background/60">
+                        <Lock className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    </div>
+                  );
+                }
+                return (
+                  <ThemePreviewCard
+                    key={theme._id}
+                    theme={theme}
+                    businessName={business?.name ?? "Your Business"}
+                    isRecommended={theme._id === recommendedThemeId}
+                    isActive={business?.themeId === theme._id}
+                    onSelect={handleSelectTheme}
+                  />
+                );
+              })}
             </div>
           )}
         </div>

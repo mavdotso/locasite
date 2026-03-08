@@ -42,6 +42,7 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/app/lib/utils";
 import { useSubscription } from "@/app/hooks/use-subscription";
+import { FeatureLockOverlay } from "@/app/components/common/feature-lock-overlay";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -76,7 +77,7 @@ export default function WebsiteSettingsPage({
   });
   const faviconInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const { canUseFeature } = useSubscription();
+  const { canUseFeature, canUseSeoEditor } = useSubscription();
 
   const business = dashboardData?.business;
   const domain = dashboardData?.domain;
@@ -618,6 +619,10 @@ export default function WebsiteSettingsPage({
 
         {/* SEO & Social Tab */}
         <TabsContent value="seo" className="space-y-6">
+          {!canUseSeoEditor ? (
+            <FeatureLockOverlay feature="SEO Meta Editor" requiredPlan="BUSINESS" className="min-h-[40vh]" />
+          ) : (
+          <>
           {/* SEO Score Card */}
           <Card>
             <CardHeader>
@@ -937,6 +942,8 @@ export default function WebsiteSettingsPage({
               </Button>
             </CardFooter>
           </Card>
+          </>
+          )}
         </TabsContent>
       </Tabs>
 

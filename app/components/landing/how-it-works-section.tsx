@@ -18,9 +18,9 @@ const steps = [
   {
     icon: CreditCard,
     number: "03",
-    title: "Claim it for $149",
+    title: "Publish it free",
     description:
-      "Pay once to publish. Your site goes live at a clean URL within 24 hours. Hosting, updates, and security are handled for $9/month. That\u2019s it.",
+      "Sign up and publish — no payment required. Your site goes live at a clean URL instantly. Upgrade to Starter ($9/mo) to edit content, or Pro ($29/mo) for a custom domain.",
   },
 ];
 

@@ -14,8 +14,22 @@ export interface SubscriptionPlan {
     removeWatermark: boolean;
     prioritySupport: boolean;
     apiAccess: boolean;
+    contentEditing: boolean;
+    seoEditor: boolean;
+    visualEditor: boolean;
+    googleReviews: boolean;
+    photoGallery: boolean;
+    menuManagement: boolean;
+    themeCount: number; // -1 = unlimited
+    monthlyVisitsSoftCap: number; // -1 = unlimited
   };
 }
+
+export const PLAN_DISPLAY_NAMES: Record<PlanType, string> = {
+  FREE: "Free",
+  PROFESSIONAL: "Starter",
+  BUSINESS: "Pro",
+};
 
 export const SUBSCRIPTION_PLANS: Record<PlanType, SubscriptionPlan> = {
   FREE: {
@@ -24,9 +38,9 @@ export const SUBSCRIPTION_PLANS: Record<PlanType, SubscriptionPlan> = {
     priceId: "",
     features: [
       "1 business site",
-      "Basic customization",
       "Locosite subdomain",
-      "Basic analytics (Coming soon)",
+      "Contact form",
+      "Powered by Locosite badge",
     ],
     limits: {
       businesses: 1,
@@ -35,41 +49,60 @@ export const SUBSCRIPTION_PLANS: Record<PlanType, SubscriptionPlan> = {
       removeWatermark: false,
       prioritySupport: false,
       apiAccess: false,
+      contentEditing: false,
+      seoEditor: false,
+      visualEditor: false,
+      googleReviews: false,
+      photoGallery: false,
+      menuManagement: false,
+      themeCount: 1,
+      monthlyVisitsSoftCap: 2000,
     },
   },
   PROFESSIONAL: {
-    name: "Professional",
-    price: 1900, // $19/month
+    name: "Starter",
+    price: 900, // $9/month
     priceId:
-      convexEnv.STRIPE_PRICE_PROFESSIONAL || "price_professional_monthly",
+      convexEnv.STRIPE_PRICE_PROFESSIONAL || "price_starter_monthly",
     features: [
-      "Unlimited business sites",
-      "Advanced customization",
+      "Content editing",
+      "Unlimited visitors",
+      "Basic analytics",
+      "5 themes",
       "Remove Locosite branding",
-      "Priority support",
-      "Advanced analytics (Coming soon)",
-      "Custom favicon",
+      "Contact form",
+      "Locosite subdomain",
     ],
     limits: {
-      businesses: -1, // unlimited
+      businesses: 1,
       customDomains: 0,
       analytics: true,
       removeWatermark: true,
-      prioritySupport: true,
+      prioritySupport: false,
       apiAccess: false,
+      contentEditing: true,
+      seoEditor: false,
+      visualEditor: false,
+      googleReviews: false,
+      photoGallery: false,
+      menuManagement: false,
+      themeCount: 5,
+      monthlyVisitsSoftCap: -1, // unlimited
     },
   },
   BUSINESS: {
-    name: "Business",
-    price: 4900, // $49/month
-    priceId: convexEnv.STRIPE_PRICE_BUSINESS || "price_business_monthly",
+    name: "Pro",
+    price: 2900, // $29/month
+    priceId: convexEnv.STRIPE_PRICE_BUSINESS || "price_pro_monthly",
     features: [
-      "Everything in Professional",
-      "White-label solution",
-      "API access",
-      "Custom domains",
-      "Advanced SEO tools",
-      "Dedicated support",
+      "Everything in Starter",
+      "Custom domain",
+      "Full visual editor",
+      "Google Reviews widget",
+      "Photo gallery",
+      "Menu management",
+      "SEO meta editor",
+      "Priority support",
     ],
     limits: {
       businesses: -1, // unlimited
@@ -77,7 +110,15 @@ export const SUBSCRIPTION_PLANS: Record<PlanType, SubscriptionPlan> = {
       analytics: true,
       removeWatermark: true,
       prioritySupport: true,
-      apiAccess: true,
+      apiAccess: false,
+      contentEditing: true,
+      seoEditor: true,
+      visualEditor: true,
+      googleReviews: true,
+      photoGallery: true,
+      menuManagement: true,
+      themeCount: -1, // unlimited
+      monthlyVisitsSoftCap: -1, // unlimited
     },
   },
 };
@@ -116,4 +157,36 @@ export function canAccessAnalytics(planType: PlanType): boolean {
 
 export function canAccessAPI(planType: PlanType): boolean {
   return SUBSCRIPTION_PLANS[planType].limits.apiAccess;
+}
+
+export function canEditContent(planType: PlanType): boolean {
+  return SUBSCRIPTION_PLANS[planType].limits.contentEditing;
+}
+
+export function canUseSeoEditor(planType: PlanType): boolean {
+  return SUBSCRIPTION_PLANS[planType].limits.seoEditor;
+}
+
+export function canUseVisualEditor(planType: PlanType): boolean {
+  return SUBSCRIPTION_PLANS[planType].limits.visualEditor;
+}
+
+export function canUseGoogleReviews(planType: PlanType): boolean {
+  return SUBSCRIPTION_PLANS[planType].limits.googleReviews;
+}
+
+export function canUsePhotoGallery(planType: PlanType): boolean {
+  return SUBSCRIPTION_PLANS[planType].limits.photoGallery;
+}
+
+export function canUseMenuManagement(planType: PlanType): boolean {
+  return SUBSCRIPTION_PLANS[planType].limits.menuManagement;
+}
+
+export function getThemeLimit(planType: PlanType): number {
+  return SUBSCRIPTION_PLANS[planType].limits.themeCount;
+}
+
+export function getVisitSoftCap(planType: PlanType): number {
+  return SUBSCRIPTION_PLANS[planType].limits.monthlyVisitsSoftCap;
 }

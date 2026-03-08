@@ -33,6 +33,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { notFound } from "next/navigation";
 import { SeoSettings } from "@/app/components/business/seo-settings";
 import AnalyticsOverview from "@/app/components/dashboard/analytics-overview";
+import { VisitCapWarning } from "@/app/components/dashboard/visit-cap-warning";
 
 interface BusinessDashboardProps {
   businessId: Id<"businesses">;
@@ -141,6 +142,7 @@ export default function BusinessDashboard({
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
+          <VisitCapWarning businessId={businessId} />
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>

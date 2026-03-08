@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAction, useMutation, useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -27,9 +27,7 @@ export function PreviewActionBar({
   const { signIn } = useAuthActions();
   const user = useQuery(api.auth.currentUser);
   const claimBusiness = useMutation(api.businesses.claimBusinessAfterAuth);
-  const createCheckout = useAction(
-    api.selfServeCheckout.createSelfServeCheckoutSession,
-  );
+  const publishBusiness = useMutation(api.businessPublishing.publishBusiness);
 
   const [isPublishing, setIsPublishing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,36 +41,32 @@ export function PreviewActionBar({
       ? `${subdomain}.${rootDomain}`
       : null;
 
-  const handleGoLive = async () => {
+  const handlePublishFree = async () => {
     setError(null);
 
-    // If not authenticated, redirect to sign-in with return URL
+    // If not authenticated, redirect to sign-in
     if (user === null) {
       sessionStorage.setItem("claimBusinessId", businessId);
       await signIn("google");
       return;
     }
 
-    // If user is undefined, auth is still loading -- wait
+    // If user is undefined, auth is still loading
     if (user === undefined) return;
 
     setIsPublishing(true);
     try {
-      // Ensure the business is claimed by this user first
+      // Claim the business if not already claimed
       await claimBusiness({ businessId });
 
-      // Create Stripe checkout session — payment gates publishing
-      const result = await createCheckout({ businessId });
+      // Publish directly — no payment required
+      await publishBusiness({ businessId });
 
-      // Redirect to Stripe Checkout
-      if (result.url) {
-        window.location.href = result.url;
-      } else {
-        throw new Error("Could not create checkout session.");
-      }
+      // Redirect to the live site
+      router.push(`/live/${businessId}`);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Failed to start checkout.";
+        err instanceof Error ? err.message : "Failed to publish.";
       setError(message);
     } finally {
       setIsPublishing(false);
@@ -123,26 +117,26 @@ export function PreviewActionBar({
 
   return (
     <div className="space-y-5">
-      {/* Go Live button */}
+      {/* Publish Free button */}
       <Button
         size="lg"
-        onClick={handleGoLive}
+        onClick={handlePublishFree}
         disabled={isPublishing}
         className="w-full h-12 text-base font-medium"
       >
         {isPublishing ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Setting up checkout...
+            Publishing...
           </>
         ) : (
-          "Go Live — $149"
+          "Publish for Free"
         )}
       </Button>
 
-      {/* Price info */}
+      {/* Info */}
       <p className="text-xs text-center text-muted-foreground">
-        $149 one-time setup + $9/mo hosting. Cancel anytime.
+        Free forever. Upgrade anytime to edit content, remove branding, and more.
       </p>
 
       {/* Error message */}

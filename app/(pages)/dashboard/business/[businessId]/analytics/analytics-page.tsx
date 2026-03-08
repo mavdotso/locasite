@@ -9,6 +9,8 @@ import {
   CardTitle,
 } from "@/app/components/ui/card";
 import { BarChart3, TrendingUp, Users, MousePointerClick } from "lucide-react";
+import { useSubscription } from "@/app/hooks/use-subscription";
+import { FeatureLockOverlay } from "@/app/components/common/feature-lock-overlay";
 
 interface AnalyticsPageProps {
   businessId: Id<"businesses">;
@@ -17,7 +19,22 @@ interface AnalyticsPageProps {
 export default function AnalyticsPage({
   businessId: _businessId,
 }: AnalyticsPageProps) {
-  // Show coming soon for ALL users
+  const { canAccessAnalytics } = useSubscription();
+
+  // FREE users: show feature lock
+  if (!canAccessAnalytics) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <FeatureLockOverlay
+          feature="Analytics & Performance Tracking"
+          requiredPlan="PROFESSIONAL"
+          className="py-16"
+        />
+      </div>
+    );
+  }
+
+  // Paid users: show coming soon
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <Card>
@@ -27,7 +44,7 @@ export default function AnalyticsPage({
           </div>
           <CardTitle className="text-2xl">Analytics Coming Soon</CardTitle>
           <CardDescription className="text-base">
-            We&apos;re working hard to bring you powerful analytics features
+            We&apos;re building powerful analytics for your Starter plan
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

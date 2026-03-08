@@ -10,9 +10,9 @@ const faqs = [
       'Your publicly available Google Maps listing — the same information anyone can see when they search for your business — was used to auto-generate the design and layout. Think of it as a professional website that was always waiting for you to show up.',
   },
   {
-    question: "What's included in the $9/month?",
+    question: "What do the paid plans include?",
     answer:
-      'Hosting, SSL security certificate (the padlock in browsers), automatic backups, and minor content updates when your hours or menu change. No hidden fees.',
+      'The Starter plan ($9/mo) lets you edit content, remove Locosite branding, and get priority support. The Pro plan ($29/mo) adds a custom domain, advanced SEO, and analytics. Both include hosting, SSL, and automatic backups. Publishing is free forever.',
   },
   {
     question: 'Can I use my own domain name?',
@@ -25,9 +25,9 @@ const faqs = [
       "Preview it for free before you pay. No charge until you decide to publish. If the preview looks wrong, request changes through your dashboard.",
   },
   {
-    question: 'Do I have to pay every month forever?',
+    question: 'Do I have to pay anything?',
     answer:
-      'No. The $9/month is hosting \u2014 standard for any website. If you cancel, your site comes down. The $149 one-time fee is a setup and design cost, not a recurring subscription.',
+      'No. Publishing your site is completely free. You only pay if you want extra features: $9/mo Starter for editing and branding removal, or $29/mo Pro for a custom domain and analytics. Your free site stays live as long as you want it.',
   },
   {
     question: 'Is this just a single page or a real website?',

@@ -1,9 +1,8 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserFromAuth } from "./lib/helpers";
-import { api } from "./_generated/api";
 
-// Check if a business can be published
+// Check if a business can be published (freemium: any owner can publish)
 export const canPublishBusiness = query({
   args: { businessId: v.id("businesses") },
   handler: async (ctx, args) => {
@@ -12,7 +11,6 @@ export const canPublishBusiness = query({
       throw new Error("Business not found");
     }
 
-    // Check if user owns the business
     const user = await getUserFromAuth(ctx);
     const isOwner = business.userId === user._id;
 
@@ -20,83 +18,22 @@ export const canPublishBusiness = query({
       return {
         canPublish: false,
         reason: "You don't own this business",
-        requiresVerification: false,
       };
     }
 
-    // Check if business is already verified
-    if (business.canPublish === true) {
-      return {
-        canPublish: true,
-        reason: "Business is verified and can publish",
-        requiresVerification: false,
-        verificationMethod: business.verificationMethod,
-        verificationCompletedAt: business.verificationCompletedAt,
-      };
-    }
-
-    // Check if publishing is blocked
+    // Safety valve: admin can block publishing
     if (business.publishingBlocked === true) {
       return {
         canPublish: false,
         reason:
           business.publishingBlockReason || "Publishing is temporarily blocked",
-        requiresVerification: false,
       };
     }
 
-    // Check if verification is required
-    if (business.verificationRequired !== false) {
-      // Check for approved claims
-      const approvedClaim = await ctx.db
-        .query("businessClaims")
-        .withIndex("by_business_status", (q) =>
-          q.eq("businessId", args.businessId).eq("status", "approved"),
-        )
-        .filter((q) => q.eq(q.field("userId"), user._id))
-        .first();
-
-      if (approvedClaim) {
-        return {
-          canPublish: true,
-          reason: "Business verification completed",
-          requiresVerification: false,
-          verificationMethod: approvedClaim.verificationMethod,
-          needsUpdate: true, // Flag to indicate business record needs updating
-        };
-      }
-
-      // Check for pending claims
-      const pendingClaim = await ctx.db
-        .query("businessClaims")
-        .withIndex("by_business_status", (q) =>
-          q.eq("businessId", args.businessId).eq("status", "pending"),
-        )
-        .filter((q) => q.eq(q.field("userId"), user._id))
-        .first();
-
-      if (pendingClaim) {
-        return {
-          canPublish: false,
-          reason: "Verification is pending approval",
-          requiresVerification: true,
-          pendingClaimId: pendingClaim._id,
-          verificationMethod: pendingClaim.verificationMethod,
-        };
-      }
-
-      return {
-        canPublish: false,
-        reason: "Business verification required before publishing",
-        requiresVerification: true,
-      };
-    }
-
-    // If verification is not required, allow publishing
+    // Freemium: any owner can publish for free
     return {
       canPublish: true,
-      reason: "Business can publish without verification",
-      requiresVerification: false,
+      reason: "Ready to publish",
     };
   },
 });
@@ -132,36 +69,41 @@ export const updatePublishingStatus = mutation({
   },
 });
 
-// Publish a business (make it live)
+// Publish a business (make it live — free for all owners)
 export const publishBusiness = mutation({
   args: {
     businessId: v.id("businesses"),
   },
   handler: async (ctx, args) => {
-    await getUserFromAuth(ctx); // Verify user is authenticated
+    const user = await getUserFromAuth(ctx);
 
-    // Check publishing permissions
-    const permissions = await ctx.runQuery(
-      api.businessPublishing.canPublishBusiness,
-      {
-        businessId: args.businessId,
-      },
-    );
-
-    if (!permissions.canPublish) {
-      throw new Error(permissions.reason);
+    const business = await ctx.db.get(args.businessId);
+    if (!business) {
+      throw new Error("Business not found");
     }
 
-    // Update business to published state
+    if (business.userId !== user._id) {
+      throw new Error("You don't own this business");
+    }
+
+    if (business.publishingBlocked === true) {
+      throw new Error(
+        business.publishingBlockReason || "Publishing is temporarily blocked",
+      );
+    }
+
+    // Already published — idempotent
+    if (business.isPublished) {
+      return { success: true, message: "Business is already published" };
+    }
+
     await ctx.db.patch(args.businessId, {
       isPublished: true,
       publishedAt: Date.now(),
+      canPublish: true,
     });
 
-    return {
-      success: true,
-      message: "Business successfully published",
-    };
+    return { success: true, message: "Business successfully published" };
   },
 });
 

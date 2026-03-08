@@ -106,8 +106,7 @@ export default function FooterSection() {
             Locosite is a done-for-you website service for local businesses. We
             build professional websites for restaurants, plumbers, HVAC
             contractors, landscapers, and cleaning services — directly from your
-            Google Maps listing. No design skills required. Starting at $149 +
-            $9/month. Currently serving Orlando, FL.
+            Google Maps listing. No design skills required. Free to publish, plans from $9/month. Currently serving Orlando, FL.
           </p>
           <p className="text-center text-brand-taupe text-[13px]">
             &copy; {currentYear} Locosite. All rights reserved.

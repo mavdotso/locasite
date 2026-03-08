@@ -16,7 +16,7 @@ export default function HeroSection() {
         <p className="text-center text-brand-sage text-lg md:text-[18px] leading-[1.6] max-w-xl mx-auto mb-10">
           A professional website for your business — built from your Google
           Maps listing. Your menu, your photos, your hours. Preview it free.
-          Claim it for $149.
+          Get it free.
         </p>
 
         {/* Paste Link Form */}

@@ -183,7 +183,7 @@ export default function ExamplesPage() {
         <span className="text-brand-sage">This is a sample website built by Locosite.</span>
         {" "}
         <Link href="/#pricing" className="font-semibold text-brand-amber hover:underline inline-flex items-center gap-1">
-          Get yours for $149 <ChevronRight className="h-3 w-3" />
+          Get yours free <ChevronRight className="h-3 w-3" />
         </Link>
       </div>
 

@@ -20,11 +20,11 @@ const body = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Locosite - Professional Websites for Local Businesses | $149",
+    default: "Locosite - Free Professional Websites for Local Businesses",
     template: "%s | Locosite",
   },
   description:
-    "We build professional websites for local businesses. Done for you in 7 days, just $149. No DIY, no hassle. Hosting and maintenance from $9/month.",
+    "We build professional websites for local businesses. Done for you, free to publish. No DIY, no hassle. Upgrade from $9/month for editing and custom domains.",
   keywords: [
     "local business website",
     "website for attorneys",

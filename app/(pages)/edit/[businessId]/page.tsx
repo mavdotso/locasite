@@ -8,12 +8,24 @@ import { Loader2 } from "lucide-react";
 
 import { AuthGuard } from "@/app/components/auth/auth-guard";
 import { InlineEditor } from "@/app/components/inline-editor/inline-editor";
+import { useSubscription } from "@/app/hooks/use-subscription";
+import { FeatureLockOverlay } from "@/app/components/common/feature-lock-overlay";
 
 function EditPageInner({ businessId }: { businessId: Id<"businesses"> }) {
+  const { canEditContent, isLoading: isSubscriptionLoading } = useSubscription();
   const previewData = useQuery(
     api.businessesWithDomain.getBusinessPreviewData,
     { businessId },
   );
+
+  // Subscription lock — FREE users cannot edit content
+  if (!isSubscriptionLoading && !canEditContent) {
+    return (
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center p-8">
+        <FeatureLockOverlay feature="Content Editing" requiredPlan="PROFESSIONAL" />
+      </div>
+    );
+  }
 
   // Loading
   if (previewData === undefined) {

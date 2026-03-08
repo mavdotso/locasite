@@ -44,98 +44,17 @@ export const getByClaimToken = query({
   },
 });
 
-// Create Stripe checkout session for claiming a business
+// DEPRECATED: Payment is no longer required to claim a business.
+// Use claimBusinessAfterAuth directly instead.
 export const createClaimCheckoutSession = action({
   args: {
     businessId: v.id("businesses"),
     claimToken: v.string(),
   },
-  handler: async (ctx, args): Promise<{ url: string | null }> => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Authentication required");
-
-    // Get the user ID from the identity token
-    // In Convex actions, we need to look up the user from the auth tables
-    const userId = await ctx.runQuery(internal.claimCheckout.internal_getUserIdFromIdentity, {
-      tokenIdentifier: identity.tokenIdentifier,
-    });
-    if (!userId) throw new Error("User not found");
-
-    // Verify claim token matches business
-    const business = await ctx.runQuery(
-      internal.claimCheckout.internal_getBusinessByClaimToken,
-      { claimToken: args.claimToken, businessId: args.businessId, userId },
+  handler: async (): Promise<{ url: string | null }> => {
+    throw new Error(
+      "Payment is no longer required to claim a business. Use claimBusinessAfterAuth directly.",
     );
-
-    if (!business) {
-      throw new Error("Invalid claim token or business not found");
-    }
-
-    if (business.isClaimed) {
-      throw new Error("This business has already been claimed");
-    }
-    let stripeCustomerId = await ctx.runQuery(
-      internal.stripe.getStripeCustomerId,
-      { userId },
-    );
-
-    if (!stripeCustomerId) {
-      const customer = await stripe.customers.create({
-        email: identity.email || undefined,
-        name: identity.name || undefined,
-        metadata: { convexUserId: userId },
-      });
-      stripeCustomerId = customer.id;
-      await ctx.runMutation(internal.stripe.storeStripeCustomerId, {
-        userId,
-        stripeCustomerId,
-      });
-    }
-
-    // Build line items
-    const lineItems: Array<{
-      price: string;
-      quantity: number;
-    }> = [];
-
-    const setupPriceId = convexEnv.STRIPE_PRICE_CLAIM_SETUP;
-    const maintenancePriceId = convexEnv.STRIPE_PRICE_CLAIM_MAINTENANCE;
-
-    if (!setupPriceId || !maintenancePriceId) {
-      throw new Error(
-        "Stripe claim prices not configured. Set STRIPE_PRICE_CLAIM_SETUP and STRIPE_PRICE_CLAIM_MAINTENANCE.",
-      );
-    }
-
-    // $149 one-time + $9/mo recurring in a single subscription checkout
-    lineItems.push(
-      { price: setupPriceId, quantity: 1 },
-      { price: maintenancePriceId, quantity: 1 },
-    );
-
-    const appUrl = convexEnv.NEXT_PUBLIC_APP_URL;
-
-    const session = await stripe.checkout.sessions.create({
-      customer: stripeCustomerId,
-      mode: "subscription",
-      line_items: lineItems,
-      metadata: {
-        claimType: "business_claim",
-        businessId: args.businessId,
-        claimToken: args.claimToken,
-        userId,
-      },
-      success_url: `${appUrl}/claim/success?session_id={CHECKOUT_SESSION_ID}&business_id=${args.businessId}`,
-      cancel_url: `${appUrl}/claim/${args.claimToken}`,
-    });
-
-    // Record payment attempt (public mutation, auth is passed through)
-    await ctx.runMutation(api.payments.create, {
-      amount: 14900, // $149 setup (first payment)
-      stripeSessionId: session.id,
-    });
-
-    return { url: session.url };
   },
 });
 
@@ -215,7 +134,8 @@ export const internal_getUserIdFromIdentity = internalQuery({
   },
 });
 
-// Unpublish business when claim subscription lapses
+// Handle lapsed subscription: clear subscription link but keep site published.
+// Under the freemium model, sites stay live regardless of subscription status.
 export const internal_unpublishForLapsedSubscription = internalMutation({
   args: {
     subscriptionId: v.string(),
@@ -230,13 +150,11 @@ export const internal_unpublishForLapsedSubscription = internalMutation({
       .collect();
 
     for (const business of businesses) {
-      if (business.isPublished) {
-        await ctx.db.patch(business._id, {
-          isPublished: false,
-          publishingBlocked: true,
-          publishingBlockReason: "Subscription payment failed or cancelled",
-        });
-      }
+      // Clear the subscription link but keep the site published.
+      // Free-tier sites remain live; only paid features are removed.
+      await ctx.db.patch(business._id, {
+        claimStripeSubscriptionId: undefined,
+      });
     }
   },
 });
