@@ -51,14 +51,6 @@ export default function FooterSection() {
               </li>
               <li>
                 <Link
-                  href="#features"
-                  className="text-brand-taupe hover:text-brand-ink transition-colors"
-                >
-                  Who it&apos;s for
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="#pricing"
                   className="text-brand-taupe hover:text-brand-ink transition-colors"
                 >
@@ -67,10 +59,34 @@ export default function FooterSection() {
               </li>
               <li>
                 <Link
-                  href="#faq"
+                  href="/free-restaurant-website"
                   className="text-brand-taupe hover:text-brand-ink transition-colors"
                 >
-                  FAQ
+                  Free Restaurant Website
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/free-salon-website"
+                  className="text-brand-taupe hover:text-brand-ink transition-colors"
+                >
+                  Free Salon Website
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/free-plumber-website"
+                  className="text-brand-taupe hover:text-brand-ink transition-colors"
+                >
+                  Free Plumber Website
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/free-small-business-website"
+                  className="text-brand-taupe hover:text-brand-ink transition-colors"
+                >
+                  Free Small Business Website
                 </Link>
               </li>
             </ul>
