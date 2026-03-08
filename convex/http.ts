@@ -580,8 +580,8 @@ http.route({
       // Generate robots.txt content
       let robotsContent = "User-agent: *\n";
 
-      // If business is published and can publish, allow indexing
-      if (business.isPublished && business.canPublish) {
+      // If business is published, allow indexing
+      if (business.isPublished) {
         robotsContent += "Allow: /\n\n";
         robotsContent += `Sitemap: https://${subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}/sitemap.xml`;
       } else {
@@ -649,7 +649,7 @@ http.route({
       const business = businesses[0];
 
       // Only generate sitemap for published businesses
-      if (!business.isPublished || !business.canPublish) {
+      if (!business.isPublished) {
         return new Response("Sitemap not found", {
           status: 404,
         });
