@@ -39,11 +39,19 @@ function isValidGoogleMapsUrl(url: string): boolean {
   }
 }
 
-export default function PasteLinkForm() {
+interface PasteLinkFormProps {
+  variant?: "default" | "hero";
+}
+
+export default function PasteLinkForm({
+  variant = "default",
+}: PasteLinkFormProps) {
   const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  const isHero = variant === "hero";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,7 +66,7 @@ export default function PasteLinkForm() {
 
     if (!isValidGoogleMapsUrl(trimmedUrl)) {
       setError(
-        "That doesn\u2019t look like a Google Maps link. Try copying the URL from your browser while viewing your business on Google Maps."
+        "That doesn\u2019t look like a Google Maps link. Try copying the URL from your browser while viewing your business on Google Maps.",
       );
       return;
     }
@@ -82,7 +90,7 @@ export default function PasteLinkForm() {
       if (!response.ok) {
         const data = await response.json().catch(() => null);
         throw new Error(
-          data?.error || `Something went wrong (${response.status}).`
+          data?.error || `Something went wrong (${response.status}).`,
         );
       }
 
@@ -106,6 +114,51 @@ export default function PasteLinkForm() {
       setIsLoading(false);
     }
   };
+
+  if (isHero) {
+    return (
+      <form onSubmit={handleSubmit} className="w-full space-y-3">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Input
+            id="google-maps-url-hero"
+            type="url"
+            placeholder="Paste your Google Maps link..."
+            value={url}
+            onChange={(e) => {
+              setUrl(e.target.value);
+              if (error) setError(null);
+            }}
+            disabled={isLoading}
+            className="h-12 text-base flex-1 bg-white/10 border-white/20 text-brand-cream placeholder:text-brand-sage/60 focus-visible:ring-brand-amber"
+          />
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="h-12 px-6 text-base font-semibold bg-brand-amber text-brand-ink hover:brightness-95 shrink-0"
+            size="lg"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Building...
+              </>
+            ) : (
+              <>
+                Create my website free
+                <ArrowRight className="h-5 w-5" />
+              </>
+            )}
+          </Button>
+        </div>
+
+        {error && (
+          <p className="text-sm text-red-300" role="alert">
+            {error}
+          </p>
+        )}
+      </form>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-xl space-y-4">

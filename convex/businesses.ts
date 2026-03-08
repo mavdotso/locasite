@@ -908,10 +908,9 @@ export const claimBusinessAfterAuth = mutation({
       return { businessId: args.businessId, alreadyClaimed: true };
     }
 
-    // --- Transfer ownership and grant publishing permissions ---
+    // --- Transfer ownership (payment required before publishing) ---
     await ctx.db.patch(args.businessId, {
       userId: user._id,
-      canPublish: true,
       verificationRequired: false,
     });
 

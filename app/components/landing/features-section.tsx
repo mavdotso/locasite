@@ -1,42 +1,48 @@
 import {
   Globe,
-  Shield,
+  MousePointerClick,
   Smartphone,
+  Rocket,
   Search,
   MessageSquare,
-  Paintbrush,
 } from "lucide-react";
 
 const features = [
   {
-    name: "Custom design",
-    description: "A unique website designed for your business, not a cookie-cutter template.",
-    icon: Paintbrush,
-  },
-  {
-    name: "Mobile responsive",
-    description: "Looks perfect on phones, tablets, and desktops. Over 60% of your customers browse on mobile.",
-    icon: Smartphone,
-  },
-  {
-    name: "SEO built in",
-    description: "We optimize your site for Google so local customers can find you.",
-    icon: Search,
-  },
-  {
-    name: "Contact form",
-    description: "Capture leads and inquiries directly from your website. Never miss a customer.",
-    icon: MessageSquare,
-  },
-  {
-    name: "Custom domain",
-    description: "Your own .com domain, set up and configured by us. Professional from day one.",
+    name: "Auto-built from Google Business",
+    description:
+      "We pull your name, photos, hours, location, and description from your Google listing. Your site is ready before you lift a finger.",
     icon: Globe,
   },
   {
-    name: "SSL & security",
-    description: "Enterprise-grade security included. Your site and your visitors are protected.",
-    icon: Shield,
+    name: "Edit anything with a click",
+    description:
+      "Change your headline, swap a photo, add your phone number. No code. No learning curve. If you can click, you can do it.",
+    icon: MousePointerClick,
+  },
+  {
+    name: "Mobile-ready out of the box",
+    description:
+      "Looks sharp on every phone, tablet, and desktop. Your customers are on mobile — your site will be too.",
+    icon: Smartphone,
+  },
+  {
+    name: "One-click Publish",
+    description:
+      "When you're ready, press Publish. Done. Your site is live. We manage hosting, SSL security, and uptime in the background.",
+    icon: Rocket,
+  },
+  {
+    name: "Local SEO built in",
+    description:
+      "Your site is structured to show up when people nearby search for your type of business on Google.",
+    icon: Search,
+  },
+  {
+    name: "Contact form included",
+    description:
+      "Customers can reach you directly from your site. Every inquiry lands in your inbox.",
+    icon: MessageSquare,
   },
 ];
 
@@ -49,11 +55,8 @@ export default function FeaturesSection() {
             What you get
           </span>
           <h2 className="font-display font-extrabold text-brand-ink text-3xl md:text-[48px] leading-[1.05] tracking-[-0.025em] mb-4">
-            Everything a local business needs
+            Everything your business website needs. Nothing you don&apos;t.
           </h2>
-          <p className="text-brand-taupe text-[17px] leading-[1.65] max-w-lg mx-auto">
-            All included in your $149 website. No hidden fees.
-          </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">

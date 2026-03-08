@@ -25,8 +25,8 @@ export default function NavBar() {
             <Link href="#how-it-works" className="text-sm font-medium text-brand-sage hover:text-brand-cream transition-colors">
               How it works
             </Link>
-            <Link href="#examples" className="text-sm font-medium text-brand-sage hover:text-brand-cream transition-colors">
-              Examples
+            <Link href="#features" className="text-sm font-medium text-brand-sage hover:text-brand-cream transition-colors">
+              Features
             </Link>
             <Link href="#pricing" className="text-sm font-medium text-brand-sage hover:text-brand-cream transition-colors">
               Pricing
@@ -39,10 +39,10 @@ export default function NavBar() {
           {/* Desktop CTA */}
           <div className="hidden md:block">
             <Link
-              href="#pricing"
+              href="#hero"
               className="bg-brand-amber text-brand-ink text-[13px] font-semibold px-[18px] py-[9px] rounded-md hover:brightness-95 transition"
             >
-              Get started
+              Create my website
             </Link>
           </div>
 
@@ -62,8 +62,8 @@ export default function NavBar() {
               <Link href="#how-it-works" className="text-sm font-medium text-brand-sage hover:text-brand-cream" onClick={() => setIsMenuOpen(false)}>
                 How it works
               </Link>
-              <Link href="#examples" className="text-sm font-medium text-brand-sage hover:text-brand-cream" onClick={() => setIsMenuOpen(false)}>
-                Examples
+              <Link href="#features" className="text-sm font-medium text-brand-sage hover:text-brand-cream" onClick={() => setIsMenuOpen(false)}>
+                Features
               </Link>
               <Link href="#pricing" className="text-sm font-medium text-brand-sage hover:text-brand-cream" onClick={() => setIsMenuOpen(false)}>
                 Pricing
@@ -72,11 +72,11 @@ export default function NavBar() {
                 FAQ
               </Link>
               <Link
-                href="#pricing"
+                href="#hero"
                 className="bg-brand-amber text-brand-ink text-[13px] font-semibold px-[18px] py-[9px] rounded-md text-center hover:brightness-95 transition"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Get started
+                Create my website
               </Link>
             </div>
           </div>

@@ -6,35 +6,43 @@ import { ChevronDown } from 'lucide-react';
 const faqs = [
   {
     question: 'How does Locosite work?',
-    answer: 'You tell us about your business and we build your website for you. Our team handles the design, development, and deployment. Your professional website is ready in 7 business days.',
+    answer:
+      'Paste your Google Maps or Google Business link. We automatically pull your business info — name, photos, hours, location — and generate a professional website. You can edit anything you want, then hit Publish. That\'s it.',
   },
   {
     question: 'Do I need any technical skills?',
-    answer: 'None at all. We do everything for you. Just tell us your business name, what you do, and any preferences you have. We take care of the rest.',
+    answer:
+      'None at all. If you can copy a link and click a button, you can build your website. Our editor is point-and-click — no code, no design experience needed.',
   },
   {
     question: 'What do I get for $149?',
-    answer: 'A professionally designed, mobile-responsive website with a contact form, custom domain setup, SSL security, and SEO optimization. Built specifically for your business, not from a generic template.',
+    answer:
+      'A professionally designed website auto-generated from your Google Business profile, a WYSIWYG editor to customize anything, your own domain, one-click publish, mobile-responsive design, SSL security, and local SEO optimization.',
   },
   {
     question: 'What does the $9/month cover?',
-    answer: 'Hosting, maintenance, security updates, uptime monitoring, basic analytics, and small content updates. Everything you need to keep your site running smoothly.',
+    answer:
+      'Hosting, security updates, uptime monitoring, basic analytics, and email support. Everything you need to keep your site running smoothly. Cancel anytime.',
   },
   {
     question: 'Can I use my own domain name?',
-    answer: 'Yes. We set up your custom domain for you as part of the $149 claim fee. If you already own a domain, we\'ll configure it. If you need one, we\'ll help you get one.',
+    answer:
+      'Yes. Your own domain is included with your $149 purchase. If you already own a domain, we\'ll help you connect it. If you need one, we\'ll set it up for you.',
   },
   {
-    question: 'What if I\'m not happy with the website?',
-    answer: 'You get one round of revisions included. If you\'re still not satisfied, we offer a full money-back guarantee. No risk.',
+    question: 'What if I want to make changes later?',
+    answer:
+      'You can edit your site anytime using our built-in editor. Change text, swap photos, update your hours — it\'s all point-and-click. No need to contact anyone.',
   },
   {
     question: 'Can I cancel the monthly plan?',
-    answer: 'Yes, cancel anytime with no questions asked. No long-term contracts. If you cancel, your site stays live until the end of your billing period.',
+    answer:
+      'Yes, cancel anytime with no questions asked. No long-term contracts. If you cancel, your site stays live until the end of your billing period.',
   },
   {
     question: 'How long until my site is live?',
-    answer: '7 business days from the time you claim your site. We\'ll send you a preview link for review before going live.',
+    answer:
+      'Minutes. Paste your Google Maps link, review the auto-generated site, make any edits you want, and hit Publish. Your site can be live the same day.',
   },
 ];
 
@@ -60,11 +68,15 @@ export default function FAQSection() {
               className="bg-white rounded-lg border border-brand-border"
             >
               <button
-                onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                onClick={() =>
+                  setOpenIndex(openIndex === index ? null : index)
+                }
                 className="w-full px-6 py-5 text-left flex items-center justify-between gap-4"
                 aria-expanded={openIndex === index}
               >
-                <h3 className="font-semibold text-brand-ink text-[15px]">{faq.question}</h3>
+                <h3 className="font-semibold text-brand-ink text-[15px]">
+                  {faq.question}
+                </h3>
                 <ChevronDown
                   className={`h-4 w-4 text-brand-taupe flex-shrink-0 transition-transform duration-200 ${
                     openIndex === index ? 'rotate-180' : ''

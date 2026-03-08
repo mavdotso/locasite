@@ -60,6 +60,19 @@ export const fulfill = internalAction({
             );
           }
 
+          // Handle self-serve publish payments
+          if (session.metadata?.claimType === "self_serve_publish") {
+            await ctx.runMutation(
+              internal.selfServeCheckout.internal_handleSelfServePayment,
+              {
+                businessId: session.metadata.businessId as Id<"businesses">,
+                userId: session.metadata.userId as string,
+                stripeSessionId: session.id,
+                stripeSubscriptionId: session.subscription as string | undefined,
+              },
+            );
+          }
+
           // Sync subscription data if customer exists
           if (session.customer && typeof session.customer === "string") {
             await ctx.runAction(internal.stripe.syncStripeDataToConvex, {

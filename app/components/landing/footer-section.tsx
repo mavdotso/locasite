@@ -23,18 +23,48 @@ export default function FooterSection() {
               </span>
             </div>
             <p className="text-brand-taupe text-[14px] leading-[1.6] max-w-xs">
-              Professional websites for local businesses. Built for you in 7 days, just $149.
+              From your Google listing to a live website — in minutes.
             </p>
           </div>
 
           {/* Links */}
           <div>
-            <h3 className="font-semibold text-brand-ink text-sm mb-4">Product</h3>
+            <h3 className="font-semibold text-brand-ink text-sm mb-4">
+              Product
+            </h3>
             <ul className="space-y-2 text-[14px]">
-              <li><Link href="#how-it-works" className="text-brand-taupe hover:text-brand-ink transition-colors">How it works</Link></li>
-              <li><Link href="#features" className="text-brand-taupe hover:text-brand-ink transition-colors">Features</Link></li>
-              <li><Link href="#pricing" className="text-brand-taupe hover:text-brand-ink transition-colors">Pricing</Link></li>
-              <li><Link href="#faq" className="text-brand-taupe hover:text-brand-ink transition-colors">FAQ</Link></li>
+              <li>
+                <Link
+                  href="#how-it-works"
+                  className="text-brand-taupe hover:text-brand-ink transition-colors"
+                >
+                  How it works
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="#features"
+                  className="text-brand-taupe hover:text-brand-ink transition-colors"
+                >
+                  Features
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="#pricing"
+                  className="text-brand-taupe hover:text-brand-ink transition-colors"
+                >
+                  Pricing
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="#faq"
+                  className="text-brand-taupe hover:text-brand-ink transition-colors"
+                >
+                  FAQ
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -42,8 +72,22 @@ export default function FooterSection() {
           <div>
             <h3 className="font-semibold text-brand-ink text-sm mb-4">Legal</h3>
             <ul className="space-y-2 text-[14px]">
-              <li><Link href="/privacy" className="text-brand-taupe hover:text-brand-ink transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/terms" className="text-brand-taupe hover:text-brand-ink transition-colors">Terms of Service</Link></li>
+              <li>
+                <Link
+                  href="/privacy"
+                  className="text-brand-taupe hover:text-brand-ink transition-colors"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/terms"
+                  className="text-brand-taupe hover:text-brand-ink transition-colors"
+                >
+                  Terms of Service
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

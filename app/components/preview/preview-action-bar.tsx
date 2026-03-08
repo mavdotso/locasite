@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -26,10 +26,10 @@ export function PreviewActionBar({
   const router = useRouter();
   const { signIn } = useAuthActions();
   const user = useQuery(api.auth.currentUser);
-  const publishBusiness = useMutation(
-    api.businessPublishing.publishBusiness,
-  );
   const claimBusiness = useMutation(api.businesses.claimBusinessAfterAuth);
+  const createCheckout = useAction(
+    api.selfServeCheckout.createSelfServeCheckoutSession,
+  );
 
   const [isPublishing, setIsPublishing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -61,15 +61,18 @@ export function PreviewActionBar({
       // Ensure the business is claimed by this user first
       await claimBusiness({ businessId });
 
-      // Publish
-      await publishBusiness({ businessId });
+      // Create Stripe checkout session — payment gates publishing
+      const result = await createCheckout({ businessId });
 
-      // Redirect to confirmation page (Task 7 will create /live/[businessId])
-      // For now, redirect to the live site or dashboard
-      router.push(`/live/${businessId}`);
+      // Redirect to Stripe Checkout
+      if (result.url) {
+        window.location.href = result.url;
+      } else {
+        throw new Error("Could not create checkout session.");
+      }
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Failed to publish.";
+        err instanceof Error ? err.message : "Failed to start checkout.";
       setError(message);
     } finally {
       setIsPublishing(false);
@@ -130,12 +133,17 @@ export function PreviewActionBar({
         {isPublishing ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Publishing...
+            Setting up checkout...
           </>
         ) : (
-          "Go Live"
+          "Go Live — $149"
         )}
       </Button>
+
+      {/* Price info */}
+      <p className="text-xs text-center text-muted-foreground">
+        $149 one-time setup + $9/mo hosting. Cancel anytime.
+      </p>
 
       {/* Error message */}
       {error && (

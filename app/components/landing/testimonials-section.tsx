@@ -6,21 +6,21 @@ const testimonials = [
     business: "Garcia Tax Services",
     location: "Orlando, FL",
     initials: "MG",
-    text: "I was quoted $3,000 for a website by a local agency. Locosite built me something just as good for $149. My clients say it looks very professional.",
+    text: "I was quoted $3,000 for a website. Locosite let me create one myself for $149. My clients say it looks very professional.",
   },
   {
     name: "James Thompson",
     business: "Thompson Plumbing",
     location: "Winter Park, FL",
     initials: "JT",
-    text: "I don't have time to mess around with website builders. They built everything for me, and now customers find me on Google. Exactly what I needed.",
+    text: "I pasted my Google Maps link and had a real website in about 10 minutes. Customers find me on Google now. Exactly what I needed.",
   },
   {
     name: "David Kim",
     business: "Kim Family Dentistry",
     location: "Kissimmee, FL",
     initials: "DK",
-    text: "We went from no web presence to a professional site in a week. The $9/month hosting is a no-brainer compared to what our old provider charged.",
+    text: "We went from no web presence to a professional site in minutes. The $9/month hosting is a no-brainer compared to what our old provider charged.",
   },
 ];
 
@@ -33,16 +33,22 @@ export default function TestimonialsSection() {
             Testimonials
           </span>
           <h2 className="font-display font-extrabold text-brand-ink text-3xl md:text-[48px] leading-[1.05] tracking-[-0.025em] mb-4">
-            Local businesses trust Locosite
+            Local businesses live on Locosite
           </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
           {testimonials.map((t) => (
-            <div key={t.name} className="bg-white rounded-xl border border-brand-border p-6">
+            <div
+              key={t.name}
+              className="bg-white rounded-xl border border-brand-border p-6"
+            >
               <div className="flex gap-1 mb-4">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-brand-amber text-brand-amber" />
+                  <Star
+                    key={i}
+                    className="h-4 w-4 fill-brand-amber text-brand-amber"
+                  />
                 ))}
               </div>
               <p className="text-brand-ink text-[15px] leading-[1.65] mb-6">
@@ -53,8 +59,12 @@ export default function TestimonialsSection() {
                   {t.initials}
                 </div>
                 <div>
-                  <p className="font-semibold text-brand-ink text-sm">{t.name}</p>
-                  <p className="text-brand-taupe text-xs">{t.business} &middot; {t.location}</p>
+                  <p className="font-semibold text-brand-ink text-sm">
+                    {t.name}
+                  </p>
+                  <p className="text-brand-taupe text-xs">
+                    {t.business} &middot; {t.location}
+                  </p>
                 </div>
               </div>
             </div>
