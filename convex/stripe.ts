@@ -9,6 +9,7 @@ import { stripe } from "./lib/stripe";
 import { getPlanByPriceId } from "./lib/plans";
 import { convexEnv } from "./lib/env";
 import type Stripe from "stripe";
+import type { Id } from "./_generated/dataModel";
 
 // Webhook handler for Stripe events
 export const fulfill = internalAction({
@@ -51,7 +52,7 @@ export const fulfill = internalAction({
             await ctx.runMutation(
               internal.claimCheckout.internal_handleClaimPayment,
               {
-                businessId: session.metadata.businessId as any,
+                businessId: session.metadata.businessId as Id<"businesses">,
                 userId: session.metadata.userId as string,
                 stripeSessionId: session.id,
                 stripeSubscriptionId: session.subscription as string | undefined,
@@ -141,7 +142,8 @@ export const syncStripeDataToConvex = internalAction({
 
       // Extract subscription data
       const subscription = subscriptions.data[0];
-      const priceId = subscription.items.data[0]?.price.id;
+      const firstItem = subscription.items.data[0];
+      const priceId = firstItem?.price.id;
       const planType = priceId ? getPlanByPriceId(priceId) : "FREE";
 
       // Extract payment method details
@@ -167,8 +169,8 @@ export const syncStripeDataToConvex = internalAction({
           status: subscription.status,
           priceId,
           planType: planType || "FREE",
-          currentPeriodStart: (subscription as any).current_period_start,
-          currentPeriodEnd: (subscription as any).current_period_end,
+          currentPeriodStart: firstItem?.current_period_end ? firstItem.current_period_start : undefined,
+          currentPeriodEnd: firstItem?.current_period_end ?? undefined,
           cancelAtPeriodEnd: subscription.cancel_at_period_end,
           paymentMethod,
         },

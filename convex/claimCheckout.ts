@@ -4,6 +4,7 @@ import { api, internal } from "./_generated/api";
 import { stripe } from "./lib/stripe";
 import { convexEnv } from "./lib/env";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import type { Id } from "./_generated/dataModel";
 
 // Get business info by claim token (public, no auth required)
 export const getByClaimToken = query({
@@ -179,7 +180,7 @@ export const internal_handleClaimPayment = internalMutation({
 
     // Find the user by their string ID
     // The userId from Stripe metadata is the Convex user ID
-    const userId = args.userId as any; // Trust the ID from our own metadata
+    const userId = args.userId as Id<"users">;
 
     // Transfer ownership
     await ctx.db.patch(args.businessId, {

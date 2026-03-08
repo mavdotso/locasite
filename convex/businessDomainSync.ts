@@ -69,7 +69,7 @@ export const syncBusinessDomain = mutation({
     if (!domainId) {
       // Look for existing domain by subdomain index
       const slugified = business.name.toLowerCase().replace(/[^a-z0-9-]/g, '-');
-      let domain = await ctx.db
+      const domain = await ctx.db
         .query("domains")
         .withIndex("by_subdomain", (q) => q.eq("subdomain", slugified))
         .first();

@@ -188,7 +188,7 @@ export const scrapeGoogleMaps = httpAction(async (ctx, request) => {
 
     // Always create the business (without auth requirement)
     let businessId = null;
-    let domainId = null;
+    const domainId = null;
     
     try {
       // Create business without authentication (internal mutation)

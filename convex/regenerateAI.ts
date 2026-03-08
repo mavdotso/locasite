@@ -52,7 +52,7 @@ export const regenerateAIContentForBusiness = action({
       }
 
       // If includeReviews is true, also filter and enhance reviews
-      let filteredReviews = business.reviews;
+      const filteredReviews = business.reviews;
       // TODO: Implement review filtering once the API endpoint is properly set up
       // For now, just use the existing reviews
 

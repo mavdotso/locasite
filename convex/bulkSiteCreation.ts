@@ -285,7 +285,7 @@ export const getUnclaimedBusinessesWithoutSites = internalQuery({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    let query = ctx.db.query("businesses");
+    const query = ctx.db.query("businesses");
 
     if (args.batchId) {
       const businesses = await query
