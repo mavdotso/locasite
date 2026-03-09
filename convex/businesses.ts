@@ -531,7 +531,7 @@ export const getPublishedSlugsPage = query({
     pageSize: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const pageSize = Math.min(args.pageSize ?? 500, 1000);
+    const pageSize = Math.min(Math.max(Math.floor(args.pageSize ?? 500), 1), 1000);
     const result = await ctx.db
       .query("businesses")
       .withIndex("by_isPublished", (q) => q.eq("isPublished", true))
