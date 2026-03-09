@@ -560,6 +560,22 @@ export default defineSchema({
     .index("by_status", ["status"])
     .index("by_startedAt", ["startedAt"]),
 
+  // Business engagement tracking (page views, clicks)
+  businessEngagement: defineTable({
+    businessId: v.id("businesses"),
+    month: v.string(),
+    pageViews: v.number(),
+    phoneClicks: v.number(),
+    emailClicks: v.number(),
+    directionsClicks: v.number(),
+  }).index("by_business_month", ["businessId", "month"]),
+
+  // Managed tier waitlist
+  managedWaitlist: defineTable({
+    email: v.string(),
+    createdAt: v.number(),
+  }).index("by_email", ["email"]),
+
   // Owner referrals — consumer-initiated notifications to business owners
   ownerReferrals: defineTable({
     businessId: v.id("businesses"),
