@@ -4,7 +4,7 @@ import { api } from "@/convex/_generated/api";
 
 const INDEXNOW_KEY = "87de1fd8f748ce5888c2bf4b1108db23";
 const BASE_URL = "https://locosite.io";
-const INDEXNOW_ENDPOINT = "https://api.indexnow.org/indexnow";
+const INDEXNOW_ENDPOINT = "https://www.bing.com/indexnow";
 
 export async function POST(request: Request) {
   const authHeader = request.headers.get("authorization");
