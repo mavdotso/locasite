@@ -17,7 +17,6 @@ interface BusinessData {
   }>;
   photos?: string[];
   description?: string;
-  category?: string;
 }
 
 interface StructuredData {
