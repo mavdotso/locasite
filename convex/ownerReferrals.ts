@@ -19,7 +19,7 @@ export const getRecentReferrals = internalQuery({
       .withIndex("by_business_sentAt", (q) =>
         q.eq("businessId", args.businessId).gte("sentAt", args.since),
       )
-      .collect();
+      .take(MAX_REFERRALS_PER_WINDOW + 1);
   },
 });
 
@@ -94,9 +94,7 @@ export const sendOwnerReferral = action({
 
     // Silent dedup: skip if this email was already referred for this business
     if (
-      recent.some(
-        (r: { ownerEmail: string }) => r.ownerEmail === args.ownerEmail,
-      )
+      recent.some((r) => r.ownerEmail === args.ownerEmail)
     ) {
       return { success: true };
     }
