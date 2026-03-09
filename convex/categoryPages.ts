@@ -187,6 +187,35 @@ export const getSubdomainsForBusinesses = query({
 
 // --- Internal queries (used by sitemap httpAction via pagination loop) ---
 
+// Public version for Next.js app/sitemap.ts
+export const getCityCategorySlugsPage = query({
+  args: {
+    cursor: v.optional(v.string()),
+    pageSize: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const pageSize = Math.min(args.pageSize ?? 500, 1000);
+
+    const results = await ctx.db
+      .query("businesses")
+      .withIndex("by_city_category")
+      .paginate({ numItems: pageSize, cursor: args.cursor ?? null });
+
+    const entries: { city: string; categorySlug: string }[] = [];
+    for (const b of results.page) {
+      if (b.city && b.categorySlug && b.isPublished !== false) {
+        entries.push({ city: b.city, categorySlug: b.categorySlug });
+      }
+    }
+
+    return {
+      entries,
+      cursor: results.continueCursor,
+      isDone: results.isDone,
+    };
+  },
+});
+
 export const getCityCategoryPage = internalQuery({
   args: {
     cursor: v.optional(v.string()),

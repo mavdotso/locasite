@@ -27,6 +27,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     cursor = page.cursor;
   }
 
+  // Fetch city/category combos for landing pages
+  const cityCategoryCombos: { city: string; categorySlug: string }[] = [];
+  const comboSet = new Set<string>();
+  let categoryCursor: string | undefined = undefined;
+
+  while (cityCategoryCombos.length < 50000) {
+    const page: {
+      entries: { city: string; categorySlug: string }[];
+      cursor: string;
+      isDone: boolean;
+    } = await fetchQuery(api.categoryPages.getCityCategorySlugsPage, {
+      cursor: categoryCursor,
+      pageSize: 1000,
+    });
+
+    for (const entry of page.entries) {
+      const key = `${entry.city}|${entry.categorySlug}`;
+      if (!comboSet.has(key)) {
+        comboSet.add(key);
+        cityCategoryCombos.push(entry);
+      }
+    }
+    if (page.isDone) break;
+    categoryCursor = page.cursor;
+  }
+
+  // Deduplicate city landing pages
+  const cities = [...new Set(cityCategoryCombos.map((c) => c.city))];
+
   return [
     {
       url: baseUrl,
@@ -38,6 +67,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${baseUrl}/${slug}`,
       lastModified: new Date(),
       changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
+    ...cities.map((city) => ({
+      url: `${baseUrl}/${city}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    })),
+    ...cityCategoryCombos.map((combo) => ({
+      url: `${baseUrl}/${combo.city}/${combo.categorySlug}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
       priority: 0.8,
     })),
     ...businessEntries.map((entry) => ({

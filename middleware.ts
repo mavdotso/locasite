@@ -187,12 +187,8 @@ export default async function middleware(
     return NextResponse.rewrite(new URL(rewritePath, request.url));
   }
 
-  // Root domain sitemap index — serves the global sitemap listing all business sitemaps
-  if (!subdomain && !isCustomDomain && pathname === "/sitemap.xml") {
-    return NextResponse.rewrite(
-      new URL(`${CONVEX_SITE_URL}/sitemap-index`, request.url),
-    );
-  }
+  // Root domain /sitemap.xml is served by app/sitemap.ts (Next.js ISR) — no rewrite needed.
+  // Subdomain and custom-domain sitemaps are still rewritten to Convex above.
 
   // For non-subdomain requests, run auth middleware normally
   const authResponse = await authMiddleware(request, event);
