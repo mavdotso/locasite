@@ -9,6 +9,7 @@ interface BusinessData {
   website?: string;
   hours?: string[];
   rating?: number;
+  reviewCount?: number;
   reviews?: Array<{
     reviewer: string;
     rating: number;
@@ -16,6 +17,7 @@ interface BusinessData {
   }>;
   photos?: string[];
   description?: string;
+  category?: string;
 }
 
 interface StructuredData {
@@ -86,26 +88,30 @@ export function generateLocalBusinessStructuredData(
   }
 
   // Add aggregate rating if available
-  if (business.rating && business.reviews && business.reviews.length > 0) {
+  const reviewCount =
+    business.reviewCount || (business.reviews ? business.reviews.length : 0);
+  if (business.rating && reviewCount > 0) {
     structuredData.aggregateRating = {
       "@type": "AggregateRating",
       ratingValue: business.rating,
-      reviewCount: business.reviews.length,
+      reviewCount,
     };
 
-    // Add reviews
-    structuredData.review = business.reviews.slice(0, 5).map((review) => ({
-      "@type": "Review",
-      author: {
-        "@type": "Person",
-        name: review.reviewer,
-      },
-      reviewRating: {
-        "@type": "Rating",
-        ratingValue: review.rating || 5,
-      },
-      reviewBody: review.text,
-    }));
+    // Add individual reviews if available
+    if (business.reviews && business.reviews.length > 0) {
+      structuredData.review = business.reviews.slice(0, 5).map((review) => ({
+        "@type": "Review",
+        author: {
+          "@type": "Person",
+          name: review.reviewer,
+        },
+        reviewRating: {
+          "@type": "Rating",
+          ratingValue: review.rating || 5,
+        },
+        reviewBody: review.text,
+      }));
+    }
   }
 
   // Add price range if available (you might want to add this to your schema)
