@@ -182,7 +182,7 @@ export default async function CategoryPage({ params }: PageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify([structuredData, breadcrumbData, organizationData]),
+          __html: JSON.stringify([structuredData, breadcrumbData, organizationData]).replace(/</g, "\\u003c"),
         }}
       />
 

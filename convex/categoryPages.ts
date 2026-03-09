@@ -32,6 +32,7 @@ const STATE_ABBREVS: Record<string, string> = {
   "south dakota": "SD", tennessee: "TN", texas: "TX", utah: "UT", vermont: "VT",
   virginia: "VA", washington: "WA", "west virginia": "WV", wisconsin: "WI",
   wyoming: "WY",
+  "district of columbia": "DC",
 };
 
 const VALID_STATE_CODES = new Set(Object.values(STATE_ABBREVS));
@@ -156,6 +157,7 @@ export const getCityInfo = query({
     const first = await ctx.db
       .query("businesses")
       .withIndex("by_city", (q) => q.eq("city", args.city))
+      .filter((q) => q.neq(q.field("isPublished"), false))
       .first();
 
     if (!first) return null;
