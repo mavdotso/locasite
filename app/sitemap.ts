@@ -13,7 +13,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let cursor: string | undefined = undefined;
 
   while (businessEntries.length < 50000) {
-    const page = await fetchQuery(api.businesses.getPublishedSlugsPage, {
+    const page: {
+      entries: { slug: string; lastModified: string }[];
+      cursor: string;
+      isDone: boolean;
+    } = await fetchQuery(api.businesses.getPublishedSlugsPage, {
       cursor,
       pageSize: 500,
     });
