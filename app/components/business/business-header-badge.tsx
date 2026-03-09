@@ -15,7 +15,7 @@ export function BusinessHeaderBadge({ show }: BusinessHeaderBadgeProps) {
         <Link
           href={`${SITE_CONFIG.url}?ref=header-badge`}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener"
           className="font-medium text-primary hover:underline"
         >
           Locosite
@@ -24,7 +24,7 @@ export function BusinessHeaderBadge({ show }: BusinessHeaderBadgeProps) {
         <Link
           href={`${SITE_CONFIG.url}?ref=header-cta`}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener"
           className="hover:underline"
         >
           Create yours free
