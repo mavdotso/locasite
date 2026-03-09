@@ -12,6 +12,8 @@ import {
   generateBreadcrumbStructuredData,
   generateWebsiteStructuredData,
 } from "@/app/lib/structured-data";
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 
 interface PageProps {
   params: Promise<{
@@ -30,6 +32,27 @@ export async function generateMetadata({
     });
 
     if (!domain) {
+      // Check if this is a city slug for category pages
+      const cityInfo = await fetchQuery(api.categoryPages.getCityInfo, {
+        city: businessDomain,
+      });
+      if (cityInfo) {
+        const rootDomain =
+          process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
+        const location = `${cityInfo.cityDisplay}, ${cityInfo.state}`;
+        return {
+          title: `Local Businesses in ${location}`,
+          description: `Browse local businesses in ${location}. Find restaurants, services, and more with reviews, hours, and contact info.`,
+          alternates: {
+            canonical: `https://${rootDomain}/${businessDomain}`,
+          },
+          openGraph: {
+            type: "website",
+            title: `Local Businesses in ${location} | Locosite`,
+            description: `Browse local businesses in ${location}.`,
+          },
+        };
+      }
       return {
         title: "Business Not Found",
       };
@@ -183,6 +206,19 @@ export default async function BusinessPage({ params }: PageProps) {
     });
 
     if (!domain) {
+      // Try rendering as a city landing page
+      const cityInfo = await fetchQuery(api.categoryPages.getCityInfo, {
+        city: businessDomain,
+      });
+      if (cityInfo) {
+        return (
+          <CityLandingPage
+            citySlug={businessDomain}
+            cityDisplay={cityInfo.cityDisplay}
+            state={cityInfo.state}
+          />
+        );
+      }
       notFound();
     }
 
@@ -260,7 +296,7 @@ export default async function BusinessPage({ params }: PageProps) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(structuredData),
+            __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
           }}
         />
         <div className="flex flex-col min-h-screen">
@@ -315,4 +351,114 @@ export default async function BusinessPage({ params }: PageProps) {
     Sentry.captureException(error);
     notFound();
   }
+}
+
+async function CityLandingPage({
+  citySlug,
+  cityDisplay,
+  state,
+}: {
+  citySlug: string;
+  cityDisplay: string;
+  state: string;
+}) {
+  const categories = await fetchQuery(api.categoryPages.getCategoriesForCity, {
+    city: citySlug,
+  });
+
+  const location = `${cityDisplay}, ${state}`;
+  const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
+
+  const breadcrumbData = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: `https://${rootDomain}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: cityDisplay,
+        item: `https://${rootDomain}/${citySlug}`,
+      },
+    ],
+  };
+
+  const totalBusinesses = categories.reduce((sum, c) => sum + c.count, 0);
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbData).replace(/</g, "\\u003c") }}
+      />
+
+      <div className="min-h-screen bg-neutral-50">
+        <header className="border-b border-neutral-200 bg-white">
+          <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
+            <Link
+              href="/"
+              className="font-display font-bold text-xl tracking-tight text-neutral-900"
+            >
+              Locosite
+            </Link>
+            <nav className="flex items-center gap-1 text-sm text-neutral-500">
+              <Link href="/" className="hover:text-neutral-900">
+                Home
+              </Link>
+              <ChevronRight className="h-3 w-3" />
+              <span className="text-neutral-900">{cityDisplay}</span>
+            </nav>
+          </div>
+        </header>
+
+        <section className="bg-white border-b border-neutral-200">
+          <div className="mx-auto max-w-6xl px-6 py-12 md:py-16">
+            <h1 className="font-display font-extrabold text-3xl md:text-4xl lg:text-5xl tracking-tight text-neutral-900 mb-3">
+              Local Businesses in {location}
+            </h1>
+            <p className="text-neutral-600 text-lg max-w-2xl">
+              Browse {totalBusinesses} local businesses across{" "}
+              {categories.length} categories in {location}.
+            </p>
+          </div>
+        </section>
+
+        <main className="mx-auto max-w-6xl px-6 py-10">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {categories.map((cat) => (
+              <Link
+                key={cat.categorySlug}
+                href={`/${citySlug}/${cat.categorySlug}`}
+                className="group rounded-lg border border-neutral-200 bg-white p-6 hover:border-neutral-300 hover:shadow-sm transition-all"
+              >
+                <h2 className="font-semibold text-neutral-900 text-lg mb-1 group-hover:text-neutral-700">
+                  {cat.categoryDisplay}
+                </h2>
+                <p className="text-sm text-neutral-500">
+                  {cat.count} {cat.count === 1 ? "business" : "businesses"}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </main>
+
+        <footer className="border-t border-neutral-200 bg-white mt-auto">
+          <div className="mx-auto max-w-6xl px-6 py-8 flex items-center justify-between text-sm text-neutral-500">
+            <Link
+              href="/"
+              className="font-display font-bold text-neutral-900"
+            >
+              Locosite
+            </Link>
+            <p>Free professional websites for local businesses</p>
+          </div>
+        </footer>
+      </div>
+    </>
+  );
 }
