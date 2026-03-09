@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       isDone: boolean;
     } = await fetchQuery(api.businesses.getPublishedSlugsPage, {
       cursor,
-      pageSize: 500,
+      pageSize: 1000,
     });
 
     for (const entry of page.entries) {

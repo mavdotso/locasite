@@ -19,7 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       isDone: boolean;
     } = await fetchQuery(api.businesses.getPublishedSlugsPage, {
       cursor,
-      pageSize: 500,
+      pageSize: 1000,
     });
 
     businessEntries.push(...page.entries);
