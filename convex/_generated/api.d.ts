@@ -21,6 +21,7 @@ import type * as businessSeo from "../businessSeo.js";
 import type * as businesses from "../businesses.js";
 import type * as businessesActions from "../businessesActions.js";
 import type * as businessesWithDomain from "../businessesWithDomain.js";
+import type * as categoryPages from "../categoryPages.js";
 import type * as claimCheckout from "../claimCheckout.js";
 import type * as contactMessages from "../contactMessages.js";
 import type * as customDomains from "../customDomains.js";
@@ -89,6 +90,7 @@ declare const fullApi: ApiFromModules<{
   businesses: typeof businesses;
   businessesActions: typeof businessesActions;
   businessesWithDomain: typeof businessesWithDomain;
+  categoryPages: typeof categoryPages;
   claimCheckout: typeof claimCheckout;
   contactMessages: typeof contactMessages;
   customDomains: typeof customDomains;

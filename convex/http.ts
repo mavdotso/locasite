@@ -1680,6 +1680,64 @@ http.route({
         )
         .join("\n");
 
+      // Category page URLs (city + category combos) — paginated internal query
+      const cityCategoryCombos: { city: string; categorySlug: string }[] = [];
+      const comboSet = new Set<string>();
+      let categoryCursor: string | undefined = undefined;
+      let categoryDone = false;
+      while (!categoryDone) {
+        const catPage = (await ctx.runQuery(
+          internal.categoryPages.getCityCategoryPage,
+          { cursor: categoryCursor, pageSize: 500 },
+        )) as {
+          entries: { city: string; categorySlug: string }[];
+          cursor: string;
+          isDone: boolean;
+        };
+        for (const entry of catPage.entries) {
+          const key = `${entry.city}|${entry.categorySlug}`;
+          if (!comboSet.has(key)) {
+            comboSet.add(key);
+            cityCategoryCombos.push(entry);
+          }
+        }
+        if (catPage.isDone) {
+          categoryDone = true;
+        } else {
+          categoryCursor = catPage.cursor;
+        }
+      }
+
+      // City landing pages
+      const citySet = new Set<string>();
+      for (const combo of cityCategoryCombos) {
+        citySet.add(combo.city);
+      }
+      const cityEntries = Array.from(citySet)
+        .map(
+          (city) =>
+            `  <url>
+    <loc>${baseUrl}/${city}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`,
+        )
+        .join("\n");
+
+      // Category pages
+      const categoryEntries = cityCategoryCombos
+        .map(
+          (combo) =>
+            `  <url>
+    <loc>${baseUrl}/${combo.city}/${combo.categorySlug}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`,
+        )
+        .join("\n");
+
       // Business page URLs using path routing
       const businessEntries = allEntries
         .map(
@@ -1696,6 +1754,8 @@ http.route({
       const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${staticEntries}
+${cityEntries}
+${categoryEntries}
 ${businessEntries}
 </urlset>`;
 

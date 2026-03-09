@@ -328,6 +328,11 @@ export default defineSchema({
     // Bulk pipeline fields
     reviewCount: v.optional(v.number()),
     category: v.optional(v.string()),
+    // Category page fields (for programmatic SEO)
+    city: v.optional(v.string()), // lowercase slug, e.g. "orlando"
+    cityDisplay: v.optional(v.string()), // display name, e.g. "Orlando"
+    state: v.optional(v.string()), // two-letter abbreviation, e.g. "FL"
+    categorySlug: v.optional(v.string()), // normalized slug, e.g. "restaurants"
     claimToken: v.optional(v.string()),
     claimTokenCreatedAt: v.optional(v.number()),
     batchId: v.optional(v.string()),
@@ -342,7 +347,10 @@ export default defineSchema({
     .index("by_themeId", ["themeId"])
     .index("by_isPublished", ["isPublished"])
     .index("by_claimToken", ["claimToken"])
-    .index("by_batchId", ["batchId"]),
+    .index("by_batchId", ["batchId"])
+    .index("by_city_category", ["city", "categorySlug"])
+    .index("by_city", ["city"])
+    .index("by_categorySlug", ["categorySlug"]),
 
   businessClaims: defineTable({
     businessId: v.id("businesses"),
