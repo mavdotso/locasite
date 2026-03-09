@@ -1626,36 +1626,78 @@ http.route({
   }),
 });
 
-// Sitemap index for root domain — lists all published business sitemaps
+// Sitemap for root domain — flat urlset with all published business pages (path-based URLs)
+// Uses path routing (locosite.io/{subdomain}) since wildcard DNS is not yet configured
 http.route({
   path: "/sitemap-index",
   method: "GET",
   handler: httpAction(async (ctx) => {
     try {
-      const subdomains = await ctx.runQuery(
-        internal.bulkSiteCreation.getAllPublishedSubdomains,
-        {},
-      );
-
       const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
+      const baseUrl = `https://${rootDomain}`;
 
-      // Google allows max 50,000 entries per sitemap index
-      const entries = subdomains.slice(0, 50000);
+      // Paginate through published businesses directly via query
+      const allEntries: { subdomain: string; lastModified: string }[] = [];
+      let cursor: string | undefined = undefined;
+      let done = false;
 
-      const sitemapEntries = entries
+      while (!done && allEntries.length < 50000) {
+        const page = (await ctx.runQuery(
+          internal.bulkSiteCreation.getPublishedSubdomainsPage,
+          { cursor, pageSize: 500 },
+        )) as {
+          entries: { subdomain: string; lastModified: string }[];
+          cursor: string;
+          isDone: boolean;
+        };
+
+        allEntries.push(...page.entries);
+        if (page.isDone) {
+          done = true;
+        } else {
+          cursor = page.cursor;
+        }
+      }
+
+      // Static pages
+      const now = new Date().toISOString();
+      const staticUrls = [
+        { loc: baseUrl, priority: "1.0", changefreq: "weekly" },
+        { loc: `${baseUrl}/examples`, priority: "0.6", changefreq: "monthly" },
+        { loc: `${baseUrl}/privacy`, priority: "0.3", changefreq: "yearly" },
+        { loc: `${baseUrl}/terms`, priority: "0.3", changefreq: "yearly" },
+      ];
+
+      const staticEntries = staticUrls
         .map(
-          (s: { subdomain: string; lastModified: string }) =>
-            `  <sitemap>
-    <loc>https://${s.subdomain}.${rootDomain}/sitemap.xml</loc>
+          (s) =>
+            `  <url>
+    <loc>${s.loc}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>${s.changefreq}</changefreq>
+    <priority>${s.priority}</priority>
+  </url>`,
+        )
+        .join("\n");
+
+      // Business page URLs using path routing
+      const businessEntries = allEntries
+        .map(
+          (s) =>
+            `  <url>
+    <loc>${baseUrl}/${s.subdomain}</loc>
     <lastmod>${s.lastModified}</lastmod>
-  </sitemap>`,
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>`,
         )
         .join("\n");
 
       const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${sitemapEntries}
-</sitemapindex>`;
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${staticEntries}
+${businessEntries}
+</urlset>`;
 
       return new Response(xml, {
         status: 200,
@@ -1665,7 +1707,7 @@ ${sitemapEntries}
         },
       });
     } catch {
-      return new Response("Sitemap index generation failed", { status: 500 });
+      return new Response("Sitemap generation failed", { status: 500 });
     }
   }),
 });

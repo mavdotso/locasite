@@ -332,6 +332,7 @@ export default defineSchema({
     claimTokenCreatedAt: v.optional(v.number()),
     batchId: v.optional(v.string()),
     claimStripeSubscriptionId: v.optional(v.string()),
+    notificationEmailSentAt: v.optional(v.number()),
   })
     // Note: placeId should be unique - enforced in mutation logic since Convex doesn't support unique indexes
     .index("by_placeId", ["placeId"])

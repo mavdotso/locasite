@@ -16,15 +16,54 @@ export const areJobsComplete = internalQuery({
   },
 });
 
+// Get unpublished businesses that have a domain but no claim token
+export const getUnpublishedWithDomain = internalQuery({
+  args: {
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const businesses = await ctx.db
+      .query("businesses")
+      .withIndex("by_isPublished", (q) => q.eq("isPublished", false))
+      .filter((q) => q.neq(q.field("domainId"), undefined))
+      .take(args.limit ?? 500);
+    return businesses.map((b) => b._id);
+  },
+});
+
 interface PipelineResult {
   jobIds: string[];
-  siteJobId?: string;
   totalScraped: number;
-  totalSitesQueued: number;
+  totalPublished: number;
   message: string;
 }
 
-// End-to-end pipeline: scrape → wait → create sites
+// Count published businesses (paginated to avoid byte limits)
+export const countPublished = internalQuery({
+  args: {},
+  handler: async (ctx) => {
+    let count = 0;
+    let cursor = null;
+    let done = false;
+    while (!done) {
+      const page = await ctx.db
+        .query("businesses")
+        .withIndex("by_isPublished", (q) => q.eq("isPublished", true))
+        .paginate({ numItems: 100, cursor: cursor ?? null });
+      count += page.page.length;
+      if (page.isDone || page.page.length === 0) {
+        done = true;
+      } else {
+        cursor = page.continueCursor;
+      }
+    }
+    return { count };
+  },
+});
+
+// End-to-end pipeline: scrape → wait → publish
+// Note: createBusinessWithoutAuth already creates domains, pages, and themes.
+// This pipeline just needs to scrape + publish (add claim tokens).
 export const runPipeline = internalAction({
   args: {
     targets: v.array(
@@ -38,7 +77,7 @@ export const runPipeline = internalAction({
     minReviews: v.optional(v.number()),
   },
   handler: async (ctx, args): Promise<PipelineResult> => {
-    // Step 1: Start bulk scraping
+    // Step 1: Start bulk scraping (creates businesses with domains+pages+themes)
     const scrapeResult = await ctx.runAction(internal.bulkScraper.startBulkScrape, {
       targets: args.targets,
       minRating: args.minRating,
@@ -60,33 +99,34 @@ export const runPipeline = internalAction({
       await new Promise((resolve) => setTimeout(resolve, pollInterval));
     }
 
-    // Step 3: Get unclaimed businesses without sites
-    const businessIds = await ctx.runQuery(
-      internal.bulkSiteCreation.getUnclaimedBusinessesWithoutSites,
+    // Step 3: Publish all unpublished businesses that have domains
+    let totalPublished = 0;
+    const unpublishedIds = await ctx.runQuery(
+      internal.indexEverything.getUnpublishedWithDomain,
       { limit: 500 },
     ) as Id<"businesses">[];
 
-    if (businessIds.length === 0) {
-      return {
-        jobIds: scrapeResult.jobIds,
-        totalScraped: scrapeResult.jobIds.length,
-        totalSitesQueued: 0,
-        message: "Scraping complete but no new businesses to create sites for.",
-      };
+    for (const bizId of unpublishedIds) {
+      const claimToken = crypto.randomUUID();
+      await ctx.runMutation(internal.bulkSiteCreation.setClaimTokenAndPublish, {
+        businessId: bizId,
+        claimToken,
+      });
+      totalPublished++;
     }
 
-    // Step 4: Bulk create sites (includes auto-publish)
-    const siteResult = await ctx.runAction(
-      internal.bulkSiteCreation.bulkCreateSites,
-      { businessIds },
-    ) as { siteJobId: string; totalQueued: number };
+    // Step 4: Get final scrape stats
+    let totalCreated = 0;
+    for (const jobId of typedJobIds) {
+      const job = await ctx.runQuery(internal.scrapeJobs.getJob, { jobId });
+      if (job) totalCreated += job.totalCreated;
+    }
 
     return {
       jobIds: scrapeResult.jobIds,
-      siteJobId: siteResult.siteJobId,
-      totalScraped: scrapeResult.jobIds.length,
-      totalSitesQueued: siteResult.totalQueued,
-      message: `Pipeline started: ${scrapeResult.jobIds.length} scrape jobs, ${siteResult.totalQueued} sites queued for creation.`,
+      totalScraped: totalCreated,
+      totalPublished,
+      message: `Pipeline complete: ${totalCreated} businesses scraped, ${totalPublished} published with claim tokens.`,
     };
   },
 });

@@ -9,6 +9,7 @@ const ROOT_DOMAIN =
 const DEPLOYMENT_SUFFIX =
   process.env.NEXT_PUBLIC_VERCEL_DEPLOYMENT_SUFFIX || "vercel.app";
 const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL || "";
+const CONVEX_SITE_URL = CONVEX_URL.replace(".convex.cloud", ".convex.site");
 
 // Routes that require authentication (middleware-level protection)
 const AUTH_REQUIRED_PREFIXES = ["/dashboard", "/edit"];
@@ -110,7 +111,7 @@ export default async function middleware(
     if (pathname === "/sitemap.xml") {
       return NextResponse.rewrite(
         new URL(
-          `${CONVEX_URL}/sitemap/${hostname}`,
+          `${CONVEX_SITE_URL}/sitemap/${hostname}`,
           request.url,
         ),
       );
@@ -118,7 +119,7 @@ export default async function middleware(
     if (pathname === "/robots.txt") {
       return NextResponse.rewrite(
         new URL(
-          `${CONVEX_URL}/robots/${hostname}`,
+          `${CONVEX_SITE_URL}/robots/${hostname}`,
           request.url,
         ),
       );
@@ -126,7 +127,7 @@ export default async function middleware(
     if (pathname === "/favicon.ico" || pathname === "/favicon.svg") {
       return NextResponse.rewrite(
         new URL(
-          `${CONVEX_URL}/favicon/${hostname}`,
+          `${CONVEX_SITE_URL}/favicon/${hostname}`,
           request.url,
         ),
       );
@@ -158,7 +159,7 @@ export default async function middleware(
     if (pathname === "/sitemap.xml") {
       return NextResponse.rewrite(
         new URL(
-          `${CONVEX_URL}/sitemap/${subdomain}`,
+          `${CONVEX_SITE_URL}/sitemap/${subdomain}`,
           request.url,
         ),
       );
@@ -166,7 +167,7 @@ export default async function middleware(
     if (pathname === "/robots.txt") {
       return NextResponse.rewrite(
         new URL(
-          `${CONVEX_URL}/robots/${subdomain}`,
+          `${CONVEX_SITE_URL}/robots/${subdomain}`,
           request.url,
         ),
       );
@@ -175,7 +176,7 @@ export default async function middleware(
     if (pathname === "/favicon.ico" || pathname === "/favicon.svg") {
       return NextResponse.rewrite(
         new URL(
-          `${CONVEX_URL}/favicon/${subdomain}`,
+          `${CONVEX_SITE_URL}/favicon/${subdomain}`,
           request.url,
         ),
       );
@@ -189,7 +190,7 @@ export default async function middleware(
   // Root domain sitemap index — serves the global sitemap listing all business sitemaps
   if (!subdomain && !isCustomDomain && pathname === "/sitemap.xml") {
     return NextResponse.rewrite(
-      new URL(`${CONVEX_URL}/sitemap-index`, request.url),
+      new URL(`${CONVEX_SITE_URL}/sitemap-index`, request.url),
     );
   }
 

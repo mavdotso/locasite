@@ -235,30 +235,61 @@ export const getSiteJob = internalQuery({
   },
 });
 
-// Get all published subdomains for sitemap index
-export const getAllPublishedSubdomains = internalQuery({
-  args: { limit: v.optional(v.number()) },
+// Get a page of published subdomains for sitemap index (paginated to avoid byte limits)
+export const getPublishedSubdomainsPage = internalQuery({
+  args: {
+    cursor: v.optional(v.string()),
+    pageSize: v.optional(v.number()),
+  },
   handler: async (ctx, args) => {
-    const businesses = await ctx.db
+    const pageSize = args.pageSize ?? 200;
+    const result = await ctx.db
       .query("businesses")
       .withIndex("by_isPublished", (q) => q.eq("isPublished", true))
-      .take(args.limit ?? 50000);
+      .paginate({ numItems: pageSize, cursor: args.cursor ?? null });
 
-    // Batch-fetch all domains at once to avoid N+1
-    const domains = await ctx.db.query("domains").collect();
-    const domainMap = new Map(domains.map((d) => [d._id, d.subdomain]));
-
-    const results: { subdomain: string; lastModified: string }[] = [];
-    for (const biz of businesses) {
+    const entries: { subdomain: string; lastModified: string }[] = [];
+    for (const biz of result.page) {
       if (!biz.domainId) continue;
-      const subdomain = domainMap.get(biz.domainId);
-      if (!subdomain) continue;
-      results.push({
-        subdomain,
+      const domain = await ctx.db.get(biz.domainId);
+      if (!domain?.subdomain) continue;
+      entries.push({
+        subdomain: domain.subdomain,
         lastModified: new Date(biz.publishedAt || biz._creationTime).toISOString(),
       });
     }
-    return results;
+
+    return {
+      entries,
+      cursor: result.continueCursor,
+      isDone: result.isDone,
+    };
+  },
+});
+
+// Get all published subdomains by paginating through pages (action wrapper)
+export const getAllPublishedSubdomains = internalAction({
+  args: {},
+  handler: async (ctx) => {
+    const allEntries: { subdomain: string; lastModified: string }[] = [];
+    let cursor: string | undefined = undefined;
+    let done = false;
+
+    while (!done) {
+      const page = await ctx.runQuery(
+        internal.bulkSiteCreation.getPublishedSubdomainsPage,
+        { cursor, pageSize: 200 },
+      ) as { entries: { subdomain: string; lastModified: string }[]; cursor: string; isDone: boolean };
+
+      allEntries.push(...page.entries);
+      if (page.isDone) {
+        done = true;
+      } else {
+        cursor = page.cursor;
+      }
+    }
+
+    return allEntries;
   },
 });
 
@@ -269,7 +300,6 @@ export const exportClaimLinks = internalQuery({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const rootDomain = convexEnv.NEXT_PUBLIC_ROOT_DOMAIN;
     const appUrl = convexEnv.NEXT_PUBLIC_APP_URL;
 
     let businesses;
@@ -305,6 +335,44 @@ export const exportClaimLinks = internalQuery({
         domainId: b.domainId,
       };
     });
+  },
+});
+
+// Bulk-publish all unpublished businesses and add claim tokens
+export const bulkPublishUnpublished = internalAction({
+  args: { batchSize: v.optional(v.number()) },
+  handler: async (ctx, args): Promise<{ published: number; alreadyPublished: number }> => {
+    const limit = args.batchSize ?? 500;
+    const businesses = await ctx.runQuery(
+      internal.bulkSiteCreation.getUnpublishedBusinesses,
+      { limit },
+    ) as { _id: Id<"businesses"> }[];
+
+    let published = 0;
+    const alreadyPublished = 0;
+
+    for (const biz of businesses) {
+      const claimToken = crypto.randomUUID();
+      await ctx.runMutation(internal.bulkSiteCreation.setClaimTokenAndPublish, {
+        businessId: biz._id,
+        claimToken,
+      });
+      published++;
+    }
+
+    return { published, alreadyPublished };
+  },
+});
+
+// Get unpublished businesses for bulk publishing
+export const getUnpublishedBusinesses = internalQuery({
+  args: { limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const businesses = await ctx.db
+      .query("businesses")
+      .withIndex("by_isPublished", (q) => q.eq("isPublished", false))
+      .take(args.limit ?? 500);
+    return businesses.map((b) => ({ _id: b._id }));
   },
 });
 
