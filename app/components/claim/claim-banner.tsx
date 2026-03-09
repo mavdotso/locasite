@@ -6,7 +6,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/app/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, BadgeCheck, CircleAlert } from "lucide-react";
 import Link from "next/link";
 import { trackClaimEvent } from "@/app/lib/claim-analytics";
 
@@ -41,41 +41,15 @@ export function ClaimBanner({
     await signIn("google");
   };
 
-  // Already claimed
+  // Claimed state — verified badge
   if (isClaimed) {
     return (
-      <div className="sticky top-0 z-40 border-b border-amber-200 bg-amber-50">
-        <div className="mx-auto max-w-3xl px-4 py-3 text-center">
-          <p className="text-sm font-medium text-amber-800">
-            This site has already been claimed.
-          </p>
-          <Link
-            href="/sign-in"
-            className="text-sm text-amber-700 underline underline-offset-2 hover:text-amber-900"
-          >
-            Sign in to manage your business
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  // User is already authenticated -- send them to the preview page to Go Live
-  if (user) {
-    return (
-      <div className="sticky top-0 z-40 border-b border-green-200 bg-green-50">
-        <div className="mx-auto max-w-3xl px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
-          <p className="text-sm font-medium text-green-800">
-            Ready to claim <span className="font-semibold">{businessName}</span>?
-          </p>
-          <Link
-            href={`/preview/${businessId}`}
-            onClick={() => trackClaimEvent("click", "claim_banner_cta", businessId)}
-          >
-            <Button size="sm" className="whitespace-nowrap">
-              Go to Preview
-            </Button>
-          </Link>
+      <div className="sticky top-0 z-40 border-b border-emerald-200 bg-emerald-50">
+        <div className="mx-auto max-w-3xl px-4 py-2.5 flex items-center justify-center gap-2">
+          <BadgeCheck className="h-4 w-4 text-emerald-600" />
+          <span className="text-sm font-semibold text-emerald-700">
+            Claimed
+          </span>
         </div>
       </div>
     );
@@ -84,24 +58,65 @@ export function ClaimBanner({
   // Auth still loading
   if (user === undefined) {
     return (
-      <div className="sticky top-0 z-40 border-b border-border/40 bg-stone-50/95 backdrop-blur-sm">
-        <div className="mx-auto max-w-3xl px-4 py-3 flex items-center justify-center gap-2">
-          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">Loading...</p>
+      <div className="sticky top-0 z-40 border-b border-amber-200 bg-amber-50">
+        <div className="mx-auto max-w-3xl px-4 py-2.5 flex items-center justify-center gap-2">
+          <Loader2 className="h-4 w-4 animate-spin text-amber-500" />
+          <span className="text-sm text-amber-600">Loading...</span>
         </div>
       </div>
     );
   }
 
-  // Not authenticated -- show claim CTA
+  // User is already authenticated — send them to the preview page to claim
+  if (user) {
+    return (
+      <div className="sticky top-0 z-40 border-b border-amber-200 bg-amber-50">
+        <div className="mx-auto max-w-3xl px-4 py-2.5 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2">
+            <CircleAlert className="h-4 w-4 text-amber-600" />
+            <span className="text-sm font-semibold text-amber-700">
+              Unclaimed
+            </span>
+            <span className="text-sm text-amber-600">
+              &mdash; Is this your business?
+            </span>
+          </div>
+          <Link
+            href={`/preview/${businessId}`}
+            onClick={() =>
+              trackClaimEvent("click", "claim_banner_cta", businessId)
+            }
+          >
+            <Button
+              size="sm"
+              className="whitespace-nowrap bg-amber-600 hover:bg-amber-700 text-white"
+            >
+              Claim it free &rarr;
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Not authenticated — show unclaimed badge + claim CTA
   return (
-    <div className="sticky top-0 z-40 border-b border-border/40 bg-white/95 backdrop-blur-sm shadow-sm">
-      <div className="mx-auto max-w-3xl px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
-        <p className="text-sm font-medium text-foreground">
-          Is this your business? Claim{" "}
-          <span className="font-semibold">{businessName}</span> to go live.
-        </p>
-        <Button size="sm" onClick={handleClaimClick} className="whitespace-nowrap">
+    <div className="sticky top-0 z-40 border-b border-amber-200 bg-amber-50">
+      <div className="mx-auto max-w-3xl px-4 py-2.5 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-2">
+          <CircleAlert className="h-4 w-4 text-amber-600" />
+          <span className="text-sm font-semibold text-amber-700">
+            Unclaimed
+          </span>
+          <span className="text-sm text-amber-600">
+            &mdash; Is this your business?
+          </span>
+        </div>
+        <Button
+          size="sm"
+          onClick={handleClaimClick}
+          className="whitespace-nowrap bg-amber-600 hover:bg-amber-700 text-white"
+        >
           <svg
             className="mr-1.5 h-4 w-4"
             aria-hidden="true"
@@ -113,7 +128,7 @@ export function ClaimBanner({
               d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"
             />
           </svg>
-          Claim This Site
+          Claim it free &rarr;
         </Button>
       </div>
     </div>
