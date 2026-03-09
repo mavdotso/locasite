@@ -247,7 +247,7 @@ export const backfillCityCategoryBatch = internalMutation({
 
       // Normalize category to slug
       if (!business.categorySlug && business.category) {
-        updates.categorySlug = toSlug(business.category);
+        updates.categorySlug = normalizeCategorySlug(toSlug(business.category));
       }
 
       if (Object.keys(updates).length > 0) {
@@ -298,6 +298,84 @@ export const runBackfillCityCategory = internalAction({
     );
   },
 });
+
+// Normalize subcategories to broad parent slugs (Phase 1 SEO strategy, MAV-865)
+const CATEGORY_NORMALIZATION_MAP: Record<string, string> = {
+  "italian-restaurant": "restaurants",
+  "mexican-restaurant": "restaurants",
+  "chinese-restaurant": "restaurants",
+  "japanese-restaurant": "restaurants",
+  "thai-restaurant": "restaurants",
+  "indian-restaurant": "restaurants",
+  "american-restaurant": "restaurants",
+  "fast-food-restaurant": "restaurants",
+  "seafood-restaurant": "restaurants",
+  "pizza-restaurant": "restaurants",
+  "sandwich-shop": "restaurants",
+  "burger-restaurant": "restaurants",
+  "bbq-restaurant": "restaurants",
+  "breakfast-restaurant": "restaurants",
+  cafe: "coffee-shops",
+  "coffee-shop": "coffee-shops",
+  bakery: "coffee-shops",
+  "donut-shop": "coffee-shops",
+  "beauty-salon": "hair-salons",
+  "hair-salon": "hair-salons",
+  "barber-shop": "hair-salons",
+  barbershop: "hair-salons",
+  "nail-salon": "nail-salons",
+  spa: "nail-salons",
+  "waxing-salon": "nail-salons",
+  "eyebrow-threading": "nail-salons",
+  "car-repair": "auto-repair",
+  "auto-repair-shop": "auto-repair",
+  "tire-shop": "auto-repair",
+  "oil-change-service": "auto-repair",
+  "auto-body-shop": "auto-repair",
+  "transmission-shop": "auto-repair",
+  "brake-shop": "auto-repair",
+  "car-dealer": "auto-repair",
+  lawyer: "lawyers",
+  attorney: "lawyers",
+  "law-firm": "lawyers",
+  "divorce-lawyer": "lawyers",
+  "personal-injury-lawyer": "lawyers",
+  "immigration-lawyer": "lawyers",
+  "criminal-defense-lawyer": "lawyers",
+  dentist: "dentists",
+  "dental-clinic": "dentists",
+  orthodontist: "dentists",
+  "cosmetic-dentist": "dentists",
+  doctor: "doctors",
+  "medical-clinic": "doctors",
+  "urgent-care-facility": "doctors",
+  pediatrician: "doctors",
+  plumber: "plumbers",
+  "plumbing-supply-store": "plumbers",
+  "hvac-contractor": "hvac",
+  "air-conditioning": "hvac",
+  "heating-contractor": "hvac",
+  electrician: "electricians",
+  "electrical-contractor": "electricians",
+  "house-cleaning-service": "cleaning-services",
+  "cleaning-service": "cleaning-services",
+  "janitorial-service": "cleaning-services",
+  "maid-service": "cleaning-services",
+  landscaping: "landscapers",
+  "landscaping-company": "landscapers",
+  "lawn-care-service": "landscapers",
+  gym: "gyms",
+  "fitness-center": "gyms",
+  "yoga-studio": "gyms",
+  "pilates-studio": "gyms",
+  "crossfit-gym": "gyms",
+  "boxing-gym": "gyms",
+  "personal-trainer": "gyms",
+};
+
+function normalizeCategorySlug(slug: string): string {
+  return CATEGORY_NORMALIZATION_MAP[slug] ?? slug;
+}
 
 // Generic categories from Google Maps that should be replaced with scrape job category
 const GENERIC_CATEGORIES = new Set([
@@ -363,7 +441,7 @@ export const fixEstablishmentCategoriesBatch = internalMutation({
           jobCache.set(business.batchId, jobCategory as string);
         }
         if (jobCategory) {
-          updates.categorySlug = toSlug(jobCategory);
+          updates.categorySlug = normalizeCategorySlug(toSlug(jobCategory));
           // Also fix the category display field
           updates.category = jobCategory;
         }

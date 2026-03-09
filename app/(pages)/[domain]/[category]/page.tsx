@@ -5,6 +5,12 @@ import Image from "next/image";
 import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 import { MapPin, Star, ChevronRight } from "lucide-react";
+import {
+  CATEGORY_DISPLAY_NAMES,
+  SCHEMA_TYPE_MAP,
+  CATEGORY_INTRO_COPY,
+  CATEGORY_FOOTER_CTA,
+} from "@/app/lib/category-constants";
 
 interface PageProps {
   params: Promise<{
@@ -20,6 +26,10 @@ function unslug(slug: string): string {
     .join(" ");
 }
 
+function getCategoryDisplay(slug: string): string {
+  return CATEGORY_DISPLAY_NAMES[slug] ?? unslug(slug);
+}
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
@@ -33,12 +43,12 @@ export async function generateMetadata({
     return { title: "Not Found" };
   }
 
-  const categoryDisplay = unslug(categorySlug);
+  const categoryDisplay = getCategoryDisplay(categorySlug);
   const { cityDisplay, state } = cityInfo;
   const location = `${cityDisplay}, ${state}`;
 
-  const title = `${categoryDisplay} in ${location}`;
-  const description = `Browse the best ${categoryDisplay.toLowerCase()} in ${location}. Local businesses with reviews, hours, photos, and contact info.`;
+  const title = `${categoryDisplay} in ${location} | Locosite`;
+  const description = `Find the best ${categoryDisplay.toLowerCase()} in ${location}. Browse local businesses with verified reviews, hours, photos, and contact info — powered by Locosite.`;
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
   const canonicalUrl = `https://${rootDomain}/${citySlug}/${categorySlug}`;
 
@@ -51,12 +61,12 @@ export async function generateMetadata({
       locale: "en_US",
       url: canonicalUrl,
       siteName: "Locosite",
-      title: `${title} | Locosite`,
+      title,
       description,
     },
     twitter: {
       card: "summary",
-      title: `${title} | Locosite`,
+      title,
       description,
     },
     robots: { index: true, follow: true },
@@ -77,11 +87,12 @@ export default async function CategoryPage({ params }: PageProps) {
     fetchQuery(api.categoryPages.getCategoriesForCity, { city: citySlug }),
   ]);
 
-  if (!cityInfo || result.businesses.length === 0) {
+  // Minimum 3 businesses to avoid thin-content pages
+  if (!cityInfo || result.businesses.length < 3) {
     notFound();
   }
 
-  const categoryDisplay = unslug(categorySlug);
+  const categoryDisplay = getCategoryDisplay(categorySlug);
   const { cityDisplay, state } = cityInfo;
   const location = `${cityDisplay}, ${state}`;
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
@@ -103,17 +114,20 @@ export default async function CategoryPage({ params }: PageProps) {
   }));
 
   // Structured data
+  const businessSchemaType = SCHEMA_TYPE_MAP[categorySlug] ?? "LocalBusiness";
+
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: `${categoryDisplay} in ${location}`,
     description: `Local ${categoryDisplay.toLowerCase()} in ${location}`,
     numberOfItems: result.businesses.length,
+    itemListOrder: "https://schema.org/ItemListOrderDescending",
     itemListElement: businessesWithLinks.map((b, i) => ({
       "@type": "ListItem",
       position: i + 1,
       item: {
-        "@type": "LocalBusiness",
+        "@type": businessSchemaType,
         name: b.name,
         address: b.address,
         ...(b.rating && {
@@ -155,12 +169,20 @@ export default async function CategoryPage({ params }: PageProps) {
     ],
   };
 
+  const organizationData = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Locosite",
+    url: `https://${rootDomain}`,
+    description: "Free professional websites for local businesses",
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify([structuredData, breadcrumbData]),
+          __html: JSON.stringify([structuredData, breadcrumbData, organizationData]),
         }}
       />
 
@@ -195,13 +217,37 @@ export default async function CategoryPage({ params }: PageProps) {
         <section className="bg-white border-b border-neutral-200">
           <div className="mx-auto max-w-6xl px-6 py-12 md:py-16">
             <h1 className="font-display font-extrabold text-3xl md:text-4xl lg:text-5xl tracking-tight text-neutral-900 mb-3">
-              {categoryDisplay} in {location}
+              Best {categoryDisplay} in {location}
             </h1>
             <p className="text-neutral-600 text-lg max-w-2xl">
               Browse {result.businesses.length} local{" "}
-              {categoryDisplay.toLowerCase()} in {location}. Find reviews,
-              hours, photos, and contact information.
+              {categoryDisplay.toLowerCase()} in {location} with verified
+              reviews, hours, photos, and contact info.
             </p>
+            {CATEGORY_INTRO_COPY[categorySlug] ? (
+              <p className="text-neutral-500 text-base max-w-2xl mt-3">
+                {CATEGORY_INTRO_COPY[categorySlug].body}{" "}
+                {CATEGORY_INTRO_COPY[categorySlug].ctaPrefix}{" "}
+                <Link
+                  href="/claim"
+                  className="underline hover:text-neutral-900"
+                >
+                  Claim your free website.
+                </Link>
+              </p>
+            ) : (
+              <p className="text-neutral-500 text-base max-w-2xl mt-3">
+                Each listing links to a free business website on Locosite with
+                verified hours, photos, and contact info. Own one of these
+                businesses?{" "}
+                <Link
+                  href="/claim"
+                  className="underline hover:text-neutral-900"
+                >
+                  Claim your free website.
+                </Link>
+              </p>
+            )}
           </div>
         </section>
 
@@ -238,6 +284,27 @@ export default async function CategoryPage({ params }: PageProps) {
             </section>
           )}
         </main>
+
+        {/* Claim CTA */}
+        <section className="bg-neutral-100 border-t border-neutral-200 py-10">
+          <div className="mx-auto max-w-6xl px-6 text-center">
+            <p className="text-neutral-700 font-medium mb-2">
+              {CATEGORY_FOOTER_CTA[categorySlug]?.heading ??
+                "Is your business listed here?"}
+            </p>
+            <p className="text-neutral-500 text-sm mb-4">
+              {CATEGORY_FOOTER_CTA[categorySlug]?.body ??
+                "Claim your free Locosite website to edit your listing, add photos, and upgrade to your own domain."}
+            </p>
+            <Link
+              href="/claim"
+              className="inline-flex items-center gap-2 bg-neutral-900 text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-neutral-700 transition-colors"
+            >
+              {CATEGORY_FOOTER_CTA[categorySlug]?.button ??
+                "Claim your free website"}
+            </Link>
+          </div>
+        </section>
 
         {/* Footer */}
         <footer className="border-t border-neutral-200 bg-white mt-auto">
