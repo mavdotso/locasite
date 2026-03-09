@@ -37,16 +37,8 @@ export async function generateMetadata({
   const { cityDisplay, state } = cityInfo;
   const location = `${cityDisplay}, ${state}`;
 
-  const result = await fetchQuery(api.categoryPages.listByCityCategory, {
-    city: citySlug,
-    categorySlug,
-    limit: 1,
-  });
-
-  const count = result.businesses.length > 0 ? `Browse` : "Find";
-
   const title = `${categoryDisplay} in ${location}`;
-  const description = `${count} the best ${categoryDisplay.toLowerCase()} in ${location}. Local businesses with reviews, hours, photos, and contact info.`;
+  const description = `Browse the best ${categoryDisplay.toLowerCase()} in ${location}. Local businesses with reviews, hours, photos, and contact info.`;
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
   const canonicalUrl = `https://${rootDomain}/${citySlug}/${categorySlug}`;
 
@@ -74,21 +66,18 @@ export async function generateMetadata({
 export default async function CategoryPage({ params }: PageProps) {
   const { domain: citySlug, category: categorySlug } = await params;
 
-  const cityInfo = await fetchQuery(api.categoryPages.getCityInfo, {
-    city: citySlug,
-  });
+  // Fetch city info, businesses, and categories in parallel
+  const [cityInfo, result, allCategories] = await Promise.all([
+    fetchQuery(api.categoryPages.getCityInfo, { city: citySlug }),
+    fetchQuery(api.categoryPages.listByCityCategory, {
+      city: citySlug,
+      categorySlug,
+      limit: 24,
+    }),
+    fetchQuery(api.categoryPages.getCategoriesForCity, { city: citySlug }),
+  ]);
 
-  if (!cityInfo) {
-    notFound();
-  }
-
-  const result = await fetchQuery(api.categoryPages.listByCityCategory, {
-    city: citySlug,
-    categorySlug,
-    limit: 24,
-  });
-
-  if (result.businesses.length === 0) {
+  if (!cityInfo || result.businesses.length === 0) {
     notFound();
   }
 
@@ -97,28 +86,21 @@ export default async function CategoryPage({ params }: PageProps) {
   const location = `${cityDisplay}, ${state}`;
   const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
 
-  // Get categories for cross-linking
-  const allCategories = await fetchQuery(
-    api.categoryPages.getCategoriesForCity,
-    { city: citySlug }
-  );
   const relatedCategories = allCategories
     .filter((c) => c.categorySlug !== categorySlug)
     .slice(0, 8);
 
-  // Resolve subdomains for linking
-  const businessesWithLinks = await Promise.all(
-    result.businesses.map(async (b) => {
-      let subdomain: string | null = null;
-      if (b.domainId) {
-        subdomain = await fetchQuery(
-          api.categoryPages.getSubdomainForBusiness,
-          { domainId: b.domainId }
-        );
-      }
-      return { ...b, subdomain };
-    })
-  );
+  // Batch resolve subdomains for linking
+  const domainIds = result.businesses
+    .map((b) => b.domainId)
+    .filter((id): id is NonNullable<typeof id> => id != null);
+  const subdomainMap = domainIds.length > 0
+    ? await fetchQuery(api.categoryPages.getSubdomainsForBusinesses, { domainIds })
+    : {};
+  const businessesWithLinks = result.businesses.map((b) => ({
+    ...b,
+    subdomain: b.domainId ? (subdomainMap[b.domainId] ?? null) : null,
+  }));
 
   // Structured data
   const structuredData = {

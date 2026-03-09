@@ -168,12 +168,18 @@ export const getCityInfo = query({
   },
 });
 
-// Look up subdomain for a business (for linking to business pages)
-export const getSubdomainForBusiness = query({
-  args: { domainId: v.id("domains") },
+// Batch lookup subdomains for multiple businesses
+export const getSubdomainsForBusinesses = query({
+  args: { domainIds: v.array(v.id("domains")) },
   handler: async (ctx, args) => {
-    const domain = await ctx.db.get(args.domainId);
-    return domain?.subdomain ?? null;
+    const result: Record<string, string> = {};
+    for (const domainId of args.domainIds) {
+      const domain = await ctx.db.get(domainId);
+      if (domain?.subdomain) {
+        result[domainId] = domain.subdomain;
+      }
+    }
+    return result;
   },
 });
 
