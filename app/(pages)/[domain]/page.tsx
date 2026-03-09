@@ -5,6 +5,7 @@ import BusinessPageRenderer from "@/app/components/business/business-page-render
 import { BusinessFooter } from "@/app/components/business/business-footer";
 import { BusinessHeaderBadge } from "@/app/components/business/business-header-badge";
 import { ReferToOwnerCTA } from "@/app/components/refer-to-owner-cta";
+import { ClaimBanner } from "@/app/components/claim/claim-banner";
 import { Metadata } from "next";
 import { fetchQuery } from "convex/nextjs";
 import {
@@ -302,27 +303,11 @@ export default async function BusinessPage({ params }: PageProps) {
         <div className="flex flex-col min-h-screen">
           <BusinessHeaderBadge show={showWatermark} />
 
-          {!businessData.userId && (
-            <div className="px-4 py-2 bg-amber-50 border-b border-amber-200">
-              <div className="container flex items-center justify-between mx-auto">
-                <div>
-                  <p className="text-sm font-medium text-amber-800">
-                    Are you the owner of this business?
-                  </p>
-                  <p className="text-xs text-amber-600">
-                    Claim your business to manage information and respond to
-                    customers
-                  </p>
-                </div>
-                <a
-                  href={`/${businessDomain}/claim/${businessData._id}`}
-                  className="px-4 py-2 text-sm font-medium text-white transition-colors rounded-md bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
-                >
-                  Claim this Business
-                </a>
-              </div>
-            </div>
-          )}
+          <ClaimBanner
+            businessId={businessData._id}
+            businessName={businessData.name}
+            isClaimed={!!businessData.userId}
+          />
 
           {!businessData.userId && (
             <div className="container mx-auto px-4 py-3">

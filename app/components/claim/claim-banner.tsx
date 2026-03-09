@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -7,6 +8,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/app/components/ui/button";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
+import { trackClaimEvent } from "@/app/lib/claim-analytics";
 
 interface ClaimBannerProps {
   businessId: Id<"businesses">;
@@ -22,7 +24,16 @@ export function ClaimBanner({
   const { signIn } = useAuthActions();
   const user = useQuery(api.auth.currentUser);
 
+  // Track banner impression for unclaimed businesses
+  useEffect(() => {
+    if (!isClaimed) {
+      trackClaimEvent("impression", "claim_banner", businessId);
+    }
+  }, [isClaimed, businessId]);
+
   const handleClaimClick = async () => {
+    trackClaimEvent("click", "claim_banner_cta", businessId);
+    trackClaimEvent("auth", "sign_in_started", businessId);
     // Store business ID so AuthRedirectHandler can pick it up after sign-in
     sessionStorage.setItem("claimBusinessId", businessId);
     // Store the redirect target so the user lands on the preview page after auth
@@ -57,7 +68,10 @@ export function ClaimBanner({
           <p className="text-sm font-medium text-green-800">
             Ready to claim <span className="font-semibold">{businessName}</span>?
           </p>
-          <Link href={`/preview/${businessId}`}>
+          <Link
+            href={`/preview/${businessId}`}
+            onClick={() => trackClaimEvent("click", "claim_banner_cta", businessId)}
+          >
             <Button size="sm" className="whitespace-nowrap">
               Go to Preview
             </Button>

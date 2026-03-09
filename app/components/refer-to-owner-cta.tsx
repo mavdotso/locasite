@@ -5,6 +5,7 @@ import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Send, Check, Loader2 } from "lucide-react";
+import { trackClaimEvent } from "@/app/lib/claim-analytics";
 
 interface ReferToOwnerCTAProps {
   businessId: Id<"businesses">;
@@ -41,6 +42,7 @@ export function ReferToOwnerCTA({
         referrerSource,
         referrerPath,
       });
+      trackClaimEvent("referral", "referral_submitted", businessId);
       setStatus("sent");
       setEmail("");
     } catch {

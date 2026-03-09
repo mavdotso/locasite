@@ -9,6 +9,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/app/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { ThemePickerSheet } from "./theme-picker-sheet";
+import { trackClaimEvent } from "@/app/lib/claim-analytics";
 
 interface PreviewActionBarProps {
   businessId: Id<"businesses">;
@@ -43,9 +44,11 @@ export function PreviewActionBar({
 
   const handlePublishFree = async () => {
     setError(null);
+    trackClaimEvent("claim", "publish_initiated", businessId);
 
     // If not authenticated, redirect to sign-in
     if (user === null) {
+      trackClaimEvent("auth", "sign_in_started", businessId);
       sessionStorage.setItem("claimBusinessId", businessId);
       await signIn("google");
       return;
@@ -58,9 +61,11 @@ export function PreviewActionBar({
     try {
       // Claim the business if not already claimed
       await claimBusiness({ businessId });
+      trackClaimEvent("conversion", "claim_completed", businessId);
 
       // Publish directly — no payment required
       await publishBusiness({ businessId });
+      trackClaimEvent("conversion", "publish_completed", businessId);
 
       // Redirect to the live site
       router.push(`/live/${businessId}`);

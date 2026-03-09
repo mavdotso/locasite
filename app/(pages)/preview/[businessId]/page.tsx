@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -8,17 +9,27 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 
 import { SitePreviewFrame } from "@/app/components/preview/site-preview-frame";
 import { PreviewActionBar } from "@/app/components/preview/preview-action-bar";
+import { trackClaimEvent } from "@/app/lib/claim-analytics";
 
 export default function PreviewPage() {
   const params = useParams<{ businessId: string }>();
   const router = useRouter();
   const businessId = params.businessId as Id<"businesses">;
+  const trackedRef = useRef(false);
 
   // Fetch business, domain, page, and theme in one compound query (no auth required)
   const previewData = useQuery(
     api.businessesWithDomain.getBusinessPreviewData,
     { businessId },
   );
+
+  // Track preview page view once data loads
+  useEffect(() => {
+    if (previewData && previewData.business && !trackedRef.current) {
+      trackedRef.current = true;
+      trackClaimEvent("page_view", "preview_page", businessId);
+    }
+  }, [previewData, businessId]);
 
   // Loading state
   if (previewData === undefined) {
