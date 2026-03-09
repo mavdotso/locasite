@@ -90,11 +90,25 @@ export async function generateMetadata({
           },
         ];
 
+    // Build SEO title: {Name} | {City}, {State} | {Category}
+    const addressParts = businessData.address?.split(",") || [];
+    const city =
+      addressParts.length >= 3
+        ? addressParts[addressParts.length - 2]?.trim()
+        : "";
+    const stateZip = addressParts[addressParts.length - 1]?.trim() || "";
+    const state = stateZip.split(" ")[0] || "";
+    const locationSuffix = city && state ? ` | ${city}, ${state}` : "";
+    const categorySuffix = businessData.category
+      ? ` | ${businessData.category}`
+      : "";
+    const seoTitle = `${businessName}${locationSuffix}${categorySuffix}`;
+
     const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
     const fullUrl = `https://${businessDomain}.${rootDomain}`;
 
     return {
-      title: businessName,
+      title: { absolute: seoTitle },
       description: businessDescription,
       keywords,
       metadataBase: new URL(fullUrl),

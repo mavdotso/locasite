@@ -20,7 +20,7 @@ export const seoPages: Record<string, Omit<SEOLandingPageConfig, "previewCompone
     businessType: "Restaurant",
     businessTypeLower: "restaurant",
     h1: "Get a Free Restaurant Website in 30 Seconds",
-    metaTitle: "Free Restaurant Website in 30 Seconds | Locosite",
+    metaTitle: "Free Restaurant Website in 30 Seconds",
     metaDescription:
       "Get a free professional restaurant website in 30 seconds. Paste your Google Maps link — menu, photos, hours, reviews auto-imported. No design skills needed.",
     definitionText:
@@ -64,7 +64,7 @@ export const seoPages: Record<string, Omit<SEOLandingPageConfig, "previewCompone
     businessType: "Small Business",
     businessTypeLower: "small business",
     h1: "Get a Free Small Business Website in 30 Seconds",
-    metaTitle: "Free Small Business Website — Paste Your Google Maps Link | Locosite",
+    metaTitle: "Free Small Business Website — Paste Your Google Maps Link",
     metaDescription:
       "Get a free professional small business website in 30 seconds. Paste your Google Maps link — no design skills needed. No credit card required.",
     definitionText:
@@ -103,7 +103,7 @@ export const seoPages: Record<string, Omit<SEOLandingPageConfig, "previewCompone
     businessType: "Business",
     businessTypeLower: "business",
     h1: "Turn Your Google Maps Listing Into a Free Website",
-    metaTitle: "Turn Your Google Maps Listing Into a Free Website | Locosite",
+    metaTitle: "Turn Your Google Maps Listing Into a Free Website",
     metaDescription:
       "Paste your Google Maps link and get a free professional website in 30 seconds. Name, photos, hours, reviews — all imported automatically. No design needed.",
     definitionText:
@@ -147,7 +147,7 @@ export const seoPages: Record<string, Omit<SEOLandingPageConfig, "previewCompone
     businessType: "Salon",
     businessTypeLower: "salon",
     h1: "Get a Free Salon Website in 30 Seconds",
-    metaTitle: "Free Salon Website in 30 Seconds | Locosite",
+    metaTitle: "Free Salon Website in 30 Seconds",
     metaDescription:
       "Get a free professional salon website in 30 seconds. Paste your Google Maps link — services, photos, reviews auto-imported. No design skills or credit card needed.",
     definitionText:
@@ -186,7 +186,7 @@ export const seoPages: Record<string, Omit<SEOLandingPageConfig, "previewCompone
     businessType: "Plumber",
     businessTypeLower: "plumber",
     h1: "Get a Free Plumber Website in 30 Seconds",
-    metaTitle: "Free Plumber Website in 30 Seconds | Locosite",
+    metaTitle: "Free Plumber Website in 30 Seconds",
     metaDescription:
       "Get a free professional plumber website in 30 seconds. Paste your Google Maps link — services, reviews, service area auto-imported. No design skills needed.",
     definitionText:

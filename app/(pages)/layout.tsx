@@ -20,7 +20,7 @@ const body = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Locosite - Free Professional Websites for Local Businesses",
+    default: "Free Professional Websites for Local Businesses",
     template: "%s | Locosite",
   },
   description:

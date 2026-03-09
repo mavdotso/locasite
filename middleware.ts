@@ -214,6 +214,6 @@ export const config = {
      *
      * NOTE: We DO want to match /api/auth routes for Convex auth
      */
-    "/((?!_next/static|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|favicon.ico|robots\\.txt).*)",
   ],
 };
