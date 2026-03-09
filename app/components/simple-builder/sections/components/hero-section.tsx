@@ -32,6 +32,7 @@ interface HeroSectionProps {
     | "none";
   accentColor?: string;
   businessCategory?: string;
+  businessData?: Record<string, unknown>;
   styleOverrides?: React.CSSProperties;
 }
 
@@ -54,6 +55,7 @@ export function HeroSection({
   decorativeElement = "none",
   accentColor = "#3b82f6",
   businessCategory,
+  businessData,
   styleOverrides,
 }: HeroSectionProps) {
   const categoryTheme = getBusinessCategoryTheme(businessCategory);
@@ -68,6 +70,70 @@ export function HeroSection({
     decorativeElement !== "none"
       ? decorativeElement
       : heroStyles.decorativeElement || "none";
+  const rating = businessData?.businessRating as number | undefined;
+  const reviewCount = businessData?.businessReviewCount as number | undefined;
+
+  const renderRatingBadge = (light?: boolean) => {
+    if (!rating || rating <= 0) return null;
+    const fullStars = Math.floor(rating);
+    const hasHalf = rating - fullStars >= 0.25;
+    return (
+      <div
+        className={cn(
+          "inline-flex items-center gap-2 text-sm font-medium mt-4 animate-fadeInUp animation-delay-100",
+          light ? "text-white/90" : "text-muted-foreground",
+        )}
+      >
+        <span className="flex" aria-label={`${rating} out of 5 stars`}>
+          {Array.from({ length: 5 }, (_, i) => (
+            <svg
+              key={i}
+              className={cn(
+                "w-4 h-4",
+                i < fullStars
+                  ? "text-yellow-400"
+                  : i === fullStars && hasHalf
+                    ? "text-yellow-400"
+                    : light
+                      ? "text-white/30"
+                      : "text-gray-300",
+              )}
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              {i === fullStars && hasHalf ? (
+                <>
+                  <defs>
+                    <linearGradient id={`half-star-${i}`}>
+                      <stop offset="50%" stopColor="currentColor" />
+                      <stop
+                        offset="50%"
+                        stopColor={light ? "rgba(255,255,255,0.3)" : "#d1d5db"}
+                      />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    fill={`url(#half-star-${i})`}
+                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                  />
+                </>
+              ) : (
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              )}
+            </svg>
+          ))}
+        </span>
+        <span className="font-semibold">{rating.toFixed(1)}</span>
+        {reviewCount && reviewCount > 0 ? (
+          <span>
+            · {reviewCount.toLocaleString()} Google review
+            {reviewCount !== 1 ? "s" : ""}
+          </span>
+        ) : null}
+      </div>
+    );
+  };
+
   const handleContentEdit = (field: string, value: string) => {
     if (onUpdate) {
       onUpdate({
@@ -229,6 +295,7 @@ export function HeroSection({
           >
             {title}
           </h1>
+          {renderRatingBadge(!!hasRealImage && !!overlay)}
           {subtitle && (
             <p
               className={cn(
@@ -302,6 +369,7 @@ export function HeroSection({
             >
               {title}
             </h1>
+            {renderRatingBadge()}
             {subtitle && (
               <p
                 className={cn(
@@ -385,6 +453,7 @@ export function HeroSection({
         >
           {title}
         </h1>
+        {renderRatingBadge()}
         {subtitle && (
           <p
             className={cn(

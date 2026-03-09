@@ -59,7 +59,9 @@ export default function BusinessPageRenderer({
     businessWebsite: business.website,
     businessPhotos: business.photos,
     businessMainPhoto: business.photos?.[0],
-    // Add more business fields as needed
+    businessRating: business.rating,
+    businessReviewCount:
+      business.reviewCount ?? business.reviews?.length ?? 0,
   };
 
   // Render Simple Mode

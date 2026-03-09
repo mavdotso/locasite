@@ -121,6 +121,7 @@ export function SectionRenderer({
           }
         }}
         businessId={businessId}
+        businessData={businessData}
       />
     </section>
   );
