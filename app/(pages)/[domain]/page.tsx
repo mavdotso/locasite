@@ -129,13 +129,13 @@ export async function generateMetadata({
     const seoTitle = `${businessName}${locationSuffix}${categorySuffix}`;
 
     const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
-    const fullUrl = `https://${businessDomain}.${rootDomain}`;
+    const fullUrl = `https://${rootDomain}/${businessDomain}`;
 
     return {
       title: { absolute: seoTitle },
       description: businessDescription,
       keywords,
-      metadataBase: new URL(fullUrl),
+      metadataBase: new URL(`https://${rootDomain}`),
       icons: {
         icon:
           businessData.favicon ||
@@ -282,7 +282,7 @@ export default async function BusinessPage({ params }: PageProps) {
     }
 
     const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
-    const fullDomain = `${businessDomain}.${rootDomain}`;
+    const fullDomain = `${rootDomain}/${businessDomain}`;
 
     // Generate structured data
     const structuredData = [
