@@ -329,10 +329,10 @@ export default defineSchema({
     reviewCount: v.optional(v.number()),
     category: v.optional(v.string()),
     // Category page fields (for programmatic SEO)
-    city: v.optional(v.string()), // lowercase slug, e.g. "orlando"
-    cityDisplay: v.optional(v.string()), // display name, e.g. "Orlando"
-    state: v.optional(v.string()), // two-letter abbreviation, e.g. "FL"
-    categorySlug: v.optional(v.string()), // normalized slug, e.g. "restaurants"
+    city: v.optional(v.string()),
+    cityDisplay: v.optional(v.string()),
+    state: v.optional(v.string()),
+    categorySlug: v.optional(v.string()),
     claimToken: v.optional(v.string()),
     claimTokenCreatedAt: v.optional(v.number()),
     batchId: v.optional(v.string()),
@@ -559,4 +559,18 @@ export default defineSchema({
   })
     .index("by_status", ["status"])
     .index("by_startedAt", ["startedAt"]),
+
+  // Owner referrals — consumer-initiated notifications to business owners
+  ownerReferrals: defineTable({
+    businessId: v.id("businesses"),
+    ownerEmail: v.string(),
+    referrerSource: v.union(
+      v.literal("category"),
+      v.literal("business_page"),
+    ),
+    referrerPath: v.string(),
+    sentAt: v.number(),
+  })
+    .index("by_business_sentAt", ["businessId", "sentAt"])
+    .index("by_ownerEmail", ["ownerEmail"]),
 });

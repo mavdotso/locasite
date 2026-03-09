@@ -4,6 +4,7 @@ import { api } from "@/convex/_generated/api";
 import BusinessPageRenderer from "@/app/components/business/business-page-renderer";
 import { BusinessFooter } from "@/app/components/business/business-footer";
 import { BusinessHeaderBadge } from "@/app/components/business/business-header-badge";
+import { ReferToOwnerCTA } from "@/app/components/refer-to-owner-cta";
 import { Metadata } from "next";
 import { fetchQuery } from "convex/nextjs";
 import {
@@ -320,6 +321,17 @@ export default async function BusinessPage({ params }: PageProps) {
                   Claim this Business
                 </a>
               </div>
+            </div>
+          )}
+
+          {!businessData.userId && (
+            <div className="container mx-auto px-4 py-3">
+              <ReferToOwnerCTA
+                businessId={businessData._id}
+                businessName={businessData.name}
+                referrerSource="business_page"
+                referrerPath={`/${businessDomain}`}
+              />
             </div>
           )}
 

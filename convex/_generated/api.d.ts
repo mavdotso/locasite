@@ -47,6 +47,7 @@ import type * as lib_themeSuggestions from "../lib/themeSuggestions.js";
 import type * as lib_types from "../lib/types.js";
 import type * as mediaLibrary from "../mediaLibrary.js";
 import type * as notificationEmails from "../notificationEmails.js";
+import type * as ownerReferrals from "../ownerReferrals.js";
 import type * as pages from "../pages.js";
 import type * as pagesSimple from "../pagesSimple.js";
 import type * as payments from "../payments.js";
@@ -116,6 +117,7 @@ declare const fullApi: ApiFromModules<{
   "lib/types": typeof lib_types;
   mediaLibrary: typeof mediaLibrary;
   notificationEmails: typeof notificationEmails;
+  ownerReferrals: typeof ownerReferrals;
   pages: typeof pages;
   pagesSimple: typeof pagesSimple;
   payments: typeof payments;
