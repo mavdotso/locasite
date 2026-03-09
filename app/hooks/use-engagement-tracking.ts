@@ -8,7 +8,8 @@ import { Id } from "@/convex/_generated/dataModel";
 export type ContactClickType =
   | "phone_click"
   | "email_click"
-  | "directions_click";
+  | "directions_click"
+  | "share_click";
 
 export function useEngagementTracking(
   businessId: Id<"businesses">,

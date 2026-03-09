@@ -13,15 +13,17 @@ const eventTypes = v.union(
   v.literal("phone_click"),
   v.literal("email_click"),
   v.literal("directions_click"),
+  v.literal("share_click"),
 );
 
-type CounterField = "pageViews" | "phoneClicks" | "emailClicks" | "directionsClicks";
+type CounterField = "pageViews" | "phoneClicks" | "emailClicks" | "directionsClicks" | "shareClicks";
 
 const fieldMap: Record<string, CounterField> = {
   page_view: "pageViews",
   phone_click: "phoneClicks",
   email_click: "emailClicks",
   directions_click: "directionsClicks",
+  share_click: "shareClicks",
 };
 
 export const trackEvent = mutation({
@@ -52,6 +54,7 @@ export const trackEvent = mutation({
         phoneClicks: args.eventType === "phone_click" ? 1 : 0,
         emailClicks: args.eventType === "email_click" ? 1 : 0,
         directionsClicks: args.eventType === "directions_click" ? 1 : 0,
+        shareClicks: args.eventType === "share_click" ? 1 : 0,
       });
     }
   },
@@ -78,6 +81,7 @@ export const getMonthlyStats = query({
       phoneClicks: stats.phoneClicks,
       emailClicks: stats.emailClicks,
       directionsClicks: stats.directionsClicks,
+      shareClicks: stats.shareClicks ?? 0,
     };
   },
 });

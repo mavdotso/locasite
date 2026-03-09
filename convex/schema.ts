@@ -568,6 +568,7 @@ export default defineSchema({
     phoneClicks: v.number(),
     emailClicks: v.number(),
     directionsClicks: v.number(),
+    shareClicks: v.optional(v.number()),
   }).index("by_business_month", ["businessId", "month"]),
 
   // Managed tier waitlist

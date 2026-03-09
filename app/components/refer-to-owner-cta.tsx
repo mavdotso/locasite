@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { Send, Check, Loader2 } from "lucide-react";
+import { Share2, Copy, Check, Send, Loader2, ChevronDown } from "lucide-react";
+import { useEngagementTracking } from "@/app/hooks/use-engagement-tracking";
 
 interface ReferToOwnerCTAProps {
   businessId: Id<"businesses">;
@@ -21,19 +22,70 @@ export function ReferToOwnerCTA({
   referrerPath,
   compact = false,
 }: ReferToOwnerCTAProps) {
+  const [shareStatus, setShareStatus] = useState<
+    "idle" | "shared" | "copied"
+  >("idle");
+  const [showEmailForm, setShowEmailForm] = useState(false);
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<
+  const [emailStatus, setEmailStatus] = useState<
     "idle" | "sending" | "sent" | "error"
   >("idle");
-  const [showInput, setShowInput] = useState(false);
-  const sendReferral = useAction(api.ownerReferrals.sendOwnerReferral);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const sendReferral = useAction(api.ownerReferrals.sendOwnerReferral);
+  const { trackClick } = useEngagementTracking(businessId);
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => () => clearTimeout(resetTimerRef.current), []);
+
+  const getShareMessage = useCallback(() => {
+    const pageUrl = `${window.location.origin}${referrerPath}`;
+    return `Hey, someone built a free website for ${businessName}! Check it out and claim it: ${pageUrl}`;
+  }, [businessName, referrerPath]);
+
+  const copyToClipboard = useCallback(async (text: string) => {
+    await navigator.clipboard.writeText(text);
+    setShareStatus("copied");
+    clearTimeout(resetTimerRef.current);
+    resetTimerRef.current = setTimeout(() => setShareStatus("idle"), 3000);
+  }, []);
+
+  const handleShare = useCallback(async () => {
+    trackClick("share_click");
+
+    const message = getShareMessage();
+    const pageUrl = `${window.location.origin}${referrerPath}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Free website for ${businessName}`,
+          text: message,
+          url: pageUrl,
+        });
+        setShareStatus("shared");
+        clearTimeout(resetTimerRef.current);
+        resetTimerRef.current = setTimeout(() => setShareStatus("idle"), 3000);
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name !== "AbortError") {
+          await copyToClipboard(message);
+        }
+      }
+    } else {
+      await copyToClipboard(message);
+    }
+  }, [businessName, referrerPath, trackClick, getShareMessage, copyToClipboard]);
+
+  const handleCopy = useCallback(async () => {
+    trackClick("share_click");
+    await copyToClipboard(getShareMessage());
+  }, [trackClick, getShareMessage, copyToClipboard]);
+
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = email.trim();
     if (!trimmed) return;
 
-    setStatus("sending");
+    setEmailStatus("sending");
     try {
       await sendReferral({
         businessId,
@@ -41,114 +93,132 @@ export function ReferToOwnerCTA({
         referrerSource,
         referrerPath,
       });
-      setStatus("sent");
+      setEmailStatus("sent");
       setEmail("");
     } catch {
-      setStatus("error");
+      setEmailStatus("error");
     }
   };
 
-  // Compact mode: icon button that expands into input
+  // Compact mode: share icon button
   if (compact) {
-    if (status === "sent") {
+    if (shareStatus === "shared" || shareStatus === "copied") {
       return (
         <span className="inline-flex items-center gap-1 text-xs text-green-600">
-          <Check className="h-3.5 w-3.5" /> Sent
+          <Check className="h-3.5 w-3.5" />
+          {shareStatus === "copied" ? "Copied" : "Shared"}
         </span>
       );
     }
 
-    if (!showInput) {
-      return (
-        <button
-          onClick={() => setShowInput(true)}
-          className="inline-flex items-center gap-1 text-xs text-neutral-500 hover:text-neutral-700 transition-colors"
-          title={`Know the owner of ${businessName}? Send them their website`}
-        >
-          <Send className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Share with owner</span>
-        </button>
-      );
-    }
-
     return (
-      <form onSubmit={handleSubmit} className="flex items-center gap-1.5">
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Owner's email"
-          className="w-36 px-2 py-1 text-xs border border-neutral-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-          autoFocus
-          required
-        />
-        <button
-          type="submit"
-          disabled={status === "sending"}
-          className="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
-        >
-          {status === "sending" ? (
-            <Loader2 className="h-3 w-3 animate-spin" />
-          ) : (
-            "Send"
-          )}
-        </button>
-        <button
-          type="button"
-          onClick={() => setShowInput(false)}
-          className="text-xs text-neutral-400 hover:text-neutral-600"
-        >
-          &times;
-        </button>
-      </form>
+      <button
+        onClick={handleShare}
+        className="inline-flex items-center gap-1 text-xs text-neutral-500 hover:text-neutral-700 transition-colors"
+        title={`Know the owner of ${businessName}? Share their free website`}
+      >
+        <Share2 className="h-3.5 w-3.5" />
+        <span className="hidden sm:inline">Share with owner</span>
+      </button>
     );
   }
 
-  // Full mode: inline section for business page
-  if (status === "sent") {
-    return (
-      <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-        <div className="flex items-center justify-center gap-2 text-green-700">
-          <Check className="h-5 w-5" />
-          <p className="font-medium">
-            Email sent! The owner will receive their website link.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
+  // Full mode: business page
   return (
     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-      <p className="text-sm font-medium text-blue-900 mb-2">
-        Know the owner of {businessName}? Send them their free website.
+      <p className="text-sm font-medium text-blue-900 mb-3">
+        Know the owner of {businessName}? Let them know about their free
+        website.
       </p>
-      <form onSubmit={handleSubmit} className="flex gap-2">
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Owner's email address"
-          className="flex-1 px-3 py-2 text-sm border border-blue-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          required
-        />
+
+      <div className="flex flex-wrap gap-2 mb-2">
         <button
-          type="submit"
-          disabled={status === "sending"}
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center gap-1.5 whitespace-nowrap"
+          onClick={handleShare}
+          disabled={shareStatus !== "idle"}
+          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-70 flex items-center gap-1.5 transition-colors"
         >
-          {status === "sending" ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+          {shareStatus !== "idle" ? (
+            <>
+              <Check className="h-4 w-4" />
+              {shareStatus === "copied" ? "Copied!" : "Shared!"}
+            </>
           ) : (
-            <Send className="h-4 w-4" />
+            <>
+              <Share2 className="h-4 w-4" />
+              Share with owner
+            </>
           )}
-          Send
         </button>
-      </form>
-      {status === "error" && (
-        <p className="text-xs text-red-600 mt-1">
-          Something went wrong. Please try again.
-        </p>
+
+        <button
+          onClick={handleCopy}
+          disabled={shareStatus !== "idle"}
+          className="px-4 py-2 text-sm font-medium text-blue-700 bg-white border border-blue-300 rounded-md hover:bg-blue-50 disabled:opacity-70 flex items-center gap-1.5 transition-colors"
+        >
+          {shareStatus === "copied" ? (
+            <>
+              <Check className="h-4 w-4" />
+              Copied!
+            </>
+          ) : (
+            <>
+              <Copy className="h-4 w-4" />
+              Copy message
+            </>
+          )}
+        </button>
+      </div>
+
+      {emailStatus === "sent" ? (
+        <div className="flex items-center gap-1.5 text-sm text-green-700 mt-2">
+          <Check className="h-4 w-4" />
+          Email sent! The owner will receive their website link.
+        </div>
+      ) : (
+        <>
+          <button
+            onClick={() => setShowEmailForm(!showEmailForm)}
+            className="text-xs text-blue-600 hover:text-blue-800 mt-1 flex items-center gap-1 transition-colors"
+          >
+            <ChevronDown
+              className={`h-3 w-3 transition-transform ${showEmailForm ? "rotate-180" : ""}`}
+            />
+            Know their email? Send it directly
+          </button>
+
+          {showEmailForm && (
+            <form
+              onSubmit={handleEmailSubmit}
+              className="flex gap-2 mt-2"
+            >
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Owner's email address"
+                className="flex-1 px-3 py-2 text-sm border border-blue-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
+              <button
+                type="submit"
+                disabled={emailStatus === "sending"}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center gap-1.5 whitespace-nowrap"
+              >
+                {emailStatus === "sending" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+                Send
+              </button>
+            </form>
+          )}
+          {emailStatus === "error" && (
+            <p className="text-xs text-red-600 mt-1">
+              Something went wrong. Please try again.
+            </p>
+          )}
+        </>
       )}
     </div>
   );
