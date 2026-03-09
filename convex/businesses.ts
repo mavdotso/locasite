@@ -524,6 +524,43 @@ export const getByDomainId = query({
   },
 });
 
+// Public paginated query for sitemap — returns only published business subdomains
+export const getPublishedSlugsPage = query({
+  args: {
+    cursor: v.optional(v.string()),
+    pageSize: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const pageSize = Math.min(args.pageSize ?? 500, 1000);
+    const result = await ctx.db
+      .query("businesses")
+      .withIndex("by_isPublished", (q) => q.eq("isPublished", true))
+      .paginate({ numItems: pageSize, cursor: args.cursor ?? null });
+
+    const bizesWithDomains = result.page.filter((biz) => biz.domainId);
+    const domains = await Promise.all(
+      bizesWithDomains.map((biz) => ctx.db.get(biz.domainId!)),
+    );
+
+    const entries: { slug: string; lastModified: string }[] = [];
+    for (let i = 0; i < bizesWithDomains.length; i++) {
+      const domain = domains[i];
+      if (!domain?.subdomain) continue;
+      const biz = bizesWithDomains[i];
+      entries.push({
+        slug: domain.subdomain,
+        lastModified: new Date(biz.publishedAt || biz._creationTime).toISOString(),
+      });
+    }
+
+    return {
+      entries,
+      cursor: result.continueCursor,
+      isDone: result.isDone,
+    };
+  },
+});
+
 // Update Google Business auth data
 export const updateGoogleBusinessAuth = mutation({
   args: {
