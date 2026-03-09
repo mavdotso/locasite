@@ -1644,7 +1644,7 @@ http.route({
       while (!done && allEntries.length < 50000) {
         const page = (await ctx.runQuery(
           internal.bulkSiteCreation.getPublishedSubdomainsPage,
-          { cursor, pageSize: 500 },
+          { cursor, pageSize: 2000 },
         )) as {
           entries: { subdomain: string; lastModified: string }[];
           cursor: string;
@@ -1668,7 +1668,21 @@ http.route({
         { loc: `${baseUrl}/terms`, priority: "0.3", changefreq: "yearly" },
       ];
 
-      const staticEntries = staticUrls
+      // SEO landing pages
+      const seoLandingSlugs = [
+        "free-restaurant-website",
+        "free-small-business-website",
+        "free-website-from-google-maps",
+        "free-salon-website",
+        "free-plumber-website",
+      ];
+      const seoLandingUrls = seoLandingSlugs.map((slug) => ({
+        loc: `${baseUrl}/${slug}`,
+        priority: "0.8",
+        changefreq: "monthly",
+      }));
+
+      const staticEntries = [...staticUrls, ...seoLandingUrls]
         .map(
           (s) =>
             `  <url>
@@ -1688,7 +1702,7 @@ http.route({
       while (!categoryDone) {
         const catPage = (await ctx.runQuery(
           internal.categoryPages.getCityCategoryPage,
-          { cursor: categoryCursor, pageSize: 500 },
+          { cursor: categoryCursor, pageSize: 2000 },
         )) as {
           entries: { city: string; categorySlug: string }[];
           cursor: string;

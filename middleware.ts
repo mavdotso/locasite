@@ -187,8 +187,13 @@ export default async function middleware(
     return NextResponse.rewrite(new URL(rewritePath, request.url));
   }
 
-  // Root domain /sitemap.xml is served by app/sitemap.ts (Next.js ISR) — no rewrite needed.
-  // Subdomain and custom-domain sitemaps are still rewritten to Convex above.
+  // Root domain /sitemap.xml — rewrite to Convex HTTP endpoint for direct DB access
+  // (avoids Vercel function timeout from multiple paginated Convex round-trips)
+  if (pathname === "/sitemap.xml") {
+    return NextResponse.rewrite(
+      new URL(`${CONVEX_SITE_URL}/sitemap-index`, request.url),
+    );
+  }
 
   // For non-subdomain requests, run auth middleware normally
   const authResponse = await authMiddleware(request, event);

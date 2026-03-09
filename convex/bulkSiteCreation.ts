@@ -242,17 +242,22 @@ export const getPublishedSubdomainsPage = internalQuery({
     pageSize: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const pageSize = args.pageSize ?? 200;
+    const pageSize = args.pageSize ?? 1000;
     const result = await ctx.db
       .query("businesses")
       .withIndex("by_isPublished", (q) => q.eq("isPublished", true))
       .paginate({ numItems: pageSize, cursor: args.cursor ?? null });
 
+    const bizesWithDomains = result.page.filter((biz) => biz.domainId);
+    const domains = await Promise.all(
+      bizesWithDomains.map((biz) => ctx.db.get(biz.domainId!)),
+    );
+
     const entries: { subdomain: string; lastModified: string }[] = [];
-    for (const biz of result.page) {
-      if (!biz.domainId) continue;
-      const domain = await ctx.db.get(biz.domainId);
+    for (let i = 0; i < bizesWithDomains.length; i++) {
+      const domain = domains[i];
       if (!domain?.subdomain) continue;
+      const biz = bizesWithDomains[i];
       entries.push({
         subdomain: domain.subdomain,
         lastModified: new Date(biz.publishedAt || biz._creationTime).toISOString(),
