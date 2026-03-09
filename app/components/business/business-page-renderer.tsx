@@ -11,6 +11,7 @@ import {
 } from "@/app/components/simple-builder/types/simple-builder";
 import { SectionRenderer } from "@/app/components/simple-builder/sections/section-renderer";
 import { useAnalytics } from "@/app/hooks/use-analytics";
+import { usePageViewTracking } from "@/app/hooks/use-engagement-tracking";
 
 interface BusinessPageRendererProps {
   business: Doc<"businesses">;
@@ -29,6 +30,9 @@ export default function BusinessPageRenderer({
     domainId: business.domainId,
     enabled: business._id !== "preview",
   });
+
+  // Track page views in Convex (powers claim CTA engagement stats)
+  usePageViewTracking(business._id);
 
   // Parse the page content
   let parsedContent: {

@@ -45,3 +45,23 @@ export function useEngagementTracking(
 
   return { trackClick };
 }
+
+/**
+ * Simplified page view tracker used by BusinessPageRenderer.
+ * Wraps the businessEngagement.trackEvent API.
+ */
+export function usePageViewTracking(businessId: Id<"businesses">) {
+  const trackEvent = useMutation(api.businessEngagement.trackEvent);
+  const trackedRef = useRef(false);
+
+  useEffect(() => {
+    if (trackedRef.current) return;
+
+    const sessionKey = `locosite_pv_tracked_${businessId}`;
+    if (sessionStorage.getItem(sessionKey)) return;
+
+    trackedRef.current = true;
+    sessionStorage.setItem(sessionKey, "1");
+    trackEvent({ businessId, eventType: "page_view" }).catch(() => {});
+  }, [businessId, trackEvent]);
+}

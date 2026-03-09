@@ -14,6 +14,8 @@ import {
 } from "@/app/lib/structured-data";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import { EngagementClaimBanner } from "@/app/components/business/claim-banner";
+import { ShareWithOwner } from "@/app/components/business/share-with-owner";
 
 interface PageProps {
   params: Promise<{
@@ -284,6 +286,18 @@ export default async function BusinessPage({ params }: PageProps) {
     const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
     const fullDomain = `${rootDomain}/${businessDomain}`;
 
+    // Fetch engagement data server-side for the claim CTA
+    let engagement = null;
+    if (!businessData.userId) {
+      try {
+        engagement = await fetchQuery(api.businessEngagement.getMonthlyStats, {
+          businessId: businessData._id,
+        });
+      } catch {
+        // Non-critical — fall back to generic CTA
+      }
+    }
+
     // Generate structured data
     const structuredData = [
       generateLocalBusinessStructuredData(businessData, fullDomain),
@@ -303,25 +317,18 @@ export default async function BusinessPage({ params }: PageProps) {
           <BusinessHeaderBadge show={showWatermark} />
 
           {!businessData.userId && (
-            <div className="px-4 py-2 bg-amber-50 border-b border-amber-200">
-              <div className="container flex items-center justify-between mx-auto">
-                <div>
-                  <p className="text-sm font-medium text-amber-800">
-                    Are you the owner of this business?
-                  </p>
-                  <p className="text-xs text-amber-600">
-                    Claim your business to manage information and respond to
-                    customers
-                  </p>
-                </div>
-                <a
-                  href={`/${businessDomain}/claim/${businessData._id}`}
-                  className="px-4 py-2 text-sm font-medium text-white transition-colors rounded-md bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
-                >
-                  Claim this Business
-                </a>
-              </div>
-            </div>
+            <>
+              <EngagementClaimBanner
+                businessId={businessData._id}
+                businessDomain={businessDomain}
+                engagement={engagement}
+              />
+              <ShareWithOwner
+                businessId={businessData._id}
+                businessName={businessData.name}
+                pageUrl={`https://${rootDomain}/${businessDomain}`}
+              />
+            </>
           )}
 
           {!businessData.userId && (

@@ -77,6 +77,23 @@ export function ContactSection({
   >("idle");
 
   const sendMessage = useMutation(api.contactMessages.send);
+  const trackEvent = useMutation(api.businessEngagement.trackEvent);
+
+  const handleTrackClick = (clickType: "phone" | "email" | "directions" | "contact_form") => {
+    if (!businessId) return;
+    const eventTypeMap: Record<string, "phone_click" | "email_click" | "directions_click"> = {
+      phone: "phone_click",
+      email: "email_click",
+      directions: "directions_click",
+    };
+    const eventType = eventTypeMap[clickType];
+    if (eventType) {
+      trackEvent({
+        businessId: businessId as Id<"businesses">,
+        eventType,
+      });
+    }
+  };
 
   const handleContentEdit = (field: string, value: unknown) => {
     if (onContentUpdate) {
@@ -117,6 +134,8 @@ export function ContactSection({
 
       setSubmitStatus("success");
       setFormData({ name: "", email: "", phone: "", message: "" });
+
+      handleTrackClick("contact_form");
 
       setTimeout(() => setSubmitStatus("idle"), 5000);
     } catch (_error) {
@@ -191,19 +210,32 @@ export function ContactSection({
                         >
                           Address
                         </h3>
-                        <p
-                          style={{ color: themeColors.textSecondary }}
-                          contentEditable={editMode}
-                          suppressContentEditableWarning
-                          onBlur={(e) =>
-                            handleContentEdit(
-                              "address",
-                              e.currentTarget.textContent || "",
-                            )
-                          }
-                        >
-                          {address}
-                        </p>
+                        {editMode ? (
+                          <p
+                            style={{ color: themeColors.textSecondary }}
+                            contentEditable
+                            suppressContentEditableWarning
+                            onBlur={(e) =>
+                              handleContentEdit(
+                                "address",
+                                e.currentTarget.textContent || "",
+                              )
+                            }
+                          >
+                            {address}
+                          </p>
+                        ) : (
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ color: themeColors.textSecondary }}
+                            className="hover:underline"
+                            onClick={() => handleTrackClick("directions")}
+                          >
+                            {address}
+                          </a>
+                        )}
                       </div>
                     </div>
                   )}
@@ -222,19 +254,30 @@ export function ContactSection({
                         >
                           Phone
                         </h3>
-                        <p
-                          style={{ color: themeColors.textSecondary }}
-                          contentEditable={editMode}
-                          suppressContentEditableWarning
-                          onBlur={(e) =>
-                            handleContentEdit(
-                              "phone",
-                              e.currentTarget.textContent || "",
-                            )
-                          }
-                        >
-                          {phone}
-                        </p>
+                        {editMode ? (
+                          <p
+                            style={{ color: themeColors.textSecondary }}
+                            contentEditable
+                            suppressContentEditableWarning
+                            onBlur={(e) =>
+                              handleContentEdit(
+                                "phone",
+                                e.currentTarget.textContent || "",
+                              )
+                            }
+                          >
+                            {phone}
+                          </p>
+                        ) : (
+                          <a
+                            href={`tel:${phone}`}
+                            style={{ color: themeColors.textSecondary }}
+                            className="hover:underline"
+                            onClick={() => handleTrackClick("phone")}
+                          >
+                            {phone}
+                          </a>
+                        )}
                       </div>
                     </div>
                   )}
@@ -253,19 +296,30 @@ export function ContactSection({
                         >
                           Email
                         </h3>
-                        <p
-                          style={{ color: themeColors.textSecondary }}
-                          contentEditable={editMode}
-                          suppressContentEditableWarning
-                          onBlur={(e) =>
-                            handleContentEdit(
-                              "email",
-                              e.currentTarget.textContent || "",
-                            )
-                          }
-                        >
-                          {email}
-                        </p>
+                        {editMode ? (
+                          <p
+                            style={{ color: themeColors.textSecondary }}
+                            contentEditable
+                            suppressContentEditableWarning
+                            onBlur={(e) =>
+                              handleContentEdit(
+                                "email",
+                                e.currentTarget.textContent || "",
+                              )
+                            }
+                          >
+                            {email}
+                          </p>
+                        ) : (
+                          <a
+                            href={`mailto:${email}`}
+                            style={{ color: themeColors.textSecondary }}
+                            className="hover:underline"
+                            onClick={() => handleTrackClick("email")}
+                          >
+                            {email}
+                          </a>
+                        )}
                       </div>
                     </div>
                   )}
