@@ -26,13 +26,48 @@ interface BusinessData {
   state?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type StructuredData = Record<string, any>;
+interface PostalAddress {
+  "@type": "PostalAddress";
+  streetAddress?: string;
+  addressLocality?: string;
+  addressRegion?: string;
+  postalCode?: string;
+  addressCountry: string;
+}
+
+interface AggregateRating {
+  "@type": "AggregateRating";
+  ratingValue: number;
+  reviewCount: number;
+}
+
+interface Review {
+  "@type": "Review";
+  author: { "@type": "Person"; name: string };
+  reviewRating: { "@type": "Rating"; ratingValue: number };
+  reviewBody: string;
+}
+
+interface LocalBusinessStructuredData {
+  "@context": string;
+  "@type": string;
+  name: string;
+  description?: string;
+  url: string;
+  telephone?: string;
+  email?: string;
+  address: PostalAddress;
+  hasMap?: string;
+  image?: string[];
+  openingHours?: string[];
+  aggregateRating?: AggregateRating;
+  review?: Review[];
+}
 
 export function generateLocalBusinessStructuredData(
   business: BusinessData,
   pageUrl: string,
-): StructuredData {
+): LocalBusinessStructuredData {
   // Use category-specific schema.org type when available
   const schemaType =
     (business.categorySlug && SCHEMA_TYPE_MAP[business.categorySlug]) ||
@@ -49,7 +84,7 @@ export function generateLocalBusinessStructuredData(
     ?.trim()
     ?.match(/\d{5}(-\d{4})?$/)?.[0];
 
-  const structuredData: StructuredData = {
+  const structuredData: LocalBusinessStructuredData = {
     "@context": "https://schema.org",
     "@type": schemaType,
     name: business.name,

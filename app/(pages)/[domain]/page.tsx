@@ -314,7 +314,7 @@ export default async function BusinessPage({ params }: PageProps) {
         citySlug: businessData.city,
         cityDisplay: businessData.cityDisplay,
         categorySlug: businessData.categorySlug,
-        categoryDisplay: categoryDisplay ?? undefined,
+        categoryDisplay,
       }),
       generateWebsiteStructuredData(rootDomain),
     ];
