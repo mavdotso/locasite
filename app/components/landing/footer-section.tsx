@@ -35,80 +35,91 @@ export default function FooterSection() {
             </div>
           </div>
 
-          {/* Links */}
+          {/* Free Websites — Home Services */}
           <div>
             <h3 className="font-semibold text-brand-ink text-sm mb-4">
-              Product
+              Home Services
             </h3>
             <ul className="space-y-2 text-[14px]">
               <li>
-                <Link
-                  href="#how-it-works"
-                  className="text-brand-taupe hover:text-brand-ink transition-colors"
-                >
-                  How it works
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="#pricing"
-                  className="text-brand-taupe hover:text-brand-ink transition-colors"
-                >
-                  Pricing
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/free-restaurant-website"
-                  className="text-brand-taupe hover:text-brand-ink transition-colors"
-                >
-                  Free Restaurant Website
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/free-salon-website"
-                  className="text-brand-taupe hover:text-brand-ink transition-colors"
-                >
-                  Free Salon Website
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/free-plumber-website"
-                  className="text-brand-taupe hover:text-brand-ink transition-colors"
-                >
+                <Link href="/free-plumber-website" className="text-brand-taupe hover:text-brand-ink transition-colors">
                   Free Plumber Website
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/free-small-business-website"
-                  className="text-brand-taupe hover:text-brand-ink transition-colors"
-                >
-                  Free Small Business Website
+                <Link href="/free-electrician-website" className="text-brand-taupe hover:text-brand-ink transition-colors">
+                  Free Electrician Website
+                </Link>
+              </li>
+              <li>
+                <Link href="/free-hvac-website" className="text-brand-taupe hover:text-brand-ink transition-colors">
+                  Free HVAC Website
+                </Link>
+              </li>
+              <li>
+                <Link href="/free-cleaning-service-website" className="text-brand-taupe hover:text-brand-ink transition-colors">
+                  Free Cleaning Service Website
+                </Link>
+              </li>
+              <li>
+                <Link href="/free-landscaping-website" className="text-brand-taupe hover:text-brand-ink transition-colors">
+                  Free Landscaping Website
+                </Link>
+              </li>
+              <li>
+                <Link href="/free-roofing-website" className="text-brand-taupe hover:text-brand-ink transition-colors">
+                  Free Roofing Website
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Legal */}
+          {/* Free Websites — Other Categories + Legal */}
           <div>
-            <h3 className="font-semibold text-brand-ink text-sm mb-4">Legal</h3>
+            <h3 className="font-semibold text-brand-ink text-sm mb-4">
+              More Categories
+            </h3>
             <ul className="space-y-2 text-[14px]">
               <li>
-                <Link
-                  href="/privacy"
-                  className="text-brand-taupe hover:text-brand-ink transition-colors"
-                >
+                <Link href="/free-restaurant-website" className="text-brand-taupe hover:text-brand-ink transition-colors">
+                  Free Restaurant Website
+                </Link>
+              </li>
+              <li>
+                <Link href="/free-salon-website" className="text-brand-taupe hover:text-brand-ink transition-colors">
+                  Free Salon Website
+                </Link>
+              </li>
+              <li>
+                <Link href="/free-dentist-website" className="text-brand-taupe hover:text-brand-ink transition-colors">
+                  Free Dentist Website
+                </Link>
+              </li>
+              <li>
+                <Link href="/free-auto-repair-website" className="text-brand-taupe hover:text-brand-ink transition-colors">
+                  Free Auto Repair Website
+                </Link>
+              </li>
+              <li>
+                <Link href="/free-lawyer-website" className="text-brand-taupe hover:text-brand-ink transition-colors">
+                  Free Lawyer Website
+                </Link>
+              </li>
+              <li>
+                <Link href="/free-small-business-website" className="text-brand-taupe hover:text-brand-ink transition-colors">
+                  Free Small Business Website
+                </Link>
+              </li>
+            </ul>
+            <h3 className="font-semibold text-brand-ink text-sm mt-6 mb-4">Legal</h3>
+            <ul className="space-y-2 text-[14px]">
+              <li>
+                <Link href="/privacy" className="text-brand-taupe hover:text-brand-ink transition-colors">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/terms"
-                  className="text-brand-taupe hover:text-brand-ink transition-colors"
-                >
+                <Link href="/terms" className="text-brand-taupe hover:text-brand-ink transition-colors">
                   Terms of Service
                 </Link>
               </li>

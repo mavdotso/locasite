@@ -184,3 +184,15 @@ export const CATEGORY_FOOTER_CTA: Record<
     button: "Claim your free salon website",
   },
 };
+
+// Top category landing page links for footers and navigation
+export const FOOTER_CATEGORY_LINKS = [
+  { href: "/free-restaurant-website", label: "Restaurants" },
+  { href: "/free-plumber-website", label: "Plumbers" },
+  { href: "/free-salon-website", label: "Salons" },
+  { href: "/free-dentist-website", label: "Dentists" },
+  { href: "/free-electrician-website", label: "Electricians" },
+  { href: "/free-lawyer-website", label: "Lawyers" },
+  { href: "/free-auto-repair-website", label: "Auto Repair" },
+  { href: "/free-hvac-website", label: "HVAC" },
+] as const;
