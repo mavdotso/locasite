@@ -12,6 +12,7 @@ import {
   generateBreadcrumbStructuredData,
   generateWebsiteStructuredData,
 } from "@/app/lib/structured-data";
+import { CATEGORY_DISPLAY_NAMES } from "@/app/lib/category-constants";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { EngagementClaimBanner } from "@/app/components/business/claim-banner";
@@ -284,7 +285,7 @@ export default async function BusinessPage({ params }: PageProps) {
     }
 
     const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
-    const fullDomain = `${rootDomain}/${businessDomain}`;
+    const pageUrl = `https://${rootDomain}/${businessDomain}`;
 
     // Fetch engagement data server-side for the claim CTA
     let engagement = null;
@@ -298,11 +299,24 @@ export default async function BusinessPage({ params }: PageProps) {
       }
     }
 
+    // Resolve category display name for breadcrumb
+    const categoryDisplay = businessData.categorySlug
+      ? (CATEGORY_DISPLAY_NAMES[businessData.categorySlug] ?? businessData.category)
+      : undefined;
+
     // Generate structured data
     const structuredData = [
-      generateLocalBusinessStructuredData(businessData, fullDomain),
-      generateBreadcrumbStructuredData(businessData.name, fullDomain),
-      generateWebsiteStructuredData(businessData.name, fullDomain),
+      generateLocalBusinessStructuredData(businessData, pageUrl),
+      generateBreadcrumbStructuredData({
+        rootDomain,
+        businessName: businessData.name,
+        businessSlug: businessDomain,
+        citySlug: businessData.city,
+        cityDisplay: businessData.cityDisplay,
+        categorySlug: businessData.categorySlug,
+        categoryDisplay: categoryDisplay ?? undefined,
+      }),
+      generateWebsiteStructuredData(rootDomain),
     ];
 
     return (

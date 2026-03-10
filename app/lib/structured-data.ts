@@ -1,4 +1,5 @@
 import { Id } from "@/convex/_generated/dataModel";
+import { SCHEMA_TYPE_MAP } from "./category-constants";
 
 interface BusinessData {
   _id: Id<"businesses">;
@@ -17,64 +18,59 @@ interface BusinessData {
   }>;
   photos?: string[];
   description?: string;
+  placeId?: string;
+  category?: string;
+  categorySlug?: string;
+  city?: string;
+  cityDisplay?: string;
+  state?: string;
 }
 
-interface StructuredData {
-  "@context": string;
-  "@type": string;
-  name: string;
-  description?: string;
-  url: string;
-  telephone?: string;
-  email?: string;
-  address?: {
-    "@type": string;
-    streetAddress?: string;
-    addressLocality?: string;
-    addressRegion?: string;
-    addressCountry?: string;
-  };
-  image?: string[];
-  openingHours?: string[];
-  aggregateRating?: {
-    "@type": string;
-    ratingValue: number;
-    reviewCount: number;
-  };
-  review?: Array<{
-    "@type": string;
-    author: {
-      "@type": string;
-      name: string;
-    };
-    reviewRating: {
-      "@type": string;
-      ratingValue: number;
-    };
-    reviewBody: string;
-  }>;
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type StructuredData = Record<string, any>;
 
 export function generateLocalBusinessStructuredData(
   business: BusinessData,
-  domain: string,
+  pageUrl: string,
 ): StructuredData {
+  // Use category-specific schema.org type when available
+  const schemaType =
+    (business.categorySlug && SCHEMA_TYPE_MAP[business.categorySlug]) ||
+    "LocalBusiness";
+
+  // Parse address: prefer structured city/state fields, fall back to comma-split
+  const addressParts = business.address?.split(",") || [];
+  const streetAddress = addressParts[0]?.trim();
+  const addressLocality =
+    business.cityDisplay || addressParts[1]?.trim();
+  const addressRegion =
+    business.state || addressParts[2]?.trim()?.split(" ")[0];
+  const postalCode = addressParts[addressParts.length - 1]
+    ?.trim()
+    ?.match(/\d{5}(-\d{4})?$/)?.[0];
+
   const structuredData: StructuredData = {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
+    "@type": schemaType,
     name: business.name,
     description: business.description,
-    url: `https://${domain}`,
+    url: pageUrl,
     telephone: business.phone,
     email: business.email,
     address: {
       "@type": "PostalAddress",
-      streetAddress: business.address?.split(",")[0]?.trim(),
-      addressLocality: business.address?.split(",")[1]?.trim(),
-      addressRegion: business.address?.split(",")[2]?.trim(),
-      addressCountry: business.address?.split(",")[3]?.trim() || "US",
+      streetAddress,
+      addressLocality,
+      addressRegion,
+      ...(postalCode && { postalCode }),
+      addressCountry: "US",
     },
   };
+
+  // Google Maps link via placeId
+  if (business.placeId) {
+    structuredData.hasMap = `https://www.google.com/maps/place/?q=place_id:${business.placeId}`;
+  }
 
   // Add images
   if (business.photos && business.photos.length > 0) {
@@ -113,53 +109,60 @@ export function generateLocalBusinessStructuredData(
     }
   }
 
-  // Add price range if available (you might want to add this to your schema)
-  // structuredData.priceRange = business.priceRange || "$$";
-
   return structuredData;
 }
 
-export function generateBreadcrumbStructuredData(
-  businessName: string,
-  domain: string,
-) {
+export function generateBreadcrumbStructuredData(opts: {
+  rootDomain: string;
+  businessName: string;
+  businessSlug: string;
+  citySlug?: string;
+  cityDisplay?: string;
+  categorySlug?: string;
+  categoryDisplay?: string;
+}) {
+  const { rootDomain, businessName, businessSlug } = opts;
+  const items: Array<{ name: string; item: string }> = [
+    { name: "Home", item: `https://${rootDomain}` },
+  ];
+
+  if (opts.citySlug && opts.cityDisplay) {
+    items.push({
+      name: opts.cityDisplay,
+      item: `https://${rootDomain}/${opts.citySlug}`,
+    });
+  }
+
+  if (opts.citySlug && opts.categorySlug && opts.categoryDisplay) {
+    items.push({
+      name: opts.categoryDisplay,
+      item: `https://${rootDomain}/${opts.citySlug}/${opts.categorySlug}`,
+    });
+  }
+
+  items.push({
+    name: businessName,
+    item: `https://${rootDomain}/${businessSlug}`,
+  });
+
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: `https://${domain}`,
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: businessName,
-        item: `https://${domain}`,
-      },
-    ],
+    itemListElement: items.map((entry, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: entry.name,
+      item: entry.item,
+    })),
   };
 }
 
-export function generateWebsiteStructuredData(
-  businessName: string,
-  domain: string,
-) {
+export function generateWebsiteStructuredData(rootDomain: string) {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: businessName,
-    url: `https://${domain}`,
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `https://${domain}?search={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
-    },
+    name: "Locosite",
+    url: `https://${rootDomain}`,
   };
 }
 
