@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { env } from "@/env";
+import { useFunnelTracker } from "@/app/hooks/use-funnel-tracking";
 
 function buildConvexSiteUrl(): string {
   const convexUrl = env.NEXT_PUBLIC_CONVEX_URL;
@@ -54,6 +55,7 @@ export default function PasteLinkForm({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { trackFunnelEvent } = useFunnelTracker();
 
   const isHero = variant === "hero";
 
@@ -76,6 +78,7 @@ export default function PasteLinkForm({
     }
 
     setIsLoading(true);
+    trackFunnelEvent("form_submission_started", { metadata: { source: variant } });
 
     try {
       const response = await fetch(`${convexSiteUrl}/scrape`, {
@@ -106,6 +109,7 @@ export default function PasteLinkForm({
         throw new Error("Site creation failed. Please try again.");
       }
 
+      trackFunnelEvent("website_created", { businessId: data.businessId });
       router.push(`/preview/${data.businessId}`);
     } catch (err) {
       const message =

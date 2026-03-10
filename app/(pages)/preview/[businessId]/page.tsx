@@ -8,6 +8,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 
 import { SitePreviewFrame } from "@/app/components/preview/site-preview-frame";
 import { PreviewActionBar } from "@/app/components/preview/preview-action-bar";
+import { FunnelTracker } from "@/app/components/funnel/funnel-tracker";
 
 export default function PreviewPage() {
   const params = useParams<{ businessId: string }>();
@@ -77,6 +78,12 @@ export default function PreviewPage() {
           <div className="w-14" />
         </div>
       </header>
+
+      <FunnelTracker
+        event="preview_page_viewed"
+        businessId={businessId}
+        dedupKey={`preview_${businessId}`}
+      />
 
       {/* Main content */}
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-8">

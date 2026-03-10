@@ -14,6 +14,7 @@ import SEOHeroSection from "./seo-hero-section";
 import SEOPreviewSection from "./seo-preview-section";
 import SEOFaqSection from "./seo-faq-section";
 import SEOInternalLinks from "./seo-internal-links";
+import { FunnelTracker } from "@/app/components/funnel/funnel-tracker";
 
 export default function SEOLandingPage({
   config,
@@ -33,6 +34,11 @@ export default function SEOLandingPage({
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(structuredData),
         }}
+      />
+      <FunnelTracker
+        event="category_page_viewed"
+        metadata={{ page: config.slug }}
+        dedupKey={`category_${config.slug}`}
       />
       <NavBar />
       <main>

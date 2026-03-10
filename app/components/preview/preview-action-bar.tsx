@@ -9,6 +9,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/app/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { ThemePickerSheet } from "./theme-picker-sheet";
+import { useFunnelTracker } from "@/app/hooks/use-funnel-tracking";
 
 interface PreviewActionBarProps {
   businessId: Id<"businesses">;
@@ -32,6 +33,7 @@ export function PreviewActionBar({
   const [isPublishing, setIsPublishing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showThemePicker, setShowThemePicker] = useState(false);
+  const { trackFunnelEvent } = useFunnelTracker();
 
   const rootDomain =
     process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
@@ -55,12 +57,15 @@ export function PreviewActionBar({
     if (user === undefined) return;
 
     setIsPublishing(true);
+    trackFunnelEvent("publish_clicked", { businessId });
     try {
       // Claim the business if not already claimed
       await claimBusiness({ businessId });
 
       // Publish directly — no payment required
       await publishBusiness({ businessId });
+
+      trackFunnelEvent("website_published", { businessId });
 
       // Redirect to the live site
       router.push(`/live/${businessId}`);

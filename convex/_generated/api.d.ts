@@ -29,6 +29,7 @@ import type * as customDomains from "../customDomains.js";
 import type * as dashboardData from "../dashboardData.js";
 import type * as domains from "../domains.js";
 import type * as emailVerification from "../emailVerification.js";
+import type * as funnelEvents from "../funnelEvents.js";
 import type * as http from "../http.js";
 import type * as indexEverything from "../indexEverything.js";
 import type * as lib_autoGeneratePage from "../lib/autoGeneratePage.js";
@@ -102,6 +103,7 @@ declare const fullApi: ApiFromModules<{
   dashboardData: typeof dashboardData;
   domains: typeof domains;
   emailVerification: typeof emailVerification;
+  funnelEvents: typeof funnelEvents;
   http: typeof http;
   indexEverything: typeof indexEverything;
   "lib/autoGeneratePage": typeof lib_autoGeneratePage;

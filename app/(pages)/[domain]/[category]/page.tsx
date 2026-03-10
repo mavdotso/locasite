@@ -11,6 +11,7 @@ import {
   CATEGORY_INTRO_COPY,
   CATEGORY_FOOTER_CTA,
 } from "@/app/lib/category-constants";
+import { FunnelTracker } from "@/app/components/funnel/funnel-tracker";
 
 interface PageProps {
   params: Promise<{
@@ -186,6 +187,11 @@ export default async function CategoryPage({ params }: PageProps) {
         }}
       />
 
+      <FunnelTracker
+        event="category_page_viewed"
+        metadata={{ city: citySlug, category: categorySlug }}
+        dedupKey={`category_${citySlug}_${categorySlug}`}
+      />
       <div className="min-h-screen bg-neutral-50">
         {/* Header */}
         <header className="border-b border-neutral-200 bg-white">

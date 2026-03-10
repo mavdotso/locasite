@@ -1786,4 +1786,17 @@ ${businessEntries}
   }),
 });
 
+// Funnel event counts — lightweight admin endpoint
+http.route({
+  path: "/admin/funnel",
+  method: "GET",
+  handler: httpAction(async (ctx) => {
+    const counts = await ctx.runQuery(api.funnelEvents.getFunnelCounts);
+    return new Response(JSON.stringify(counts), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }),
+});
+
 export default http;
