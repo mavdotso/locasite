@@ -45,9 +45,10 @@ export function generateLocalBusinessStructuredData(
     business.cityDisplay || addressParts[1]?.trim();
   const addressRegion =
     business.state || addressParts[2]?.trim()?.split(" ")[0];
-  const postalCode = addressParts[addressParts.length - 1]
-    ?.trim()
-    ?.match(/\d{5}(-\d{4})?$/)?.[0];
+  // Try last part first, then state+zip part for addresses ending with ", USA"
+  const postalCode =
+    addressParts[addressParts.length - 1]?.trim()?.match(/\d{5}(-\d{4})?$/)?.[0] ||
+    addressParts[2]?.trim()?.match(/\d{5}(-\d{4})?$/)?.[0];
 
   const structuredData: StructuredData = {
     "@context": "https://schema.org",
