@@ -17,6 +17,7 @@ import { FooterCategoryLinks } from "@/app/components/ui/footer-category-links";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { EngagementClaimBanner } from "@/app/components/business/claim-banner";
+import { SelfServeClaimBanner } from "@/app/components/business/self-serve-claim-banner";
 import { ShareWithOwner } from "@/app/components/business/share-with-owner";
 
 interface PageProps {
@@ -330,6 +331,7 @@ export default async function BusinessPage({ params }: PageProps) {
         />
         <div className="flex flex-col min-h-screen">
           <BusinessHeaderBadge show={showWatermark} />
+          <SelfServeClaimBanner />
 
           {businessData.city && (
             <nav aria-label="Breadcrumb" className="bg-neutral-50 border-b border-neutral-200 px-4 py-2">

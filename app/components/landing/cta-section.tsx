@@ -1,7 +1,11 @@
 import { Check } from "lucide-react";
-import PasteLinkForm from "@/app/components/landing/paste-link-form";
+import SelfServeCreationForm from "@/app/components/landing/self-serve-creation-form";
 
-export default function CTASection() {
+interface CTASectionProps {
+  category?: string;
+}
+
+export default function CTASection({ category }: CTASectionProps) {
   return (
     <section className="py-20 md:py-28 bg-brand-forest">
       <div className="mx-auto max-w-6xl px-6 lg:px-10 text-center">
@@ -16,7 +20,7 @@ export default function CTASection() {
         </p>
 
         <div className="max-w-xl mx-auto mb-8">
-          <PasteLinkForm variant="hero" />
+          <SelfServeCreationForm category={category} variant="hero" />
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">

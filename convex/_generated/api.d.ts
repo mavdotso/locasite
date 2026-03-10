@@ -58,6 +58,7 @@ import type * as regenerateAI from "../regenerateAI.js";
 import type * as reviewFilter from "../reviewFilter.js";
 import type * as router from "../router.js";
 import type * as scrapeJobs from "../scrapeJobs.js";
+import type * as selfServe from "../selfServe.js";
 import type * as selfServeCheckout from "../selfServeCheckout.js";
 import type * as selfServeWebsite from "../selfServeWebsite.js";
 import type * as storage from "../storage.js";
@@ -132,6 +133,7 @@ declare const fullApi: ApiFromModules<{
   reviewFilter: typeof reviewFilter;
   router: typeof router;
   scrapeJobs: typeof scrapeJobs;
+  selfServe: typeof selfServe;
   selfServeCheckout: typeof selfServeCheckout;
   selfServeWebsite: typeof selfServeWebsite;
   storage: typeof storage;
