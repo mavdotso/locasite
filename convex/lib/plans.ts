@@ -39,6 +39,9 @@ export const SUBSCRIPTION_PLANS: Record<PlanType, SubscriptionPlan> = {
     features: [
       "1 business site",
       "Locosite subdomain",
+      "Content editing",
+      "Photo gallery",
+      "Google Reviews",
       "Contact form",
       "Powered by Locosite badge",
     ],
@@ -49,14 +52,14 @@ export const SUBSCRIPTION_PLANS: Record<PlanType, SubscriptionPlan> = {
       removeWatermark: false,
       prioritySupport: false,
       apiAccess: false,
-      contentEditing: false,
+      contentEditing: true,
       seoEditor: false,
       visualEditor: false,
-      googleReviews: false,
-      photoGallery: false,
+      googleReviews: true,
+      photoGallery: true,
       menuManagement: false,
       themeCount: 1,
-      monthlyVisitsSoftCap: 2000,
+      monthlyVisitsSoftCap: -1, // unlimited
     },
   },
   PROFESSIONAL: {
