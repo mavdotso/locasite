@@ -13,6 +13,7 @@ import {
   generateWebsiteStructuredData,
 } from "@/app/lib/structured-data";
 import { CATEGORY_DISPLAY_NAMES } from "@/app/lib/category-constants";
+import { FooterCategoryLinks } from "@/app/components/ui/footer-category-links";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { EngagementClaimBanner } from "@/app/components/business/claim-banner";
@@ -389,10 +390,7 @@ export default async function BusinessPage({ params }: PageProps) {
             pageContent={page?.content || JSON.stringify({ sections: [] })}
           />
 
-          <BusinessFooter
-            businessName={businessData.name}
-            showWatermark={showWatermark}
-          />
+          <BusinessFooter showWatermark={showWatermark} />
         </div>
       </>
     );
@@ -497,14 +495,17 @@ async function CityLandingPage({
         </main>
 
         <footer className="border-t border-neutral-200 bg-white mt-auto">
-          <div className="mx-auto max-w-6xl px-6 py-8 flex items-center justify-between text-sm text-neutral-500">
-            <Link
-              href="/"
-              className="font-display font-bold text-neutral-900"
-            >
-              Locosite
-            </Link>
-            <p>Free professional websites for local businesses</p>
+          <div className="mx-auto max-w-6xl px-6 py-8">
+            <FooterCategoryLinks />
+            <div className="flex items-center justify-between text-sm text-neutral-500">
+              <Link
+                href="/"
+                className="font-display font-bold text-neutral-900"
+              >
+                Locosite
+              </Link>
+              <p>Free professional websites for local businesses</p>
+            </div>
           </div>
         </footer>
       </div>

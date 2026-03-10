@@ -13,7 +13,7 @@ export function BusinessHeaderBadge({ show }: BusinessHeaderBadgeProps) {
       <p className="text-xs text-muted-foreground">
         Built with{" "}
         <Link
-          href={`${SITE_CONFIG.url}?ref=header-badge`}
+          href={`${SITE_CONFIG.url}?utm_source=powered_badge&utm_medium=header`}
           target="_blank"
           rel="noopener"
           className="font-medium text-primary hover:underline"
@@ -22,12 +22,12 @@ export function BusinessHeaderBadge({ show }: BusinessHeaderBadgeProps) {
         </Link>
         {" "}&mdash;{" "}
         <Link
-          href={`${SITE_CONFIG.url}?ref=header-cta`}
+          href={`${SITE_CONFIG.url}?utm_source=powered_badge&utm_medium=header_cta`}
           target="_blank"
           rel="noopener"
           className="hover:underline"
         >
-          Create yours free
+          Get your free website
         </Link>
       </p>
     </div>

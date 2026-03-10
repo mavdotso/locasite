@@ -11,6 +11,8 @@ import {
   CATEGORY_INTRO_COPY,
   CATEGORY_FOOTER_CTA,
 } from "@/app/lib/category-constants";
+import { FunnelTracker } from "@/app/components/funnel/funnel-tracker";
+import { FooterCategoryLinks } from "@/app/components/ui/footer-category-links";
 
 interface PageProps {
   params: Promise<{
@@ -186,6 +188,11 @@ export default async function CategoryPage({ params }: PageProps) {
         }}
       />
 
+      <FunnelTracker
+        event="category_page_viewed"
+        metadata={{ city: citySlug, category: categorySlug }}
+        dedupKey={`category_${citySlug}_${categorySlug}`}
+      />
       <div className="min-h-screen bg-neutral-50">
         {/* Header */}
         <header className="border-b border-neutral-200 bg-white">
@@ -229,7 +236,7 @@ export default async function CategoryPage({ params }: PageProps) {
                 {CATEGORY_INTRO_COPY[categorySlug].body}{" "}
                 {CATEGORY_INTRO_COPY[categorySlug].ctaPrefix}{" "}
                 <Link
-                  href="/claim"
+                  href="/#hero"
                   className="underline hover:text-neutral-900"
                 >
                   Claim your free website.
@@ -241,7 +248,7 @@ export default async function CategoryPage({ params }: PageProps) {
                 verified hours, photos, and contact info. Own one of these
                 businesses?{" "}
                 <Link
-                  href="/claim"
+                  href="/#hero"
                   className="underline hover:text-neutral-900"
                 >
                   Claim your free website.
@@ -297,7 +304,7 @@ export default async function CategoryPage({ params }: PageProps) {
                 "Claim your free Locosite website to edit your listing, add photos, and upgrade to your own domain."}
             </p>
             <Link
-              href="/claim"
+              href="/#hero"
               className="inline-flex items-center gap-2 bg-neutral-900 text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-neutral-700 transition-colors"
             >
               {CATEGORY_FOOTER_CTA[categorySlug]?.button ??
@@ -308,11 +315,14 @@ export default async function CategoryPage({ params }: PageProps) {
 
         {/* Footer */}
         <footer className="border-t border-neutral-200 bg-white mt-auto">
-          <div className="mx-auto max-w-6xl px-6 py-8 flex items-center justify-between text-sm text-neutral-500">
-            <Link href="/" className="font-display font-bold text-neutral-900">
-              Locosite
-            </Link>
-            <p>Free professional websites for local businesses</p>
+          <div className="mx-auto max-w-6xl px-6 py-8">
+            <FooterCategoryLinks />
+            <div className="flex items-center justify-between text-sm text-neutral-500">
+              <Link href="/" className="font-display font-bold text-neutral-900">
+                Locosite
+              </Link>
+              <p>Free professional websites for local businesses</p>
+            </div>
           </div>
         </footer>
       </div>

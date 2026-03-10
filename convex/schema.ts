@@ -578,6 +578,24 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_email", ["email"]),
 
+  // Funnel event tracking for self-serve flow
+  funnelEvents: defineTable({
+    event: v.union(
+      v.literal("category_page_viewed"),
+      v.literal("form_submission_started"),
+      v.literal("website_created"),
+      v.literal("preview_page_viewed"),
+      v.literal("publish_clicked"),
+      v.literal("website_published"),
+    ),
+    timestamp: v.number(),
+    sessionId: v.optional(v.string()),
+    businessId: v.optional(v.string()),
+    metadata: v.optional(v.any()),
+  })
+    .index("by_event_timestamp", ["event", "timestamp"])
+    .index("by_sessionId", ["sessionId"]),
+
   // Owner referrals — consumer-initiated notifications to business owners
   ownerReferrals: defineTable({
     businessId: v.id("businesses"),

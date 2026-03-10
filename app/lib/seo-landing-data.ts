@@ -381,6 +381,253 @@ export const categoryPreviewConfigs: Record<string, GenericPreviewConfig> = {
     ],
     accentColor: "#b45309", accentLight: "#fffbeb", accentDark: "#451a03", navBg: "#292524", navText: "#fde68a",
   },
+  "financial-advisor": {
+    businessName: "Horizon Financial Group",
+    tagline: "Secure Your\nFinancial Future",
+    location: "200 Finance Dr, Tampa, FL 33602",
+    phone: "(813) 555-0412",
+    hours: "Mon–Fri 9am–5pm",
+    services: [
+      { name: "Retirement Planning", desc: "401k, IRA & pension strategies" },
+      { name: "Investment Management", desc: "Portfolio & wealth management" },
+      { name: "Tax Planning", desc: "Tax-efficient strategies" },
+    ],
+    accentColor: "#0d9488", accentLight: "#f0fdfa", accentDark: "#134e4a", navBg: "#1e293b", navText: "#99f6e4",
+  },
+  towing: {
+    businessName: "Rapid Tow & Recovery",
+    tagline: "24/7 Towing\nWhen You Need It",
+    location: "1500 Roadside Blvd, Orlando, FL 32819",
+    phone: "(407) 555-0911",
+    hours: "Open 24 Hours",
+    services: [
+      { name: "Emergency Towing", desc: "Fast response, any vehicle" },
+      { name: "Roadside Assist", desc: "Jump starts, lockouts, tire changes" },
+      { name: "Long Distance", desc: "Interstate & cross-state transport" },
+    ],
+    accentColor: "#dc2626", accentLight: "#fef2f2", accentDark: "#7f1d1d", navBg: "#1c1917", navText: "#fca5a5",
+  },
+  "moving-company": {
+    businessName: "SunState Movers",
+    tagline: "Stress-Free Moving\nAcross Florida",
+    location: "890 Logistics Way, Jacksonville, FL 32256",
+    phone: "(904) 555-0330",
+    hours: "Mon–Sat 7am–7pm",
+    services: [
+      { name: "Local Moving", desc: "Same-city residential moves" },
+      { name: "Long Distance", desc: "Cross-state & nationwide" },
+      { name: "Packing Services", desc: "Full-service packing & supplies" },
+    ],
+    accentColor: "#2563eb", accentLight: "#eff6ff", accentDark: "#1e3a5f", navBg: "#1e293b", navText: "#93c5fd",
+  },
+  doctor: {
+    businessName: "CareFirst Medical",
+    tagline: "Your Family\nHealth Partner",
+    location: "310 Medical Plaza, Tampa, FL 33609",
+    phone: "(813) 555-0275",
+    hours: "Mon–Fri 8am–5pm",
+    services: [
+      { name: "Primary Care", desc: "Annual exams & preventive care" },
+      { name: "Urgent Care", desc: "Same-day sick visits" },
+      { name: "Chronic Care", desc: "Diabetes, hypertension & more" },
+    ],
+    accentColor: "#0891b2", accentLight: "#ecfeff", accentDark: "#164e63", navBg: "#0f172a", navText: "#a5f3fc",
+  },
+  spa: {
+    businessName: "Serenity Day Spa",
+    tagline: "Relax, Rejuvenate\n& Restore",
+    location: "225 Wellness Blvd, Naples, FL 34102",
+    phone: "(239) 555-0188",
+    hours: "Mon–Sat 9am–7pm",
+    services: [
+      { name: "Massage Therapy", desc: "Swedish, deep tissue & hot stone" },
+      { name: "Facials", desc: "Anti-aging & hydrating treatments" },
+      { name: "Body Treatments", desc: "Wraps, scrubs & detox" },
+    ],
+    accentColor: "#a855f7", accentLight: "#faf5ff", accentDark: "#581c87", navBg: "#1e1b4b", navText: "#d8b4fe",
+  },
+  "yoga-studio": {
+    businessName: "Flow Yoga Studio",
+    tagline: "Find Your Balance\n& Inner Peace",
+    location: "140 Zen Way, St. Petersburg, FL 33701",
+    phone: "(727) 555-0321",
+    hours: "Mon–Sat 6am–8pm",
+    services: [
+      { name: "Vinyasa Flow", desc: "Dynamic movement & breath" },
+      { name: "Hot Yoga", desc: "Heated room, deep stretch" },
+      { name: "Meditation", desc: "Guided mindfulness sessions" },
+    ],
+    accentColor: "#059669", accentLight: "#ecfdf5", accentDark: "#064e3b", navBg: "#1a2e05", navText: "#a7f3d0",
+  },
+  "dance-studio": {
+    businessName: "Rhythm Dance Academy",
+    tagline: "Learn to Dance\nWith Confidence",
+    location: "505 Studio Ln, Orlando, FL 32803",
+    phone: "(407) 555-0447",
+    hours: "Mon–Sat 10am–9pm",
+    services: [
+      { name: "Ballroom", desc: "Waltz, foxtrot & tango" },
+      { name: "Latin Dance", desc: "Salsa, bachata & merengue" },
+      { name: "Kids Classes", desc: "Ballet, hip-hop & tap" },
+    ],
+    accentColor: "#e11d48", accentLight: "#fff1f2", accentDark: "#881337", navBg: "#1c1917", navText: "#fda4af",
+  },
+  "martial-arts": {
+    businessName: "Iron Dragon Martial Arts",
+    tagline: "Discipline, Strength\n& Self-Defense",
+    location: "720 Dojo Dr, Tampa, FL 33612",
+    phone: "(813) 555-0563",
+    hours: "Mon–Sat 9am–9pm",
+    services: [
+      { name: "Karate", desc: "Traditional & competition" },
+      { name: "Brazilian Jiu-Jitsu", desc: "Gi & no-gi training" },
+      { name: "Kids Program", desc: "Ages 5–12, character building" },
+    ],
+    accentColor: "#b91c1c", accentLight: "#fef2f2", accentDark: "#7f1d1d", navBg: "#18181b", navText: "#fca5a5",
+  },
+  daycare: {
+    businessName: "Sunshine Kids Daycare",
+    tagline: "A Safe Place\nfor Little Ones",
+    location: "415 Learning Ln, Orlando, FL 32806",
+    phone: "(407) 555-0219",
+    hours: "Mon–Fri 6:30am–6pm",
+    services: [
+      { name: "Infant Care", desc: "Ages 6 weeks–12 months" },
+      { name: "Toddler Program", desc: "Ages 1–3, early learning" },
+      { name: "Pre-K", desc: "Ages 3–5, school readiness" },
+    ],
+    accentColor: "#f59e0b", accentLight: "#fffbeb", accentDark: "#78350f", navBg: "#1c1917", navText: "#fde68a",
+  },
+  "garage-door-repair": {
+    businessName: "ProLift Garage Doors",
+    tagline: "Fast Garage Door\nRepair & Install",
+    location: "880 Service Rd, Jacksonville, FL 32211",
+    phone: "(904) 555-0478",
+    hours: "Mon–Sat 7am–6pm",
+    services: [
+      { name: "Spring Repair", desc: "Torsion & extension springs" },
+      { name: "Opener Install", desc: "Belt, chain & screw drive" },
+      { name: "New Doors", desc: "Steel, wood & insulated options" },
+    ],
+    accentColor: "#ea580c", accentLight: "#fff7ed", accentDark: "#7c2d12", navBg: "#292524", navText: "#fdba74",
+  },
+  "painting-contractor": {
+    businessName: "TrueColor Painting",
+    tagline: "Professional Painting\nYou Can Trust",
+    location: "335 Brush St, Tampa, FL 33607",
+    phone: "(813) 555-0394",
+    hours: "Mon–Sat 7am–5pm",
+    services: [
+      { name: "Interior Painting", desc: "Walls, ceilings & trim" },
+      { name: "Exterior Painting", desc: "Homes & commercial buildings" },
+      { name: "Cabinet Refinishing", desc: "Kitchen & bathroom cabinets" },
+    ],
+    accentColor: "#7c3aed", accentLight: "#f5f3ff", accentDark: "#3b0764", navBg: "#1e1b4b", navText: "#c4b5fd",
+  },
+  "carpet-cleaning": {
+    businessName: "FreshStart Carpet Care",
+    tagline: "Deep Clean Carpets\n& Upholstery",
+    location: "600 Clean Ave, Orlando, FL 32809",
+    phone: "(407) 555-0512",
+    hours: "Mon–Sat 8am–5pm",
+    services: [
+      { name: "Carpet Cleaning", desc: "Steam & hot water extraction" },
+      { name: "Upholstery", desc: "Sofas, chairs & mattresses" },
+      { name: "Tile & Grout", desc: "Deep clean & seal" },
+    ],
+    accentColor: "#0284c7", accentLight: "#f0f9ff", accentDark: "#075985", navBg: "#0c4a6e", navText: "#bae6fd",
+  },
+  "concrete-contractor": {
+    businessName: "SolidBase Concrete",
+    tagline: "Quality Concrete\nWork Guaranteed",
+    location: "950 Industrial Pkwy, Jacksonville, FL 32218",
+    phone: "(904) 555-0634",
+    hours: "Mon–Fri 7am–5pm",
+    services: [
+      { name: "Driveways", desc: "Poured, stamped & stained" },
+      { name: "Patios & Walkways", desc: "Custom designs & finishes" },
+      { name: "Foundations", desc: "Residential & commercial" },
+    ],
+    accentColor: "#78716c", accentLight: "#fafaf9", accentDark: "#292524", navBg: "#1c1917", navText: "#d6d3d1",
+  },
+  "music-lessons": {
+    businessName: "Harmony Music Academy",
+    tagline: "Learn to Play\nYour Favorite Songs",
+    location: "280 Melody Ln, St. Petersburg, FL 33704",
+    phone: "(727) 555-0267",
+    hours: "Mon–Sat 10am–8pm",
+    services: [
+      { name: "Guitar Lessons", desc: "Acoustic, electric & bass" },
+      { name: "Piano Lessons", desc: "Classical & contemporary" },
+      { name: "Voice Lessons", desc: "All ages & skill levels" },
+    ],
+    accentColor: "#c026d3", accentLight: "#fdf4ff", accentDark: "#701a75", navBg: "#1e1b4b", navText: "#f0abfc",
+  },
+  tutoring: {
+    businessName: "BrightMinds Tutoring",
+    tagline: "Unlock Your\nAcademic Potential",
+    location: "175 Scholar Dr, Tampa, FL 33613",
+    phone: "(813) 555-0148",
+    hours: "Mon–Sat 9am–7pm",
+    services: [
+      { name: "Math Tutoring", desc: "Algebra through calculus" },
+      { name: "Reading & Writing", desc: "All grade levels" },
+      { name: "Test Prep", desc: "SAT, ACT & AP exams" },
+    ],
+    accentColor: "#4f46e5", accentLight: "#eef2ff", accentDark: "#312e81", navBg: "#1e1b4b", navText: "#a5b4fc",
+  },
+  "insurance-agent": {
+    businessName: "ShieldPoint Insurance",
+    tagline: "Coverage You Can\nCount On",
+    location: "420 Policy Blvd, Orlando, FL 32801",
+    phone: "(407) 555-0377",
+    hours: "Mon–Fri 9am–5pm",
+    services: [
+      { name: "Home Insurance", desc: "Property & flood coverage" },
+      { name: "Auto Insurance", desc: "Full & liability coverage" },
+      { name: "Life Insurance", desc: "Term & whole life policies" },
+    ],
+    accentColor: "#1d4ed8", accentLight: "#eff6ff", accentDark: "#1e3a8a", navBg: "#0f172a", navText: "#93c5fd",
+  },
+  "personal-trainer": {
+    businessName: "PeakForm Fitness",
+    tagline: "Transform Your Body\n& Your Life",
+    location: "310 Fitness Way, Tampa, FL 33609",
+    phone: "(813) 555-0482",
+    hours: "Mon–Sat 6am–8pm",
+    services: [
+      { name: "1-on-1 Training", desc: "Personalized workout plans" },
+      { name: "Nutrition Coaching", desc: "Meal plans & accountability" },
+      { name: "Group Training", desc: "Small group sessions" },
+    ],
+    accentColor: "#ea580c", accentLight: "#fff7ed", accentDark: "#7c2d12", navBg: "#1c1917", navText: "#fdba74",
+  },
+  catering: {
+    businessName: "Savory Events Catering",
+    tagline: "Exceptional Food\nfor Every Occasion",
+    location: "550 Culinary Ct, Orlando, FL 32819",
+    phone: "(407) 555-0601",
+    hours: "Mon–Sat 8am–6pm",
+    services: [
+      { name: "Corporate Events", desc: "Lunch meetings & galas" },
+      { name: "Weddings", desc: "Custom menus & full service" },
+      { name: "Private Parties", desc: "Birthdays, showers & more" },
+    ],
+    accentColor: "#b45309", accentLight: "#fffbeb", accentDark: "#78350f", navBg: "#292524", navText: "#fde68a",
+  },
+  bar: {
+    businessName: "The Copper Rail",
+    tagline: "Craft Cocktails\n& Good Times",
+    location: "720 Nightlife Ave, Tampa, FL 33606",
+    phone: "(813) 555-0789",
+    hours: "Mon–Sun 4pm–2am",
+    services: [
+      { name: "Craft Cocktails", desc: "Handcrafted signature drinks" },
+      { name: "Happy Hour", desc: "Daily 4–7pm specials" },
+      { name: "Private Events", desc: "Birthday & corporate parties" },
+    ],
+    accentColor: "#a16207", accentLight: "#fefce8", accentDark: "#422006", navBg: "#1c1917", navText: "#fde047",
+  },
 };
 
 // Generate SEO page config for a category
@@ -927,6 +1174,217 @@ export const seoPages: Record<string, Omit<SEOLandingPageConfig, "previewCompone
       { question: "How does this compare to Zillow?", answer: "Zillow distributes your leads to multiple agents. Your own website gives you a direct relationship with clients — no shared leads, no competing agents on the same page." },
     ],
     ["free-lawyer-website", "free-small-business-website"],
+  ),
+
+  // --- Batch 2: CEO priority + DB expansion categories ---
+
+  "free-financial-advisor-website": generateSeoPageConfig(
+    "free-financial-advisor-website", "Financial Advisor", "financial advisory practice", "horizon-financial-group.locosite.io",
+    [
+      { question: "Why does a financial advisor need a website?", answer: "Clients research advisors online before trusting someone with their money. A website with your credentials, services, and reviews establishes credibility instantly." },
+      { question: "Can I list my certifications?", answer: "With a Starter plan ($9/mo), add your CFP, CFA, or Series 65 credentials, fiduciary status, and areas of specialization." },
+      { question: "Will it help me get new clients?", answer: "Your website is SEO-optimized for searches like 'financial advisor near me.' It captures high-intent prospects actively looking for financial guidance." },
+      { question: "Is this compliant for financial services?", answer: "Locosite displays only publicly available information from your Google Maps listing. For compliance disclosures, add custom content with a Starter plan." },
+    ],
+    ["free-accountant-website", "free-lawyer-website"],
+  ),
+
+  "free-towing-website": generateSeoPageConfig(
+    "free-towing-website", "Towing Service", "towing company", "rapid-tow-recovery.locosite.io",
+    [
+      { question: "Why does a towing company need a website?", answer: "When someone's car breaks down, they search 'towing near me' immediately. A website with your phone number and reviews gets you the emergency call." },
+      { question: "Will it show I'm available 24/7?", answer: "Your hours from Google Maps are displayed prominently. With a Starter plan ($9/mo), highlight your 24/7 availability and response times." },
+      { question: "Can I list my service area?", answer: "Your business address is imported from Google Maps. With a Starter plan, add a service area map covering all the cities and highways you serve." },
+      { question: "How does this help with roadside emergencies?", answer: "Your phone number is displayed prominently with a click-to-call button. When someone is stranded, your website gets you the call over competitors without one." },
+    ],
+    ["free-auto-repair-website", "free-small-business-website"],
+  ),
+
+  "free-moving-company-website": generateSeoPageConfig(
+    "free-moving-company-website", "Moving Company", "moving company", "sunstate-movers.locosite.io",
+    [
+      { question: "Why does a moving company need a website?", answer: "People planning a move research companies online. A website with your reviews, services, and license info builds the trust needed for someone to let you into their home." },
+      { question: "Can customers request quotes?", answer: "Your phone number is displayed prominently. With a Starter plan ($9/mo), add a moving quote form where customers describe their move details." },
+      { question: "Will it show my license and insurance?", answer: "With a Starter plan, add your USDOT number, state license, insurance details, and any moving association memberships." },
+      { question: "Can I show my service areas?", answer: "Your business address is displayed from Google Maps. With a Starter plan, highlight local, long-distance, and interstate service areas." },
+    ],
+    ["free-cleaning-service-website", "free-small-business-website"],
+  ),
+
+  "free-doctor-website": generateSeoPageConfig(
+    "free-doctor-website", "Doctor", "medical practice", "carefirst-medical.locosite.io",
+    [
+      { question: "Why does a medical practice need a website?", answer: "Patients search online for doctors before booking. A website with your specialties, hours, and reviews helps new patients find and trust you." },
+      { question: "Can patients see my specialties?", answer: "Your basic info is imported from Google Maps. With a Starter plan ($9/mo), add your specialties, accepted insurance, new patient info, and provider bios." },
+      { question: "Is this HIPAA compliant?", answer: "Locosite displays only publicly available information from your Google Maps listing. No patient data is collected or stored. Contact forms go directly to your email." },
+      { question: "Can patients book appointments online?", answer: "Your phone number is displayed for scheduling. With a Starter plan, link to your patient portal or online scheduling system." },
+    ],
+    ["free-dentist-website", "free-chiropractor-website"],
+  ),
+
+  "free-spa-website": generateSeoPageConfig(
+    "free-spa-website", "Spa", "day spa", "serenity-day-spa.locosite.io",
+    [
+      { question: "Can I show my treatment menu?", answer: "Your basic info is imported from Google Maps. With a Starter plan ($9/mo), add your full menu of massages, facials, body treatments, and packages." },
+      { question: "Will my spa photos show up?", answer: "Photos from your Google Maps listing are imported automatically — facility, treatment rooms, and ambiance. Add more with a Starter plan." },
+      { question: "Can clients book treatments online?", answer: "Your phone number is displayed for booking. With a Starter plan, link to your online booking system or add a reservation form." },
+      { question: "Do spas really need a website?", answer: "People searching 'spa near me' are ready to book. A professional website with your services, photos, and reviews converts searchers into clients." },
+    ],
+    ["free-salon-website", "free-small-business-website"],
+  ),
+
+  "free-yoga-studio-website": generateSeoPageConfig(
+    "free-yoga-studio-website", "Yoga Studio", "yoga studio", "flow-yoga-studio.locosite.io",
+    [
+      { question: "Can I show my class schedule?", answer: "Your hours are imported from Google Maps. With a Starter plan ($9/mo), add a full class schedule, instructor bios, and membership options." },
+      { question: "Will it help attract new students?", answer: "Your website is SEO-optimized for searches like 'yoga studio near me' and 'yoga classes [city],' bringing in students actively looking for classes." },
+      { question: "Can students sign up online?", answer: "Your phone number is displayed for inquiries. With a Starter plan, link to your booking platform like Mindbody or add a class registration form." },
+      { question: "Is this better than social media alone?", answer: "Social media builds community, but a website captures people actively searching Google for yoga classes — a completely different, high-intent audience." },
+    ],
+    ["free-gym-website", "free-small-business-website"],
+  ),
+
+  "free-dance-studio-website": generateSeoPageConfig(
+    "free-dance-studio-website", "Dance Studio", "dance studio", "rhythm-dance-academy.locosite.io",
+    [
+      { question: "Can I list my dance classes?", answer: "Your basic info is imported from Google Maps. With a Starter plan ($9/mo), add class schedules, instructor bios, and pricing for all dance styles." },
+      { question: "Will it help attract new students?", answer: "Your website is SEO-optimized for searches like 'dance classes near me.' Parents and adults looking for lessons find you through Google." },
+      { question: "Can I show recital and competition photos?", answer: "Photos from your Google Maps listing are imported. With a Starter plan, add galleries of performances, recitals, and competition highlights." },
+      { question: "Can students register online?", answer: "Your phone number is displayed for enrollment. With a Starter plan, link to your registration system or add an enrollment form." },
+    ],
+    ["free-gym-website", "free-small-business-website"],
+  ),
+
+  "free-martial-arts-website": generateSeoPageConfig(
+    "free-martial-arts-website", "Martial Arts School", "martial arts school", "iron-dragon-martial-arts.locosite.io",
+    [
+      { question: "Can I list my programs?", answer: "Your basic info is imported from Google Maps. With a Starter plan ($9/mo), add programs for kids, teens, and adults with belt requirements and class schedules." },
+      { question: "Will it help me enroll new students?", answer: "Your website is SEO-optimized for searches like 'martial arts near me' and 'karate classes [city].' Parents researching programs find you through Google." },
+      { question: "Can I show my instructors' credentials?", answer: "With a Starter plan, add instructor bios, belt ranks, competition records, and certifications." },
+      { question: "Can students sign up for trial classes?", answer: "Your phone number is displayed for inquiries. With a Starter plan, add a trial class request form to capture new leads." },
+    ],
+    ["free-gym-website", "free-yoga-studio-website"],
+  ),
+
+  "free-daycare-website": generateSeoPageConfig(
+    "free-daycare-website", "Daycare", "daycare center", "sunshine-kids-daycare.locosite.io",
+    [
+      { question: "Why does a daycare need a website?", answer: "Parents research childcare extensively before enrolling. A website with your programs, credentials, and reviews builds the trust needed for parents to choose you." },
+      { question: "Can I show my license and certifications?", answer: "With a Starter plan ($9/mo), add your state license, accreditation, staff qualifications, and safety certifications." },
+      { question: "Will parents see my reviews?", answer: "Yes — Google reviews from parents are imported and displayed. For daycare, trust is everything, and reviews are the strongest trust signal." },
+      { question: "Can parents inquire about enrollment?", answer: "Your phone number is displayed for enrollment calls. With a Starter plan, add a waitlist form or enrollment inquiry." },
+    ],
+    ["free-small-business-website", "free-dentist-website"],
+  ),
+
+  "free-garage-door-repair-website": generateSeoPageConfig(
+    "free-garage-door-repair-website", "Garage Door Repair", "garage door repair company", "prolift-garage-doors.locosite.io",
+    [
+      { question: "Why does a garage door company need a website?", answer: "When a garage door breaks, homeowners search for help immediately. A website with your phone number, reviews, and services gets you the emergency call." },
+      { question: "Can I list my services?", answer: "Your basic info is imported from Google Maps. With a Starter plan ($9/mo), add spring repair, opener installation, new door options, and emergency service details." },
+      { question: "Will it help with emergency calls?", answer: "Your phone number is displayed prominently with click-to-call. When someone's garage door is stuck, your website gets you the job." },
+      { question: "Can I show before-and-after work?", answer: "Photos from your Google Maps listing are imported. With a Starter plan, add project photos of door installations and repairs." },
+    ],
+    ["free-handyman-website", "free-electrician-website"],
+  ),
+
+  "free-painting-contractor-website": generateSeoPageConfig(
+    "free-painting-contractor-website", "Painting Contractor", "painting company", "truecolor-painting.locosite.io",
+    [
+      { question: "Can I show my painting portfolio?", answer: "Photos from your Google Maps listing are imported. With a Starter plan ($9/mo), add before-and-after photos of interior and exterior projects." },
+      { question: "Will it help me get painting jobs?", answer: "Your website is SEO-optimized for searches like 'painter near me' and 'house painting [city].' Homeowners planning projects find you through Google." },
+      { question: "Can customers request estimates?", answer: "Your phone number is displayed for estimate calls. With a Starter plan, add an estimate request form where homeowners describe their project." },
+      { question: "Can I show my license and insurance?", answer: "With a Starter plan, add your contractor license, liability insurance, and any manufacturer certifications." },
+    ],
+    ["free-handyman-website", "free-landscaping-website"],
+  ),
+
+  "free-carpet-cleaning-website": generateSeoPageConfig(
+    "free-carpet-cleaning-website", "Carpet Cleaning", "carpet cleaning service", "freshstart-carpet-care.locosite.io",
+    [
+      { question: "Can I list my cleaning services?", answer: "Your basic info is imported from Google Maps. With a Starter plan ($9/mo), add services, pricing, and details for carpet, upholstery, and tile cleaning." },
+      { question: "Will customers see my reviews?", answer: "Yes — Google reviews are imported and displayed. For cleaning services, reviews build the trust needed for someone to let you into their home." },
+      { question: "Can customers book cleanings?", answer: "Your phone number is displayed for booking. With a Starter plan, add a service request form where customers describe their cleaning needs." },
+      { question: "How does this compare to lead services?", answer: "Lead generation sites charge per lead and share you with competitors. Your own website generates free organic leads from Google searches like 'carpet cleaning near me.'" },
+    ],
+    ["free-cleaning-service-website", "free-pressure-washing-website"],
+  ),
+
+  "free-concrete-contractor-website": generateSeoPageConfig(
+    "free-concrete-contractor-website", "Concrete Contractor", "concrete company", "solidbase-concrete.locosite.io",
+    [
+      { question: "Can I show my concrete work?", answer: "Photos from your Google Maps listing are imported. With a Starter plan ($9/mo), add photos of driveways, patios, foundations, and decorative concrete." },
+      { question: "Will it help me get jobs?", answer: "Your website is SEO-optimized for searches like 'concrete contractor near me.' Homeowners planning projects find and contact you directly." },
+      { question: "Can customers request quotes?", answer: "Your phone number is displayed for quote calls. With a Starter plan, add a project quote form with details like size and concrete type." },
+      { question: "Can I show my license?", answer: "With a Starter plan, add your contractor license, insurance details, and any specialized certifications for stamped or decorative concrete." },
+    ],
+    ["free-roofing-website", "free-landscaping-website"],
+  ),
+
+  "free-music-lessons-website": generateSeoPageConfig(
+    "free-music-lessons-website", "Music School", "music school", "harmony-music-academy.locosite.io",
+    [
+      { question: "Can I list my instrument offerings?", answer: "Your basic info is imported from Google Maps. With a Starter plan ($9/mo), add lessons for guitar, piano, voice, drums, and more with pricing." },
+      { question: "Will parents find my school?", answer: "Your website is SEO-optimized for searches like 'music lessons near me' and 'piano lessons [city].' Parents actively searching for lessons find you." },
+      { question: "Can I show my instructors?", answer: "With a Starter plan, add instructor bios, musical backgrounds, teaching philosophy, and student testimonials." },
+      { question: "Can students sign up for trial lessons?", answer: "Your phone number is displayed for inquiries. With a Starter plan, add a trial lesson request form." },
+    ],
+    ["free-dance-studio-website", "free-small-business-website"],
+  ),
+
+  "free-tutoring-website": generateSeoPageConfig(
+    "free-tutoring-website", "Tutoring Service", "tutoring service", "brightminds-tutoring.locosite.io",
+    [
+      { question: "Can I list subjects I tutor?", answer: "Your basic info is imported from Google Maps. With a Starter plan ($9/mo), add subjects, grade levels, test prep options, and tutoring formats." },
+      { question: "Will parents find me online?", answer: "Your website is SEO-optimized for searches like 'tutor near me' and 'math tutoring [city].' Parents looking for academic help find you through Google." },
+      { question: "Can I show my qualifications?", answer: "With a Starter plan, add your education, teaching certifications, subject expertise, and student success stories." },
+      { question: "Can parents schedule sessions?", answer: "Your phone number is displayed for inquiries. With a Starter plan, add a session request form or link to your scheduling tool." },
+    ],
+    ["free-small-business-website", "free-music-lessons-website"],
+  ),
+
+  "free-insurance-agent-website": generateSeoPageConfig(
+    "free-insurance-agent-website", "Insurance Agent", "insurance agency", "shieldpoint-insurance.locosite.io",
+    [
+      { question: "Can I list the types of insurance I offer?", answer: "Your basic info is imported from Google Maps. With a Starter plan ($9/mo), add home, auto, life, business insurance details, and carrier partnerships." },
+      { question: "Will it help me get new clients?", answer: "Your website is SEO-optimized for searches like 'insurance agent near me.' It captures high-intent prospects looking for coverage in your area." },
+      { question: "Can customers request quotes?", answer: "Your phone number is displayed for quote calls. With a Starter plan, add a quote request form where customers describe their coverage needs." },
+      { question: "How does this compare to carrier websites?", answer: "Carrier websites push their own products. Your independent website positions you as a trusted local advisor who shops multiple carriers for the best rate." },
+    ],
+    ["free-accountant-website", "free-real-estate-agent-website"],
+  ),
+
+  "free-personal-trainer-website": generateSeoPageConfig(
+    "free-personal-trainer-website", "Personal Trainer", "personal training business", "peakform-fitness.locosite.io",
+    [
+      { question: "Can I show my certifications?", answer: "With a Starter plan ($9/mo), add your NASM, ACE, or ISSA certifications, specializations, and client transformation stories." },
+      { question: "Will it help me get clients?", answer: "Your website is SEO-optimized for searches like 'personal trainer near me.' It captures motivated prospects actively looking for a trainer in your area." },
+      { question: "Can clients book sessions?", answer: "Your phone number is displayed for booking. With a Starter plan, add a consultation form or link to your scheduling tool." },
+      { question: "Do personal trainers need websites?", answer: "Instagram builds your brand, but a website captures Google searchers — people actively looking for a trainer right now. That's a completely different, high-intent audience." },
+    ],
+    ["free-gym-website", "free-small-business-website"],
+  ),
+
+  "free-catering-website": generateSeoPageConfig(
+    "free-catering-website", "Catering Service", "catering company", "savory-events-catering.locosite.io",
+    [
+      { question: "Can I show my menus?", answer: "Your basic info is imported from Google Maps. With a Starter plan ($9/mo), add sample menus, pricing tiers, and cuisine specialties." },
+      { question: "Will it help me get event bookings?", answer: "Your website is SEO-optimized for searches like 'catering near me' and 'event catering [city].' Event planners searching Google find and contact you directly." },
+      { question: "Can clients request quotes?", answer: "Your phone number is displayed for inquiries. With a Starter plan, add an event inquiry form with date, guest count, and menu preferences." },
+      { question: "Can I show photos of past events?", answer: "Photos from your Google Maps listing are imported. With a Starter plan, add a full gallery of plated dishes, buffet setups, and event presentations." },
+    ],
+    ["free-restaurant-website", "free-bakery-website"],
+  ),
+
+  "free-bar-website": generateSeoPageConfig(
+    "free-bar-website", "Bar", "bar or lounge", "the-copper-rail.locosite.io",
+    [
+      { question: "Can I show my drink menu?", answer: "Your basic info is imported from Google Maps. With a Starter plan ($9/mo), add your cocktail menu, beer list, wine selection, and happy hour specials." },
+      { question: "Will it help people find my bar?", answer: "Your website is SEO-optimized for searches like 'bars near me' and 'cocktail bar [city].' Night-out planners searching Google discover your spot." },
+      { question: "Can I promote events and specials?", answer: "With a Starter plan, add live music schedules, trivia nights, happy hour times, and seasonal drink specials." },
+      { question: "Do bars need websites?", answer: "Many people check a bar's hours, vibe, and menu online before going out. A website gives them that info instantly — without relying on Yelp or outdated directory listings." },
+    ],
+    ["free-restaurant-website", "free-coffee-shop-website"],
   ),
 };
 
