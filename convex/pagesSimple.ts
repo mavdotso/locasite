@@ -104,7 +104,7 @@ function buildDefaultSections(business: Doc<"businesses">) {
             title: business.name,
             subtitle:
               business.description ||
-              "Welcome to our business. We're here to serve you with excellence.",
+              "Welcome. Exceptional service, every time.",
             ctaButton: {
               label: "Contact Us",
               href: "#contact",
@@ -130,7 +130,7 @@ function buildDefaultSections(business: Doc<"businesses">) {
             title: `About ${business.name}`,
             description:
               business.description ||
-              "We are dedicated to providing exceptional service and quality to our customers. Our commitment to excellence drives everything we do.",
+              "Dedicated to exceptional service and quality. A commitment to excellence drives everything.",
             image: business.photos?.[1] || "",
             features: [
               "Professional Service",
@@ -152,8 +152,8 @@ function buildDefaultSections(business: Doc<"businesses">) {
           id: "services",
           type: "services-grid",
           content: {
-            title: "Our Services",
-            subtitle: "What we offer",
+            title: "Services",
+            subtitle: "Services offered",
             services: [
               {
                 title: "Service One",
@@ -190,7 +190,7 @@ function buildDefaultSections(business: Doc<"businesses">) {
           type: "gallery-grid",
           content: {
             title: "Gallery",
-            subtitle: "Take a look at our work",
+            subtitle: "See the space",
             images:
               business.photos
                 ?.filter((photo) => photo && photo.trim() !== "")
@@ -216,7 +216,7 @@ function buildDefaultSections(business: Doc<"businesses">) {
           type: "contact-form-map",
           content: {
             title: "Get in Touch",
-            subtitle: "We'd love to hear from you",
+            subtitle: "Reach out anytime",
             address: business.address,
             phone: business.phone,
             email: "",

@@ -24,8 +24,8 @@ export default function ProblemSection() {
           </p>
           <p className="text-brand-ink font-medium">
             You already have everything a website needs: a Google Maps listing,
-            photos, hours, reviews. We built the rest. It took us 10 minutes.
-            It&apos;ll take you 60 seconds to claim.
+            photos, hours, reviews. The rest was built automatically in 10
+            minutes. It&apos;ll take you 60 seconds to claim.
           </p>
         </div>
       </div>

@@ -235,8 +235,8 @@ function buildServicesSection(
       id: "services",
       type: "services-grid",
       content: {
-        title: "Our Services",
-        subtitle: "What we offer",
+        title: "Services",
+        subtitle: "Services offered",
         services,
       },
       style: {
@@ -262,7 +262,7 @@ function buildGallerySection(
       type: "gallery-grid",
       content: {
         title: "Gallery",
-        subtitle: "Take a look at our work",
+        subtitle: "See the space",
         images: validPhotos.slice(0, 6).map((src, i) => ({
           src,
           alt: `${biz.name} image ${i + 1}`,
@@ -292,8 +292,8 @@ function buildReviewsSection(
       id: "reviews",
       type: "reviews-section",
       content: {
-        title: "What Our Customers Say",
-        subtitle: "See what people are saying about us",
+        title: "Customer Reviews",
+        subtitle: "What customers are saying",
         reviews: topReviews.map((r, i) => ({
           id: `review-${i}`,
           author: r.reviewer,
@@ -320,7 +320,7 @@ function buildContactSection(biz: BusinessDataForPage, order: number): SectionIn
       type: "contact-form-map",
       content: {
         title: "Get in Touch",
-        subtitle: "We'd love to hear from you",
+        subtitle: "Reach out anytime",
         address: biz.address,
         phone: biz.phone || "",
         email: biz.email || "",

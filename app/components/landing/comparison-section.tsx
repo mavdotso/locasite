@@ -29,7 +29,7 @@ export default function ComparisonSection() {
       upfront: "$0",
       monthly: "$0\u2013$29",
       time: "Instant",
-      who: "Us",
+      who: "Locosite",
       highlight: true,
     },
   ];

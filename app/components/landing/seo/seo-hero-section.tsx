@@ -18,7 +18,7 @@ export default function SEOHeroSection({
         </h1>
 
         <p className="text-center text-brand-sage text-lg md:text-[18px] leading-[1.6] max-w-xl mx-auto mb-10">
-          Paste your Google Maps link. We generate your site instantly. No
+          Paste your Google Maps link. Your site is generated instantly. No
           design, no decisions.
         </p>
 
