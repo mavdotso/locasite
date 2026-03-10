@@ -331,12 +331,12 @@ export default async function BusinessPage({ params }: PageProps) {
           <BusinessHeaderBadge show={showWatermark} />
 
           {businessData.city && (
-            <nav className="bg-neutral-50 border-b border-neutral-200 px-4 py-2">
+            <nav aria-label="Breadcrumb" className="bg-neutral-50 border-b border-neutral-200 px-4 py-2">
               <ol className="container mx-auto flex items-center gap-1 text-sm text-neutral-500">
                 <li>
                   <Link href="/" className="hover:text-neutral-900">Home</Link>
                 </li>
-                <ChevronRight className="h-3 w-3" />
+                <li aria-hidden="true"><ChevronRight className="h-3 w-3" /></li>
                 <li>
                   <Link href={`/${businessData.city}`} className="hover:text-neutral-900">
                     {businessData.cityDisplay || businessData.city}
@@ -344,7 +344,7 @@ export default async function BusinessPage({ params }: PageProps) {
                 </li>
                 {businessData.categorySlug && (
                   <>
-                    <ChevronRight className="h-3 w-3" />
+                    <li aria-hidden="true"><ChevronRight className="h-3 w-3" /></li>
                     <li>
                       <Link href={`/${businessData.city}/${businessData.categorySlug}`} className="hover:text-neutral-900">
                         {categoryDisplay || businessData.category}
@@ -352,7 +352,7 @@ export default async function BusinessPage({ params }: PageProps) {
                     </li>
                   </>
                 )}
-                <ChevronRight className="h-3 w-3" />
+                <li aria-hidden="true"><ChevronRight className="h-3 w-3" /></li>
                 <li className="text-neutral-900 truncate max-w-[200px]">{businessData.name}</li>
               </ol>
             </nav>
