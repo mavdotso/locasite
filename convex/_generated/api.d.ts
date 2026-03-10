@@ -58,6 +58,7 @@ import type * as reviewFilter from "../reviewFilter.js";
 import type * as router from "../router.js";
 import type * as scrapeJobs from "../scrapeJobs.js";
 import type * as selfServeCheckout from "../selfServeCheckout.js";
+import type * as selfServeWebsite from "../selfServeWebsite.js";
 import type * as storage from "../storage.js";
 import type * as storeBusinessImages from "../storeBusinessImages.js";
 import type * as stripe from "../stripe.js";
@@ -130,6 +131,7 @@ declare const fullApi: ApiFromModules<{
   router: typeof router;
   scrapeJobs: typeof scrapeJobs;
   selfServeCheckout: typeof selfServeCheckout;
+  selfServeWebsite: typeof selfServeWebsite;
   storage: typeof storage;
   storeBusinessImages: typeof storeBusinessImages;
   stripe: typeof stripe;
