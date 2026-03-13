@@ -19,6 +19,7 @@ import { ChevronRight } from "lucide-react";
 import { EngagementClaimBanner } from "@/app/components/business/claim-banner";
 import { SelfServeClaimBanner } from "@/app/components/business/self-serve-claim-banner";
 import { ShareWithOwner } from "@/app/components/business/share-with-owner";
+import { RelatedBusinessesSection } from "@/app/components/business/related-businesses";
 
 interface PageProps {
   params: Promise<{
@@ -391,6 +392,16 @@ export default async function BusinessPage({ params }: PageProps) {
             business={businessData}
             pageContent={page?.content || JSON.stringify({ sections: [] })}
           />
+
+          {businessData.city && businessData.categorySlug && (
+            <RelatedBusinessesSection
+              city={businessData.city}
+              cityDisplay={businessData.cityDisplay || businessData.city}
+              categorySlug={businessData.categorySlug}
+              excludeDomainId={domain._id}
+              rootDomain={rootDomain}
+            />
+          )}
 
           <BusinessFooter showWatermark={showWatermark} />
         </div>
