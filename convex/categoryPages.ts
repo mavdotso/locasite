@@ -497,3 +497,51 @@ export const runFixEstablishmentCategories = internalAction({
     );
   },
 });
+
+// Returns up to `limit` businesses in the same city+category, excluding the given domain
+export const getRelatedBusinesses = query({
+  args: {
+    city: v.string(),
+    categorySlug: v.string(),
+    excludeDomainId: v.optional(v.id("domains")),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const limit = args.limit ?? 6;
+
+    const results = await ctx.db
+      .query("businesses")
+      .withIndex("by_city_category", (q) =>
+        q.eq("city", args.city).eq("categorySlug", args.categorySlug)
+      )
+      .filter((q) => q.neq(q.field("isPublished"), false))
+      .take(limit + 5); // overfetch to handle exclusion
+
+    const filtered = args.excludeDomainId
+      ? results.filter((b) => b.domainId !== args.excludeDomainId)
+      : results;
+
+    const businesses = filtered.slice(0, limit);
+
+    const withSubdomains = await Promise.all(
+      businesses.map(async (b) => {
+        let subdomain: string | null = null;
+        if (b.domainId) {
+          const domain = await ctx.db.get(b.domainId);
+          subdomain = domain?.subdomain ?? null;
+        }
+        return {
+          _id: b._id,
+          name: b.name,
+          address: b.address,
+          rating: b.rating ?? null,
+          reviewCount: b.reviewCount ?? null,
+          photos: b.photos.slice(0, 1),
+          subdomain,
+        };
+      })
+    );
+
+    return withSubdomains.filter((b) => b.subdomain !== null);
+  },
+});
