@@ -138,6 +138,20 @@ export default function FooterSection() {
           <p className="text-center text-brand-taupe text-[13px]">
             &copy; {currentYear} Locosite. All rights reserved.
           </p>
+          <p className="text-center text-brand-taupe/60 text-[12px] mt-3">
+            Part of{" "}
+            <a href="https://zerohumancorp.com" className="underline underline-offset-2 hover:text-brand-taupe transition-colors" target="_blank" rel="noopener noreferrer">
+              Zero Human Corp
+            </a>
+            {" "}&middot;{" "}
+            <a href="https://autoworkhq.com" className="underline underline-offset-2 hover:text-brand-taupe transition-colors" target="_blank" rel="noopener noreferrer">
+              AutoWork HQ
+            </a>
+            {" "}&middot;{" "}
+            <a href="https://brightroom.app" className="underline underline-offset-2 hover:text-brand-taupe transition-colors" target="_blank" rel="noopener noreferrer">
+              Brightroom
+            </a>
+          </p>
         </div>
       </div>
     </footer>
