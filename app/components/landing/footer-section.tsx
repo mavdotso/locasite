@@ -148,6 +148,10 @@ export default function FooterSection() {
               AutoWork HQ
             </a>
             {" "}&middot;{" "}
+            <a href="https://oat.tools" className="underline underline-offset-2 hover:text-brand-taupe transition-colors" target="_blank" rel="noopener noreferrer">
+              oat.tools
+            </a>
+            {" "}&middot;{" "}
             <a href="https://brightroom.app" className="underline underline-offset-2 hover:text-brand-taupe transition-colors" target="_blank" rel="noopener noreferrer">
               Brightroom
             </a>

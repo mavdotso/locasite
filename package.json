@@ -50,6 +50,7 @@
     "react-dom": "^19.1.0",
     "react-frame-component": "^5.2.7",
     "react-hook-form": "^7.60.0",
+    "react-markdown": "^10.1.0",
     "react-window": "^1.8.11",
     "react-window-infinite-loader": "^1.0.10",
     "recharts": "2.15.4",

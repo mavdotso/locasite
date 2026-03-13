@@ -102,7 +102,7 @@ export default async function RootLayout({
         <Script id="convex-pageview" strategy="afterInteractive">
           {`
             (function() {
-              fetch("https://outstanding-pigeon-733.convex.site/track-pageview", {
+              fetch("https://helpful-egret-863.convex.site/track-pageview", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

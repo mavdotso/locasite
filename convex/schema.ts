@@ -336,8 +336,6 @@ export default defineSchema({
     claimToken: v.optional(v.string()),
     claimTokenCreatedAt: v.optional(v.number()),
     batchId: v.optional(v.string()),
-    tier: v.optional(v.union(v.literal("free"), v.literal("paid"))),
-    createdVia: v.optional(v.string()),
     claimStripeSubscriptionId: v.optional(v.string()),
     notificationEmailSentAt: v.optional(v.number()),
 
