@@ -99,6 +99,23 @@ export default async function RootLayout({
             strategy="afterInteractive"
           />
         )}
+        <Script id="convex-pageview" strategy="afterInteractive">
+          {`
+            (function() {
+              fetch("https://outstanding-pigeon-733.convex.site/track-pageview", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  url: window.location.href,
+                  referrer: document.referrer || "",
+                  userAgent: navigator.userAgent,
+                  siteKey: "locosite"
+                }),
+                keepalive: true
+              }).catch(function() {});
+            })();
+          `}
+        </Script>
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
