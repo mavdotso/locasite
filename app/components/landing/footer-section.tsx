@@ -155,6 +155,14 @@ export default function FooterSection() {
             <a href="https://brightroom.app" className="underline underline-offset-2 hover:text-brand-taupe transition-colors" target="_blank" rel="noopener noreferrer">
               Brightroom
             </a>
+            {" "}&middot;{" "}
+            <a href="https://monolink.me" className="underline underline-offset-2 hover:text-brand-taupe transition-colors" target="_blank" rel="noopener noreferrer">
+              Monolink
+            </a>
+            {" "}&middot;{" "}
+            <a href="https://zendoc.ai" className="underline underline-offset-2 hover:text-brand-taupe transition-colors" target="_blank" rel="noopener noreferrer">
+              Zendoc
+            </a>
           </p>
         </div>
       </div>
