@@ -95,6 +95,17 @@ export default function VerifyEmailPage() {
               >
                 Go to Dashboard
               </Button>
+              <p className="text-center text-sm text-muted-foreground pt-2">
+                Want to rank higher on Google?{" "}
+                <a
+                  href="https://autoworkhq.com/tools/seo-audit"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-foreground transition-colors"
+                >
+                  Check your new site SEO
+                </a>
+              </p>
             </div>
           )}
 
