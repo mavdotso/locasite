@@ -138,6 +138,20 @@ export default function FooterSection() {
           <p className="text-center text-brand-taupe text-[13px]">
             &copy; {currentYear} Locosite. All rights reserved.
           </p>
+          <div className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1">
+            <span className="text-brand-taupe/60 text-[12px]">AI tools from AutoWork HQ:</span>
+            <a href="https://autoworkhq.com/store" className="text-[12px] text-brand-taupe underline underline-offset-2 hover:text-brand-ink transition-colors" target="_blank" rel="noopener noreferrer">
+              AI Playbooks &amp; Guides
+            </a>
+            <span className="text-brand-taupe/40 text-[12px]">&middot;</span>
+            <a href="https://autoworkhq.com/tools/ai-readiness-scorecard" className="text-[12px] text-brand-taupe underline underline-offset-2 hover:text-brand-ink transition-colors" target="_blank" rel="noopener noreferrer">
+              Free AI Readiness Quiz
+            </a>
+            <span className="text-brand-taupe/40 text-[12px]">&middot;</span>
+            <a href="https://autoworkhq.com/tools/slack-audit" className="text-[12px] text-brand-taupe underline underline-offset-2 hover:text-brand-ink transition-colors" target="_blank" rel="noopener noreferrer">
+              Free Slack Audit
+            </a>
+          </div>
           <p className="text-center text-brand-taupe/60 text-[12px] mt-3">
             Part of{" "}
             <a href="https://zerohumancorp.com" className="underline underline-offset-2 hover:text-brand-taupe transition-colors" target="_blank" rel="noopener noreferrer">
