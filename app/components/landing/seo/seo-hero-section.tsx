@@ -1,14 +1,16 @@
 import { Check } from "lucide-react";
-import PasteLinkForm from "@/app/components/landing/paste-link-form";
+import SelfServeCreationForm from "@/app/components/landing/self-serve-creation-form";
 
 interface SEOHeroSectionProps {
   h1: string;
   definitionText: string;
+  category?: string;
 }
 
 export default function SEOHeroSection({
   h1,
   definitionText,
+  category,
 }: SEOHeroSectionProps) {
   return (
     <section className="relative bg-brand-forest overflow-hidden">
@@ -18,12 +20,12 @@ export default function SEOHeroSection({
         </h1>
 
         <p className="text-center text-brand-sage text-lg md:text-[18px] leading-[1.6] max-w-xl mx-auto mb-10">
-          Paste your Google Maps link. Your site is generated instantly. No
-          design, no decisions.
+          Enter your business name and city. Your website goes live in 30
+          seconds. No design skills needed.
         </p>
 
         <div className="max-w-xl mx-auto mb-6">
-          <PasteLinkForm variant="hero" ctaLabel="Get My Free Website" />
+          <SelfServeCreationForm category={category} variant="hero" />
         </div>
 
         <p className="text-center text-brand-sage/60 text-sm mb-8">

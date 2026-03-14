@@ -1,10 +1,14 @@
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { ConvexClientProvider } from "./components/providers/convex-client-provider";
 import { env } from "@/env";
+
+const UMAMI_URL = process.env.NEXT_PUBLIC_UMAMI_URL;
+const UMAMI_WEBSITE_ID = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -88,6 +92,30 @@ export default async function RootLayout({
           name="viewport"
           content="width=device-width, initial-scale=1.0"
         />
+        {UMAMI_URL && UMAMI_WEBSITE_ID && (
+          <Script
+            src={`${UMAMI_URL}/script.js`}
+            data-website-id={UMAMI_WEBSITE_ID}
+            strategy="afterInteractive"
+          />
+        )}
+        <Script id="convex-pageview" strategy="afterInteractive">
+          {`
+            (function() {
+              fetch("https://helpful-egret-863.convex.site/track-pageview", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  url: window.location.href,
+                  referrer: document.referrer || "",
+                  userAgent: navigator.userAgent,
+                  siteKey: "locosite"
+                }),
+                keepalive: true
+              }).catch(function() {});
+            })();
+          `}
+        </Script>
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

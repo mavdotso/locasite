@@ -185,6 +185,84 @@ export const getSubdomainsForBusinesses = query({
   },
 });
 
+// Get sibling businesses in the same city+category (for internal linking on business pages)
+export const getSiblingBusinesses = query({
+  args: {
+    city: v.string(),
+    categorySlug: v.string(),
+    excludeDomainId: v.optional(v.id("domains")),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const limit = args.limit ?? 6;
+
+    const results = await ctx.db
+      .query("businesses")
+      .withIndex("by_city_category", (q) =>
+        q.eq("city", args.city).eq("categorySlug", args.categorySlug)
+      )
+      .filter((q) => q.neq(q.field("isPublished"), false))
+      .take(50);
+
+    const filtered = results.filter(
+      (b) => !args.excludeDomainId || b.domainId !== args.excludeDomainId
+    );
+
+    const top = filtered.slice(0, limit);
+
+    const siblings = await Promise.all(
+      top.map(async (b) => {
+        const domain = b.domainId ? await ctx.db.get(b.domainId) : null;
+        return {
+          _id: b._id,
+          name: b.name,
+          address: b.address,
+          rating: b.rating ?? null,
+          reviewCount: b.reviewCount ?? null,
+          photos: b.photos.slice(0, 1),
+          subdomain: domain?.subdomain ?? null,
+        };
+      })
+    );
+
+    return siblings;
+  },
+});
+
+// Get cities that have businesses in a given category (for cross-city linking on category pages)
+export const getCitiesForCategory = query({
+  args: {
+    categorySlug: v.string(),
+    excludeCity: v.optional(v.string()),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const limit = args.limit ?? 12;
+
+    const results = await ctx.db
+      .query("businesses")
+      .withIndex("by_categorySlug", (q) => q.eq("categorySlug", args.categorySlug))
+      .filter((q) => q.neq(q.field("isPublished"), false))
+      .take(2000);
+
+    const cityMap = new Map<string, { city: string; cityDisplay: string; state: string; count: number }>();
+    for (const b of results) {
+      if (!b.city || !b.cityDisplay || !b.state) continue;
+      if (args.excludeCity && b.city === args.excludeCity) continue;
+      const existing = cityMap.get(b.city);
+      if (existing) {
+        existing.count++;
+      } else {
+        cityMap.set(b.city, { city: b.city, cityDisplay: b.cityDisplay, state: b.state, count: 1 });
+      }
+    }
+
+    return Array.from(cityMap.values())
+      .sort((a, b) => b.count - a.count)
+      .slice(0, limit);
+  },
+});
+
 // --- Internal queries (used by sitemap httpAction via pagination loop) ---
 
 export const getCityCategoryPage = internalQuery({

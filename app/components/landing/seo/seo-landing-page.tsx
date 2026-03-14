@@ -45,6 +45,7 @@ export default function SEOLandingPage({
         <SEOHeroSection
           h1={config.h1}
           definitionText={config.definitionText}
+          category={config.businessType}
         />
         <SEOPreviewSection
           businessType={config.businessType}
@@ -56,7 +57,7 @@ export default function SEOLandingPage({
         <PricingSection />
         <SEOFaqSection faqs={config.faqs} />
         <SEOInternalLinks relatedPages={config.relatedPages} />
-        <CTASection />
+        <CTASection category={config.businessType} />
       </main>
       <FooterSection />
     </>

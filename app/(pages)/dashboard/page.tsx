@@ -10,6 +10,17 @@ import { Doc } from "@/convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useSubscription } from "@/app/hooks/use-subscription";
+import { WelcomeBlock } from "@/app/components/dashboard/welcome-block";
+
+const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+function getSiteUrl(domain: Doc<"domains"> | null): string | null {
+  if (!domain) return null;
+  if (domain.customDomain) return domain.customDomain;
+  if (domain.subdomain) return `${domain.subdomain}.${ROOT_DOMAIN}`;
+  return null;
+}
 
 export default function DashboardPage() {
   const { user } = useDashboardData();
@@ -56,10 +67,29 @@ export default function DashboardPage() {
     );
   }
 
+  // Show welcome block for the newest business created within 7 days (free plan only)
+  const newestBusiness = ownedBusinesses[0]; // sorted desc by creation time
+  const welcomeSiteUrl = getSiteUrl(newestBusiness?.domain ?? null);
+  const showWelcome =
+    planType === "FREE" &&
+    newestBusiness?.isPublished &&
+    welcomeSiteUrl &&
+    Date.now() - newestBusiness._creationTime < SEVEN_DAYS_MS;
+
   return (
     <div className="max-w-xl mx-auto space-y-6">
       {/* Header */}
       <h1 className="text-2xl font-bold text-foreground">Your Sites</h1>
+
+      {/* Post-creation welcome block */}
+      {showWelcome && (
+        <WelcomeBlock
+          businessName={newestBusiness.name}
+          category={newestBusiness.category}
+          siteUrl={welcomeSiteUrl}
+          businessId={newestBusiness._id}
+        />
+      )}
 
       {/* Free tier info banner */}
       {planType === "FREE" && ownedBusinesses.some((b) => b.isPublished) && (
@@ -110,16 +140,7 @@ function BusinessCard({
 }) {
   const { domain } = business;
   const isLive = business.isPublished && domain;
-
-  const rootDomain =
-    process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
-
-  // Determine the site URL to display and link to
-  const siteUrl = domain?.customDomain
-    ? domain.customDomain
-    : domain?.subdomain
-      ? `${domain.subdomain}.${rootDomain}`
-      : null;
+  const siteUrl = getSiteUrl(domain);
 
   return (
     <Card className="overflow-hidden p-0">

@@ -336,10 +336,16 @@ export default defineSchema({
     claimToken: v.optional(v.string()),
     claimTokenCreatedAt: v.optional(v.number()),
     batchId: v.optional(v.string()),
-    tier: v.optional(v.union(v.literal("free"), v.literal("paid"))),
-    createdVia: v.optional(v.string()),
     claimStripeSubscriptionId: v.optional(v.string()),
     notificationEmailSentAt: v.optional(v.number()),
+
+    // Self-serve fields
+    tier: v.optional(
+      v.union(v.literal("free"), v.literal("professional"), v.literal("business")),
+    ),
+    createdVia: v.optional(
+      v.union(v.literal("scrape"), v.literal("self_serve"), v.literal("manual")),
+    ),
   })
     // Note: placeId should be unique - enforced in mutation logic since Convex doesn't support unique indexes
     .index("by_placeId", ["placeId"])

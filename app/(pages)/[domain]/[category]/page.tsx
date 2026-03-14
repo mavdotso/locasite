@@ -78,8 +78,8 @@ export async function generateMetadata({
 export default async function CategoryPage({ params }: PageProps) {
   const { domain: citySlug, category: categorySlug } = await params;
 
-  // Fetch city info, businesses, and categories in parallel
-  const [cityInfo, result, allCategories] = await Promise.all([
+  // Fetch city info, businesses, categories, and cross-city data in parallel
+  const [cityInfo, result, allCategories, otherCities] = await Promise.all([
     fetchQuery(api.categoryPages.getCityInfo, { city: citySlug }),
     fetchQuery(api.categoryPages.listByCityCategory, {
       city: citySlug,
@@ -87,6 +87,11 @@ export default async function CategoryPage({ params }: PageProps) {
       limit: 24,
     }),
     fetchQuery(api.categoryPages.getCategoriesForCity, { city: citySlug }),
+    fetchQuery(api.categoryPages.getCitiesForCategory, {
+      categorySlug,
+      excludeCity: citySlug,
+      limit: 12,
+    }),
   ]);
 
   // Minimum 3 businesses to avoid thin-content pages
@@ -285,6 +290,27 @@ export default async function CategoryPage({ params }: PageProps) {
                   >
                     {cat.categoryDisplay}{" "}
                     <span className="text-neutral-400">({cat.count})</span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Other cities with same category */}
+          {otherCities.length > 0 && (
+            <section className="mt-10 pt-10 border-t border-neutral-200">
+              <h2 className="font-display font-bold text-xl text-neutral-900 mb-4">
+                {categoryDisplay} in other cities
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {otherCities.map((c) => (
+                  <Link
+                    key={c.city}
+                    href={`/${c.city}/${categorySlug}`}
+                    className="px-4 py-2 rounded-full border border-neutral-200 bg-white text-sm text-neutral-700 hover:border-neutral-400 hover:text-neutral-900 transition-colors"
+                  >
+                    {c.cityDisplay}, {c.state}{" "}
+                    <span className="text-neutral-400">({c.count})</span>
                   </Link>
                 ))}
               </div>
