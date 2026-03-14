@@ -19,7 +19,6 @@ import { ChevronRight } from "lucide-react";
 import { EngagementClaimBanner } from "@/app/components/business/claim-banner";
 import { SelfServeClaimBanner } from "@/app/components/business/self-serve-claim-banner";
 import { ShareWithOwner } from "@/app/components/business/share-with-owner";
-import { RelatedBusinessesSection } from "@/app/components/business/related-businesses";
 
 interface PageProps {
   params: Promise<{
@@ -290,22 +289,28 @@ export default async function BusinessPage({ params }: PageProps) {
     const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || "locosite.io";
     const pageUrl = `https://${rootDomain}/${businessDomain}`;
 
-    // Fetch engagement data server-side for the claim CTA
-    let engagement = null;
-    if (!businessData.userId) {
-      try {
-        engagement = await fetchQuery(api.businessEngagement.getMonthlyStats, {
-          businessId: businessData._id,
-        });
-      } catch {
-        // Non-critical — fall back to generic CTA
-      }
-    }
-
     // Resolve category display name for breadcrumb
     const categoryDisplay = businessData.categorySlug
       ? (CATEGORY_DISPLAY_NAMES[businessData.categorySlug] ?? businessData.category)
       : undefined;
+
+    // Fetch engagement data and sibling businesses in parallel
+    const [engagementResult, siblings] = await Promise.all([
+      !businessData.userId
+        ? fetchQuery(api.businessEngagement.getMonthlyStats, {
+            businessId: businessData._id,
+          }).catch(() => null)
+        : Promise.resolve(null),
+      businessData.city && businessData.categorySlug
+        ? fetchQuery(api.categoryPages.getSiblingBusinesses, {
+            city: businessData.city,
+            categorySlug: businessData.categorySlug,
+            excludeDomainId: domain._id,
+            limit: 6,
+          }).catch(() => [])
+        : Promise.resolve([]),
+    ]);
+    const engagement = engagementResult;
 
     // Generate structured data
     const structuredData = [
@@ -393,14 +398,49 @@ export default async function BusinessPage({ params }: PageProps) {
             pageContent={page?.content || JSON.stringify({ sections: [] })}
           />
 
-          {businessData.city && businessData.categorySlug && (
-            <RelatedBusinessesSection
-              city={businessData.city}
-              cityDisplay={businessData.cityDisplay || businessData.city}
-              categorySlug={businessData.categorySlug}
-              excludeDomainId={domain._id}
-              rootDomain={rootDomain}
-            />
+          {siblings.length > 0 && businessData.city && businessData.categorySlug && (
+            <section className="border-t border-neutral-200 bg-neutral-50 py-8">
+              <div className="container mx-auto px-4">
+                <h2 className="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-4">
+                  More {categoryDisplay || businessData.category} in{" "}
+                  <Link
+                    href={`/${businessData.city}/${businessData.categorySlug}`}
+                    className="text-neutral-700 hover:text-neutral-900 hover:underline"
+                  >
+                    {businessData.cityDisplay || businessData.city}
+                  </Link>
+                </h2>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {siblings.map((sibling) =>
+                    sibling.subdomain ? (
+                      <Link
+                        key={sibling._id}
+                        href={`https://${rootDomain}/${sibling.subdomain}`}
+                        className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-white px-4 py-3 hover:border-neutral-300 hover:shadow-sm transition-all"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-neutral-900 truncate">{sibling.name}</p>
+                          <p className="text-xs text-neutral-400 truncate">{sibling.address}</p>
+                        </div>
+                        {sibling.rating && (
+                          <span className="shrink-0 text-xs font-medium text-amber-600">
+                            ★ {sibling.rating.toFixed(1)}
+                          </span>
+                        )}
+                      </Link>
+                    ) : null
+                  )}
+                </div>
+                <div className="mt-4">
+                  <Link
+                    href={`/${businessData.city}/${businessData.categorySlug}`}
+                    className="text-sm text-neutral-500 hover:text-neutral-900 hover:underline"
+                  >
+                    View all {categoryDisplay || businessData.category} →
+                  </Link>
+                </div>
+              </div>
+            </section>
           )}
 
           <BusinessFooter showWatermark={showWatermark} />
