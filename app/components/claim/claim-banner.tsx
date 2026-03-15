@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -7,6 +8,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/app/components/ui/button";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useFunnelTracker } from "@/app/hooks/use-funnel-tracking";
 
 interface ClaimBannerProps {
   businessId: Id<"businesses">;
@@ -21,8 +23,19 @@ export function ClaimBanner({
 }: ClaimBannerProps) {
   const { signIn } = useAuthActions();
   const user = useQuery(api.auth.currentUser);
+  const { trackFunnelEvent } = useFunnelTracker();
+
+  useEffect(() => {
+    if (!isClaimed) {
+      trackFunnelEvent("claim_banner_shown", {
+        businessId,
+        dedupKey: `claim_banner_shown_${businessId}`,
+      });
+    }
+  }, [businessId, isClaimed, trackFunnelEvent]);
 
   const handleClaimClick = async () => {
+    trackFunnelEvent("claim_cta_clicked", { businessId });
     // Store business ID so AuthRedirectHandler can pick it up after sign-in
     sessionStorage.setItem("claimBusinessId", businessId);
     // Store the redirect target so the user lands on the preview page after auth
