@@ -8,6 +8,11 @@ const funnelEventValidator = v.union(
   v.literal("preview_page_viewed"),
   v.literal("publish_clicked"),
   v.literal("website_published"),
+  v.literal("claim_banner_shown"),
+  v.literal("claim_cta_clicked"),
+  v.literal("claim_page_viewed"),
+  v.literal("claim_initiated"),
+  v.literal("claim_completed"),
 );
 
 export const track = mutation({

@@ -10,7 +10,12 @@ type FunnelEvent =
   | "website_created"
   | "preview_page_viewed"
   | "publish_clicked"
-  | "website_published";
+  | "website_published"
+  | "claim_banner_shown"
+  | "claim_cta_clicked"
+  | "claim_page_viewed"
+  | "claim_initiated"
+  | "claim_completed";
 
 const SESSION_ID_KEY = "locosite_funnel_session_id";
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
